@@ -949,7 +949,7 @@
           <p>Raise ValApps with the right reference numbers, track due dates under the Construction Act, and log every pay less notice — or the absence of one. Retention dates across three simultaneous Tier-1 jobs, all in one place.</p>
           <ul class="ckl">
             <li class="ck-item"><span class="ck">✓</span>Payment application register with due date tracking</li>
-            <li class="ck-item"><span class="ck">✓</span>Automated overdue alerts and main contractor chasing</li>
+            <li class="ck-item"><span class="ck">✓</span>Overdue tracking and main contractor chasing <span style="font-family:var(--mono);font-size:.58rem;color:var(--orange);border:1px solid rgba(249,115,22,.3);padding:.1rem .35rem;border-radius:3px;margin-left:.3rem">ROADMAP</span></li>
             <li class="ck-item"><span class="ck">✓</span>Retention tracking with DLP release date reminders</li>
             <li class="ck-item"><span class="ck">✓</span>Xero and accounting software export</li>
           </ul>
@@ -1165,12 +1165,65 @@
     </div>
   </section>
 
+  <!-- ══ PLATFORM STATUS — TRANSPARENCY SECTION ══════════════════ -->
+  <section class="section" id="platform-status" style="padding:3.5rem 0;background:var(--bg1);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="wrap" style="max-width:780px">
+      <div class="text-center" style="margin-bottom:2rem">
+        <div style="font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);margin-bottom:.6rem">Platform status &middot; Updated March 2026</div>
+        <h2 style="font-family:var(--serif);font-size:clamp(1.4rem,2.5vw,1.8rem);color:var(--white);margin:0 0 .5rem">What&rsquo;s live. What&rsquo;s next.</h2>
+        <p style="font-size:.82rem;color:var(--off3);max-width:520px;margin:0 auto;line-height:1.6">CONTRAQ is in active development. We believe in telling you exactly what works today versus what&rsquo;s on the roadmap. No ambiguity.</p>
+      </div>
+
+      <!-- Status grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;font-family:var(--mono);font-size:.72rem">
+
+        <!-- LIVE features -->
+        <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius2);padding:1.2rem">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--lime);margin-bottom:.75rem">&#9679; Live now</div>
+          <div style="color:var(--off2);line-height:2">
+            <div>&#10003; AI Quote Builder (Claude API)</div>
+            <div>&#10003; Site Journal with AI EOT analysis</div>
+            <div>&#10003; Quote Book &amp; tender register</div>
+            <div>&#10003; Project tracking &amp; costs</div>
+            <div>&#10003; Engineer scheduler (drag &amp; drop)</div>
+            <div>&#10003; Certification expiry tracking</div>
+            <div>&#10003; CIS return preparation</div>
+            <div>&#10003; Invoice &amp; PO register</div>
+            <div>&#10003; Document upload &amp; folders</div>
+            <div>&#10003; Client &amp; supplier registers</div>
+          </div>
+        </div>
+
+        <!-- ROADMAP features -->
+        <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius2);padding:1.2rem">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);margin-bottom:.75rem">&#9679; On the roadmap</div>
+          <div style="color:var(--off4);line-height:2">
+            <div>&#9675; Automated email payment reminders</div>
+            <div>&#9675; Real-time cert expiry notifications</div>
+            <div>&#9675; HMRC CIS300 electronic filing</div>
+            <div>&#9675; AI document analysis (drawings, specs)</div>
+            <div>&#9675; Xero &amp; accounting integration</div>
+            <div>&#9675; SSO / Active Directory</div>
+            <div>&#9675; Procore marketplace integration</div>
+            <div>&#9675; Client portal (external access)</div>
+            <div>&#9675; Multi-company group view</div>
+            <div>&#9675; Public API &amp; custom integrations</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:1.2rem">
+        <p style="font-family:var(--mono);font-size:.62rem;color:var(--off4);line-height:1.6">Founding members get direct input on roadmap priorities. Features ship based on what the trade tells us matters most.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="pricing">
     <div class="wrap">
       <div class="pr-top">
         <div class="section-eyebrow" style="justify-content:center">Simple pricing</div>
         <h2 class="section-title">Pricing that pays for itself</h2>
-        <p class="lead" style="max-width:540px;margin:0 auto;">Most CONTRAQ customers recover their subscription cost within the first invoice they chase.</p>
+        <p class="lead" style="max-width:540px;margin:0 auto;">One chased invoice, one documented VO, one tracked retention release &mdash; any of those can cover your subscription.</p>
         <div class="ptog">
           <button class="ptbtn on" id="ptbtn-m" onclick="setPricingPeriod('monthly')">Monthly</button>
           <button class="ptbtn" id="ptbtn-y" onclick="setPricingPeriod('annually')">Annually <span class="badge g" style="font-size:.55rem;padding:.1rem .38rem;margin-left:.2rem">Save 20%</span></button>
@@ -1303,10 +1356,10 @@
             <li><span class="pck">✓</span>Quote Book &amp; tender register</li>
             <li><span class="pck">✓</span>Site Journal with AI EOT analysis</li>
             <li><span class="pck">✓</span>Engineer Scheduler (drag &amp; drop)</li>
-            <li><span class="pck">✓</span>Workforce &amp; certification alerts</li>
-            <li><span class="pcx">—</span><span style="color:var(--off4)">CIS compliance &amp; returns</span></li>
-            <li><span class="pcx">—</span><span style="color:var(--off4)">Finance module (invoices, POs, P&amp;L)</span></li>
-            <li><span class="pcx">—</span><span style="color:var(--off4)">Procore integration</span></li>
+            <li><span class="pck">✓</span>Certification expiry tracking</li>
+            <li><span class="pcx">&mdash;</span><span style="color:var(--off4)">CIS compliance &amp; returns</span></li>
+            <li><span class="pcx">&mdash;</span><span style="color:var(--off4)">Finance module (invoices, POs, P&amp;L)</span></li>
+            <li><span class="pcx">&mdash;</span><span style="color:var(--off4)">Procore integration</span></li>
           </ul>
           <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="selectPlanAndRegister('starter')">Start free trial →</button>
           <p style="text-align:center;font-size:.68rem;color:var(--off3);margin-top:.55rem;line-height:1.4">14-day free trial &nbsp;·&nbsp; No card required</p>
@@ -1317,7 +1370,7 @@
           <div style="font-size:.78rem;color:var(--off3);margin-bottom:.65rem;line-height:1.5">The full platform. Win more, chase everything, get paid faster.</div>
           <div style="display:flex;align-items:baseline;gap:.2rem;margin-bottom:.2rem"><span class="pnum" id="p2">£149</span><span class="pper">/mo</span></div>
           <div class="psub" id="ps2">billed monthly &nbsp;·&nbsp; up to 5 users</div>
-          <div style="font-size:.72rem;color:var(--lime);font-family:var(--mono);font-weight:600;margin:.45rem 0 .15rem">Avg. £1,800/mo recovered across your team</div>
+          <div style="font-size:.72rem;color:var(--lime);font-family:var(--mono);font-weight:600;margin:.45rem 0 .15rem">Full platform &mdash; every tool in one place</div>
           <div class="pdiv"></div>
           <ul class="pfl">
             <li><span class="pck">✓</span>Up to 5 user accounts</li>
@@ -1326,11 +1379,11 @@
             <li><span class="pck">✓</span>AI Quote Builder &amp; scope extraction</li>
             <li><span class="pck">✓</span>Site Journal with AI EOT analysis</li>
             <li><span class="pck">✓</span>Engineer Scheduler (drag &amp; drop)</li>
-            <li><span class="pck">✓</span>Workforce &amp; certification alerts</li>
+            <li><span class="pck">✓</span>Certification expiry tracking</li>
             <li><span class="pck">✓</span>CIS compliance &amp; returns</li>
             <li><span class="pck">✓</span>Invoice register, POs &amp; P&amp;L</li>
-            <li><span class="pck">✓</span>Xero &amp; accounting export</li>
-            <li><span class="pck">✓</span>Client portal &amp; document storage (25 GB)</li>
+            <li><span class="pck">✓</span>Xero &amp; accounting export <span style="font-family:var(--mono);font-size:.58rem;color:var(--orange);border:1px solid rgba(249,115,22,.3);padding:.1rem .35rem;border-radius:3px;margin-left:.2rem">ROADMAP</span></li>
+            <li><span class="pck">✓</span>Document storage (25 GB)</li>
             <li><span class="pck">✓</span>Priority email &amp; chat support</li>
           </ul>
           <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="selectPlanAndRegister('professional')">Start free trial →</button>
@@ -1341,7 +1394,7 @@
           <div style="font-size:.78rem;color:var(--off3);margin-bottom:.65rem;line-height:1.5">Dedicated support. Unlimited scale. Full commercial control.</div>
           <div style="display:flex;align-items:baseline;gap:.2rem;margin-bottom:.2rem"><span class="pnum" id="p3">£349</span><span class="pper">/mo</span></div>
           <div class="psub" id="ps3">billed monthly &nbsp;·&nbsp; unlimited users</div>
-          <div style="font-size:.72rem;color:var(--lime);font-family:var(--mono);font-weight:600;margin:.45rem 0 .15rem">Avg. £5,400/mo recovered at scale</div>
+          <div style="font-size:.72rem;color:var(--lime);font-family:var(--mono);font-weight:600;margin:.45rem 0 .15rem">Unlimited scale &mdash; enterprise-grade controls</div>
           <div class="pdiv"></div>
           <ul class="pfl">
             <li><span class="pck">✓</span>Unlimited users</li>
@@ -1350,11 +1403,11 @@
             <li><span class="pck">✓</span>Dedicated account manager</li>
             <li><span class="pck">✓</span>Custom onboarding &amp; training</li>
             <li><span class="pck">✓</span>Advanced reporting &amp; dashboards</li>
-            <li><span class="pck">✓</span>API access &amp; custom integrations</li>
-            <li><span class="pck">✓</span>SSO / Active Directory</li>
-            <li><span class="pck">✓</span>Procore marketplace integration</li>
+            <li><span class="pck">✓</span>API access &amp; custom integrations <span style="font-family:var(--mono);font-size:.58rem;color:var(--orange);border:1px solid rgba(249,115,22,.3);padding:.1rem .35rem;border-radius:3px;margin-left:.2rem">ROADMAP</span></li>
+            <li><span class="pck">✓</span>SSO / Active Directory <span style="font-family:var(--mono);font-size:.58rem;color:var(--orange);border:1px solid rgba(249,115,22,.3);padding:.1rem .35rem;border-radius:3px;margin-left:.2rem">ROADMAP</span></li>
+            <li><span class="pck">✓</span>Procore marketplace integration <span style="font-family:var(--mono);font-size:.58rem;color:var(--orange);border:1px solid rgba(249,115,22,.3);padding:.1rem .35rem;border-radius:3px;margin-left:.2rem">ROADMAP</span></li>
             <li><span class="pck">✓</span>SLA &amp; uptime guarantee (99.9%)</li>
-            <li><span class="pck">✓</span>Multi-company &amp; group view</li>
+            <li><span class="pck">✓</span>Multi-company &amp; group view <span style="font-family:var(--mono);font-size:.58rem;color:var(--orange);border:1px solid rgba(249,115,22,.3);padding:.1rem .35rem;border-radius:3px;margin-left:.2rem">ROADMAP</span></li>
             <li><span class="pck">✓</span>Phone support &amp; quarterly reviews</li>
           </ul>
           <button class="btn btn-primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#f97316,#ea580c);border:none;" onclick="openModal('modal-book-demo')">Talk to us →</button>
@@ -1413,7 +1466,7 @@
         </div>
         <div class="pfaq-item">
           <div class="pfaq-q" onclick="toggleFaq(this)">How quickly will I see a return on £149/month?<span class="pfaq-icon">+</span></div>
-          <div class="pfaq-a">Most Professional users recover their subscription cost within the first month. A single chased invoice that comes in 10 days sooner, one VO you document properly instead of writing off, or one retention release you track to its DLP date — any one of those typically covers several months of subscription. Our early adopters report an average £1,800/month in recovered revenue.</div>
+          <div class="pfaq-a">The platform is designed so that a single chased invoice that comes in 10 days sooner, one VO you document properly instead of writing off, or one retention release you track to its DLP date could each cover several months of subscription. We are collecting real ROI data from founding members and will publish verified figures once we have them.</div>
         </div>
         <div class="pfaq-item">
           <div class="pfaq-q" onclick="toggleFaq(this)">We only run 3–4 projects at a time. Is £149/month worth it?<span class="pfaq-icon">+</span></div>
@@ -1728,7 +1781,7 @@
         <div class="sec-card-icon" style="background:rgba(251,191,36,.1);">💾</div>
         <div class="sec-card-title">Backups &amp; Recovery</div>
         <div class="sec-card-body">
-          Automated database backups run <strong>every 24 hours</strong>, with point-in-time recovery available for the previous <strong>30 days</strong>. Backups are stored in a separate geographic region to your primary data.
+          Production infrastructure will include automated daily backups with point-in-time recovery and geo-redundant storage. Backup and recovery specifications will be published at launch.
           <br><br>
           In the event of a serious incident, our Recovery Time Objective (RTO) is <strong>under 4 hours</strong> and Recovery Point Objective (RPO) is <strong>under 24 hours</strong>.
           <span class="sec-card-tag" style="background:rgba(251,191,36,.1);color:var(--yellow);border:1px solid rgba(251,191,36,.2);">Daily backups · 30-day retention · Multi-region</span>
