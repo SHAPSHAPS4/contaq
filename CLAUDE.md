@@ -180,7 +180,7 @@ Open `http://localhost:8000` (or whichever port). The app needs HTTP serving for
 1. Trade-agnostic onboarding flow
 2. Focus Mode dashboard
 3. Activation checklist
-4. ROI calculator improvements
+4. ~~ROI calculator improvements~~ DONE — range-based outputs, cited sources, transparent methodology footnotes
 5. Hero section redesign
 6. Real Claude API integration (replacing simulated AI animations)
 7. ~~Social proof section~~ DONE — replaced fabricated testimonials with honest founding-member structure

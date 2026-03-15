@@ -164,7 +164,7 @@ function renderInvoices() {
   // ROI insight banner
   var _roiOvCount = INVOICES.filter(function(i){return i.status==='overdue';}).length;
   html += roiBanner('invoices', '⏱',
-    'Payment delays cost UK subcontractors an avg of £8,200/yr in interest and cash flow gaps',
+    'Payment delays create cash flow gaps \u2014 tracking overdue invoices helps you chase faster',
     _roiOvCount + ' invoices overdue · Total outstanding: £' + fmtNum(overdueAmt)
   );
 

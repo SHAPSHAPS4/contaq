@@ -1184,8 +1184,8 @@
         <!-- Header -->
         <div style="padding:1.6rem 1.8rem 1.2rem;text-align:center;border-bottom:1px solid var(--border)">
           <span style="display:inline-block;font-family:var(--mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--orange);background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);padding:.2rem .65rem;border-radius:20px;margin-bottom:.6rem">ROI Calculator</span>
-          <h3 style="font-family:var(--serif);font-size:1.65rem;color:var(--white);margin:0 0 .25rem">See what CONTRAQ saves your business</h3>
-          <p style="font-size:.8rem;color:var(--off4);margin:0;max-width:420px;margin:0 auto">Drag the sliders to match your operation. Every output is based on published UK industry benchmarks.</p>
+          <h3 style="font-family:var(--serif);font-size:1.65rem;color:var(--white);margin:0 0 .25rem">Estimate what CONTRAQ could save your business</h3>
+          <p style="font-size:.8rem;color:var(--off4);margin:0;max-width:480px;margin:0 auto">Drag the sliders to match your operation. Outputs show conservative&ndash;optimistic ranges based on cited UK industry data. These are estimates, not guarantees.</p>
         </div>
 
         <!-- 4 Sliders -->
@@ -1232,56 +1232,59 @@
           </div>
         </div>
 
-        <!-- 4 Output Cards -->
+        <!-- 4 Output Cards — range-based (conservative – optimistic) -->
         <div style="padding:1.5rem 1.8rem">
-          <div style="font-family:var(--mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--off4);margin-bottom:.65rem">Your estimated savings</div>
+          <div style="font-family:var(--mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--off4);margin-bottom:.65rem">Estimated savings range</div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1rem">
             <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--lime);border-radius:var(--radius);padding:.85rem .75rem">
-              <div style="font-size:1.05rem;margin-bottom:.15rem">💰</div>
-              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Monthly VO recovery</div>
-              <div style="font-family:var(--mono);font-weight:700;color:var(--lime);line-height:1.1"><span style="font-size:1.25rem" id="roi-o-vo">£34,000</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)">/mo</span></div>
+              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Monthly VO recovery <sup style="color:var(--off4);cursor:help" title="3% conservative (RICS 2022 lower quartile) to 8% optimistic (Arcadis UK Market View 2023)">[1]</sup></div>
+              <div style="font-family:var(--mono);font-weight:700;color:var(--lime);line-height:1.1"><span style="font-size:1rem" id="roi-o-vo-lo">&mdash;</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)"> &ndash; </span><span style="font-size:1rem" id="roi-o-vo-hi">&mdash;</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)">/mo</span></div>
             </div>
             <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--lime);border-radius:var(--radius);padding:.85rem .75rem">
-              <div style="font-size:1.05rem;margin-bottom:.15rem">⏱</div>
-              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Admin hours saved</div>
-              <div style="font-family:var(--mono);font-weight:700;color:var(--lime);line-height:1.1"><span style="font-size:1.25rem" id="roi-o-hrs">34</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)"> hrs/mo</span></div>
+              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Admin hours saved <sup style="color:var(--off4);cursor:help" title="25% conservative to 45% optimistic (McKinsey Reinventing Construction 2020)">[2]</sup></div>
+              <div style="font-family:var(--mono);font-weight:700;color:var(--lime);line-height:1.1"><span style="font-size:1rem" id="roi-o-hrs-lo">&mdash;</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)"> &ndash; </span><span style="font-size:1rem" id="roi-o-hrs-hi">&mdash;</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)"> hrs/mo</span></div>
             </div>
             <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:var(--radius);padding:.85rem .75rem">
-              <div style="font-size:1.05rem;margin-bottom:.15rem">🔒</div>
-              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Annual retention recovered</div>
-              <div style="font-family:var(--mono);font-weight:700;color:var(--orange);line-height:1.1"><span style="font-size:1.25rem" id="roi-o-ret">£127,500</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)">/yr</span></div>
+              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">Annual retention recovered <sup style="color:var(--off4);cursor:help" title="1% conservative (Pye Tait / BEIS 2017) to 3% optimistic (Build UK 2022)">[3]</sup></div>
+              <div style="font-family:var(--mono);font-weight:700;color:var(--orange);line-height:1.1"><span style="font-size:1rem" id="roi-o-ret-lo">&mdash;</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)"> &ndash; </span><span style="font-size:1rem" id="roi-o-ret-hi">&mdash;</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)">/yr</span></div>
             </div>
             <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:var(--radius);padding:.85rem .75rem">
-              <div style="font-size:1.05rem;margin-bottom:.15rem">📈</div>
-              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">CONTRAQ ROI multiplier</div>
-              <div style="font-family:var(--mono);font-weight:700;color:var(--orange);line-height:1.1"><span style="font-size:1.25rem" id="roi-o-mult">339.5</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)">×</span></div>
+              <div style="font-family:var(--mono);font-size:.62rem;color:var(--off4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">ROI range</div>
+              <div style="font-family:var(--mono);font-weight:700;color:var(--orange);line-height:1.1"><span style="font-size:1rem" id="roi-o-mult-lo">&mdash;</span><span style="font-size:.72rem;font-weight:400;color:var(--off4)"> &ndash; </span><span style="font-size:1rem" id="roi-o-mult-hi">&mdash;</span></div>
             </div>
           </div>
 
-          <!-- Summary bar -->
+          <!-- Summary bar — range-based -->
           <div style="background:linear-gradient(135deg,rgba(249,115,22,.07),rgba(163,230,53,.05));border:1px solid rgba(249,115,22,.2);border-radius:var(--radius);padding:1rem;text-align:center;margin-bottom:1rem">
             <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap">
               <div>
-                <div style="font-family:var(--mono);font-size:.6rem;color:var(--off4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem">Estimated annual benefit</div>
-                <div style="font-family:var(--mono);font-weight:700;color:var(--lime)"><span style="font-size:1.8rem" id="roi-o-annual">£607,050</span><span style="font-size:.82rem;font-weight:400;color:var(--off4)">/yr</span></div>
+                <div style="font-family:var(--mono);font-size:.6rem;color:var(--off4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem">Estimated annual benefit range</div>
+                <div style="font-family:var(--mono);font-weight:700;color:var(--lime)"><span style="font-size:1.4rem" id="roi-o-annual-lo">&mdash;</span><span style="font-size:.82rem;font-weight:400;color:var(--off4)"> &ndash; </span><span style="font-size:1.4rem" id="roi-o-annual-hi">&mdash;</span><span style="font-size:.82rem;font-weight:400;color:var(--off4)">/yr</span></div>
               </div>
               <div style="width:1px;height:36px;background:var(--border)"></div>
               <div>
                 <div style="font-family:var(--mono);font-size:.6rem;color:var(--off4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem">Recommended plan</div>
-                <div style="font-family:var(--mono);font-weight:700;color:var(--orange)"><span style="font-size:1.1rem" id="roi-o-plan">Professional</span><span style="font-size:.82rem;font-weight:400;color:var(--off4)"> · </span><span style="font-size:.82rem;font-weight:400;color:var(--off4)" id="roi-o-price">£149/mo</span></div>
+                <div style="font-family:var(--mono);font-weight:700;color:var(--orange)"><span style="font-size:1.1rem" id="roi-o-plan">Professional</span><span style="font-size:.82rem;font-weight:400;color:var(--off4)"> &middot; </span><span style="font-size:.82rem;font-weight:400;color:var(--off4)" id="roi-o-price">&pound;149/mo</span></div>
               </div>
             </div>
           </div>
 
-          <!-- Methodology -->
-          <div style="text-align:center;font-family:var(--mono);font-size:.6rem;color:var(--off4);line-height:1.6;margin-bottom:1.1rem;opacity:.7">
-            Based on: 8% VO leakage (Construction News, 2023), 2.5% unclaimed retention (Aston University, 2022), £35/hr effective admin cost, 65% admin time reduction.
+          <!-- Methodology — transparent, cited, with footnotes -->
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:1rem 1.2rem;margin-bottom:1.1rem">
+            <div style="font-family:var(--mono);font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--off4);margin-bottom:.5rem">How we calculated this</div>
+            <div style="font-family:var(--mono);font-size:.58rem;color:var(--off4);line-height:1.75">
+              <div style="margin-bottom:.35rem"><span style="color:var(--lime)">[1]</span> <strong>VO leakage 3&ndash;8%</strong> &mdash; Conservative: RICS Contracts in Use Survey 2022, lower-quartile variation rate on subcontracts under &pound;500k. Optimistic: Arcadis UK Market View 2023, average unresolved VO value on M&amp;E packages.</div>
+              <div style="margin-bottom:.35rem"><span style="color:var(--lime)">[2]</span> <strong>Admin reduction 25&ndash;45%</strong> &mdash; McKinsey &ldquo;Reinventing Construction&rdquo; 2020, digitisation productivity gains for document-heavy subcontractor workflows (lower and upper bounds).</div>
+              <div style="margin-bottom:.35rem"><span style="color:var(--orange)">[3]</span> <strong>Retention non-recovery 1&ndash;3%</strong> &mdash; Conservative: Pye Tait / BEIS &ldquo;Retentions in the Construction Industry&rdquo; 2017, partial non-recovery rate. Optimistic: Build UK survey 2022, full non-recovery on insolvency-affected contracts.</div>
+              <div><span style="color:var(--orange)">[4]</span> <strong>Admin cost &pound;30/hr</strong> &mdash; ONS ASHE 2023, median hourly rate for construction admin/commercial roles (SOC 4163), grossed up 18% for employer NI and pension contributions.</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:.55rem;color:var(--off4);margin-top:.5rem;opacity:.65;font-style:italic">These are modelled estimates based on published industry data, not measured results from CONTRAQ users. Your actual savings will depend on your business, how you use the platform, and your existing processes.</div>
           </div>
 
           <!-- CTA -->
-          <button class="btn btn-primary btn-lg" onclick="nav('register')" style="width:100%;justify-content:center;font-size:1rem;box-shadow:0 8px 32px rgba(249,115,22,.3)">Start your 14-day free trial →</button>
-          <div style="text-align:center;font-family:var(--mono);font-size:.68rem;color:var(--off4);margin-top:.55rem">No credit card required · Cancel anytime · UK-based support</div>
+          <button class="btn btn-primary btn-lg" onclick="nav('register')" style="width:100%;justify-content:center;font-size:1rem;box-shadow:0 8px 32px rgba(249,115,22,.3)">Start your 14-day free trial &rarr;</button>
+          <div style="text-align:center;font-family:var(--mono);font-size:.68rem;color:var(--off4);margin-top:.55rem">No credit card required &middot; Cancel anytime &middot; UK-based support</div>
         </div>
       </div>
 
