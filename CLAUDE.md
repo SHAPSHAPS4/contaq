@@ -183,9 +183,9 @@ Open `http://localhost:8000` (or whichever port). The app needs HTTP serving for
 4. ROI calculator improvements
 5. Hero section redesign
 6. Real Claude API integration (replacing simulated AI animations)
-7. Social proof section
+7. ~~Social proof section~~ DONE — replaced fabricated testimonials with honest founding-member structure
 8. Pricing framing improvements
 9. ROI banners throughout platform
 10. Empty state designs
 11. Contextual help tooltips
-12. Founding Member programme (replacing fabricated testimonials)
+12. ~~Founding Member programme (replacing fabricated testimonials)~~ DONE — fabricated testimonials removed, placeholder slots for real beta feedback added

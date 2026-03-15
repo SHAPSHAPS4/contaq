@@ -65,6 +65,23 @@ function initFoundingMember() {
     }).join('');
   }
 
+  /* ── Early-access counter in #testi section (uses same real data) ── */
+  var eaTaken = document.getElementById('ea-taken');
+  var eaFill  = document.getElementById('ea-fill-bar');
+  if (eaTaken) eaTaken.textContent = taken;
+  if (eaFill) {
+    eaFill.style.width = '0%';
+    var eaObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          setTimeout(function() { eaFill.style.width = pct + '%'; }, 220);
+          eaObs.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    eaObs.observe(eaFill);
+  }
+
   /* Soft counter: if very close to full, show a subtle "n people viewed" nudge */
   if (left <= 5 && left > 0) {
     var ctaWrap = document.querySelector('.fm-cta-wrap');
