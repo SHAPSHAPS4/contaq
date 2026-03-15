@@ -1188,9 +1188,25 @@ function qbStartAnalysis() {
       }
     }, 4000);
 
+    /* Require API key — no silent fallback to demo data */
+    var _apiKey = STATE.anthropicApiKey || '';
+    if (!_apiKey) {
+      clearInterval(_apiStepTimer);
+      docCount.textContent = 'API key not configured \u2014 go to Settings \u2192 API & Integrations';
+      docCount.style.color = 'var(--orange)';
+      showToast('Configure your Anthropic API key in Settings \u2192 API & Integrations to use the AI Quote Builder.', 'error');
+      _qbRunDemoFallback(activateStep, completeAll);
+      return;
+    }
+
     fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 16000,
@@ -1434,7 +1450,8 @@ function _qbRunDemoFallback(activateStep, completeAll) {
   });
   setTimeout(function() {
     completeAll();
-    document.getElementById('qb-ai-doc-count').textContent = AI_EXTRACTION_DATA.length + ' demo items loaded';
+    document.getElementById('qb-ai-doc-count').textContent = '\u26a0 DEMO MODE \u2014 ' + AI_EXTRACTION_DATA.length + ' sample items loaded (not from your documents)';
+    document.getElementById('qb-ai-doc-count').style.color = 'var(--yellow)';
     setTimeout(function() { qbShowExtractionResults(); }, 600);
   }, steps.length * stepDelay + 200);
 }
@@ -1487,6 +1504,18 @@ function qbShowExtractionResults() {
   var srcHtml = '\uD83D\uDCCE Sources: ';
   _qbFiles.forEach(function(f,i){ srcHtml += f.name + (i<_qbFiles.length-1?' \u00B7 ':''); });
   document.getElementById('qb-ext-sources').innerHTML = srcHtml;
+
+  /* AI disclaimer — always shown */
+  var disclaimerEl = document.getElementById('qb-ai-disclaimer');
+  if (disclaimerEl) disclaimerEl.style.display = '';
+  else {
+    var _disc = document.createElement('div');
+    _disc.id = 'qb-ai-disclaimer';
+    _disc.style.cssText = 'background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.15);border-radius:8px;padding:.65rem .85rem;margin-top:.6rem;font-size:.65rem;color:var(--off4);line-height:1.55;font-style:italic';
+    _disc.textContent = '\u26a0 All quantities and recommendations are AI-generated estimates based on the uploaded documents and the Contraq Data Bank (v' + KB_VERSION + ', ' + KB_VERSION_SOURCES + ' sources). Final tender pricing and compliance remain the responsibility of the user. Always verify against the original drawings and specification.';
+    var srcEl = document.getElementById('qb-ext-sources');
+    if (srcEl && srcEl.parentNode) srcEl.parentNode.insertBefore(_disc, srcEl.nextSibling);
+  }
 
   var confTips = {
     high:"High confidence — value extracted directly from drawing annotations or matched against specification and Price Book. Standard review recommended.",

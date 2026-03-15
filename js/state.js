@@ -63,8 +63,15 @@ var STATE = {
     addEngineer: false,
     raiseInvoice: false
   },
-  aiQuotesUsedThisMonth: 0
+  aiQuotesUsedThisMonth: 0,
+  anthropicApiKey: ''
 };
+
+/* ── Load persisted API key from localStorage ──────────────── */
+try {
+  var _savedKey = localStorage.getItem('contraq_anthropic_key');
+  if (_savedKey) STATE.anthropicApiKey = _savedKey;
+} catch(e) { /* localStorage unavailable */ }
 
 /* ══════════════════════════════════════════════════════════════
    PLAN LIMITS & SOFT GATES

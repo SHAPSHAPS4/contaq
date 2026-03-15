@@ -336,12 +336,25 @@ function renderSettingsSection(user) {
       + '<button class="btn btn-primary btn-sm" onclick="STATE.plGoalRevenue=parseFloat(document.getElementById(\'set-goal-rev\').value)||STATE.plGoalRevenue;STATE.plGoalMargin=parseFloat(document.getElementById(\'set-goal-mgn\').value)||STATE.plGoalMargin;STATE.plGoalProfit=parseFloat(document.getElementById(\'set-goal-prf\').value)||STATE.plGoalProfit;showToast(\'Goals saved.\',\'success\')">Save goals</button>'
       + '&nbsp;<button class="btn btn-dark btn-sm" onclick="dashNav(\'finance\')">View P&amp;L →</button>';
   }
-  if (s==='api') return '<h3>API &amp; Integrations</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Connect CONTRAQ with your other tools.</p>'
-    + '<div style="margin-bottom:1rem;font-family:var(--mono);font-size:.6rem;color:var(--off4);text-transform:uppercase;letter-spacing:.08em">Your API keys</div>'
-    + '<div class="api-key-box"><span>sk_live_CQ_••••••••••••••••••••••••••••••••</span><button class="btn btn-dark btn-xs" onclick="showToast(\'Key copied to clipboard.\',\'success\')">Copy</button></div>'
-    + '<div class="api-key-box"><span>sk_test_CQ_••••••••••••••••••••••••••••••••</span><button class="btn btn-dark btn-xs" onclick="showToast(\'Key copied.\',\'success\')">Copy</button></div>'
+  if (s==='api') {
+    var _hasKey = STATE.anthropicApiKey && STATE.anthropicApiKey.length > 8;
+    var _maskedKey = _hasKey ? STATE.anthropicApiKey.substring(0,8) + '\u2022'.repeat(Math.max(0,STATE.anthropicApiKey.length-12)) + STATE.anthropicApiKey.slice(-4) : '';
+    return '<h3>API &amp; Integrations</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Connect CONTRAQ with your other tools.</p>'
+    + '<div style="background:var(--bg3);border:1.5px solid '+(_hasKey?'var(--lime)':'var(--orange)')+';border-radius:var(--radius2);padding:1.2rem;margin-bottom:1.5rem">'
+    + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem"><span style="font-size:1rem">'+(_hasKey?'\u2705':'\u26a0\ufe0f')+'</span><span style="font-family:var(--mono);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+(_hasKey?'var(--lime)':'var(--orange)')+'">Claude AI API Key '+(_hasKey?'\u2014 Connected':'\u2014 Not configured')+'</span></div>'
+    + '<p style="font-size:.78rem;color:var(--off3);margin:0 0 .8rem;line-height:1.5">Required for AI Quote Builder and Site Journal EOT analysis. Get your key from <span style="color:var(--orange)">console.anthropic.com</span></p>'
+    + '<div class="field" style="margin-bottom:.6rem"><label style="font-size:.72rem;color:var(--off4)">Anthropic API Key</label>'
+    + '<input id="settings-anthropic-key" type="password" value="'+(STATE.anthropicApiKey||'')+'" placeholder="sk-ant-api03-..." style="font-family:var(--mono);font-size:.78rem;background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem .65rem;border-radius:var(--radius2);width:100%"/></div>'
+    + '<div style="display:flex;gap:.5rem;align-items:center">'
+    + '<button class="btn btn-primary btn-sm" onclick="saveAnthropicKey()">Save API Key</button>'
+    + (_hasKey ? '<button class="btn btn-danger btn-sm" onclick="clearAnthropicKey()">Remove Key</button>' : '')
+    + '<span id="api-key-status" style="font-family:var(--mono);font-size:.68rem;color:var(--off4)"></span>'
+    + '</div>'
+    + '<p style="font-size:.65rem;color:var(--off4);margin:.6rem 0 0;line-height:1.4;font-style:italic">Your API key is stored locally in your browser only. It is never sent to CONTRAQ servers \u2014 API calls go directly from your browser to Anthropic.</p>'
+    + '</div>'
     + '<div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)"><div style="font-size:.82rem;font-weight:600;margin-bottom:1rem">Integrations</div>'
     + ['Xero accounting','QuickBooks','Sage 50','Salesforce','Microsoft 365'].map(function(i){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="font-size:.82rem">'+i+'</span><button class="btn btn-dark btn-xs" onclick="showToast(\''+i+' connected!\',\'success\')">Connect</button></div>';}).join('')+'</div>';
+  }
   if (s==='notifications') return '<h3>Notifications</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Choose what you get notified about.</p>'
     + [['Invoice overdue','Send email when an invoice passes its due date',true],['Payment received','Email when an invoice is marked as paid',true],['Tender deadline','Remind me 48h before a tender submission',true],['PO delivery','Alert when a purchase order is delivered',false],['Weekly summary','Monday morning digest of last week',true]].map(function(n){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border)"><div><div style="font-size:.84rem;font-weight:600">'+n[0]+'</div><div style="font-size:.72rem;color:var(--off4)">'+n[1]+'</div></div><div style="width:38px;height:22px;border-radius:11px;background:'+(n[2]?'var(--orange)':'var(--bg4)')+';border:1.5px solid '+(n[2]?'var(--orange)':'var(--border)')+';cursor:pointer;position:relative;flex-shrink:0" onclick="showToast(\'Notification settings saved.\',\'success\')"><div style="position:absolute;top:2px;left:'+(n[2]?'16px':'2px')+';width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s"></div></div></div>';}).join('')
     + '<button class="btn btn-primary btn-sm" style="margin-top:1rem" onclick="showToast(\'Notification preferences saved.\',\'success\')">Save preferences</button>';
@@ -357,6 +370,27 @@ function renderSettingsSection(user) {
 function updateUser(field, val) {
   if (!STATE.user) STATE.user = Object.assign({},DEMO_USER);
   STATE.user[field] = val;
+}
+
+/* ── Anthropic API Key management ──────────────────────────── */
+function saveAnthropicKey() {
+  var input = document.getElementById('settings-anthropic-key');
+  var key = (input && input.value || '').trim();
+  if (!key) { showToast('Please enter an API key.', 'error'); return; }
+  if (!/^sk-/.test(key)) { showToast('Key should start with sk-. Check your Anthropic console.', 'error'); return; }
+  STATE.anthropicApiKey = key;
+  try { localStorage.setItem('contraq_anthropic_key', key); } catch(e) {}
+  showToast('API key saved. AI Quote Builder and Journal EOT are now live.', 'success');
+  var status = document.getElementById('api-key-status');
+  if (status) status.textContent = '\u2713 Saved';
+  switchSettings('api');
+}
+
+function clearAnthropicKey() {
+  STATE.anthropicApiKey = '';
+  try { localStorage.removeItem('contraq_anthropic_key'); } catch(e) {}
+  showToast('API key removed.', 'success');
+  switchSettings('api');
 }
 
 /* ══════════════════════════════════════════════════════════════

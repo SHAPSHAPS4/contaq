@@ -408,13 +408,20 @@ async function qfStartAnalysis() {
     ].join('\n');
 
     /* STEP 3 — Call Claude API */
-    setStep(42, 'Calling Claude AI (UK construction specialist)…');
+    setStep(42, 'Calling Claude AI (UK construction specialist)\u2026');
+
+    var _qfApiKey = STATE.anthropicApiKey || '';
+    if (!_qfApiKey) {
+      throw new Error('API key not configured \u2014 go to Settings \u2192 API & Integrations');
+    }
 
     var apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
+        'x-api-key': _qfApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
@@ -425,7 +432,7 @@ async function qfStartAnalysis() {
             role: 'user',
             content: [
               contentBlock,
-              { type: 'text', text: 'Please analyse this document and return the JSON object with extracted construction project data. No extra text — JSON only.' }
+              { type: 'text', text: 'Please analyse this document and return the JSON object with extracted construction project data. No extra text \u2014 JSON only.' }
             ]
           }
         ]

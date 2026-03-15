@@ -153,9 +153,19 @@ async function journalAIAnalyse() {
   ].join('\n');
 
   try {
+    var _jnlApiKey = STATE.anthropicApiKey || '';
+    if (!_jnlApiKey) {
+      throw new Error('API key not configured \u2014 go to Settings \u2192 API & Integrations');
+    }
+
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _jnlApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,

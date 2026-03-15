@@ -182,7 +182,7 @@ Open `http://localhost:8000` (or whichever port). The app needs HTTP serving for
 3. Activation checklist
 4. ~~ROI calculator improvements~~ DONE — range-based outputs, cited sources, transparent methodology footnotes
 5. Hero section redesign
-6. Real Claude API integration (replacing simulated AI animations)
+6. ~~Real Claude API integration (replacing simulated AI animations)~~ DONE — API key config in Settings, x-api-key headers on all 3 endpoints (quotes, quote_files, journal), localStorage persistence, demo fallback clearly labelled
 7. ~~Social proof section~~ DONE — replaced fabricated testimonials with honest founding-member structure
 8. Pricing framing improvements
 9. ROI banners throughout platform
