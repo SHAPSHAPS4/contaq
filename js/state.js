@@ -67,10 +67,14 @@ var STATE = {
   anthropicApiKey: ''
 };
 
-/* ── Load persisted API key from localStorage ──────────────── */
+/* ── Load persisted settings from localStorage ─────────────── */
 try {
   var _savedKey = localStorage.getItem('contraq_anthropic_key');
   if (_savedKey) STATE.anthropicApiKey = _savedKey;
+  var _savedNotif = localStorage.getItem('contraq_notif_prefs');
+  if (_savedNotif) STATE.notifPrefs = JSON.parse(_savedNotif);
+  var _savedPlatform = localStorage.getItem('contraq_platform_settings');
+  if (_savedPlatform) STATE.platformSettings = JSON.parse(_savedPlatform);
 } catch(e) { /* localStorage unavailable */ }
 
 /* ══════════════════════════════════════════════════════════════

@@ -279,11 +279,14 @@ function generateReport(name) {
 ══════════════════════════════════════════════════════════════ */
 function renderSettings() {
   var user = STATE.user||DEMO_USER;
+  var isAdmin = user.role === 'admin';
+  var sections = ['profile','billing','team','goals','notifications','api','security'];
+  if (isAdmin) sections.push('platform');
   var html = '<div class="settings-grid">';
   html += '<div class="settings-nav">';
-  ['profile','billing','team','goals','notifications','api','security'].forEach(function(s){
-    var labels = {profile:'My profile',billing:'Billing & plan',team:'Team & users',goals:'Financial goals',notifications:'Notifications',api:'API & integrations',security:'Security'};
-    html += '<div class="settings-nav-item'+(STATE.settingsSection===s?' active':'')+'" onclick="switchSettings(\''+s+'\')">'+labels[s]+'</div>';
+  var labels = {profile:'My profile',billing:'Billing & plan',team:'Team & users',goals:'Financial goals',notifications:'Notifications',api:'API & integrations',security:'Security',platform:'Platform settings'};
+  sections.forEach(function(s){
+    html += '<div class="settings-nav-item'+(STATE.settingsSection===s?' active':'')+'" onclick="switchSettings(\''+s+'\')">'+(s==='platform'?'\u2699\ufe0f ':'')+labels[s]+'</div>';
   });
   html += '</div><div id="settings-main">';
   html += renderSettingsSection(user);
@@ -294,9 +297,11 @@ function renderSettings() {
 function switchSettings(section) {
   STATE.settingsSection = section;
   var user = STATE.user||DEMO_USER;
+  var _swLabels = {profile:'My profile',billing:'Billing & plan',team:'Team & users',goals:'Financial goals',notifications:'Notifications',api:'API & integrations',security:'Security',platform:'Platform settings'};
   document.querySelectorAll('.settings-nav-item').forEach(function(i){i.classList.remove('active');});
   document.querySelectorAll('.settings-nav-item').forEach(function(i){
-    if (i.textContent===({profile:'My profile',billing:'Billing & plan',team:'Team & users',goals:'Financial goals',notifications:'Notifications',api:'API & integrations',security:'Security'})[section]) i.classList.add('active');
+    var txt = i.textContent.replace(/^\u2699\ufe0f\s*/,'');
+    if (txt === _swLabels[section]) i.classList.add('active');
   });
   var main = document.getElementById('settings-main');
   if (main) main.innerHTML = renderSettingsSection(user);
@@ -305,10 +310,14 @@ function switchSettings(section) {
 function renderSettingsSection(user) {
   var s = STATE.settingsSection;
   if (s==='profile') return '<h3>My Profile</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Update your personal and company details.</p>'
-    + '<div class="form-row"><div class="field"><label>First name</label><input value="'+user.fname+'" oninput="updateUser(\'fname\',this.value)"/></div><div class="field"><label>Last name</label><input value="'+(user.lname||'Mitchell')+'" oninput="updateUser(\'lname\',this.value)"/></div></div>'
-    + '<div class="field"><label>Email</label><input value="'+user.email+'" type="email"/></div>'
-    + '<div class="field"><label>Company name</label><input value="'+(user.company||'Mitchell Insulation Ltd')+'"/></div>'
-    + '<button class="btn btn-primary btn-sm" onclick="showToast(\'Profile saved.\',\'success\')">Save changes</button>';
+    + '<div class="form-row"><div class="field"><label>First name</label><input id="set-fname" value="'+user.fname+'" /></div><div class="field"><label>Last name</label><input id="set-lname" value="'+(user.lname||'Mitchell')+'" /></div></div>'
+    + '<div class="field"><label>Email</label><input id="set-email" value="'+user.email+'" type="email"/></div>'
+    + '<div class="field"><label>Company name</label><input id="set-company" value="'+(user.company||'Mitchell Insulation Ltd')+'"/></div>'
+    + '<div class="field"><label>Phone</label><input id="set-phone" value="'+(user.phone||'')+'" placeholder="07xxx xxx xxx"/></div>'
+    + '<div class="field"><label>UTR number</label><input id="set-utr" value="'+(user.utr||'')+'" placeholder="10-digit Unique Taxpayer Reference" maxlength="10" style="font-family:var(--mono)"/></div>'
+    + '<div class="field"><label>VAT number</label><input id="set-vat" value="'+(user.vat||'')+'" placeholder="GB 123 4567 89" style="font-family:var(--mono)"/></div>'
+    + '<div class="field"><label>CIS registered</label><select id="set-cis" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem .65rem;border-radius:var(--radius2);width:100%"><option value="yes"'+(user.cisRegistered!==false?' selected':'')+'>Yes</option><option value="no"'+(user.cisRegistered===false?' selected':'')+'>No</option></select></div>'
+    + '<button class="btn btn-primary btn-sm" onclick="saveProfile()">Save changes</button>';
   if (s==='billing') return '<h3>Billing &amp; Plan</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Manage your subscription and payment method.</p>'
     + '<div class="billing-card" style="border-color:var(--orange)"><div class="billing-plan-name">CONTRAQ '+planLabels[user.plan||'professional']+'</div><div class="billing-plan-meta">14-day free trial — '+( user.trialDays||5)+' days remaining &nbsp;·&nbsp; No charge until trial ends</div></div>'
     + '<div class="billing-card" style="margin-top:.75rem"><div style="font-size:.82rem;font-weight:600;margin-bottom:.3rem">Payment method</div><div class="billing-plan-meta">No payment method on file — add one before your trial ends.</div><button class="btn btn-primary btn-sm" style="margin-top:.75rem" onclick="nav(\'stripe\')">Add payment method</button></div>'
@@ -355,15 +364,60 @@ function renderSettingsSection(user) {
     + '<div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)"><div style="font-size:.82rem;font-weight:600;margin-bottom:1rem">Integrations</div>'
     + ['Xero accounting','QuickBooks','Sage 50','Salesforce','Microsoft 365'].map(function(i){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="font-size:.82rem">'+i+'</span><button class="btn btn-dark btn-xs" onclick="showToast(\''+i+' connected!\',\'success\')">Connect</button></div>';}).join('')+'</div>';
   }
-  if (s==='notifications') return '<h3>Notifications</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Choose what you get notified about.</p>'
-    + [['Invoice overdue','Send email when an invoice passes its due date',true],['Payment received','Email when an invoice is marked as paid',true],['Tender deadline','Remind me 48h before a tender submission',true],['PO delivery','Alert when a purchase order is delivered',false],['Weekly summary','Monday morning digest of last week',true]].map(function(n){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border)"><div><div style="font-size:.84rem;font-weight:600">'+n[0]+'</div><div style="font-size:.72rem;color:var(--off4)">'+n[1]+'</div></div><div style="width:38px;height:22px;border-radius:11px;background:'+(n[2]?'var(--orange)':'var(--bg4)')+';border:1.5px solid '+(n[2]?'var(--orange)':'var(--border)')+';cursor:pointer;position:relative;flex-shrink:0" onclick="showToast(\'Notification settings saved.\',\'success\')"><div style="position:absolute;top:2px;left:'+(n[2]?'16px':'2px')+';width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s"></div></div></div>';}).join('')
-    + '<button class="btn btn-primary btn-sm" style="margin-top:1rem" onclick="showToast(\'Notification preferences saved.\',\'success\')">Save preferences</button>';
+  if (s==='notifications') {
+    if (!STATE.notifPrefs) STATE.notifPrefs = {invoiceOverdue:true,paymentReceived:true,tenderDeadline:true,poDelivery:false,weeklySummary:true,certExpiry:true,cisDeadline:true};
+    var _nItems = [
+      ['invoiceOverdue','Invoice overdue','Send email when an invoice passes its due date'],
+      ['paymentReceived','Payment received','Email when an invoice is marked as paid'],
+      ['tenderDeadline','Tender deadline','Remind me 48h before a tender submission'],
+      ['poDelivery','PO delivery','Alert when a purchase order is delivered'],
+      ['weeklySummary','Weekly summary','Monday morning digest of last week'],
+      ['certExpiry','Cert expiry warning','Alert 30/60/90 days before a certification expires'],
+      ['cisDeadline','CIS deadline','Remind me 5 days before the monthly CIS300 filing deadline']
+    ];
+    return '<h3>Notifications</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Choose what you get notified about. Changes save automatically.</p>'
+    + _nItems.map(function(n){var on=STATE.notifPrefs[n[0]];return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border)"><div><div style="font-size:.84rem;font-weight:600">'+n[1]+'</div><div style="font-size:.72rem;color:var(--off4)">'+n[2]+'</div></div><div style="width:38px;height:22px;border-radius:11px;background:'+(on?'var(--orange)':'var(--bg4)')+';border:1.5px solid '+(on?'var(--orange)':'var(--border)')+';cursor:pointer;position:relative;flex-shrink:0" onclick="toggleNotifPref(\''+n[0]+'\')"><div style="position:absolute;top:2px;left:'+(on?'16px':'2px')+';width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s"></div></div></div>';}).join('');
+  }
   if (s==='security') return '<h3>Security</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Manage your password and account security.</p>'
     + '<div class="field"><label>Current password</label><input type="password" placeholder="••••••••"/></div>'
     + '<div class="field"><label>New password</label><input type="password" placeholder="••••••••"/></div>'
     + '<div class="field"><label>Confirm new password</label><input type="password" placeholder="••••••••"/></div>'
     + '<button class="btn btn-primary btn-sm" onclick="showToast(\'Password updated.\',\'success\')">Update password</button>'
     + '<div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)"><div style="font-size:.82rem;font-weight:600;color:var(--red);margin-bottom:.5rem">Danger zone</div><button class="btn btn-danger btn-sm" onclick="doLogout()">Sign out of all devices</button></div>';
+  if (s==='platform') {
+    if (!STATE.platformSettings) {
+      STATE.platformSettings = {companyName:'Mitchell Insulation Ltd',tradePrimary:'insulation',defaultRetention:5,defaultPaymentTerms:30,defaultContractForm:'JCT',cisRegistered:true,vatRegistered:true,vatRate:20,currency:'GBP',dateFormat:'DD/MM/YYYY',aiModel:'claude-sonnet-4-20250514',aiMaxTokens:16000,quoteDisclaimer:'All quantities are AI-generated estimates. Final pricing remains the responsibility of the user.',showRoiBanners:true,showHelpTips:true,demoMode:false};
+      try { var _ps = localStorage.getItem('contraq_platform_settings'); if (_ps) STATE.platformSettings = JSON.parse(_ps); } catch(e) {}
+    }
+    var ps = STATE.platformSettings;
+    return '<h3>Platform Settings</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Admin-only. Configure site-wide defaults that apply across all users and modules.</p>'
+
+    /* Company defaults */
+    + '<div style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--off4);margin-bottom:.6rem">Company defaults</div>'
+    + '<div class="form-row"><div class="field"><label>Company name</label><input id="ps-company" value="'+ps.companyName+'"/></div><div class="field"><label>Primary trade</label><select id="ps-trade" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);width:100%"><option value="insulation"'+(ps.tradePrimary==='insulation'?' selected':'')+'>Insulation &amp; lagging</option><option value="mechanical"'+(ps.tradePrimary==='mechanical'?' selected':'')+'>Mechanical</option><option value="electrical"'+(ps.tradePrimary==='electrical'?' selected':'')+'>Electrical</option><option value="hvac"'+(ps.tradePrimary==='hvac'?' selected':'')+'>HVAC / Ductwork</option><option value="plumbing"'+(ps.tradePrimary==='plumbing'?' selected':'')+'>Plumbing</option><option value="fire-protection"'+(ps.tradePrimary==='fire-protection'?' selected':'')+'>Fire protection</option></select></div></div>'
+
+    /* Financial defaults */
+    + '<div style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--off4);margin:1.2rem 0 .6rem">Financial defaults</div>'
+    + '<div class="form-row"><div class="field"><label>Default retention (%)</label><input id="ps-retention" type="number" min="0" max="10" step="0.5" value="'+ps.defaultRetention+'" style="font-family:var(--mono)"/></div><div class="field"><label>Default payment terms (days)</label><input id="ps-payterms" type="number" min="7" max="120" value="'+ps.defaultPaymentTerms+'" style="font-family:var(--mono)"/></div></div>'
+    + '<div class="form-row"><div class="field"><label>Default contract form</label><select id="ps-contract" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);width:100%"><option value="JCT"'+(ps.defaultContractForm==='JCT'?' selected':'')+'>JCT</option><option value="NEC3"'+(ps.defaultContractForm==='NEC3'?' selected':'')+'>NEC3</option><option value="NEC4"'+(ps.defaultContractForm==='NEC4'?' selected':'')+'>NEC4</option><option value="DOM/1"'+(ps.defaultContractForm==='DOM/1'?' selected':'')+'>DOM/1</option></select></div><div class="field"><label>VAT rate (%)</label><input id="ps-vat" type="number" min="0" max="25" value="'+ps.vatRate+'" style="font-family:var(--mono)"/></div></div>'
+
+    /* AI configuration */
+    + '<div style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--off4);margin:1.2rem 0 .6rem">AI configuration</div>'
+    + '<div class="form-row"><div class="field"><label>AI model</label><select id="ps-model" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);width:100%;font-family:var(--mono);font-size:.78rem"><option value="claude-sonnet-4-20250514"'+(ps.aiModel==='claude-sonnet-4-20250514'?' selected':'')+'>claude-sonnet-4 (recommended)</option><option value="claude-opus-4-20250514"'+(ps.aiModel==='claude-opus-4-20250514'?' selected':'')+'>claude-opus-4 (highest quality)</option><option value="claude-haiku-4-20250514"'+(ps.aiModel==='claude-haiku-4-20250514'?' selected':'')+'>claude-haiku-4 (fastest)</option></select></div><div class="field"><label>Max tokens (output)</label><input id="ps-tokens" type="number" min="1000" max="64000" step="1000" value="'+ps.aiMaxTokens+'" style="font-family:var(--mono)"/></div></div>'
+    + '<div class="field"><label>Quote disclaimer text</label><textarea id="ps-disclaimer" rows="3" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem .65rem;border-radius:var(--radius2);width:100%;font-size:.78rem;resize:vertical">'+ps.quoteDisclaimer+'</textarea></div>'
+
+    /* UI preferences */
+    + '<div style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--off4);margin:1.2rem 0 .6rem">UI preferences</div>'
+    + _platformToggle('ps-roi', 'Show ROI insight banners', 'Display contextual ROI banners on project, quote, and scheduler panels', ps.showRoiBanners)
+    + _platformToggle('ps-tips', 'Show help tips', 'Display the ? help tip buttons on panel headers', ps.showHelpTips)
+    + _platformToggle('ps-demo', 'Demo mode', 'When enabled, uses sample data for AI features when no API key is configured', ps.demoMode)
+
+    /* Save / Reset */
+    + '<div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border);display:flex;gap:.5rem">'
+    + '<button class="btn btn-primary btn-sm" onclick="savePlatformSettings()">Save platform settings</button>'
+    + '<button class="btn btn-dark btn-sm" onclick="resetPlatformSettings()">Reset to defaults</button>'
+    + '</div>';
+  }
   return '';
 }
 
@@ -391,6 +445,68 @@ function clearAnthropicKey() {
   try { localStorage.removeItem('contraq_anthropic_key'); } catch(e) {}
   showToast('API key removed.', 'success');
   switchSettings('api');
+}
+
+/* ── Profile save with localStorage persistence ────────────── */
+function saveProfile() {
+  if (!STATE.user) STATE.user = Object.assign({}, DEMO_USER);
+  var fields = {fname:'set-fname',lname:'set-lname',email:'set-email',company:'set-company',phone:'set-phone',utr:'set-utr',vat:'set-vat'};
+  Object.keys(fields).forEach(function(k) {
+    var el = document.getElementById(fields[k]);
+    if (el) STATE.user[k] = el.value.trim();
+  });
+  var cisEl = document.getElementById('set-cis');
+  if (cisEl) STATE.user.cisRegistered = cisEl.value === 'yes';
+  try { localStorage.setItem('contraq_user_profile', JSON.stringify(STATE.user)); } catch(e) {}
+  /* Update sidebar display */
+  var sbName = document.getElementById('sb-user-name');
+  var sbAv = document.getElementById('sb-user-av');
+  if (sbName) sbName.textContent = STATE.user.fname + ' ' + STATE.user.lname;
+  if (sbAv) sbAv.textContent = (STATE.user.fname||'J')[0] + (STATE.user.lname||'M')[0];
+  showToast('Profile saved.', 'success');
+}
+
+/* ── Notification toggle ───────────────────────────────────── */
+function toggleNotifPref(key) {
+  if (!STATE.notifPrefs) return;
+  STATE.notifPrefs[key] = !STATE.notifPrefs[key];
+  try { localStorage.setItem('contraq_notif_prefs', JSON.stringify(STATE.notifPrefs)); } catch(e) {}
+  switchSettings('notifications');
+  showToast('Notification preference updated.', 'success');
+}
+
+/* ── Platform settings (admin only) ────────────────────────── */
+function _platformToggle(id, label, desc, on) {
+  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border)"><div><div style="font-size:.84rem;font-weight:600">'+label+'</div><div style="font-size:.72rem;color:var(--off4)">'+desc+'</div></div><div id="'+id+'" style="width:38px;height:22px;border-radius:11px;background:'+(on?'var(--orange)':'var(--bg4)')+';border:1.5px solid '+(on?'var(--orange)':'var(--border)')+';cursor:pointer;position:relative;flex-shrink:0" onclick="this.dataset.on=this.dataset.on===\'1\'?\'0\':\'1\';this.style.background=this.dataset.on===\'1\'?\'var(--orange)\':\'var(--bg4)\';this.style.borderColor=this.dataset.on===\'1\'?\'var(--orange)\':\'var(--border)\';this.firstChild.style.left=this.dataset.on===\'1\'?\'16px\':\'2px\'" data-on="'+(on?'1':'0')+'"><div style="position:absolute;top:2px;left:'+(on?'16px':'2px')+';width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s"></div></div></div>';
+}
+
+function savePlatformSettings() {
+  var ps = STATE.platformSettings;
+  var _v = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+  ps.companyName = _v('ps-company') || ps.companyName;
+  ps.tradePrimary = _v('ps-trade') || ps.tradePrimary;
+  ps.defaultRetention = parseFloat(_v('ps-retention')) || ps.defaultRetention;
+  ps.defaultPaymentTerms = parseInt(_v('ps-payterms')) || ps.defaultPaymentTerms;
+  ps.defaultContractForm = _v('ps-contract') || ps.defaultContractForm;
+  ps.vatRate = parseFloat(_v('ps-vat')) || ps.vatRate;
+  ps.aiModel = _v('ps-model') || ps.aiModel;
+  ps.aiMaxTokens = parseInt(_v('ps-tokens')) || ps.aiMaxTokens;
+  ps.quoteDisclaimer = _v('ps-disclaimer') || ps.quoteDisclaimer;
+  var roiEl = document.getElementById('ps-roi');
+  var tipsEl = document.getElementById('ps-tips');
+  var demoEl = document.getElementById('ps-demo');
+  if (roiEl) ps.showRoiBanners = roiEl.dataset.on === '1';
+  if (tipsEl) ps.showHelpTips = tipsEl.dataset.on === '1';
+  if (demoEl) ps.demoMode = demoEl.dataset.on === '1';
+  try { localStorage.setItem('contraq_platform_settings', JSON.stringify(ps)); } catch(e) {}
+  showToast('Platform settings saved.', 'success');
+}
+
+function resetPlatformSettings() {
+  STATE.platformSettings = {companyName:'Mitchell Insulation Ltd',tradePrimary:'insulation',defaultRetention:5,defaultPaymentTerms:30,defaultContractForm:'JCT',cisRegistered:true,vatRegistered:true,vatRate:20,currency:'GBP',dateFormat:'DD/MM/YYYY',aiModel:'claude-sonnet-4-20250514',aiMaxTokens:16000,quoteDisclaimer:'All quantities are AI-generated estimates. Final pricing remains the responsibility of the user.',showRoiBanners:true,showHelpTips:true,demoMode:false};
+  try { localStorage.removeItem('contraq_platform_settings'); } catch(e) {}
+  switchSettings('platform');
+  showToast('Platform settings reset to defaults.', 'success');
 }
 
 /* ══════════════════════════════════════════════════════════════
