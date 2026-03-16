@@ -108,6 +108,7 @@ function dashNav(panel) {
 
   var content = document.getElementById('dash-content');
   if (!content) return;
+  content.scrollTop = 0;
 
   if (panel==='home') renderDashHome();
   else if (panel==='tenders') renderTenders();

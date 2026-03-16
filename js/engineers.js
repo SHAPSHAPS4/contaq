@@ -278,20 +278,27 @@ function generateReport(name) {
    SETTINGS
 ══════════════════════════════════════════════════════════════ */
 function renderSettings() {
-  var user = STATE.user||DEMO_USER;
-  var isAdmin = user.role === 'admin';
-  var sections = ['profile','billing','team','goals','notifications','api','security'];
-  if (isAdmin) sections.push('platform');
-  var html = '<div class="settings-grid">';
-  html += '<div class="settings-nav">';
-  var labels = {profile:'My profile',billing:'Billing & plan',team:'Team & users',goals:'Financial goals',notifications:'Notifications',api:'API & integrations',security:'Security',platform:'Platform settings'};
-  sections.forEach(function(s){
-    html += '<div class="settings-nav-item'+(STATE.settingsSection===s?' active':'')+'" onclick="switchSettings(\''+s+'\')">'+(s==='platform'?'\u2699\ufe0f ':'')+labels[s]+'</div>';
-  });
-  html += '</div><div id="settings-main">';
-  html += renderSettingsSection(user);
-  html += '</div></div>';
-  document.getElementById('dash-content').innerHTML = html;
+  try {
+    var user = STATE.user||DEMO_USER;
+    var isAdmin = user.role === 'admin';
+    var sections = ['profile','billing','team','goals','notifications','api','security'];
+    if (isAdmin) sections.push('platform');
+    var html = '<div class="settings-grid">';
+    html += '<div class="settings-nav">';
+    var labels = {profile:'My profile',billing:'Billing & plan',team:'Team & users',goals:'Financial goals',notifications:'Notifications',api:'API & integrations',security:'Security',platform:'Platform settings'};
+    sections.forEach(function(s){
+      html += '<div class="settings-nav-item'+(STATE.settingsSection===s?' active':'')+'" onclick="switchSettings(\''+s+'\')">'+(s==='platform'?'\u2699\ufe0f ':'')+labels[s]+'</div>';
+    });
+    html += '</div><div id="settings-main">';
+    html += renderSettingsSection(user);
+    html += '</div></div>';
+    var dc = document.getElementById('dash-content');
+    if (dc) { dc.innerHTML = html; dc.scrollTop = 0; }
+  } catch(err) {
+    console.error('[Contraq Settings]', err);
+    var dc = document.getElementById('dash-content');
+    if (dc) dc.innerHTML = '<div style="padding:2rem;color:var(--red)"><h3>Settings Error</h3><p style="font-family:var(--mono);font-size:.78rem;margin-top:.5rem">' + String(err.message) + '</p></div>';
+  }
 }
 
 function switchSettings(section) {
