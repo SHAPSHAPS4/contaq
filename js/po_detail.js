@@ -3,65 +3,7 @@
    Lines 12412-12500 from contraq-v77
 ═══════════════════════════════════════════ */
 
-          lbl='<span style="color:#a3e635;font-size:.7rem;font-weight:600;">Delivered</span>';
-        } else if (po.status==='partial') {
-          dot='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0;"></span>';
-          lbl='<span style="color:#f97316;font-size:.7rem;font-weight:600;">Partial</span>';
-        } else {
-          dot='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f87171;flex-shrink:0;"></span>';
-          lbl='<span style="color:#f87171;font-size:.7rem;font-weight:600;">Outstanding</span>';
-        }
-        return '<tr style="cursor:pointer" onclick="renderPODetail(\''+po.id+'\',\''+projectId+'\')" onmouseenter="this.style.background=\'rgba(255,255,255,.04)\'" onmouseleave="this.style.background=\'\'">'
-          +'<td style="padding:.5rem .4rem;text-align:center;">'+dot+'</td>'
-          +'<td class="mono" style="font-size:.68rem;">'+po.id+'</td>'
-          +'<td style="font-weight:600;">'+po.supplier+'</td>'
-          +'<td class="mono">'+fmtDate(po.date)+'</td>'
-          +'<td class="mono">&#163;'+fmtNum(gross)+'</td>'
-          +'<td><div style="display:flex;align-items:center;gap:.35rem;">'+dot+lbl+'</div></td>'
-          +'<td class="mono" style="font-size:.72rem;">'+(outItems.length
-            ?'<span style="color:var(--orange);">&#9888; '+outQty+' items</span>'
-            :'<span style="color:var(--lime);">&#10003; None</span>')
-          +'</td>'
-          +'<td class="mono" style="font-size:.7rem;color:var(--off3);">'+(po.deliveredLaterDate?fmtDate(po.deliveredLaterDate):'&#8212;')+'</td>'
-          +'<td><button class="btn btn-dark btn-xs" onclick="event.stopPropagation();renderPODetail(\''+po.id+'\',\''+projectId+'\')">View</button></td>'
-          +'</tr>';
-      }).join('');
-      html += '</tbody></table></div></div>';
-    }
-  }
 
-  if (tab==='p&l') {
-    var costs = p.costs || {labour:0,materials:0,subcontract:0,overhead:0};
-    var tc = costs.labour+costs.materials+costs.subcontract+costs.overhead;
-    var gpVal = p.value - tc;
-    var gpPct = p.value ? Math.round(gpVal/p.value*100) : 0;
-    var billedPct = p.value ? Math.round(billed/p.value*100) : 0;
-    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:1rem">';
-    html += '<div class="cl-detail-stat"><div class="cl-detail-stat-val">£'+fmtNum(p.value)+'</div><div class="cl-detail-stat-label">Contract value</div></div>';
-    html += '<div class="cl-detail-stat"><div class="cl-detail-stat-val" style="color:var(--red)">£'+fmtNum(tc)+'</div><div class="cl-detail-stat-label">Est. cost</div></div>';
-    html += '<div class="cl-detail-stat"><div class="cl-detail-stat-val" style="color:var(--lime)">£'+fmtNum(gpVal)+' ('+gpPct+'%)</div><div class="cl-detail-stat-label">Gross profit</div></div>';
-    html += '</div>';
-    html += '<div class="cl-detail-section-title">Cost breakdown</div>';
-    var costItems = [['Labour',costs.labour,'var(--orange)'],['Materials',costs.materials,'var(--blue)'],['Subcontract',costs.subcontract,'var(--yellow)'],['Overhead',costs.overhead,'var(--off3)']];
-    costItems.forEach(function(ci){
-      var pct = p.value ? Math.round(ci[1]/p.value*100) : 0;
-      html += '<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem"><span style="font-size:.75rem;color:var(--off2);width:90px">'+ci[0]+'</span><div style="flex:1;height:7px;background:var(--bg4);border-radius:4px"><div style="width:'+pct+'%;height:100%;background:'+ci[2]+';border-radius:4px;opacity:.8"></div></div><span style="font-family:var(--mono);font-size:.72rem;color:var(--white);white-space:nowrap">£'+fmtNum(ci[1])+'</span></div>';
-    });
-    html += '<div class="cl-detail-section-title">Billing status</div>';
-    html += '<div style="font-size:.78rem;color:var(--off3);margin-bottom:.5rem">'+billedPct+'% billed · £'+fmtNum(billed)+' of £'+fmtNum(p.value)+' contract value</div>';
-    html += '<div style="height:8px;background:var(--bg4);border-radius:4px;margin-bottom:.75rem"><div style="width:'+billedPct+'%;height:100%;background:var(--lime);border-radius:4px;transition:width .4s"></div></div>';
-  }
-
-  if (tab === 'attachments') {
-    html += renderFoldersUI('project', p.id, p.folders||{}, p.quoteFiles||[]);
-  }
-
-  if (tab === 'journal') {
-    html += renderJournalTab(p.id, p.journal || []);
-  }
-
-  document.getElementById('proj-detail-body').innerHTML = html;
-}
 
 
 /* ══════════════════════════════════════════════════════════════
@@ -92,3 +34,76 @@ function calcClientStats(clientId) {
 
 function renderClients() {
   var html = '<div class="page-hdr"><div class="page-hdr-left"><h2>Client Register</h2><p>'+CLIENTS.length+' clients</p></div>'
+    + '<div style="display:flex;align-items:center;gap:.65rem;">'
+    + '<button class="cl-reset-link" onclick="clResetDemoData()">&#8635; Reset demo</button>'
+    + '<button class="cl-upload-btn" onclick="openModal(\'modal-cl-upload\')">'
+    + '<span style="font-size:1rem;">📊</span> Upload Client Records AI Enabled</button>'
+    + '<button class="btn btn-primary btn-sm" onclick="openClientModal(null)">+ Add client</button>'
+    + '</div></div>';
+
+  /* ── Client stat boxes ── */
+  var allProjs     = PROJECTS;
+  var wonProjs     = allProjs.filter(function(p){return p.status==='active'||p.status==='completed'||p.status==='pending';});
+  var quotedTend   = TENDERS.filter(function(t){return t.status==='open'||t.status==='submitted';});
+  var margins      = allProjs.filter(function(p){return p.margin;}).map(function(p){return p.margin;});
+  var avgProfPct   = margins.length ? Math.round(margins.reduce(function(s,m){return s+m;},0)/margins.length*10)/10 : 0;
+  var lostVal      = TENDERS.filter(function(t){return t.status==='lost';}).reduce(function(s,t){return s+t.value;},0);
+
+  html += '<div class="kpi-grid" style="margin-bottom:1.1rem;">';
+  html += '<div class="kpi proj-stat-kpi" style="--kc:#a3e635;cursor:pointer;" onclick="openClReport(\'won\')">'
+    + '<div class="kpi-label">Projects Won</div>'
+    + '<div class="kpi-val" style="color:#a3e635;">'+wonProjs.length+'</div>'
+    + '<div class="kpi-delta delta-up">&#8593; across all clients</div>'
+    + '<div class="proj-stat-caret" style="color:#a3e635;">View report &#8250;</div>'
+    + '</div>';
+  html += '<div class="kpi proj-stat-kpi" style="--kc:#60a5fa;cursor:pointer;" onclick="openClReport(\'quoted\')">'
+    + '<div class="kpi-label">Projects Quoted</div>'
+    + '<div class="kpi-val" style="color:#60a5fa;">'+quotedTend.length+'</div>'
+    + '<div class="kpi-delta">open &amp; submitted</div>'
+    + '<div class="proj-stat-caret" style="color:#60a5fa;">View report &#8250;</div>'
+    + '</div>';
+  html += '<div class="kpi proj-stat-kpi" style="--kc:#f97316;cursor:pointer;" onclick="openClReport(\'profitability\')">'
+    + '<div class="kpi-label">Avg. Client Margin</div>'
+    + '<div class="kpi-val" style="color:#f97316;">'+avgProfPct+'%</div>'
+    + '<div class="kpi-delta">across active projects</div>'
+    + '<div class="proj-stat-caret" style="color:#f97316;">View report &#8250;</div>'
+    + '</div>';
+  html += '<div class="kpi proj-stat-kpi" style="--kc:#f87171;cursor:pointer;" onclick="openClReport(\'lost\')">'
+    + '<div class="kpi-label">Total Lost Value</div>'
+    + '<div class="kpi-val" style="color:#f87171;">&#163;'+fmtNum(lostVal)+'</div>'
+    + '<div class="kpi-delta delta-dn">&#8595; quotes lost to competition</div>'
+    + '<div class="proj-stat-caret" style="color:#f87171;">View report &#8250;</div>'
+    + '</div>';
+  html += '</div>';
+
+  html += '<div class="bar"><div class="search-box"><input placeholder="Search clients…" oninput="filterTableRows(this.value)"/></div></div>';
+  html += '<div class="card"><div style="overflow-x:auto"><table class="tbl"><thead>'
+    + '<tr><th>Client</th><th>Sector</th><th>Projects</th><th>Total value</th><th>Avg job</th><th>Margin</th><th>Profitability</th><th>Terms</th><th></th></tr>'
+    + '</thead><tbody>';
+
+  html += CLIENTS.map(function(c){
+    var cs = calcClientStats(c.id);
+    var profScore = cs.profScore;
+    var scoreCls  = profScore>=7?'filled-high':profScore>=4?'filled-mid':'filled-low';
+    var pips = '';
+    for (var i=1;i<=10;i++) pips += '<div class="cl-score-pip'+(i<=Math.round(profScore)?' '+scoreCls:'')+'"></div>';
+    return '<tr>'
+      +'<td><div style="display:flex;align-items:center;gap:.55rem">'
+      +'<div class="inline-av" style="background:'+c.color+'">'+c.initials+'</div>'
+      +'<div><div class="strong">'+c.name+'</div><div style="font-size:.65rem;color:var(--off4)">Since '+c.since+'</div></div></div></td>'
+      +'<td>'+c.sector+'</td>'
+      +'<td class="mono">'+cs.projs.length+'</td>'
+      +'<td class="mono">£'+fmtNum(cs.totalValue)+'</td>'
+      +'<td class="mono">'+( cs.avgJobVal?'£'+fmtNum(cs.avgJobVal):'—')+'</td>'
+      +'<td class="mono">'+(cs.avgMargin?cs.avgMargin+'%':'—')+'</td>'
+      +'<td><div class="cl-score-bar"><div class="cl-score-pips">'+pips+'</div>'
+      +'<span class="cl-score-label" style="color:'+(profScore>=7?'var(--lime)':profScore>=4?'var(--orange)':'var(--red)')+'">'+profScore.toFixed(1)+'</span></div></td>'
+      +'<td class="mono">'+c.creditTerms+' days</td>'
+      +'<td style="white-space:nowrap">'
+      +'<button class="btn btn-dark btn-xs" onclick="openClientDetail(\''+c.id+'\')">Profile</button>'
+      +' <button class="btn btn-dark btn-xs" onclick="openClientModal(\''+c.id+'\')">Edit</button>'
+      +'</td></tr>';
+  }).join('');
+  html += '</tbody></table></div></div>';
+  document.getElementById('dash-content').innerHTML = html;
+}

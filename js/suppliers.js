@@ -3,25 +3,7 @@
    Lines 17186-17485 from contraq-v77
 ═══════════════════════════════════════════ */
 
-    // Update project billedToDate
-    if (proj) { proj.billedToDate = (proj.billedToDate||0) + amt; proj.lastInvoiceDate = data.date; }
-    // Log activity
-    ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:'💰',iconBg:'rgba(163,230,53,.15)',text:'Invoice '+data.ref+' raised for '+(client?client.name:'client')+' — £'+fmtNum(amt),time:'Just now',panel:'invoices'});
-    showToast('Invoice raised — £'+fmtNum(amt)+'.','success');
-  }
-  closeModal('modal-invoice');
-  dashNav('invoices');
-}
 
-function deleteInvoice() {
-  if (!STATE.editInvId) return;
-  var inv = INVOICES.find(function(i){return i.id===STATE.editInvId;});
-  if (!inv||!confirm('Delete '+inv.ref+'?')) return;
-  INVOICES.splice(INVOICES.findIndex(function(i){return i.id===STATE.editInvId;}),1);
-  showToast('Invoice deleted.','success');
-  closeModal('modal-invoice');
-  dashNav('invoices');
-}
 
 /* ══════════════════════════════════════════════════════════════
    MODALS — PURCHASE ORDER (v6)

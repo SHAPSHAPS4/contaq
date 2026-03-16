@@ -126,3 +126,45 @@ function renderPODetail(poId, projectId) {
     +'<div style="overflow-x:auto"><table class="tbl"><thead><tr>'
     +'<th>Description</th><th>Qty</th><th>Unit</th><th>Unit Price</th><th>VAT</th><th>Line Total (inc.VAT)</th>'
     +'</tr></thead><tbody>';
+  items.forEach(function(it) {
+    var net  = it.qty * it.unitCost;
+    var vat  = net * (it.vat||20)/100;
+    var line = Math.round((net+vat)*100)/100;
+    html += '<tr'+(it.outstanding?' style="background:rgba(249,115,22,.06)"':'')+'>'
+      +'<td style="font-weight:'+(it.outstanding?'600':'400')+';color:'+(it.outstanding?'var(--orange)':'var(--white)')+';">'
+      +it.desc+(it.outstanding?'<span style="font-family:var(--mono);font-size:.57rem;color:var(--orange);margin-left:.4rem;">&#9888; OUTSTANDING'+(it.outstandingQty?' ('+it.outstandingQty+')':'')+'</span>':'')
+      +'</td>'
+      +'<td class="mono">'+it.qty+'</td>'
+      +'<td class="mono" style="color:var(--off3);">'+it.unit+'</td>'
+      +'<td class="mono">&#163;'+it.unitCost.toFixed(2)+'</td>'
+      +'<td class="mono" style="color:var(--off3);">'+(it.vat||20)+'%</td>'
+      +'<td class="mono" style="color:var(--lime);font-weight:600;">&#163;'+fmtNum(line)+'</td>'
+      +'</tr>';
+  });
+  html += '</tbody></table></div></div>';
+
+  html += '<div style="display:flex;justify-content:flex-end;margin-bottom:.85rem;">'
+    +'<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.85rem 1.1rem;min-width:230px;">'
+    +'<div style="display:flex;justify-content:space-between;font-size:.76rem;color:var(--off2);margin-bottom:.32rem;">'
+    +'<span>Subtotal (ex. VAT)</span><span class="mono">&#163;'+fmtNum(Math.round(subTot*100)/100)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:.76rem;color:var(--off2);margin-bottom:.42rem;padding-bottom:.42rem;border-bottom:1px solid var(--border);">'
+    +'<span>VAT (20%)</span><span class="mono">&#163;'+fmtNum(vatAmt)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:.9rem;font-weight:700;color:var(--white);">'
+    +'<span>Total</span><span class="mono" style="color:var(--lime);">&#163;'+fmtNum(total)+'</span></div>'
+    +'</div></div>';
+
+  if (po.notes) {
+    html += '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;margin-bottom:'+(po.outstandingItems?'.6rem':'0')+';">'
+      +'<div style="font-family:var(--mono);font-size:.52rem;text-transform:uppercase;color:var(--off4);margin-bottom:.32rem;">Notes</div>'
+      +'<div style="font-size:.77rem;color:var(--off2);line-height:1.6;">'+po.notes+'</div>'
+      +'</div>';
+  }
+  if (po.outstandingItems) {
+    html += '<div style="background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.28);border-radius:8px;padding:.85rem 1rem;">'
+      +'<div style="font-family:var(--mono);font-size:.52rem;text-transform:uppercase;color:var(--orange);margin-bottom:.32rem;">&#9888; Outstanding Items</div>'
+      +'<div style="font-size:.77rem;color:var(--orange);line-height:1.6;">'+po.outstandingItems+'</div>'
+      +'</div>';
+  }
+
+  document.getElementById('proj-detail-body').innerHTML = html;
+}
