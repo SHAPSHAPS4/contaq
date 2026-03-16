@@ -4138,6 +4138,27 @@
 <script src="js/patch_nav.js"></script>
 <script src="js/cookie.js"></script>
 <script src="js/procore.js"></script>
+<script>
+/* Global error handler — surfaces hidden JS errors */
+window.onerror = function(msg, src, line, col, err) {
+  console.error('[Contraq Error]', msg, 'at', src, 'line', line);
+  var toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = 'JS Error: ' + msg + ' (line ' + line + ')';
+    toast.className = 'toast error show';
+    setTimeout(function(){ toast.classList.remove('show'); }, 8000);
+  }
+};
+/* Verify critical functions loaded */
+document.addEventListener('DOMContentLoaded', function() {
+  var missing = [];
+  if (typeof renderSettings !== 'function') missing.push('renderSettings');
+  if (typeof dashNav !== 'function') missing.push('dashNav');
+  if (typeof renderSettingsSection !== 'function') missing.push('renderSettingsSection');
+  if (typeof switchSettings !== 'function') missing.push('switchSettings');
+  if (missing.length) console.error('[Contraq] Missing functions:', missing.join(', '));
+});
+</script>
 
 </body>
 </html>
