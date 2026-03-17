@@ -1199,6 +1199,8 @@ function qbStartAnalysis() {
       return;
     }
 
+    console.log('[Contraq AI] Calling Anthropic API with key: ' + _apiKey.substring(0,10) + '... (' + contentBlocks.length + ' content blocks, model: claude-sonnet-4-20250514)');
+
     fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -1216,7 +1218,14 @@ function qbStartAnalysis() {
     })
     .then(function(resp) {
       clearInterval(_apiStepTimer);
-      if (!resp.ok) throw new Error('API returned ' + resp.status);
+      if (!resp.ok) {
+        return resp.text().then(function(body) {
+          var detail = '';
+          try { var j = JSON.parse(body); detail = (j.error && j.error.message) || body; } catch(e) { detail = body.substring(0, 200); }
+          console.error('Anthropic API ' + resp.status + ':', detail);
+          throw new Error('API ' + resp.status + ': ' + detail);
+        });
+      }
       return resp.json();
     })
     .then(function(apiData) {
@@ -1331,9 +1340,19 @@ function qbStartAnalysis() {
     .catch(function(err) {
       clearInterval(_apiStepTimer);
       console.error('AI Quote Builder API error:', err);
-      docCount.textContent = 'API call failed \u2014 loading demo data\u2026';
-      docCount.style.color = 'var(--yellow)';
-      _qbRunDemoFallback(activateStep, completeAll);
+      var errMsg = String(err.message || err);
+      if (/401|403|auth/i.test(errMsg)) errMsg = 'Authentication failed \u2014 check your API key is valid and has credit';
+      else if (/cors|network|failed to fetch/i.test(errMsg)) errMsg = 'Network/CORS error \u2014 direct browser access may not be enabled for your API key';
+      else if (/429|rate/i.test(errMsg)) errMsg = 'Rate limited \u2014 wait a moment and try again';
+      else if (/400|invalid/i.test(errMsg)) errMsg = 'Bad request \u2014 the model or request format may be invalid';
+      docCount.textContent = '\u26a0 AI call failed: ' + errMsg;
+      docCount.style.color = 'var(--red)';
+      showToast('\u26a0 AI Quote Builder: ' + errMsg, 'error');
+      /* Show demo data as fallback but clearly labelled */
+      setTimeout(function() {
+        docCount.textContent += ' \u2014 showing demo data instead';
+        _qbRunDemoFallback(activateStep, completeAll);
+      }, 2000);
     });
 
   }).catch(function(readErr) {
