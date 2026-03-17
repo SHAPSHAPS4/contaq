@@ -1199,7 +1199,7 @@ function qbStartAnalysis() {
       return;
     }
 
-    console.log('[Contraq AI] Calling Anthropic API with key: ' + _apiKey.substring(0,10) + '... (' + contentBlocks.length + ' content blocks, model: claude-sonnet-4-20250514)');
+    console.log('[Contraq AI] Calling Anthropic API with key: ' + _apiKey.substring(0,10) + '... (' + contentBlocks.length + ' content blocks, model: claude-sonnet-4-6)');
 
     fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1210,7 +1210,7 @@ function qbStartAnalysis() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 16000,
         system: systemPrompt,
         messages: [{ role: 'user', content: contentBlocks }]

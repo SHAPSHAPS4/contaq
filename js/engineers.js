@@ -393,7 +393,7 @@ function renderSettingsSection(user) {
     + '<div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)"><div style="font-size:.82rem;font-weight:600;color:var(--red);margin-bottom:.5rem">Danger zone</div><button class="btn btn-danger btn-sm" onclick="doLogout()">Sign out of all devices</button></div>';
   if (s==='platform') {
     if (!STATE.platformSettings) {
-      STATE.platformSettings = {companyName:'Mitchell Insulation Ltd',tradePrimary:'insulation',defaultRetention:5,defaultPaymentTerms:30,defaultContractForm:'JCT',cisRegistered:true,vatRegistered:true,vatRate:20,currency:'GBP',dateFormat:'DD/MM/YYYY',aiModel:'claude-sonnet-4-20250514',aiMaxTokens:16000,quoteDisclaimer:'All quantities are AI-generated estimates. Final pricing remains the responsibility of the user.',showRoiBanners:true,showHelpTips:true,demoMode:false};
+      STATE.platformSettings = {companyName:'Mitchell Insulation Ltd',tradePrimary:'insulation',defaultRetention:5,defaultPaymentTerms:30,defaultContractForm:'JCT',cisRegistered:true,vatRegistered:true,vatRate:20,currency:'GBP',dateFormat:'DD/MM/YYYY',aiModel:'claude-sonnet-4-6',aiMaxTokens:16000,quoteDisclaimer:'All quantities are AI-generated estimates. Final pricing remains the responsibility of the user.',showRoiBanners:true,showHelpTips:true,demoMode:false};
       try { var _ps = localStorage.getItem('contraq_platform_settings'); if (_ps) STATE.platformSettings = JSON.parse(_ps); } catch(e) {}
     }
     var ps = STATE.platformSettings;
@@ -410,7 +410,7 @@ function renderSettingsSection(user) {
 
     /* AI configuration */
     + '<div style="font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--off4);margin:1.2rem 0 .6rem">AI configuration</div>'
-    + '<div class="form-row"><div class="field"><label>AI model</label><select id="ps-model" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);width:100%;font-family:var(--mono);font-size:.78rem"><option value="claude-sonnet-4-20250514"'+(ps.aiModel==='claude-sonnet-4-20250514'?' selected':'')+'>claude-sonnet-4 (recommended)</option><option value="claude-opus-4-20250514"'+(ps.aiModel==='claude-opus-4-20250514'?' selected':'')+'>claude-opus-4 (highest quality)</option><option value="claude-haiku-4-20250514"'+(ps.aiModel==='claude-haiku-4-20250514'?' selected':'')+'>claude-haiku-4 (fastest)</option></select></div><div class="field"><label>Max tokens (output)</label><input id="ps-tokens" type="number" min="1000" max="64000" step="1000" value="'+ps.aiMaxTokens+'" style="font-family:var(--mono)"/></div></div>'
+    + '<div class="form-row"><div class="field"><label>AI model</label><select id="ps-model" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);width:100%;font-family:var(--mono);font-size:.78rem"><option value="claude-sonnet-4-6"'+(ps.aiModel==='claude-sonnet-4-6'?' selected':'')+'>claude-sonnet-4 (recommended)</option><option value="claude-opus-4-6"'+(ps.aiModel==='claude-opus-4-6'?' selected':'')+'>claude-opus-4 (highest quality)</option><option value="claude-haiku-4-5-20251001"'+(ps.aiModel==='claude-haiku-4-5-20251001'?' selected':'')+'>claude-haiku-4 (fastest)</option></select></div><div class="field"><label>Max tokens (output)</label><input id="ps-tokens" type="number" min="1000" max="64000" step="1000" value="'+ps.aiMaxTokens+'" style="font-family:var(--mono)"/></div></div>'
     + '<div class="field"><label>Quote disclaimer text</label><textarea id="ps-disclaimer" rows="3" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem .65rem;border-radius:var(--radius2);width:100%;font-size:.78rem;resize:vertical">'+ps.quoteDisclaimer+'</textarea></div>'
 
     /* UI preferences */
@@ -510,7 +510,7 @@ function savePlatformSettings() {
 }
 
 function resetPlatformSettings() {
-  STATE.platformSettings = {companyName:'Mitchell Insulation Ltd',tradePrimary:'insulation',defaultRetention:5,defaultPaymentTerms:30,defaultContractForm:'JCT',cisRegistered:true,vatRegistered:true,vatRate:20,currency:'GBP',dateFormat:'DD/MM/YYYY',aiModel:'claude-sonnet-4-20250514',aiMaxTokens:16000,quoteDisclaimer:'All quantities are AI-generated estimates. Final pricing remains the responsibility of the user.',showRoiBanners:true,showHelpTips:true,demoMode:false};
+  STATE.platformSettings = {companyName:'Mitchell Insulation Ltd',tradePrimary:'insulation',defaultRetention:5,defaultPaymentTerms:30,defaultContractForm:'JCT',cisRegistered:true,vatRegistered:true,vatRate:20,currency:'GBP',dateFormat:'DD/MM/YYYY',aiModel:'claude-sonnet-4-6',aiMaxTokens:16000,quoteDisclaimer:'All quantities are AI-generated estimates. Final pricing remains the responsibility of the user.',showRoiBanners:true,showHelpTips:true,demoMode:false};
   try { localStorage.removeItem('contraq_platform_settings'); } catch(e) {}
   switchSettings('platform');
   showToast('Platform settings reset to defaults.', 'success');

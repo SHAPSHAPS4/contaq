@@ -430,7 +430,7 @@ function qfDropHandler(e) {
 }
 
 /* ================================================================
-   QUOTE FILE UPLOAD — REAL ANTHROPIC AI (claude-sonnet-4-20250514)
+   QUOTE FILE UPLOAD — REAL ANTHROPIC AI (claude-sonnet-4-6)
    ================================================================ */
 
 /* ── JSZip lazy-loader (for DOCX / XLSX text extraction) ────────── */
