@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.5';
+const KB_VERSION = '5.6';
 const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 31;
+const KB_VERSION_SOURCES = 32;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -36,6 +36,7 @@ const KB_C02 = require('./kb-c02-estimating-principles');
 const KB_C03 = require('./kb-c03-uk-standards');
 const KB_C04 = require('./kb-c04-document-hierarchy');
 const KB_M01 = require('./kb-m01-pipe-materials');
+const KB_M02 = require('./kb-m02-fittings-valves');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -906,7 +907,34 @@ function getFullKnowledgeBase() {
     'Key equivalents: DN15=1/2", DN25=1", DN50=2" (screwed→flanged transition), DN100=4", DN150=6"',
 
     'Colour Coding (BS 1710): Green/Blue=water, Red=heating/HW, Yellow=gas, Black=drainage, Grey=compressed air.',
-    KB_M01.colour_coding.critical_rule
+    KB_M01.colour_coding.critical_rule,
+
+    '### KB-M02: Pipe Fittings & Valves',
+    'Standard Fittings (count as nr): ' + Object.keys(KB_M02.standard_fittings.types).join(', '),
+    '  Tees, reducers, valves, flanges: ALWAYS count individually — never estimate.',
+    '  Flanges: count in PAIRS. State size and pressure rating (PN6/10/16/25/40).',
+    '  Transition couplings (material change): always count separately.',
+
+    'Isolation Valves:',
+    ...Object.entries(KB_M02.valves.isolation).map(([k, v]) => '  ' + v.name + ': ' + v.function + '. Sizes: ' + v.typical_sizes + '. Symbol: ' + (v.drawing_symbol || '')),
+
+    'Control Valves:',
+    ...Object.entries(KB_M02.valves.control).map(([k, v]) => '  ' + v.name + ': ' + v.function),
+
+    'Safety & Regulation:',
+    '  PRV WARNING: "PRV" = Pressure RELIEF Valve (safety) OR Pressure REDUCING Valve (regulation). Check context.',
+    '  Check Valve/NRV: ' + KB_M02.valves.safety_regulation.check_valve.function,
+    '  Strainer: ' + KB_M02.valves.safety_regulation.strainer.function + '. Always upstream of valves/pumps.',
+
+    'Balancing: MBV (manual), DRV (double regulating with memory stop), Commissioning Set (combined metering)',
+
+    'Drawing Symbols (verify against legend):',
+    ...Object.entries(KB_M02.drawing_symbols.common_symbols).map(([symbol, info]) => '  ' + symbol + ' → ' + info.likely),
+
+    'Speciality Items (count individually): ' + Object.keys(KB_M02.speciality_items.types).join(', '),
+    '  Implicit items (required even if not shown): isolation at equipment, strainers at valves/pumps, drains at low points, air vents at high points, flexibles at rotating equipment.',
+
+    'Fittings Priority: ' + KB_M02.estimation_rules.priority.join(' → ')
   ].join('\n\n');
 }
 
@@ -937,7 +965,8 @@ function getSection(sectionName) {
     estimating_principles: KB_C02,
     uk_standards_ref: KB_C03,
     document_hierarchy: KB_C04,
-    pipe_materials_ref: KB_M01
+    pipe_materials_ref: KB_M01,
+    fittings_valves: KB_M02
   };
   return sections[sectionName] || null;
 }
@@ -988,5 +1017,6 @@ module.exports = {
   KB_C02,
   KB_C03,
   KB_C04,
-  KB_M01
+  KB_M01,
+  KB_M02
 };
