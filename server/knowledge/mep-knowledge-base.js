@@ -26,14 +26,15 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.3';
+const KB_VERSION = '5.4';
 const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 29;
+const KB_VERSION_SOURCES = 30;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
 const KB_C02 = require('./kb-c02-estimating-principles');
 const KB_C03 = require('./kb-c03-uk-standards');
+const KB_C04 = require('./kb-c04-document-hierarchy');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -859,7 +860,25 @@ function getFullKnowledgeBase() {
     '\nSpec Clause Patterns — Flag Triggers:',
     ...KB_C03.clause_patterns.flag_triggers.map(f => '  "' + f.pattern + '" → ' + f.flag_type + ': ' + f.action),
     '\nOutdated Standards (flag if referenced):',
-    ...KB_C03.outdated_standards.map(s => '  ' + s.old + ' → replaced by ' + s.current)
+    ...KB_C03.outdated_standards.map(s => '  ' + s.old + ' → replaced by ' + s.current),
+
+    '### KB-C04: Project Document Hierarchy',
+    'Document Authority (highest → lowest):',
+    ...KB_C04.authority_hierarchy.levels.map(l => '  ' + l.rank + '. ' + l.document + ' — ' + l.rule),
+    '\n' + KB_C04.authority_hierarchy.usage_rule,
+
+    'Conflict Resolution:',
+    ...KB_C04.conflict_resolution.rules.map(r => '  ' + r.conflict + ': ' + r.resolution + '. ' + r.action),
+    '\n' + KB_C04.conflict_resolution.golden_rule,
+
+    'Missing Document Flags (CRITICAL):',
+    ...KB_C04.missing_document_flags.critical.map(f => '  [' + f.severity + '] ' + f.missing + ' — ' + f.impact),
+    '\nMissing Document Flags (IMPORTANT):',
+    ...KB_C04.missing_document_flags.important.map(f => '  [' + f.severity + '] ' + f.missing + ' — ' + f.impact),
+
+    'Tender Stage: ' + KB_C04.project_stages.tender.characteristics.join(' '),
+    'Construction Stage: ' + KB_C04.project_stages.construction.characteristics.join(' '),
+    '\nStage Detection: ' + KB_C04.project_stages.stage_detection.rule
   ].join('\n\n');
 }
 
@@ -888,7 +907,8 @@ function getSection(sectionName) {
     quality_rules: QUALITY_RULES,
     drawing_standards: KB_C01,
     estimating_principles: KB_C02,
-    uk_standards_ref: KB_C03
+    uk_standards_ref: KB_C03,
+    document_hierarchy: KB_C04
   };
   return sections[sectionName] || null;
 }
@@ -937,5 +957,6 @@ module.exports = {
   QUALITY_RULES,
   KB_C01,
   KB_C02,
-  KB_C03
+  KB_C03,
+  KB_C04
 };

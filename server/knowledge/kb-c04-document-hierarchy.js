@@ -1,0 +1,396 @@
+/**
+ * KB-C04: Project Document Hierarchy
+ *
+ * Structured reference for document types, authority hierarchy,
+ * conflict resolution rules, missing document flags, and
+ * tender vs construction stage differences.
+ * Injected into extraction prompts at runtime.
+ *
+ * Part of Contraq M&E Knowledge Base v5.4
+ * Source: JCT/NEC contract practice, NRM2, UK M&E procurement conventions
+ */
+
+const KB_C04 = {
+  id: 'KB-C04',
+  title: 'Project Document Hierarchy',
+  version: '1.0',
+  date: '2026-03-18',
+
+  /* ══════════════════════════════════════════════════════════════
+     1. DOCUMENT TYPES IN AN M&E PROJECT
+     ══════════════════════════════════════════════════════════════ */
+  document_types: {
+    drawings: {
+      category: 'Drawings',
+      subtypes: {
+        GA: 'General Arrangement — primary quantity source for routing and equipment locations',
+        schematic: 'Schematic / Flow Diagram — system logic only, NO linear quantities',
+        detail: 'Detail Drawing — installation method only, NO quantities',
+        riser: 'Riser Diagram — vertical distribution schematic, NO linear quantities',
+        schedule_sheet: 'Schedule / Legend Sheet — confirms specs, equipment types, system parameters',
+        coordination: 'Coordination Drawing — multi-discipline overlay, quantities are PRELIMINARY',
+        as_built: 'As-Built Drawing — actual installed condition, flag if used for new work'
+      },
+      quantity_source: true,
+      authority_level: 'Varies by drawing status (For Construction > For Coordination > Preliminary)',
+      cross_ref: 'KB-C01 for detailed drawing type rules'
+    },
+    specification: {
+      category: 'Specification',
+      subtypes: {
+        nbs: 'NBS Specification — UK standard format, structured by work sections (Y10, Y20, etc.)',
+        bespoke: 'Bespoke Specification — project-specific, written by design engineer',
+        employers_requirements: 'Employer\'s Requirements (ER) — design intent and performance criteria from client',
+        performance_spec: 'Performance Specification — states outcomes not methods, contractor designs to achieve'
+      },
+      quantity_source: false,
+      authority_level: 'High — spec governs quality, materials, and methods',
+      notes: 'Spec does not typically contain quantities but defines WHAT materials and methods are required. Cross-reference with drawings for HOW MUCH.',
+      structure: {
+        part_1: 'General / Scope — scope of works, related work, standards, quality requirements, submittals',
+        part_2: 'Products — materials, manufacturers, performance criteria, "or approved equal" clauses',
+        part_3: 'Execution — installation methods, testing requirements, commissioning, handover'
+      }
+    },
+    boq: {
+      category: 'Bills of Quantities (BoQ)',
+      subtypes: {
+        measured_boq: 'Pre-measured BoQ — prepared by QS, quantities provided. USE DIRECTLY if provided.',
+        approximate_boq: 'Approximate BoQ — quantities are estimates, subject to re-measurement',
+        provisional_boq: 'BoQ with provisional quantities — flag all provisional items'
+      },
+      quantity_source: true,
+      authority_level: 'High — BoQ quantities override drawing-measured quantities when provided',
+      rules: [
+        'If a measured BoQ is provided, use those quantities — do NOT re-measure from drawings.',
+        'Cross-reference BoQ against drawings to verify completeness.',
+        'Flag any items on drawings that are NOT in the BoQ (potential omission).',
+        'Flag any BoQ items marked "provisional" — these will be re-measured.',
+        'BoQ is the contractual quantity document under NRM2.'
+      ]
+    },
+    schedule_of_rates: {
+      category: 'Schedule of Rates',
+      quantity_source: false,
+      authority_level: 'Low — pricing reference only',
+      rules: [
+        'Schedule of Rates provides unit rates for pricing, NOT quantities.',
+        'Do NOT extract quantities from a Schedule of Rates.',
+        'Use only for rate validation or as a pricing reference.',
+        'If both a BoQ and Schedule of Rates exist, the BoQ provides quantities.'
+      ]
+    },
+    employers_requirements: {
+      category: 'Employer\'s Requirements (ER)',
+      quantity_source: false,
+      authority_level: 'Very High — second only to signed contract documents',
+      rules: [
+        'ER defines what the employer wants — design intent, performance standards, constraints.',
+        'ER does not typically contain quantities but sets the scope boundaries.',
+        'Where ER conflicts with spec, ER takes precedence (it is from the employer).',
+        'Flag any items in ER that are not addressed by the spec or drawings — potential scope gap.'
+      ]
+    },
+    contractors_proposals: {
+      category: 'Contractor\'s Proposals (CP)',
+      quantity_source: true,
+      authority_level: 'Depends on contract — may equal or be subordinate to ER',
+      rules: [
+        'CP is the contractor\'s interpretation of the ER and spec.',
+        'Quantities in CP are the contractor\'s assessment — they carry risk.',
+        'Under Design & Build contracts, CP is the contractor\'s committed scope.',
+        'Always cross-reference CP against ER to identify any scope gaps or assumptions.'
+      ]
+    },
+    om_manuals: {
+      category: 'O&M Manuals',
+      quantity_source: false,
+      authority_level: 'None for estimating',
+      rules: [
+        'O&M Manuals are as-built records for operation and maintenance.',
+        'NEVER use O&M manuals as a source of quantities for new work.',
+        'May be useful for understanding existing systems when planning modifications.',
+        'Flag if only O&M information is available for an existing system being modified.'
+      ]
+    },
+    rfis: {
+      category: 'RFIs / Technical Queries (TQ)',
+      quantity_source: false,
+      authority_level: 'Clarification — may modify other documents',
+      rules: [
+        'RFIs and TQ responses can change scope, materials, or methods.',
+        'If spec or drawing references an RFI, flag it — the RFI response may not have been supplied.',
+        'RFI responses should be read as AMENDMENTS to the original document they clarify.',
+        'Check if RFI responses have been incorporated into the latest drawing revision.',
+        'Flag any unresolved RFIs — they represent undefined scope.'
+      ]
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     2. DOCUMENT AUTHORITY HIERARCHY
+     ══════════════════════════════════════════════════════════════ */
+  authority_hierarchy: {
+    levels: [
+      {
+        rank: 1,
+        document: 'Contract Documents (signed)',
+        description: 'The signed contract including all schedules, amendments, and agreed variations.',
+        rule: 'Absolute authority. All other documents are subordinate to the signed contract.',
+        typical_contents: 'Articles of Agreement, Conditions of Contract, Contract Sum Analysis, agreed scope documents.'
+      },
+      {
+        rank: 2,
+        document: 'Employer\'s Requirements (ER)',
+        description: 'The employer\'s statement of what they want — performance criteria, design intent, constraints.',
+        rule: 'Highest technical authority after the contract itself. Defines the project goals.',
+        typical_contents: 'Performance specifications, room data sheets, design brief, space requirements, standards to comply with.'
+      },
+      {
+        rank: 3,
+        document: 'Specification',
+        description: 'Detailed technical requirements for materials, methods, and quality.',
+        rule: 'Governs quality, materials, and methods. Takes precedence over drawings for WHAT is required.',
+        typical_contents: 'NBS work sections, material specifications, testing requirements, commissioning procedures.',
+        jct_rule: 'Under JCT: Spec governs quality and product selection.',
+        nec_rule: 'Under NEC: Spec is part of Works Information, read alongside all other WI.'
+      },
+      {
+        rank: 4,
+        document: 'Drawings (For Construction)',
+        description: 'Approved construction issue drawings.',
+        rule: 'Governs dimensions, positions, routing, and quantities. Takes precedence over drawings for WHERE and HOW MUCH.',
+        typical_contents: 'GA layouts, sections, details, schedules — all at "For Construction" status.',
+        jct_rule: 'Under JCT: Drawings govern dimensions and positions.',
+        nec_rule: 'Under NEC: Drawings are part of Works Information.'
+      },
+      {
+        rank: 5,
+        document: 'Drawings (For Coordination)',
+        description: 'Coordination issue drawings — routing may change.',
+        rule: 'Use for quantity estimation but flag ALL quantities as PRELIMINARY.',
+        typical_contents: 'Combined services drawings, clash-checked layouts.'
+      },
+      {
+        rank: 6,
+        document: 'Drawings (Preliminary / Tender)',
+        description: 'Early stage or tender issue drawings — design may change significantly.',
+        rule: 'Use for budget estimation only. Add contingency. Flag all quantities as APPROXIMATE.',
+        typical_contents: 'Indicative layouts, tender drawings, feasibility drawings.'
+      },
+      {
+        rank: 7,
+        document: 'Schedule of Rates',
+        description: 'Unit rate schedule for pricing.',
+        rule: 'Lowest authority — pricing reference only, not a quantity source.',
+        typical_contents: 'Rate per metre of pipe, rate per fitting, rate per luminaire.'
+      }
+    ],
+    usage_rule: 'When two documents conflict, the document with HIGHER rank (lower rank number) takes precedence. Always flag the conflict regardless of resolution.',
+    contract_specific_note: 'The exact hierarchy may be modified by the contract conditions. JCT, NEC, and bespoke contracts may define their own precedence. ALWAYS check the contract for a stated precedence clause.'
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     3. CONFLICT RESOLUTION RULES
+     ══════════════════════════════════════════════════════════════ */
+  conflict_resolution: {
+    rules: [
+      {
+        conflict: 'Spec vs Drawing',
+        resolution: 'Default to Specification',
+        action: 'Use spec requirement for material/quality. Use drawing for quantity/position. Flag the conflict.',
+        example: 'Spec says "copper pipe to BS EN 1057". Drawing annotation says "MLCP pipework". → Use copper (spec wins for material). Flag discrepancy.',
+        flag_type: 'Drawing vs Spec'
+      },
+      {
+        conflict: 'Drawing vs Drawing (same revision, same status)',
+        resolution: 'Do NOT extract — flag for resolution',
+        action: 'If two drawings at the same revision show different information for the same area, flag BOTH drawings and do not extract quantities until the conflict is resolved.',
+        example: 'GA Plan shows 8 diffusers in Room 101. Reflected Ceiling Plan shows 6 diffusers in Room 101. → Flag both. Do not pick one.',
+        flag_type: 'Drawing vs Drawing'
+      },
+      {
+        conflict: 'Drawing vs Drawing (different revisions)',
+        resolution: 'Use latest revision',
+        action: 'Always extract from the drawing with the highest/latest revision number. Ignore the older revision entirely.',
+        example: 'Drawing MX-001 Rev C and MX-001 Rev A both supplied. → Use Rev C only. Discard Rev A.',
+        flag_type: 'Superseded Drawing'
+      },
+      {
+        conflict: 'Spec vs Spec (internal contradiction)',
+        resolution: 'Flag both clauses — do NOT resolve',
+        action: 'If the spec contradicts itself (e.g. Section 2.1 says 25mm insulation, Section 3.4 says 30mm), flag BOTH clauses and do not pick one. Estimator must get clarification.',
+        example: 'Clause 2.3: "Pipe insulation 25mm Armaflex". Clause 4.1: "All cold water insulation minimum 30mm". → Flag both. Note the contradiction.',
+        flag_type: 'Spec vs Spec'
+      },
+      {
+        conflict: 'BoQ vs Drawing',
+        resolution: 'Use BoQ quantities',
+        action: 'If a pre-measured BoQ is provided and drawing measurement differs, use the BoQ quantity. Note both values. The BoQ is the contractual quantity.',
+        example: 'BoQ says 150m of 42mm copper pipe. Drawing measurement gives 138m. → Use 150m (BoQ). Note drawing measures 138m.',
+        flag_type: 'BoQ vs Drawing',
+        exception: 'If the BoQ is marked "approximate" or "provisional", flag that quantities may be re-measured.'
+      },
+      {
+        conflict: 'ER vs Specification',
+        resolution: 'Default to Employer\'s Requirements',
+        action: 'ER takes precedence over spec (higher in hierarchy). Flag the conflict. Note that the spec may need updating to align with ER.',
+        flag_type: 'ER vs Spec'
+      },
+      {
+        conflict: 'Annotated dimension vs Scaled measurement',
+        resolution: 'Use annotated (figured) dimension',
+        action: 'FIGURED DIMENSIONS ALWAYS OVERRIDE SCALED MEASUREMENTS. If the drawing annotation says 15.0m but you scale 14.2m, the answer is 15.0m.',
+        flag_type: 'Dimension vs Scale'
+      }
+    ],
+    golden_rule: 'NEVER resolve a conflict autonomously. ALWAYS flag for estimator review. State what each document says and recommend which takes precedence, but let the estimator decide.'
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     4. MISSING DOCUMENT FLAGS
+     ══════════════════════════════════════════════════════════════ */
+  missing_document_flags: {
+    critical: [
+      {
+        missing: 'No specification provided',
+        severity: 'HIGH',
+        impact: 'Cannot confirm materials, methods, or quality requirements. All material assumptions are unverified.',
+        action: 'Flag prominently. Extract quantities from drawings but mark ALL material specifications as "ASSUMED — no spec provided". Recommend estimator obtains spec before finalising.',
+        applies_to: 'All trades'
+      },
+      {
+        missing: 'No legend or symbol key on drawings',
+        severity: 'HIGH',
+        impact: 'Cannot positively identify symbols. All symbol-based identifications are assumptions.',
+        action: 'Flag prominently. Fall back to CIBSE standard symbols. Set confidence to "Medium" at best for all symbol-dependent items. List all assumptions.',
+        applies_to: 'All trades'
+      },
+      {
+        missing: 'No scale bar and no stated scale',
+        severity: 'HIGH',
+        impact: 'Cannot extract linear quantities. Only point counts (nr) and annotated dimensions are reliable.',
+        action: 'Flag prominently. Extract point counts and annotated data ONLY. Do NOT estimate lengths. Recommend scaled drawings or site survey.',
+        applies_to: 'All trades'
+      }
+    ],
+    important: [
+      {
+        missing: 'No revision information on drawings',
+        severity: 'MEDIUM',
+        impact: 'Cannot confirm if drawings are current. Risk of extracting from superseded information.',
+        action: 'Flag. Note that revision status is unknown. Recommend estimator confirms with design team that drawings are current issue.',
+        applies_to: 'All trades'
+      },
+      {
+        missing: 'Drawing status not stated',
+        severity: 'MEDIUM',
+        impact: 'Cannot classify quantities as Firm or Preliminary. Default to treating as Preliminary.',
+        action: 'Flag. Treat all quantities as PRELIMINARY until status is confirmed. Note in every line item.',
+        applies_to: 'All trades'
+      },
+      {
+        missing: 'Spec references documents not supplied',
+        severity: 'MEDIUM',
+        impact: 'Cross-references cannot be verified. Spec requirements may be incomplete.',
+        action: 'Flag each missing cross-reference. Note which documents are cited but not provided. Recommend estimator obtains missing documents.',
+        applies_to: 'All trades'
+      },
+      {
+        missing: 'No equipment schedule provided',
+        severity: 'MEDIUM',
+        impact: 'Equipment specifications cannot be confirmed from drawings alone. Model numbers, capacities, and duties are unknown.',
+        action: 'Flag. Count equipment from drawings but mark specifications as "ASSUMED — no schedule". Use drawing labels/annotations only.',
+        applies_to: 'Mechanical, Electrical'
+      }
+    ],
+    advisory: [
+      {
+        missing: 'No coordination drawing provided',
+        severity: 'LOW',
+        impact: 'Cannot verify trade boundaries or clash status.',
+        action: 'Note absence. Extract from single-trade drawings. Flag potential coordination issues at complex junctions.',
+        applies_to: 'All trades'
+      },
+      {
+        missing: 'No section views provided',
+        severity: 'LOW',
+        impact: 'Vertical dimensions (riser lengths, ceiling void routing) cannot be confirmed.',
+        action: 'Note absence. Use floor-to-floor defaults from KB-C01. Flag all vertical measurements as "estimated — no section view".',
+        applies_to: 'Mechanical, Electrical'
+      },
+      {
+        missing: 'No testing/commissioning requirements stated',
+        severity: 'LOW',
+        impact: 'Cannot price testing scope.',
+        action: 'Note absence. Include provisional item for testing/commissioning per system. Recommend estimator clarifies testing requirements.',
+        applies_to: 'All trades'
+      }
+    ]
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     5. TENDER vs CONSTRUCTION STAGE
+     ══════════════════════════════════════════════════════════════ */
+  project_stages: {
+    tender: {
+      stage: 'Tender Stage',
+      drawing_status_expected: ['Tender', 'Preliminary', 'For Information'],
+      characteristics: [
+        'Drawings may be incomplete, indicative, or schematic only.',
+        'Design is not finalised — equipment selections may change.',
+        'Routing shown may be approximate — actual routes determined during coordination.',
+        'Quantities are APPROXIMATE — state clearly in every output.'
+      ],
+      extraction_rules: [
+        'Extract quantities but label ALL as "TENDER — subject to change".',
+        'Apply waste factors at the HIGH end of the range.',
+        'Flag all assumptions made during extraction.',
+        'Include a contingency recommendation in the flags section.',
+        'Note drawing status and date — tender drawings age quickly.',
+        'If drawings are older than 6 months, flag as potentially outdated.'
+      ],
+      contingency_guidance: {
+        well_developed_tender: '5-10% contingency on measured quantities',
+        early_stage_tender: '15-25% contingency on measured quantities',
+        design_and_build: '10-20% contingency (contractor carries design risk)',
+        note: 'Contingency percentages are recommendations only. Estimator adjusts based on project knowledge and risk appetite.'
+      }
+    },
+    construction: {
+      stage: 'Construction Stage',
+      drawing_status_expected: ['For Construction'],
+      characteristics: [
+        'For Construction drawings are the approved source of truth.',
+        'Design should be finalised — equipment selected, routing coordinated.',
+        'Quantities should be FIRM unless noted otherwise.',
+        'Coordination issues should be resolved (but may not always be).'
+      ],
+      extraction_rules: [
+        'Extract quantities as FIRM from For Construction drawings.',
+        'Apply standard waste factors (middle of range).',
+        'Cross-reference spec against drawings — both should align at this stage.',
+        'Flag any remaining coordination issues or TBC items.',
+        'Flag any revision clouds — these indicate recent changes that may affect pricing.',
+        'If some drawings are still "For Coordination" at construction stage, flag prominently.'
+      ],
+      remaining_risks: [
+        'Late design changes (variation orders)',
+        'Coordination issues not yet resolved',
+        'Spec/drawing conflicts not yet addressed',
+        'Provisional sums not yet defined',
+        'Builder\'s work not yet coordinated with structural/architectural'
+      ]
+    },
+    stage_detection: {
+      rule: 'Determine the project stage from drawing status stamps. If mixed statuses are present (some For Construction, some Preliminary), flag the inconsistency and treat the overall extraction as the LOWEST status present.',
+      indicators: {
+        tender: 'Drawing status "Tender" or "Preliminary". Revision P-prefix (P01, P02). Date may be several months old.',
+        construction: 'Drawing status "For Construction". Revision C-prefix (C01, C02) or high letter revision (Rev D+). Recent date.',
+        mixed: 'Some drawings For Construction, others still For Coordination. Flag prominently — project may be in transition.'
+      }
+    }
+  }
+};
+
+module.exports = KB_C04;
