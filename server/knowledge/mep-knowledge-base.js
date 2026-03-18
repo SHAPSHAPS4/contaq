@@ -26,13 +26,14 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.2';
+const KB_VERSION = '5.3';
 const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 28;
+const KB_VERSION_SOURCES = 29;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
 const KB_C02 = require('./kb-c02-estimating-principles');
+const KB_C03 = require('./kb-c03-uk-standards');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -843,7 +844,22 @@ function getFullKnowledgeBase() {
     'Measurement Priority: ' + KB_C02.measurement.measurement_priority,
 
     'Quantity Status:\n' + Object.entries(KB_C02.quantity_status.classifications).map(([k, v]) => '  ' + k + ': ' + v.description).join('\n'),
-    '\n' + KB_C02.quantity_status.rule
+    '\n' + KB_C02.quantity_status.rule,
+
+    '### KB-C03: UK Standards & Regulations Reference',
+    'Mechanical Standards:',
+    ...Object.entries(KB_C03.mechanical).map(([k, v]) => '  ' + k + ': ' + v.title + (v.quantity_impact ? ' — QTY IMPACT: ' + v.quantity_impact : '')),
+    '\nElectrical Standards:',
+    ...Object.entries(KB_C03.electrical).map(([k, v]) => '  ' + k + ': ' + v.title + (v.quantity_impact ? ' — QTY IMPACT: ' + v.quantity_impact : '')),
+    '\nInsulation Standards:',
+    ...Object.entries(KB_C03.insulation).map(([k, v]) => '  ' + k + ': ' + v.title + (v.quantity_impact ? ' — QTY IMPACT: ' + v.quantity_impact : '')),
+    '\nFire & Safety Standards:',
+    ...Object.entries(KB_C03.fire_safety).map(([k, v]) => '  ' + k + ': ' + v.title + (v.quantity_impact ? ' — QTY IMPACT: ' + v.quantity_impact : '')),
+    '\nUsage Rules:\n' + formatList(KB_C03.usage_rules),
+    '\nSpec Clause Patterns — Flag Triggers:',
+    ...KB_C03.clause_patterns.flag_triggers.map(f => '  "' + f.pattern + '" → ' + f.flag_type + ': ' + f.action),
+    '\nOutdated Standards (flag if referenced):',
+    ...KB_C03.outdated_standards.map(s => '  ' + s.old + ' → replaced by ' + s.current)
   ].join('\n\n');
 }
 
@@ -871,7 +887,8 @@ function getSection(sectionName) {
     uk_standards: UK_STANDARDS,
     quality_rules: QUALITY_RULES,
     drawing_standards: KB_C01,
-    estimating_principles: KB_C02
+    estimating_principles: KB_C02,
+    uk_standards_ref: KB_C03
   };
   return sections[sectionName] || null;
 }
@@ -919,5 +936,6 @@ module.exports = {
   UK_STANDARDS,
   QUALITY_RULES,
   KB_C01,
-  KB_C02
+  KB_C02,
+  KB_C03
 };
