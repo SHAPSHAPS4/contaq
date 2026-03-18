@@ -26,15 +26,16 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.4';
+const KB_VERSION = '5.5';
 const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 30;
+const KB_VERSION_SOURCES = 31;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
 const KB_C02 = require('./kb-c02-estimating-principles');
 const KB_C03 = require('./kb-c03-uk-standards');
 const KB_C04 = require('./kb-c04-document-hierarchy');
+const KB_M01 = require('./kb-m01-pipe-materials');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -878,7 +879,34 @@ function getFullKnowledgeBase() {
 
     'Tender Stage: ' + KB_C04.project_stages.tender.characteristics.join(' '),
     'Construction Stage: ' + KB_C04.project_stages.construction.characteristics.join(' '),
-    '\nStage Detection: ' + KB_C04.project_stages.stage_detection.rule
+    '\nStage Detection: ' + KB_C04.project_stages.stage_detection.rule,
+
+    '### KB-M01: Pipe Materials & Sizing',
+    'Copper (BS EN 1057): Sizes ' + KB_M01.copper.sizes_mm.map(s => s.od + 'mm').join(', '),
+    '  Applications: ' + KB_M01.copper.applications.join(', '),
+    '  Jointing: ' + Object.keys(KB_M01.copper.jointing_methods).join(', '),
+    '  Notations: ' + KB_M01.copper.drawing_notations.join(', '),
+
+    'Carbon Steel (BS EN 10255): Sizes ' + KB_M01.carbon_steel.sizes.map(s => s.dn).join(', '),
+    '  Applications: ' + KB_M01.carbon_steel.applications.join(', '),
+    '  Jointing: screwed (≤DN50), flanged or welded (>DN50), grooved',
+    '  Notations: ' + KB_M01.carbon_steel.drawing_notations.join(', '),
+
+    'Stainless Steel: Grades ' + Object.keys(KB_M01.stainless_steel.grades).join(', '),
+    '  Applications: ' + KB_M01.stainless_steel.applications.join(', '),
+    '  Notations: ' + KB_M01.stainless_steel.drawing_notations.join(', '),
+
+    'CPVC/uPVC: CPVC max 80°C (hot+cold), uPVC max 60°C (cold only). Notations: ' + KB_M01.cpvc.drawing_notations.join(', '),
+
+    'MDPE: Blue=water, Yellow=gas. Underground only. Sizes 20-180mm. Notations: ' + KB_M01.mdpe.drawing_notations.join(', '),
+
+    'MLCP: PE-X/Aluminium/PE-X composite. Heating, hot/cold water. Sizes 16-75mm. Notations: ' + KB_M01.mlcp.drawing_notations.join(', '),
+
+    'Size Notation: ' + KB_M01.size_equivalents.rule,
+    'Key equivalents: DN15=1/2", DN25=1", DN50=2" (screwed→flanged transition), DN100=4", DN150=6"',
+
+    'Colour Coding (BS 1710): Green/Blue=water, Red=heating/HW, Yellow=gas, Black=drainage, Grey=compressed air.',
+    KB_M01.colour_coding.critical_rule
   ].join('\n\n');
 }
 
@@ -908,7 +936,8 @@ function getSection(sectionName) {
     drawing_standards: KB_C01,
     estimating_principles: KB_C02,
     uk_standards_ref: KB_C03,
-    document_hierarchy: KB_C04
+    document_hierarchy: KB_C04,
+    pipe_materials_ref: KB_M01
   };
   return sections[sectionName] || null;
 }
@@ -958,5 +987,6 @@ module.exports = {
   KB_C01,
   KB_C02,
   KB_C03,
-  KB_C04
+  KB_C04,
+  KB_M01
 };
