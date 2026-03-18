@@ -132,7 +132,13 @@ function renderAttachmentsTab(type, id, attachments) {
     + '<div style="font-family:var(--mono);font-size:.62rem;color:var(--off3);">'+sorted.length+' document'+(sorted.length!==1?"s":"")+' attached</div>'
     + '<button class="btn btn-sm" style="background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.3);font-size:.75rem;" '
     + 'onclick="openDocUpload(\''+type+'\',\''+id+'\')">'
-    + '&#128196; Upload Documents AI Enabled</button></div>';
+    + '&#128196; Upload Documents AI Enabled</button>'
+    + '<button class="btn btn-sm" style="background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.3);font-size:.75rem;" '
+    + 'onclick="openDrawingAnalyser()">'
+    + '&#128208; Drawing Analyser</button>'
+    + '<button class="btn btn-sm" style="background:rgba(163,230,53,.1);color:var(--lime);border:1px solid rgba(163,230,53,.3);font-size:.75rem;" '
+    + 'onclick="openSpecReader()">'
+    + '&#128220; Spec Reader</button></div>';
   if (!sorted.length) {
     return h + '<div style="text-align:center;padding:2.5rem 1rem;color:var(--off4);font-size:.82rem;">No documents attached yet.<br><span style="font-size:.72rem;">Click Upload Documents AI Enabled to attach drawings, specs, programmes and more.</span></div>';
   }

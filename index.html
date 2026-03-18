@@ -3871,6 +3871,247 @@
   </div>
 </div>
 
+<!-- Drawing Analyser Modal -->
+<div class="modal-backdrop" id="modal-drawing-analyser" onclick="if(event.target===this)closeModal('modal-drawing-analyser')">
+  <div class="modal" style="max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-header">
+      <span class="modal-title" id="da-title">Drawing Analyser</span>
+      <button class="modal-close" onclick="closeModal('modal-drawing-analyser')">&#215;</button>
+    </div>
+    <div class="modal-body" style="padding:1.25rem;overflow-y:auto;flex:1;">
+      <!-- Phase 1: Upload -->
+      <div id="da-phase-upload">
+        <div id="da-dropzone" style="border:2px dashed rgba(249,115,22,.35);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .15s;background:rgba(249,115,22,.03);"
+          onclick="document.getElementById('da-file-input').click()"
+          ondragover="event.preventDefault();this.style.borderColor='var(--orange)'"
+          ondragleave="this.style.borderColor='rgba(249,115,22,.35)'"
+          ondrop="event.preventDefault();daHandleDrop(event)">
+          <div style="font-size:2rem;margin-bottom:.5rem;">&#128208;</div>
+          <div style="font-size:.85rem;font-weight:600;color:var(--white);margin-bottom:.3rem;">Drop M&amp;E drawings here or <span style="color:var(--orange)">browse</span></div>
+          <div style="font-size:.7rem;color:var(--off4);">PDF drawings &mdash; plan views, sections, details, isometrics</div>
+          <input id="da-file-input" type="file" accept=".pdf,.png,.jpg,.jpeg" multiple style="display:none" onchange="daFilesSelected(this.files)">
+        </div>
+        <div id="da-file-list" style="margin-top:.75rem;display:none;">
+          <div style="font-size:.72rem;color:var(--off3);margin-bottom:.4rem;">Selected drawings:</div>
+          <div id="da-file-items" style="font-size:.75rem;color:var(--white);line-height:1.8;"></div>
+        </div>
+      </div>
+      <!-- Phase 2: Progress -->
+      <div id="da-phase-progress" style="display:none;">
+        <div id="da-progress-step" style="font-size:.78rem;color:var(--off2);text-align:center;margin-bottom:.6rem;">Preparing&hellip;</div>
+        <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:1rem;">
+          <div id="da-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--lime));border-radius:3px;transition:width .35s;"></div>
+        </div>
+        <div id="da-progress-detail" style="font-size:.68rem;color:var(--off4);text-align:center;"></div>
+      </div>
+      <!-- Phase 3: Results -->
+      <div id="da-phase-results" style="display:none;">
+        <div id="da-results-summary" style="margin-bottom:1rem;"></div>
+        <div id="da-results-table" style="margin-bottom:1rem;"></div>
+        <div id="da-results-flags" style="margin-bottom:.5rem;"></div>
+      </div>
+      <!-- Error state -->
+      <div id="da-error" style="display:none;margin-top:1rem;"></div>
+    </div>
+    <div class="modal-footer" id="da-footer">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-right:auto;" id="da-kb-badge">
+        <span style="font-family:var(--mono);font-size:.52rem;background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);border-radius:3px;padding:.1rem .35rem;">KB v5.1</span>
+      </div>
+      <button class="btn btn-dark btn-sm" onclick="closeModal('modal-drawing-analyser')">Close</button>
+      <button class="btn btn-primary btn-sm" id="da-analyse-btn" onclick="daStartAnalysis()" style="display:none;">&#128208; Analyse Drawings</button>
+      <button class="btn btn-sm" id="da-export-btn" onclick="daExportResults()" style="display:none;background:rgba(163,230,53,.1);color:var(--lime);border:1px solid rgba(163,230,53,.3);">&#128196; Export JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- Spec Reader Modal -->
+<div class="modal-backdrop" id="modal-spec-reader" onclick="if(event.target===this)closeModal('modal-spec-reader')">
+  <div class="modal" style="max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-header">
+      <span class="modal-title" id="sr-title">Spec Reader</span>
+      <button class="modal-close" onclick="closeModal('modal-spec-reader')">&#215;</button>
+    </div>
+    <div class="modal-body" style="padding:1.25rem;overflow-y:auto;flex:1;">
+      <!-- Phase 1: Upload -->
+      <div id="sr-phase-upload">
+        <div id="sr-dropzone" style="border:2px dashed rgba(163,230,53,.35);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .15s;background:rgba(163,230,53,.03);"
+          onclick="document.getElementById('sr-file-input').click()"
+          ondragover="event.preventDefault();this.style.borderColor='var(--lime)'"
+          ondragleave="this.style.borderColor='rgba(163,230,53,.35)'"
+          ondrop="event.preventDefault();srHandleDrop(event)">
+          <div style="font-size:2rem;margin-bottom:.5rem;">&#128220;</div>
+          <div style="font-size:.85rem;font-weight:600;color:var(--white);margin-bottom:.3rem;">Drop specification documents here or <span style="color:var(--lime)">browse</span></div>
+          <div style="font-size:.7rem;color:var(--off4);">PDF, DOCX &mdash; NBS specs, work sections, schedules, contract docs</div>
+          <input id="sr-file-input" type="file" accept=".pdf,.docx" multiple style="display:none" onchange="srFilesSelected(this.files)">
+        </div>
+        <div id="sr-file-list" style="margin-top:.75rem;display:none;">
+          <div style="font-size:.72rem;color:var(--off3);margin-bottom:.4rem;">Selected documents:</div>
+          <div id="sr-file-items" style="font-size:.75rem;color:var(--white);line-height:1.8;"></div>
+        </div>
+      </div>
+      <!-- Phase 2: Progress -->
+      <div id="sr-phase-progress" style="display:none;">
+        <div id="sr-progress-step" style="font-size:.78rem;color:var(--off2);text-align:center;margin-bottom:.6rem;">Preparing&hellip;</div>
+        <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:1rem;">
+          <div id="sr-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--lime),#60a5fa);border-radius:3px;transition:width .35s;"></div>
+        </div>
+        <div id="sr-progress-detail" style="font-size:.68rem;color:var(--off4);text-align:center;"></div>
+      </div>
+      <!-- Phase 3: Results -->
+      <div id="sr-phase-results" style="display:none;">
+        <div id="sr-results-summary" style="margin-bottom:1rem;"></div>
+        <div id="sr-results-requirements" style="margin-bottom:1rem;"></div>
+        <div id="sr-results-schedules" style="margin-bottom:1rem;"></div>
+        <div id="sr-results-flags" style="margin-bottom:.5rem;"></div>
+      </div>
+      <!-- Error state -->
+      <div id="sr-error" style="display:none;margin-top:1rem;"></div>
+    </div>
+    <div class="modal-footer" id="sr-footer">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-right:auto;">
+        <span style="font-family:var(--mono);font-size:.52rem;background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);border-radius:3px;padding:.1rem .35rem;">KB v5.1</span>
+      </div>
+      <button class="btn btn-dark btn-sm" onclick="closeModal('modal-spec-reader')">Close</button>
+      <button class="btn btn-sm" id="sr-analyse-btn" onclick="srStartAnalysis()" style="display:none;background:rgba(163,230,53,.1);color:var(--lime);border:1px solid rgba(163,230,53,.3);">&#128220; Analyse Spec</button>
+      <button class="btn btn-sm" id="sr-export-btn" onclick="srExportResults()" style="display:none;background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.3);">&#128196; Export JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- Takeoff Consolidator Modal -->
+<div class="modal-backdrop" id="modal-takeoff-consolidator" onclick="if(event.target===this)closeModal('modal-takeoff-consolidator')">
+  <div class="modal" style="max-width:820px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-header">
+      <span class="modal-title" id="tc-title">Takeoff Consolidator</span>
+      <button class="modal-close" onclick="closeModal('modal-takeoff-consolidator')">&#215;</button>
+    </div>
+    <div class="modal-body" style="padding:1.25rem;overflow-y:auto;flex:1;">
+      <!-- Phase 1: Input -->
+      <div id="tc-phase-input">
+        <div style="font-size:.8rem;color:var(--off2);margin-bottom:1rem;line-height:1.5;">Cross-reference drawing quantities against spec requirements to produce a consolidated, conflict-checked takeoff ready for pricing.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+          <!-- Drawing JSON input -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:.85rem;">
+            <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">
+              <span style="font-size:1rem;">&#128208;</span>
+              <span style="font-size:.78rem;font-weight:600;color:#60a5fa;">Drawing Extraction</span>
+              <span id="tc-drawing-status" style="font-family:var(--mono);font-size:.5rem;background:rgba(248,113,113,.1);color:#f87171;border-radius:3px;padding:.1rem .3rem;margin-left:auto;">Missing</span>
+            </div>
+            <div style="font-size:.66rem;color:var(--off4);margin-bottom:.5rem;">Paste JSON from Drawing Analyser or click to use last result</div>
+            <textarea id="tc-drawing-json" rows="4" placeholder='{"drawing_reference":"...","extraction":[...]}'
+              style="width:100%;font-family:var(--mono);font-size:.62rem;background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);resize:vertical;"
+              oninput="tcValidateInputs()"></textarea>
+            <button class="btn btn-dark btn-xs" style="margin-top:.35rem;font-size:.62rem;" onclick="tcLoadLastDrawing()">Load last Drawing Analyser result</button>
+          </div>
+          <!-- Spec JSON input -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:.85rem;">
+            <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem;">
+              <span style="font-size:1rem;">&#128220;</span>
+              <span style="font-size:.78rem;font-weight:600;color:var(--lime);">Spec Analysis</span>
+              <span id="tc-spec-status" style="font-family:var(--mono);font-size:.5rem;background:rgba(248,113,113,.1);color:#f87171;border-radius:3px;padding:.1rem .3rem;margin-left:auto;">Missing</span>
+            </div>
+            <div style="font-size:.66rem;color:var(--off4);margin-bottom:.5rem;">Paste JSON from Spec Reader or click to use last result</div>
+            <textarea id="tc-spec-json" rows="4" placeholder='{"project_reference":"...","spec_requirements":[...]}'
+              style="width:100%;font-family:var(--mono);font-size:.62rem;background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);resize:vertical;"
+              oninput="tcValidateInputs()"></textarea>
+            <button class="btn btn-dark btn-xs" style="margin-top:.35rem;font-size:.62rem;" onclick="tcLoadLastSpec()">Load last Spec Reader result</button>
+          </div>
+        </div>
+      </div>
+      <!-- Phase 2: Progress -->
+      <div id="tc-phase-progress" style="display:none;">
+        <div id="tc-progress-step" style="font-size:.78rem;color:var(--off2);text-align:center;margin-bottom:.6rem;">Preparing&hellip;</div>
+        <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:1rem;">
+          <div id="tc-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--lime),#60a5fa);border-radius:3px;transition:width .35s;"></div>
+        </div>
+        <div id="tc-progress-detail" style="font-size:.68rem;color:var(--off4);text-align:center;"></div>
+      </div>
+      <!-- Phase 3: Results -->
+      <div id="tc-phase-results" style="display:none;">
+        <div id="tc-results-summary"></div>
+        <div id="tc-results-takeoff" style="margin-top:1rem;"></div>
+        <div id="tc-results-conflicts" style="margin-top:1rem;"></div>
+        <div id="tc-results-review" style="margin-top:1rem;"></div>
+      </div>
+      <div id="tc-error" style="display:none;margin-top:1rem;"></div>
+    </div>
+    <div class="modal-footer" id="tc-footer">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-right:auto;">
+        <span style="font-family:var(--mono);font-size:.52rem;background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);border-radius:3px;padding:.1rem .35rem;">KB v5.1</span>
+        <span style="font-family:var(--mono);font-size:.52rem;background:rgba(249,115,22,.08);color:var(--orange);border:1px solid rgba(249,115,22,.2);border-radius:3px;padding:.1rem .35rem;">Stage 3</span>
+      </div>
+      <button class="btn btn-dark btn-sm" onclick="closeModal('modal-takeoff-consolidator')">Close</button>
+      <button class="btn btn-primary btn-sm" id="tc-consolidate-btn" onclick="tcStartConsolidation()" style="display:none;">&#9878; Consolidate Takeoff</button>
+      <button class="btn btn-sm" id="tc-export-btn" onclick="tcExportResults()" style="display:none;background:rgba(163,230,53,.1);color:var(--lime);border:1px solid rgba(163,230,53,.3);">&#128196; Export JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Loop Modal -->
+<div class="modal-backdrop" id="modal-feedback-loop" onclick="if(event.target===this)closeModal('modal-feedback-loop')">
+  <div class="modal" style="max-width:780px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-header">
+      <span class="modal-title" id="fb-title">Estimator Feedback</span>
+      <button class="modal-close" onclick="closeModal('modal-feedback-loop')">&#215;</button>
+    </div>
+    <div class="modal-body" style="padding:1.25rem;overflow-y:auto;flex:1;">
+      <!-- Phase 1: Input -->
+      <div id="fb-phase-input">
+        <div style="font-size:.8rem;color:var(--off2);margin-bottom:.75rem;line-height:1.5;">Submit corrections to any AI extraction. The system will learn from your feedback, apply corrections, and carry learned rules forward to all future extractions this session.</div>
+        <!-- Original extraction -->
+        <div style="margin-bottom:.75rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;">
+            <span style="font-size:.78rem;font-weight:600;color:var(--white);">Original Extraction</span>
+            <span id="fb-original-status" style="font-family:var(--mono);font-size:.5rem;background:rgba(248,113,113,.1);color:#f87171;border-radius:3px;padding:.1rem .3rem;">Missing</span>
+          </div>
+          <textarea id="fb-original-json" rows="4" placeholder='Paste the original extraction JSON here...'
+            style="width:100%;font-family:var(--mono);font-size:.62rem;background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);resize:vertical;"
+            oninput="fbValidateInputs()"></textarea>
+          <div style="display:flex;gap:.35rem;margin-top:.3rem;">
+            <button class="btn btn-dark btn-xs" style="font-size:.62rem;" onclick="fbLoadLast('drawing')">Load Drawing Analyser</button>
+            <button class="btn btn-dark btn-xs" style="font-size:.62rem;" onclick="fbLoadLast('spec')">Load Spec Reader</button>
+            <button class="btn btn-dark btn-xs" style="font-size:.62rem;" onclick="fbLoadLast('takeoff')">Load Takeoff</button>
+          </div>
+        </div>
+        <!-- Corrections -->
+        <div>
+          <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;">
+            <span style="font-size:.78rem;font-weight:600;color:var(--orange);">Your Corrections</span>
+            <span id="fb-corrections-status" style="font-family:var(--mono);font-size:.5rem;background:rgba(248,113,113,.1);color:#f87171;border-radius:3px;padding:.1rem .3rem;">Missing</span>
+          </div>
+          <textarea id="fb-corrections-json" rows="6" placeholder='{&#10;  "drawing_reference": "DWG-001",&#10;  "corrections": [&#10;    {&#10;      "item": "LTHW pipework",&#10;      "error_type": "QUANTITY_ERROR",&#10;      "what_you_got": "15m",&#10;      "what_it_should_be": "22m",&#10;      "explanation": "Missed the branch run to radiator circuit"&#10;    }&#10;  ],&#10;  "general_feedback": ""&#10;}'
+            style="width:100%;font-family:var(--mono);font-size:.62rem;background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem;border-radius:var(--radius2);resize:vertical;"
+            oninput="fbValidateInputs()"></textarea>
+        </div>
+        <!-- Learned rules count -->
+        <div id="fb-rules-badge" style="margin-top:.6rem;font-family:var(--mono);font-size:.58rem;color:var(--off4);"></div>
+      </div>
+      <!-- Phase 2: Progress -->
+      <div id="fb-phase-progress" style="display:none;">
+        <div id="fb-progress-step" style="font-size:.78rem;color:var(--off2);text-align:center;margin-bottom:.6rem;">Processing feedback&hellip;</div>
+        <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:1rem;">
+          <div id="fb-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--orange),#f87171);border-radius:3px;transition:width .35s;"></div>
+        </div>
+      </div>
+      <!-- Phase 3: Results -->
+      <div id="fb-phase-results" style="display:none;">
+        <div id="fb-results-acks"></div>
+        <div id="fb-results-rules" style="margin-top:1rem;"></div>
+        <div id="fb-results-summary" style="margin-top:1rem;"></div>
+      </div>
+      <div id="fb-error" style="display:none;margin-top:1rem;"></div>
+    </div>
+    <div class="modal-footer">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-right:auto;">
+        <span style="font-family:var(--mono);font-size:.52rem;background:rgba(248,113,113,.08);color:#f87171;border:1px solid rgba(248,113,113,.2);border-radius:3px;padding:.1rem .35rem;" id="fb-rule-count-badge">0 learned rules</span>
+      </div>
+      <button class="btn btn-dark btn-sm" onclick="closeModal('modal-feedback-loop')">Close</button>
+      <button class="btn btn-sm" id="fb-submit-btn" onclick="fbSubmitFeedback()" style="display:none;background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.3);">&#9878; Process Feedback</button>
+      <button class="btn btn-sm" id="fb-export-btn" onclick="fbExportResults()" style="display:none;background:rgba(163,230,53,.1);color:var(--lime);border:1px solid rgba(163,230,53,.3);">&#128196; Export</button>
+    </div>
+  </div>
+</div>
+
 <!-- Tender Detail Modal -->
 <div class="modal-backdrop" id="modal-tender-detail" onclick="if(event.target===this)closeModal('modal-tender-detail')">
   <div class="modal" style="max-width:760px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -4119,6 +4360,10 @@
 <script src="js/projects.js"></script>
 <script src="js/project_detail.js"></script>
 <script src="js/documents.js"></script>
+<script src="js/drawing_analyser.js"></script>
+<script src="js/spec_reader.js"></script>
+<script src="js/takeoff_consolidator.js"></script>
+<script src="js/feedback_loop.js"></script>
 <script src="js/folders.js"></script>
 <script src="js/quote_files.js"></script>
 <script src="js/journal.js"></script>

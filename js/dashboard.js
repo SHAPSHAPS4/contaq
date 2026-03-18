@@ -444,10 +444,13 @@ function renderDashHome() {
 
   var qa = [
     {icon:'\uD83E\uDDE0',label:'AI Quote Builder',action:"openModal('modal-qb-upload')",highlight:true},
+    {icon:'\uD83D\uDCD0',label:'Drawing Analyser',action:"openDrawingAnalyser()",highlight2:true},
+    {icon:'\uD83D\uDCDC',label:'Spec Reader',action:"openSpecReader()",highlight2:true},
+    {icon:'\u2696\uFE0F',label:'Takeoff Consolidator',action:"openTakeoffConsolidator()",highlight2:true},
+    {icon:'\uD83D\uDD04',label:'Feedback Loop',action:"openFeedbackLoop()",highlight2:true},
     {icon:'\uD83E\uDDFE',label:'Raise invoice',action:"prefillInvoice(PROJECTS[0]?PROJECTS[0].id:'')"},
     {icon:'\uD83D\uDCCB',label:'New quote (manual)',action:"openTenderModal(null)"},
     {icon:'\uD83D\uDCE6',label:'Create PO',action:"openPOModal(null)"},
-    {icon:'\uD83D\uDCD0',label:'Upload measure',action:"openMeasureModal(null)"},
     {icon:'\uD83C\uDFD7\uFE0F',label:'New project',action:"openTradeModal(null)"},
     {icon:'\uD83D\uDC65',label:'Add client',action:"openClientModal(null)"},
     {icon:'\uD83D\uDCC8',label:'P&L',action:"dashNav('finance')"},
@@ -456,8 +459,12 @@ function renderDashHome() {
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.2rem 0">'
     + qa.map(function(q){
         if (q.highlight) {
-          return '<div onclick="'+q.action+'" style="display:flex;align-items:center;gap:.55rem;padding:.6rem .75rem;background:linear-gradient(135deg,rgba(249,115,22,.1),rgba(234,88,12,.05));border:1.5px solid rgba(249,115,22,.3);border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--orange);transition:all .15s;grid-column:span 2" onmouseenter="this.style.borderColor=\'var(--orange)\';this.style.boxShadow=\'0 2px 12px rgba(249,115,22,.15)\'" onmouseleave="this.style.borderColor=\'rgba(249,115,22,.3)\';this.style.boxShadow=\'none\'">'
+          return '<div onclick="'+q.action+'" style="display:flex;align-items:center;gap:.55rem;padding:.6rem .75rem;background:linear-gradient(135deg,rgba(249,115,22,.1),rgba(234,88,12,.05));border:1.5px solid rgba(249,115,22,.3);border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--orange);transition:all .15s" onmouseenter="this.style.borderColor=\'var(--orange)\';this.style.boxShadow=\'0 2px 12px rgba(249,115,22,.15)\'" onmouseleave="this.style.borderColor=\'rgba(249,115,22,.3)\';this.style.boxShadow=\'none\'">'
             +'<span style="font-size:1rem">'+q.icon+'</span>'+q.label+' <span style="font-family:var(--mono);font-size:.5rem;padding:.12rem .35rem;border-radius:3px;background:rgba(249,115,22,.15);margin-left:auto">PDF \u2192 QUOTE</span></div>';
+        }
+        if (q.highlight2) {
+          return '<div onclick="'+q.action+'" style="display:flex;align-items:center;gap:.55rem;padding:.6rem .75rem;background:linear-gradient(135deg,rgba(96,165,250,.1),rgba(59,130,246,.05));border:1.5px solid rgba(96,165,250,.3);border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;color:#60a5fa;transition:all .15s" onmouseenter="this.style.borderColor=\'#60a5fa\';this.style.boxShadow=\'0 2px 12px rgba(96,165,250,.15)\'" onmouseleave="this.style.borderColor=\'rgba(96,165,250,.3)\';this.style.boxShadow=\'none\'">'
+            +'<span style="font-size:1rem">'+q.icon+'</span>'+q.label+' <span style="font-family:var(--mono);font-size:.5rem;padding:.12rem .35rem;border-radius:3px;background:rgba(96,165,250,.15);margin-left:auto">KB v5.1</span></div>';
         }
         return '<div onclick="'+q.action+'" style="display:flex;align-items:center;gap:.55rem;padding:.6rem .75rem;background:var(--bg3);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:500;transition:border-color .12s" onmouseenter="this.style.borderColor=\'var(--orange)\'" onmouseleave="this.style.borderColor=\'var(--border)\'">'
           +'<span style="font-size:1rem">'+q.icon+'</span>'+q.label+'</div>';

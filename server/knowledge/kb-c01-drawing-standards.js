@@ -1,0 +1,393 @@
+/**
+ * KB-C01: Drawing Standards & Conventions
+ *
+ * Structured reference data for M&E drawing interpretation.
+ * Injected into extraction prompts at runtime.
+ *
+ * Part of Contraq M&E Knowledge Base v5.1
+ * Source: UK M&E drawing conventions, BS 1192, CIBSE/BSRIA practice
+ */
+
+const KB_C01 = {
+  id: 'KB-C01',
+  title: 'Drawing Standards & Conventions',
+  version: '1.0',
+  date: '2026-03-18',
+
+  /* ══════════════════════════════════════════════════════════════
+     1. DRAWING TYPES & PURPOSE
+     ══════════════════════════════════════════════════════════════ */
+  drawing_types: {
+    GA: {
+      full_name: 'General Arrangement',
+      abbreviations: ['GA', 'G/A', 'General Layout', 'Layout Drawing'],
+      purpose: 'Primary source for quantities and routing',
+      extract_quantities: true,
+      extract_linear: true,
+      extract_point_count: true,
+      typical_scales: ['1:100', '1:50'],
+      notes: 'This is the default drawing type for takeoff. All linear runs, equipment locations, and service routing should be taken from GA drawings.'
+    },
+    SCHEMATIC: {
+      full_name: 'Schematic / Flow Diagram',
+      abbreviations: ['Schematic', 'Flow Diagram', 'System Diagram', 'P&ID', 'Piping & Instrumentation'],
+      purpose: 'Shows system logic, connectivity, and flow direction only',
+      extract_quantities: false,
+      extract_linear: false,
+      extract_point_count: false,
+      typical_scales: ['NTS', 'Not to Scale'],
+      notes: 'NEVER extract linear quantities from schematics. Use only to confirm system logic, equipment connectivity, and valve/accessory existence. Equipment COUNT may be verified but lengths are diagrammatic.',
+      rule: 'CRITICAL — schematics show system LOGIC, not physical ROUTING. A pipe shown as 50mm long on a schematic may be 50m in reality.'
+    },
+    DETAIL: {
+      full_name: 'Detail Drawing',
+      abbreviations: ['Detail', 'Installation Detail', 'Typical Detail', 'Standard Detail'],
+      purpose: 'Shows installation method, fixings, and construction detail',
+      extract_quantities: false,
+      extract_linear: false,
+      extract_point_count: false,
+      typical_scales: ['1:5', '1:2', '1:10', '1:1'],
+      notes: 'Do NOT extract quantities from detail drawings unless they explicitly state quantities (e.g. "2nr brackets per metre"). Details show HOW to install, not HOW MUCH to install.',
+      exceptions: 'If a detail drawing includes a materials list or schedule, extract the schedule data only.'
+    },
+    RISER: {
+      full_name: 'Riser Diagram',
+      abbreviations: ['Riser', 'Riser Diagram', 'Vertical Distribution', 'Distribution Riser'],
+      purpose: 'Shows vertical distribution between floors — schematic representation',
+      extract_quantities: false,
+      extract_linear: false,
+      extract_point_count: true,
+      typical_scales: ['NTS', 'Diagrammatic'],
+      notes: 'Riser diagrams are SCHEMATIC — they show which services go to which floors but lengths are NOT to scale. Use to confirm: number of floors served, equipment per floor, pipe/duct sizes at each level. Do NOT measure lengths from riser diagrams.',
+      rule: 'Riser lengths must be calculated from floor-to-floor heights (from sections or architectural drawings), not measured from riser diagrams.'
+    },
+    SCHEDULE: {
+      full_name: 'Schedule / Legend Sheet',
+      abbreviations: ['Schedule', 'Legend', 'Key', 'Symbol Sheet', 'Equipment Schedule'],
+      purpose: 'Confirms specifications, equipment types, system parameters',
+      extract_quantities: true,
+      extract_linear: false,
+      extract_point_count: true,
+      typical_scales: ['N/A'],
+      notes: 'Schedules are authoritative for: equipment specifications, model numbers, capacities, quantities of scheduled items. Extract all tabular data. Cross-reference against GA drawings for location verification.',
+      subtypes: {
+        equipment_schedule: 'Lists all equipment with specs, quantities, locations',
+        valve_schedule: 'Lists all valves by tag, type, size, location',
+        luminaire_schedule: 'Lists all light fittings by type, wattage, quantity',
+        cable_schedule: 'Lists all cables by circuit, size, length, route',
+        pipe_schedule: 'Lists pipework by system, material, size, insulation',
+        damper_schedule: 'Lists dampers by type, size, fire rating, location'
+      }
+    },
+    AS_BUILT: {
+      full_name: 'As-Built Drawing',
+      abbreviations: ['As-Built', 'As Installed', 'Record Drawing', 'Red-Line'],
+      purpose: 'Records what was actually installed — may differ from original design',
+      extract_quantities: true,
+      extract_linear: true,
+      extract_point_count: true,
+      typical_scales: ['Same as original'],
+      notes: 'CAUTION: As-built drawings reflect the installed condition of a PREVIOUS project. If used for new work (e.g. modifications), flag all quantities as "from as-built — verify on site". Routing may have changed since the as-built was produced.',
+      rule: 'Always flag as-built drawings. They are useful for understanding existing conditions but should not be the sole basis for new work quantities.'
+    },
+    COORDINATION: {
+      full_name: 'Coordination Drawing',
+      abbreviations: ['Coordination', 'Coordinated', 'Combined Services', 'Builders Work'],
+      purpose: 'Shows multiple trades overlaid for clash detection and coordination',
+      extract_quantities: true,
+      extract_linear: true,
+      extract_point_count: true,
+      typical_scales: ['1:50', '1:100'],
+      notes: 'Coordination drawings may change as clashes are resolved. All quantities extracted should be flagged as PRELIMINARY. Check drawing status — if "For Coordination", flag that routing may change.',
+      rule: 'Quantities from coordination drawings are provisional until the drawing status changes to "For Construction".'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     2. DRAWING SCALES
+     ══════════════════════════════════════════════════════════════ */
+  scales: {
+    lookup: {
+      '1:200': {
+        purpose: 'Site plans, building overview, service routes between buildings',
+        accuracy: 'Low — suitable for route confirmation only, not detailed measurement',
+        typical_use: 'External services, underground routes, site layout',
+        measurement_rule: 'Lengths from 1:200 drawings should be flagged as approximate (±10%)'
+      },
+      '1:100': {
+        purpose: 'General arrangement — most common M&E drawing scale',
+        accuracy: 'Standard — primary scale for quantity extraction',
+        typical_use: 'Floor plans, ceiling plans, service routing, equipment locations',
+        measurement_rule: 'Standard measurement accuracy. 1mm on drawing = 100mm (0.1m) in reality.'
+      },
+      '1:50': {
+        purpose: 'Detailed area drawings, plant rooms, risers',
+        accuracy: 'Good — better precision for complex areas',
+        typical_use: 'Plant rooms, switch rooms, comms rooms, ceiling voids, detailed areas',
+        measurement_rule: 'Higher accuracy than 1:100. 1mm on drawing = 50mm in reality. Preferred for plant rooms.'
+      },
+      '1:20': {
+        purpose: 'Complex plant arrangements, riser details',
+        accuracy: 'High — precise equipment and pipe routing',
+        typical_use: 'Boiler rooms, chiller plant, main risers, complex valve arrangements',
+        measurement_rule: 'Good for precise routing in confined spaces. 1mm = 20mm.'
+      },
+      '1:10': {
+        purpose: 'Large-scale details',
+        accuracy: 'Very high',
+        typical_use: 'Equipment connections, penetration details, bracket arrangements',
+        measurement_rule: 'Detail scale — extract dimensions from annotations only, not by measuring lines.'
+      },
+      '1:5': {
+        purpose: 'Installation details, fixings, brackets',
+        accuracy: 'Detail only',
+        typical_use: 'Pipe support details, duct hanger details, equipment mounting details',
+        measurement_rule: 'DO NOT extract quantities. Use only for installation method understanding.'
+      },
+      '1:2': {
+        purpose: 'Full-size or near full-size details',
+        accuracy: 'Detail only',
+        typical_use: 'Gasket details, seal details, small fitting details',
+        measurement_rule: 'DO NOT extract quantities.'
+      },
+      '1:1': {
+        purpose: 'Full-size template',
+        accuracy: 'Template only',
+        typical_use: 'Fabrication templates, gasket cutting templates',
+        measurement_rule: 'DO NOT extract quantities.'
+      }
+    },
+    rules: [
+      'Always read scale from the title block BEFORE measuring anything.',
+      'If title block says "Do Not Scale" or "NTS" — use annotated dimensions only, never measure from the image.',
+      'If no scale is stated and no scale bar is present — flag immediately. Do not estimate lengths.',
+      'Different viewports on the same sheet may have DIFFERENT scales — check each viewport independently.',
+      'Detail views embedded in a GA drawing have their own scale — do not apply the GA scale to details.',
+      'Scale bars are more reliable than stated scales on scanned/printed drawings (printing may distort ratio).',
+      'For PDF drawings: check if PDF was printed at 100% — scaling may have been altered during PDF creation.'
+    ],
+    quantity_extraction_by_scale: {
+      '1:200': { linear: 'approximate', point_count: true, area: 'approximate' },
+      '1:100': { linear: true, point_count: true, area: true },
+      '1:50':  { linear: true, point_count: true, area: true },
+      '1:20':  { linear: true, point_count: true, area: true },
+      '1:10':  { linear: 'annotations_only', point_count: true, area: 'annotations_only' },
+      '1:5':   { linear: false, point_count: false, area: false },
+      '1:2':   { linear: false, point_count: false, area: false },
+      '1:1':   { linear: false, point_count: false, area: false }
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     3. TITLE BLOCK EXTRACTION
+     ══════════════════════════════════════════════════════════════ */
+  title_block: {
+    required_fields: {
+      project_name: {
+        description: 'Name of the construction project',
+        location: 'Top of title block or header strip',
+        example: 'Canary Wharf Tower 2 — M&E Fit-Out',
+        always_extract: true
+      },
+      project_number: {
+        description: 'Unique project reference code',
+        location: 'Title block, often near project name',
+        example: 'CWT2-2026-MEP',
+        always_extract: true
+      },
+      drawing_number: {
+        description: 'Unique drawing identifier',
+        location: 'Bottom right of title block',
+        example: 'C1799/00/DR/MX/57001',
+        always_extract: true,
+        note: 'Drawing numbers encode discipline: M=Mechanical, E=Electrical, P=Plumbing, H=HVAC, MX=Multi-discipline'
+      },
+      drawing_title: {
+        description: 'What the drawing shows',
+        location: 'Centre or left of title block',
+        example: 'Level 03 — Ceiling Void HVAC Layout',
+        always_extract: true
+      },
+      revision: {
+        description: 'Current revision number/letter',
+        location: 'Revision box, usually bottom right or top right',
+        example: 'Rev P03, Rev C, Rev 2',
+        always_extract: true,
+        rule: 'Always extract and note. If multiple revisions shown in revision history, use the LATEST.'
+      },
+      revision_date: {
+        description: 'Date of current revision',
+        location: 'Adjacent to revision number',
+        always_extract: true
+      },
+      drawing_status: {
+        description: 'Approval status of the drawing',
+        location: 'Title block, often as a stamp or text field',
+        values: ['For Construction', 'For Coordination', 'Preliminary', 'Tender', 'For Information', 'For Approval', 'Draft'],
+        always_extract: true,
+        rule: 'Flag any status other than "For Construction".'
+      },
+      scale: {
+        description: 'Drawing scale ratio',
+        location: 'Title block, near drawing number',
+        example: '1:100 @ A1, NTS, Do Not Scale',
+        always_extract: true,
+        note: 'The "@A1" or "@A3" indicates the paper size the scale is correct for. If printed on different size paper, scale will be wrong.'
+      },
+      originator: {
+        description: 'Company that produced the drawing',
+        location: 'Title block, usually with company logo',
+        always_extract: true,
+        note: 'Useful for tracking which consultant designed which system.'
+      },
+      discipline: {
+        description: 'Engineering discipline the drawing covers',
+        location: 'Title block or encoded in drawing number',
+        values: ['Mechanical', 'Electrical', 'Public Health', 'HVAC', 'Fire Protection', 'BMS/Controls', 'Multi-discipline'],
+        always_extract: true
+      }
+    },
+    discipline_codes: {
+      M: 'Mechanical (HVAC, heating, cooling)',
+      E: 'Electrical (power, lighting, data)',
+      P: 'Plumbing / Public Health (water, drainage)',
+      H: 'HVAC (sometimes separate from mechanical)',
+      F: 'Fire Protection (sprinklers, suppression)',
+      C: 'Controls / BMS',
+      MX: 'Multi-discipline (combined)',
+      ME: 'Mechanical & Electrical (combined)',
+      MP: 'Mechanical & Public Health (combined)'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     4. REVISION CONTROL
+     ══════════════════════════════════════════════════════════════ */
+  revision_control: {
+    rules: [
+      'ALWAYS use the latest revision of any drawing.',
+      'If multiple revisions of the same drawing are supplied, extract from the latest ONLY.',
+      'Revision clouds (scalloped outlines) indicate areas changed in the current revision — flag these for estimator review.',
+      'Revision triangles (△ with number/letter) adjacent to clouds indicate the specific revision that changed that area.',
+      'Check the revision history box on the drawing for a description of what changed in each revision.',
+      'If a drawing has been superseded by a newer revision, DO NOT extract from the old version.',
+      'Flag any drawing where the revision number on the print does not match the revision in the issue register.'
+    ],
+    revision_formats: {
+      letter_based: 'Rev A, Rev B, Rev C... (A = first issue, most common UK convention)',
+      number_based: 'Rev 1, Rev 2, Rev 3... (alternative format)',
+      p_prefix: 'P01, P02, P03... (preliminary revisions before first construction issue)',
+      c_prefix: 'C01, C02... (construction issue revisions)',
+      t_prefix: 'T01, T02... (tender issue revisions)',
+      combined: 'P01→P02→P03→C01→C02 (preliminary → construction)',
+      note: 'P-prefix = preliminary/planning. C-prefix = construction. T-prefix = tender. The transition from P to C often means the drawing status changed to "For Construction".'
+    },
+    revision_cloud_handling: [
+      'Identify all revision cloud regions on the drawing.',
+      'Read the associated revision number/letter (usually in a triangle nearby).',
+      'Items INSIDE revision clouds are the CHANGED items in this revision.',
+      'Items OUTSIDE revision clouds are UNCHANGED from the previous revision.',
+      'Focus on revision-clouded areas first — these represent new or modified scope.',
+      'Flag revision-clouded items in extraction output with "Rev [X] change" note.',
+      'If a revision cloud covers a large area, every item within it should be flagged.',
+      'Revision clouds in plant rooms or complex areas may indicate re-routing — check carefully.'
+    ]
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     5. DRAWING STATUS HIERARCHY
+     ══════════════════════════════════════════════════════════════ */
+  status_hierarchy: {
+    levels: [
+      { status: 'For Construction', code: 'S4', reliability: 'Definitive', action: 'Extract quantities as final. This is the authoritative source.', flag: false },
+      { status: 'For Coordination', code: 'S3', reliability: 'Provisional', action: 'Extract quantities but flag ALL as preliminary — routing may change during coordination.', flag: true },
+      { status: 'For Information', code: 'S2', reliability: 'Indicative', action: 'Extract quantities but flag as indicative only. Not approved for construction.', flag: true },
+      { status: 'Preliminary', code: 'S1', reliability: 'Early stage', action: 'Extract quantities but flag strongly as preliminary. Expect significant changes.', flag: true },
+      { status: 'Tender', code: 'T', reliability: 'Tender basis', action: 'Extract for pricing purposes. Note that tender drawings may differ from construction issue.', flag: true },
+      { status: 'For Approval', code: 'S3A', reliability: 'Awaiting approval', action: 'Extract but flag — design may change following approval comments.', flag: true },
+      { status: 'Draft', code: 'S0', reliability: 'Unreliable', action: 'Do NOT extract quantities. Flag to estimator that only draft drawings are available.', flag: true }
+    ],
+    rule: 'Only "For Construction" (S4) drawings should be used for final quantities. All other statuses must be flagged. If the highest status available is "For Coordination" or below, flag the ENTIRE extraction as preliminary.',
+    bs1192_mapping: 'Status codes S0-S4 follow BS 1192 / ISO 19650 conventions for information maturity.'
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     6. LEGEND & SYMBOL RULES
+     ══════════════════════════════════════════════════════════════ */
+  legend_rules: {
+    priority: 'ABSOLUTE — project-specific legends override ALL general standards including CIBSE.',
+    extraction_order: [
+      '1. Locate the legend/key on the drawing (often on the first sheet or a dedicated legend sheet).',
+      '2. Extract all symbol definitions with their meanings.',
+      '3. Extract all line type definitions (solid, dashed, dotted, coloured) with system assignments.',
+      '4. Extract all abbreviation definitions.',
+      '5. Cross-reference every extracted element against the legend before classifying.',
+      '6. If an element does not appear in the legend, flag as "unidentified — not in legend".'
+    ],
+    common_symbol_categories: {
+      mechanical: {
+        valves: 'Ball, gate, globe, butterfly, check, PRV, safety — each has distinct symbol. ALWAYS check legend.',
+        equipment: 'AHU (rectangle+fan), FCU (smaller rectangle), pump (circle+arrow), boiler (rectangle+flame)',
+        ductwork: 'Rectangular or circular outlines with system colour fill per CIBSE or legend',
+        pipework: 'Single or double lines with system colour per CIBSE or legend',
+        dampers: 'VCD (butterfly inline), FD (thick bar at wall), SD (similar to FD with S label)',
+        terminals: 'Diffusers (square+arrows), grilles (crossed square), louvres (parallel lines)'
+      },
+      electrical: {
+        lighting: 'Circle variants — plain (standard), with cross (emergency), with arrow (directional)',
+        power: 'Parallel lines (socket), S-circle (switch), rectangle (DB/panel)',
+        data: 'Triangle or diamond shapes for data outlets, crosses for floor boxes',
+        fire_alarm: 'Circle with specific fill/letter: D=detector, CP=call point, S=sounder, B=beacon',
+        containment: 'Parallel lines for tray, single line for conduit — check legend for type'
+      },
+      insulation: {
+        pipe_insulation: 'Wider concentric outline around pipe, or cross-hatched wrap indication',
+        duct_insulation: 'Thicker outline around duct, or zigzag pattern overlay',
+        fire_rated: 'Cross-hatched cladding or specific pattern per legend',
+        acoustic: 'Internal lining shown as hatched inner surface of duct'
+      }
+    },
+    missing_legend_protocol: [
+      'If NO legend is present on the drawing or drawing set:',
+      '  1. Flag immediately as "No legend found — symbol meanings unconfirmed".',
+      '  2. Fall back to CIBSE standard symbols as best estimate.',
+      '  3. Set confidence to "Medium" at best for all symbol-dependent identifications.',
+      '  4. List all assumptions made about symbol meanings in the flags section.',
+      '  5. Recommend estimator obtains legend from the design consultant before finalising.'
+    ]
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     7. MULTI-DISCIPLINE DRAWINGS
+     ══════════════════════════════════════════════════════════════ */
+  multi_discipline: {
+    identification: [
+      'Multi-discipline drawings show multiple trades overlaid on the same floor plan.',
+      'Common combinations: M&E (mechanical + electrical), combined services, coordination drawings.',
+      'Identified by: drawing number containing "MX" or "ME" or "Combined", or legend showing multiple trade colours.',
+      'Each trade is typically colour-coded — check the legend for the colour key.'
+    ],
+    extraction_rules: [
+      'SEPARATE extraction by trade — do not mix mechanical and electrical quantities.',
+      'Use colour coding from the legend to distinguish trades.',
+      'Where colour coding is ambiguous (e.g. faded print, overlapping services), flag for estimator.',
+      'Count each trade\'s equipment independently — an AHU is mechanical, a DB is electrical.',
+      'Containment (cable tray) is electrical even if it runs alongside mechanical services.',
+      'Insulation belongs to the trade it insulates: pipe insulation = mechanical/insulation, duct insulation = mechanical/insulation.',
+      'Fire dampers in ductwork = mechanical. Fire stopping at electrical penetrations = electrical/fire protection.',
+      'BMS sensors and controls: may be either mechanical or electrical depending on project scope split.'
+    ],
+    common_trade_boundaries: {
+      mechanical_scope: 'Pipework, ductwork, plant equipment, valves, dampers, mechanical ventilation, heating, cooling',
+      electrical_scope: 'Power distribution, lighting, fire alarm, data/comms, security, containment, earthing, small power',
+      insulation_scope: 'Thermal insulation to pipes, ducts, vessels. Acoustic insulation. Fire-rated wraps and boards.',
+      public_health: 'Domestic water (above ground), drainage, sanitary ware. Often separate from mechanical.',
+      fire_protection: 'Sprinklers, suppression, fire stopping. May be mechanical or specialist sub.',
+      bms_controls: 'Sensors, actuators, controllers, cabling. Scope split varies by project.',
+      rule: 'If scope boundaries are unclear, flag for estimator clarification rather than guessing.'
+    }
+  }
+};
+
+/* ── Export for use by main knowledge base ─────────────────────── */
+module.exports = KB_C01;

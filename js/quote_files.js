@@ -410,19 +410,9 @@ async function qfStartAnalysis() {
     /* STEP 3 — Call Claude API */
     setStep(42, 'Calling Claude AI (UK construction specialist)\u2026');
 
-    var _qfApiKey = STATE.anthropicApiKey || '';
-    if (!_qfApiKey) {
-      throw new Error('API key not configured \u2014 go to Settings \u2192 API & Integrations');
-    }
-
-    var apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    var apiResponse = await fetch(CONTRAQ_API_BASE + '/api/quote-files/analyse', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': _qfApiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,

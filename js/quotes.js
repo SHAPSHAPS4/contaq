@@ -1188,27 +1188,11 @@ function qbStartAnalysis() {
       }
     }, 4000);
 
-    /* Require API key — no silent fallback to demo data */
-    var _apiKey = STATE.anthropicApiKey || '';
-    if (!_apiKey) {
-      clearInterval(_apiStepTimer);
-      docCount.textContent = 'API key not configured \u2014 go to Settings \u2192 API & Integrations';
-      docCount.style.color = 'var(--orange)';
-      showToast('Configure your Anthropic API key in Settings \u2192 API & Integrations to use the AI Quote Builder.', 'error');
-      _qbRunDemoFallback(activateStep, completeAll);
-      return;
-    }
+    console.log('[Contraq AI] Calling API proxy (' + contentBlocks.length + ' content blocks, model: claude-sonnet-4-6)');
 
-    console.log('[Contraq AI] Calling Anthropic API with key: ' + _apiKey.substring(0,10) + '... (' + contentBlocks.length + ' content blocks, model: claude-sonnet-4-6)');
-
-    fetch('https://api.anthropic.com/v1/messages', {
+    fetch(CONTRAQ_API_BASE + '/api/quotes/extract', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': _apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 16000,

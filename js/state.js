@@ -67,6 +67,9 @@ var STATE = {
   anthropicApiKey: ''
 };
 
+/* ── Backend API proxy base URL ───────────────────────────────── */
+var CONTRAQ_API_BASE = 'http://localhost:3001';
+
 /* ── Load persisted settings from localStorage ─────────────── */
 try {
   var _savedKey = localStorage.getItem('contraq_anthropic_key');

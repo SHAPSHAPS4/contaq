@@ -153,19 +153,9 @@ async function journalAIAnalyse() {
   ].join('\n');
 
   try {
-    var _jnlApiKey = STATE.anthropicApiKey || '';
-    if (!_jnlApiKey) {
-      throw new Error('API key not configured \u2014 go to Settings \u2192 API & Integrations');
-    }
-
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    var resp = await fetch(CONTRAQ_API_BASE + '/api/journal/analyse', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': _jnlApiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
