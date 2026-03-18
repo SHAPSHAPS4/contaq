@@ -26,12 +26,13 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.1';
+const KB_VERSION = '5.2';
 const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 27;
+const KB_VERSION_SOURCES = 28;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
+const KB_C02 = require('./kb-c02-estimating-principles');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -805,7 +806,44 @@ function getFullKnowledgeBase() {
     '\n' + KB_C01.status_hierarchy.rule,
     '\nLegend Rules: ' + KB_C01.legend_rules.priority,
     '\nMissing Legend Protocol:\n' + formatList(KB_C01.legend_rules.missing_legend_protocol),
-    '\nMulti-Discipline Extraction:\n' + formatList(KB_C01.multi_discipline.extraction_rules)
+    '\nMulti-Discipline Extraction:\n' + formatList(KB_C01.multi_discipline.extraction_rules),
+
+    '### KB-C02: Estimating Principles & Waste Factors',
+    'Units: m (linear), m² (area), nr (number), kg (weight), item (provisional). ' + KB_C02.units.rule,
+
+    'Waste Factors — Pipework:',
+    ...Object.entries(KB_C02.waste_factors.pipework).map(([k, v]) => '  ' + k + ': ' + v.range + ' (default ' + (v.default * 100) + '%) — ' + v.reason),
+    '\nWaste Factors — Cable:',
+    ...Object.entries(KB_C02.waste_factors.cable).filter(([k]) => k !== 'termination_allowance').map(([k, v]) => '  ' + k + ': ' + v.range + ' (default ' + (v.default * 100) + '%)'),
+    '  Termination allowance: ' + KB_C02.waste_factors.cable.termination_allowance.per_termination + ' per termination point',
+    '\nWaste Factors — Ductwork:',
+    ...Object.entries(KB_C02.waste_factors.ductwork).map(([k, v]) => '  ' + k + ': ' + v.range + ' (' + v.unit + ')'),
+    '\nWaste Factors — Insulation:',
+    ...Object.entries(KB_C02.waste_factors.insulation).map(([k, v]) => '  ' + k + ': ' + v.range + ' (default ' + (v.default * 100) + '%)'),
+    '\nWaste Application Rules:\n' + formatList(KB_C02.waste_factors.application_rules),
+
+    'Fittings Allowance (when not individually shown):',
+    'Priority: ' + KB_C02.fittings_allowance.priority_order.join(' → '),
+    '\nElbow rates:',
+    ...Object.entries(KB_C02.fittings_allowance.elbow_allowances).map(([k, v]) => '  ' + v.size_range + ': ' + v.rate),
+    '\nAlways count individually:\n' + formatList(KB_C02.fittings_allowance.always_count_individually),
+
+    'Fixing & Support Spacings:',
+    '  Pipe <42mm: every ' + KB_C02.supports.pipework.small_bore.spacing,
+    '  Pipe 42-80mm: every ' + KB_C02.supports.pipework.medium_bore.spacing,
+    '  Pipe >80mm: every ' + KB_C02.supports.pipework.large_bore.spacing,
+    '  Cable tray: every ' + KB_C02.supports.cable_containment.cable_tray.spacing,
+    '  Rect duct: every ' + KB_C02.supports.ductwork.rectangular.spacing,
+    '  Circ duct: every ' + KB_C02.supports.ductwork.circular.spacing,
+    '  Riser multiplier: +20%',
+
+    'Rounding: ' + KB_C02.rounding.golden_rule,
+    '  Linear → nearest 0.5m UP. Area → nearest 0.5m² UP. Number → whole number UP.',
+
+    'Measurement Priority: ' + KB_C02.measurement.measurement_priority,
+
+    'Quantity Status:\n' + Object.entries(KB_C02.quantity_status.classifications).map(([k, v]) => '  ' + k + ': ' + v.description).join('\n'),
+    '\n' + KB_C02.quantity_status.rule
   ].join('\n\n');
 }
 
@@ -832,7 +870,8 @@ function getSection(sectionName) {
     insulation_rules: INSULATION_RULES,
     uk_standards: UK_STANDARDS,
     quality_rules: QUALITY_RULES,
-    drawing_standards: KB_C01
+    drawing_standards: KB_C01,
+    estimating_principles: KB_C02
   };
   return sections[sectionName] || null;
 }
@@ -879,5 +918,6 @@ module.exports = {
   INSULATION_RULES,
   UK_STANDARDS,
   QUALITY_RULES,
-  KB_C01
+  KB_C01,
+  KB_C02
 };
