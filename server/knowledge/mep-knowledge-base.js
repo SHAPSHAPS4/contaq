@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.6';
+const KB_VERSION = '5.7';
 const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 32;
+const KB_VERSION_SOURCES = 33;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -37,6 +37,7 @@ const KB_C03 = require('./kb-c03-uk-standards');
 const KB_C04 = require('./kb-c04-document-hierarchy');
 const KB_M01 = require('./kb-m01-pipe-materials');
 const KB_M02 = require('./kb-m02-fittings-valves');
+const KB_M03 = require('./kb-m03-hvac-ductwork');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -934,7 +935,34 @@ function getFullKnowledgeBase() {
     'Speciality Items (count individually): ' + Object.keys(KB_M02.speciality_items.types).join(', '),
     '  Implicit items (required even if not shown): isolation at equipment, strainers at valves/pumps, drains at low points, air vents at high points, flexibles at rotating equipment.',
 
-    'Fittings Priority: ' + KB_M02.estimation_rules.priority.join(' → ')
+    'Fittings Priority: ' + KB_M02.estimation_rules.priority.join(' → '),
+
+    '### KB-M03: HVAC & Ductwork',
+    'Rectangular duct: ' + KB_M03.ductwork_types.rectangular.measurement.unit + '. Formula: ' + KB_M03.ductwork_types.rectangular.measurement.formula,
+    '  Pressure classes: A (low <10m/s), B (medium 10-20m/s), C (high >20m/s). Airtightness: A/B/C/D.',
+    '  Standard: DW/144. Material: GMS.',
+
+    'Circular duct: ' + KB_M03.ductwork_types.circular.measurement.unit + '. Sizes: ' + KB_M03.ductwork_types.circular.common_sizes_mm.join(', ') + 'mm',
+
+    'Flexible duct: m (linear). Max ' + KB_M03.ductwork_types.flexible.max_length_rule.max_straight + ' straight. Flag if longer.',
+
+    'Specialist: Kitchen extract (DW/172 — welded joints, heavier gauge), Fire-rated duct (BS EN 1366-1, 60-120 min), Smoke extract (BS EN 12101).',
+
+    'Duct Fittings (count as nr): ' + Object.keys(KB_M03.ductwork_fittings.types).join(', '),
+    '  If not shown: allow 25% of straight duct as fittings cost (Wendes). Flag as estimated.',
+
+    'Dampers (ALWAYS count individually):',
+    '  Fire Damper: ratings 60/90/120 min. MANDATORY at every duct penetration through fire-rated construction.',
+    '  Smoke Damper: motorised, fire alarm interface required.',
+    '  VCD (motorised): BMS controlled. VCD (manual): set during commissioning.',
+
+    'Air Terminals (count as nr): 4-way/2-way diffusers, linear diffusers (m), swirl diffusers, return grilles, extract grilles, transfer grilles, external louvres.',
+    '  Use air terminal schedule if available — it is AUTHORITATIVE.',
+
+    'AH Plant: AHU (note capacity, coils, filters, recovery), FCU (2-pipe or 4-pipe, mounting type), MVHR, extract fans, inline fans, attenuators.',
+
+    'VRF/VRV: Outdoor units (nr, kW), Indoor units (nr by type: cassette/ducted/wall/floor), Refrigerant pipe (m — TWO pipes: liquid + suction, ACR copper, brazed), Condensate drains (m).',
+    '  Refrigerant pipe insulation ALWAYS required. Branch selectors at each split (nr).'
   ].join('\n\n');
 }
 
@@ -966,7 +994,8 @@ function getSection(sectionName) {
     uk_standards_ref: KB_C03,
     document_hierarchy: KB_C04,
     pipe_materials_ref: KB_M01,
-    fittings_valves: KB_M02
+    fittings_valves: KB_M02,
+    hvac_ductwork: KB_M03
   };
   return sections[sectionName] || null;
 }
@@ -1018,5 +1047,6 @@ module.exports = {
   KB_C03,
   KB_C04,
   KB_M01,
-  KB_M02
+  KB_M02,
+  KB_M03
 };
