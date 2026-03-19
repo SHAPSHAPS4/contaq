@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.4';
+const KB_VERSION = '6.5';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 40;
+const KB_VERSION_SOURCES = 41;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -45,6 +45,7 @@ const KB_E03 = require('./kb-e03-electrical-equipment');
 const KB_E04 = require('./kb-e04-lighting-small-power');
 const KB_E05 = require('./kb-e05-specialist-electrical');
 const KB_I01 = require('./kb-i01-pipe-insulation');
+const KB_I02 = require('./kb-i02-duct-insulation');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1114,7 +1115,24 @@ function getFullKnowledgeBase() {
 
     'Waste: 15% pipe sections, 12% sheet. Accessories: adhesive, tape, pins, banding, VB tape, support inserts.',
 
-    'Flags: No material specified, no thickness stated, cold water without VB, chilled without elastomeric, no support inserts on cold, refrigerant uninsulated, condensate uninsulated, unheated space without insulation, asbestos risk if pre-2000 building.'
+    'Flags: No material specified, no thickness stated, cold water without VB, chilled without elastomeric, no support inserts on cold, refrigerant uninsulated, condensate uninsulated, unheated space without insulation, asbestos risk if pre-2000 building.',
+
+    '### KB-I02: Ductwork Insulation',
+    'Internal Lining (m² internal surface): Acoustic+thermal glass wool mat/slab, 25mm or 50mm. REDUCES internal duct dimensions — flag if sizing not compensated.',
+    'External Wrap (m² external surface): Glass wool roll foil-faced (standard), elastomeric sheet (cold ducts), phenolic slab (tight spaces). 25-75mm.',
+    '  VB: REQUIRED on all cold duct external insulation. Foil facing standard. Joints sealed with foil tape.',
+    'Fire-Rated Wrap (m² surface area): Mineral wool fire wrap, 30/60/90/120 min. BS EN 1366-1 tested system required.',
+    '  Extends from wall face to distance per test cert (500-1500mm each side). NOT full duct length.',
+    '  Fire damper OR fire wrap at penetrations — not both (unless unusual). Flag if neither shown.',
+
+    'Surface Area Formulas:',
+    '  Rectangular: 2(W+H) × L. Circular: π×D×L. Flat oval: (π×H + 2(W-H)) × L.',
+    '  Add 10-15% for fittings insulation. Include bends, tees.',
+
+    'By System: Supply=always insulate (VB if cold). Return=often NOT insulated (check spec). Extract=usually NOT (except kitchen DW/172). Fresh air intake=ALWAYS insulate+VB. Kitchen extract=fire wrap. Smoke extract=fire-rated per BS EN 12101.',
+    '  Flex duct: often pre-insulated — check spec. If bare flex, insulate separately.',
+
+    '14 flag triggers including: fire rating without product, cold duct without VB, internal+external both specified, return duct insulation unclear, duct penetrating fire wall without protection.'
   ].join('\n\n');
 }
 
@@ -1154,7 +1172,8 @@ function getSection(sectionName) {
     electrical_equipment: KB_E03,
     lighting_small_power: KB_E04,
     specialist_electrical: KB_E05,
-    pipe_insulation: KB_I01
+    pipe_insulation: KB_I01,
+    duct_insulation: KB_I02
   };
   return sections[sectionName] || null;
 }
@@ -1214,5 +1233,6 @@ module.exports = {
   KB_E03,
   KB_E04,
   KB_E05,
-  KB_I01
+  KB_I01,
+  KB_I02
 };
