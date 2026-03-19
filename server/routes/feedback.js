@@ -1,6 +1,9 @@
 /**
  * Feedback Loop Routes
  * POST /api/feedback/process — Estimator correction processing
+ *
+ * Processes estimator corrections, produces corrected extraction,
+ * generates LEARNED rules, and persists them to KB-L01/L02 on disk.
  */
 
 const express = require('express');
@@ -9,7 +12,19 @@ const { callAI } = require('../services/ai');
 const kbManager = require('../knowledge/kb-manager');
 const kb = require('../knowledge/mep-knowledge-base');
 
-const TASK_PROMPT = `## ERROR TYPES
+router.post('/process', async (req, res) => {
+  try {
+    const { originalExtraction, corrections, generalFeedback, messages, model, max_tokens } = req.body;
+
+    const systemPrompt = `You are an M&E estimating assistant in refinement mode.
+Process the estimator's corrections, produce a corrected extraction,
+and generate LEARNED rules to prevent recurrence.
+
+${req.kbPrompt}
+
+${req.kbTruncated ? '⚠ NOTE: Some non-critical KB sections were omitted due to token limits.' : ''}
+
+## ERROR TYPES
 QUANTITY_ERROR: Wrong quantity (wrong length, missed items, double counted, wrong waste factor)
 SPECIFICATION_ERROR: Wrong material, size, rating, or type
 TRADE_ERROR: Item assigned to wrong trade
@@ -19,16 +34,15 @@ CONVENTION_ERROR: Misread drawing convention, symbol, or abbreviation
 CONFIDENCE_ERROR: Wrong confidence score
 MISSED_FLAG: Failed to flag something needing estimator attention
 
-## YOUR RESPONSE FORMAT
-
-Respond with a JSON object (no markdown, no backticks, no preamble):
+## RESPONSE FORMAT
+Return a JSON object (no markdown, no backticks, no preamble):
 
 {
   "kb_version": "${kb.KB_VERSION}",
   "error_acknowledgements": [
     {
       "item": "[item in question]",
-      "error_type": "[error type]",
+      "error_type": "[error type from list above]",
       "root_cause": "[why this happened]",
       "correct_principle": "[what rule applies]",
       "corrected_extraction": {
@@ -46,9 +60,9 @@ Respond with a JSON object (no markdown, no backticks, no preamble):
     "extraction": [ "...corrected items..." ],
     "flags": [ "...updated flags..." ]
   },
-  "learned_rules": [
+  "updated_rules": [
     {
-      "rule_id": "LEARNED_001",
+      "rule_id": "LEARNED_NNN",
       "trigger": "[what situation triggers this rule]",
       "action": "[what to do differently]",
       "reason": "[why this matters]"
@@ -70,30 +84,32 @@ Respond with a JSON object (no markdown, no backticks, no preamble):
 - Always show working when correcting quantities.
 - If a correction seems inconsistent with a previous one, flag politely for clarification.
 - Prioritise estimator feedback over domain knowledge.
-- If same error type corrected 3+ times, flag as PATTERN ERROR.
-- Return JSON ONLY.`;
+- If same error type corrected 3+ times, add to pattern_errors array.
+- Return JSON ONLY.`.trim();
 
-router.post('/process', async (req, res) => {
-  try {
-    const { originalExtraction, corrections, messages, model, max_tokens } = req.body;
-
-    const systemPrompt = `You are an M&E estimating assistant inside the Contraq platform. The estimator has reviewed your output and identified errors. You must learn from this feedback, correct your extraction, and produce updated rules.
-
-${req.kbPrompt}
-
-${req.kbTruncated ? '⚠ NOTE: Some non-critical KB sections were omitted due to token limits.' : ''}
-
-${TASK_PROMPT}`.trim();
-
-    // New structured API
+    // ── New structured API ─────────────────────────
     if (originalExtraction && corrections) {
-      const existingRules = kbManager.loadLearning();
-      const rulesContext = existingRules.learnedRules.length
-        ? '\n\nEXISTING LEARNED RULES:\n' + JSON.stringify(existingRules.learnedRules, null, 2)
-        : '';
+      const existingLearning = kbManager.loadLearning();
+      const nextRuleNum = existingLearning.learnedRules.length + 1;
 
-      const nextRuleNum = existingRules.learnedRules.length + 1;
-      const userPrompt = `ORIGINAL EXTRACTION:\n${JSON.stringify(originalExtraction, null, 2)}\n\nESTIMATOR FEEDBACK:\n${JSON.stringify(corrections, null, 2)}${rulesContext}\n\nProcess all corrections. Number new rules starting at LEARNED_${String(nextRuleNum).padStart(3, '0')}. Return JSON only.`;
+      const existingRulesContext = existingLearning.learnedRules.length
+        ? `\n\nEXISTING LEARNED RULES (apply these, number new rules sequentially from LEARNED_${String(nextRuleNum).padStart(3, '0')}):\n${JSON.stringify(existingLearning.learnedRules, null, 2)}`
+        : `\n\nNo existing learned rules. Number new rules starting at LEARNED_${String(nextRuleNum).padStart(3, '0')}.`;
+
+      const userPrompt = `Original extraction:
+${JSON.stringify(originalExtraction, null, 2)}
+
+Estimator corrections:
+${JSON.stringify(corrections, null, 2)}
+
+General feedback: ${generalFeedback || 'None provided'}
+${existingRulesContext}
+
+Please:
+1. Acknowledge each error with root cause analysis
+2. Produce corrected extraction JSON
+3. State updated LEARNED rules in format: { rule_id, trigger, action, reason }
+4. Produce feedback session summary`.trim();
 
       const response = await callAI({
         systemPrompt,
@@ -102,30 +118,85 @@ ${TASK_PROMPT}`.trim();
         model: model || 'claude-sonnet-4-6'
       });
 
-      // Persist learned rules to disk
-      if (response.raw) {
-        try { kbManager.processAndPersistFeedback(response.raw); } catch (e) {
-          console.warn('[feedback] Learning persistence failed:', e.message);
+      // ── Parse and persist learned rules ─────────
+      let learnedRules = [];
+      let patternErrors = [];
+
+      try {
+        const parsed = response.json || (typeof response.raw === 'string' ? JSON.parse(response.raw) : null);
+
+        if (parsed) {
+          learnedRules = parsed.updated_rules || parsed.learned_rules || [];
+          patternErrors = parsed.pattern_errors || [];
+
+          // Persist learned rules to KB-L01
+          if (learnedRules.length > 0) {
+            const existing = kbManager.loadLearning();
+            const ruleIds = new Set(existing.learnedRules.map(r => r.rule_id));
+            const merged = [...existing.learnedRules];
+
+            for (const rule of learnedRules) {
+              if (!ruleIds.has(rule.rule_id)) {
+                merged.push(rule);
+                ruleIds.add(rule.rule_id);
+                console.log(`[KB] Persisted new learned rule: ${rule.rule_id}`);
+              } else {
+                const idx = merged.findIndex(r => r.rule_id === rule.rule_id);
+                merged[idx] = rule;
+                console.log(`[KB] Updated learned rule: ${rule.rule_id}`);
+              }
+            }
+
+            const existingPatterns = existing.patternErrors;
+
+            // Persist pattern errors to KB-L02
+            for (const pattern of patternErrors) {
+              const exists = existingPatterns.find(p => p.error_type === pattern.error_type);
+              if (!exists) {
+                existingPatterns.push({
+                  pattern_id: `PATTERN_${String(existingPatterns.length + 1).padStart(3, '0')}`,
+                  error_type: pattern.error_type,
+                  occurrences: pattern.occurrences || 3,
+                  heightened_action: pattern.heightened_action || `Triple-check all ${pattern.error_type} items.`,
+                  first_detected: new Date().toISOString(),
+                  last_triggered: new Date().toISOString()
+                });
+                console.log(`[KB] New pattern error: ${pattern.error_type}`);
+              } else {
+                exists.occurrences = pattern.occurrences || exists.occurrences;
+                exists.heightened_action = pattern.heightened_action || exists.heightened_action;
+                exists.last_triggered = new Date().toISOString();
+              }
+            }
+
+            kbManager.saveLearning(merged, existingPatterns);
+          }
         }
+      } catch (parseErr) {
+        console.warn('[feedback/process] Could not parse learned rules from AI response:', parseErr.message);
       }
 
       return res.json({
         success: true,
         kbVersion: kb.KB_VERSION,
-        feedback: response.json || response.raw,
-        learning: kbManager.loadLearning(),
+        response: response.json || response.raw,
+        learnedRulesPersisted: learnedRules.length,
+        patternErrorsPersisted: patternErrors.length,
+        kbUpdated: learnedRules.length > 0 || patternErrors.length > 0,
+        totalLearnedRules: kbManager.loadLearning().learnedRules.length,
+        totalPatternErrors: kbManager.loadLearning().patternErrors.length,
         usage: response.usage
       });
     }
 
-    // Legacy: raw messages
+    // ── Legacy: raw messages from existing frontend ──
     if (messages) {
       req.body.system = systemPrompt;
       if (!req.body.max_tokens) req.body.max_tokens = 10000;
 
-      // Use custom proxy that intercepts response for learning persistence
-      const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+      // Custom proxy that intercepts response for learning persistence
       const { ALLOWED_MODELS } = require('../services/ai');
+      const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 
       const safeModel = ALLOWED_MODELS.includes(req.body.model) ? req.body.model : 'claude-sonnet-4-6';
       const anthropicBody = { model: safeModel, max_tokens: req.body.max_tokens, system: systemPrompt, messages: req.body.messages };
@@ -141,6 +212,8 @@ ${TASK_PROMPT}`.trim();
       });
 
       const body = await anthropicResp.text();
+
+      // Persist learning from legacy response
       if (anthropicResp.ok) {
         try { kbManager.processAndPersistFeedback(body); } catch (e) {
           console.warn('[feedback] Learning persistence failed:', e.message);
