@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { priceTakeoff, applyManualOverride, loadOverheads } = require('../services/pricing-engine');
+const { priceTakeoff, applyManualOverride, loadOverheads, loadLearnedRates, saveLearnedRate } = require('../services/pricing-engine');
 const { logSession } = require('../services/session-logger');
 const path = require('path');
 const fs = require('fs');
@@ -119,6 +119,29 @@ router.get('/quotes', (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
+});
+
+// POST /api/pricing/learn-rate
+router.post('/learn-rate', (req, res) => {
+  const { item, override_total, project_ref, confirm } = req.body;
+  if (!item || !override_total) return res.status(400).json({ error: 'item and override_total required' });
+  if (!confirm) {
+    return res.json({
+      preview: true,
+      message: 'This will save the following rate for future use:',
+      description: item.description,
+      inferred_rate: parseFloat((override_total / (parseFloat(item.quantity) || 1)).toFixed(2)),
+      unit: item.unit,
+      confirm_required: true,
+    });
+  }
+  const rate = saveLearnedRate(item, override_total, project_ref);
+  res.json({ success: true, rate, message: 'Rate saved to learned rate library' });
+});
+
+// GET /api/pricing/learned-rates
+router.get('/learned-rates', (req, res) => {
+  res.json(loadLearnedRates());
 });
 
 module.exports = router;

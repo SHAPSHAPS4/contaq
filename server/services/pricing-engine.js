@@ -7,6 +7,7 @@ const fs = require('fs');
 
 const RATES_PATH = path.join(__dirname, '../data/rates');
 const OVERHEADS_PATH = path.join(__dirname, '../data/overheads.json');
+const LEARNED_RATES_PATH = path.join(RATES_PATH, 'learned_rates.json');
 
 function loadRates(trade) {
   const filePath = path.join(RATES_PATH, trade.toLowerCase() + '.json');
@@ -27,7 +28,63 @@ function loadOverheads() {
   }
 }
 
+/* ── Learned Rate Functions ────────────────────────────────── */
+
+function loadLearnedRates() {
+  try { return JSON.parse(fs.readFileSync(LEARNED_RATES_PATH, 'utf-8')); }
+  catch { return { rates: [], last_updated: null }; }
+}
+
+function saveLearnedRate(item, overrideTotal, projectRef) {
+  const learned = loadLearnedRates();
+  const qty = parseFloat(item.quantity) || 1;
+  const inferredMaterialRate = parseFloat((overrideTotal * 0.55 / qty).toFixed(2));
+  const inferredLabourRate = parseFloat((overrideTotal * 0.45 / qty).toFixed(2));
+
+  const existing = learned.rates.findIndex(r =>
+    r.keywords.some(k => item.description?.toLowerCase().includes(k.toLowerCase()))
+  );
+
+  const newRate = {
+    description: item.description,
+    keywords: [item.description?.toLowerCase().trim()],
+    unit: item.unit,
+    material_rate: inferredMaterialRate,
+    labour_rate: inferredLabourRate,
+    source: 'learned_from_project:' + projectRef,
+    learned_at: new Date().toISOString(),
+    usage_count: 1,
+    override_total: overrideTotal,
+  };
+
+  if (existing >= 0) {
+    learned.rates[existing].usage_count = (learned.rates[existing].usage_count || 0) + 1;
+    learned.rates[existing].last_seen = new Date().toISOString();
+  } else {
+    learned.rates.push(newRate);
+  }
+
+  learned.last_updated = new Date().toISOString();
+  fs.writeFileSync(LEARNED_RATES_PATH, JSON.stringify(learned, null, 2));
+  return newRate;
+}
+
+function lookupLearnedRate(description, unit) {
+  const learned = loadLearnedRates();
+  const descLower = description?.toLowerCase() || '';
+  return learned.rates.find(r =>
+    r.keywords.some(k => descLower.includes(k)) && (!r.unit || r.unit === unit)
+  ) || null;
+}
+
+/* ── Rate Lookup (learned rates checked first) ────────────── */
+
 function lookupRate(ratesData, description, specification, unit) {
+  // Check learned rates first — project-specific rates take priority
+  const learned = lookupLearnedRate(description, unit);
+  if (learned) return { ...learned, source: learned.source };
+
+  // Then check standard rate library
   if (!ratesData || !ratesData.rates) return null;
   const descLower = description.toLowerCase();
   const specLower = (specification || '').toLowerCase();
@@ -140,4 +197,4 @@ function applyManualOverride(pricedItem, override) {
   return updated;
 }
 
-module.exports = { priceTakeoff, priceItem, applyManualOverride, loadOverheads };
+module.exports = { priceTakeoff, priceItem, applyManualOverride, loadOverheads, loadLearnedRates, saveLearnedRate, lookupLearnedRate };
