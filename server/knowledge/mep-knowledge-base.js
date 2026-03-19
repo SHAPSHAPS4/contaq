@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '7.0';
+const KB_VERSION = '7.1';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 46;
+const KB_VERSION_SOURCES = 47;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -51,6 +51,7 @@ const KB_I04 = require('./kb-i04-fire-specialist-insulation');
 const KB_X01 = require('./kb-x01-extraction-logic');
 const KB_X02 = require('./kb-x02-confidence-scoring');
 const KB_X03 = require('./kb-x03-conflict-resolution');
+const KB_X04 = require('./kb-x04-hallucination-prevention');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1238,7 +1239,26 @@ function getFullKnowledgeBase() {
     '  MODERATE: affects quantity/spec — different sizes, counts differ. Extract from higher authority, flag both values.',
     '  MINOR: detail only — <5% dimension, abbreviation difference. Extract best interpretation, note in flags.',
 
-    '7-point Detection Checklist: multiple revisions, material mismatch, schedule vs drawing count, spec contradiction, annotation vs spec, status mismatch, cross-discipline conflict.'
+    '7-point Detection Checklist: multiple revisions, material mismatch, schedule vs drawing count, spec contradiction, annotation vs spec, status mismatch, cross-discipline conflict.',
+
+    '### KB-X04: Hallucination Prevention Rules',
+    'Hallucination in M&E = producing output NOT supported by source documents: invented quantities, assumed specs, extrapolated layouts, convention-based additions without flagging, cable counts from containment, specs from AI memory.',
+
+    'Prevention Rules:',
+    '  H-01: Only extract what you can SEE on drawing or in schedule. Convention ≠ evidence.',
+    '  H-02: No spec from memory. If spec is silent, say so — do NOT fill from training data without flagging.',
+    '  H-03: No linear quantities from schematics. Schematics = logic, NOT routing. Equipment counts OK (Medium conf).',
+    '  H-04: Flag before assuming. Every assumption → Low confidence + flag explaining the gap.',
+    '  H-05: Schedule overrides estimation. NEVER estimate what a schedule already answers.',
+    '  H-06: Uncertainty = Low confidence + flag. Do NOT fill gaps with plausible answers.',
+
+    'High Risk Scenarios (extra verification): complex plant rooms, low-res PDFs, poor annotation, spec-only (no drawings), Preliminary/For Coordination, unfamiliar symbols, partial drawings, mixed revisions.',
+
+    'Pre-Output Self-Check (8 questions):',
+    '  SC-01: Every quantity traceable? SC-02: Specs from documents not memory? SC-03: No linear qty from schematics?',
+    '  SC-04: All assumptions flagged? SC-05: Schedules used where available? SC-06: Uncertainty = Low confidence?',
+    '  SC-07: No extrapolation beyond drawing? SC-08: Would an experienced estimator question any value?',
+    '  Output: "Self-check: PASSED. All 8 checks clear." or "Self-check: N items revised following review."'
   ].join('\n\n');
 }
 
@@ -1284,7 +1304,8 @@ function getSection(sectionName) {
     fire_specialist_insulation: KB_I04,
     extraction_logic: KB_X01,
     confidence_scoring: KB_X02,
-    conflict_resolution: KB_X03
+    conflict_resolution: KB_X03,
+    hallucination_prevention: KB_X04
   };
   return sections[sectionName] || null;
 }
@@ -1350,5 +1371,6 @@ module.exports = {
   KB_I04,
   KB_X01,
   KB_X02,
-  KB_X03
+  KB_X03,
+  KB_X04
 };
