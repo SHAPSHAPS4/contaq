@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.7';
+const KB_VERSION = '6.8';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 43;
+const KB_VERSION_SOURCES = 44;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -48,6 +48,7 @@ const KB_I01 = require('./kb-i01-pipe-insulation');
 const KB_I02 = require('./kb-i02-duct-insulation');
 const KB_I03 = require('./kb-i03-equipment-insulation');
 const KB_I04 = require('./kb-i04-fire-specialist-insulation');
+const KB_X01 = require('./kb-x01-extraction-logic');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1174,7 +1175,29 @@ function getFullKnowledgeBase() {
     '  High temp (>120°C): calcium silicate or high-temp MW, personal protection (<60°C surface). 2-4× cost.',
     '  Trace heating: cable (m) + thermostat (nr) + insulation over cable. Combined M&E&I scope.',
 
-    '17 flag triggers: fire penetrations without stops, acoustic near sensitive areas, cold pipes without VB, wrong material for temperature, trace heating without insulation.'
+    '17 flag triggers: fire penetrations without stops, acoustic near sensitive areas, cold pipes without VB, wrong material for temperature, trace heating without insulation.',
+
+    '### KB-X01: Quantity Extraction Logic',
+    'Source Priority (highest → lowest): 1. Schedule, 2. Drawing annotation, 3. Scale measurement, 4. Estimated allowance (LAST RESORT, flag).',
+    '  Figured dimensions ALWAYS override scaled measurements. NEVER estimate when schedule exists.',
+
+    'Linear Measurement: Trace centreline start→end. Include verticals. Do NOT measure from schematics, riser diagrams, or details.',
+    '  Vertical estimation: floor-to-floor height (KB-C01) + ceiling void + equipment drop. Flag as estimated vertical.',
+    'Area Measurement: Rect duct 2(W+H)×L. Equipment: all external faces. Add 10-15% for fittings.',
+    'Count Items: Drawing count cross-checked against schedule. Schedule wins if conflict. Avoid double count across overlapping drawings.',
+
+    'Multi-Floor: Assign drawings to floors. Track per-floor + total. Risers = floors × floor-to-floor + fittings. Similar floors: measure one × count. Verify "typical" is truly identical.',
+
+    'Extract/Flag Decision:',
+    '  EXTRACT (High conf): clearly shown, spec sufficient, measurable.',
+    '  EXTRACT+FLAG (Med/Low): shown but spec incomplete, scale without bar, For Coordination, implicit items, estimated allowance, revision cloud.',
+    '  FLAG ONLY (no extract): schematics, riser diagrams, details, poor quality, TBC/TBA items, Preliminary revision clouds.',
+
+    'Completeness Check (run EVERY extraction):',
+    '  1. All trades addressed? 2. All sheets processed? 3. Title block extracted? 4. Status assessed?',
+    '  5. Legend referenced? 6. Waste factors noted separately? 7. Flags section populated? 8. Implicit items?',
+    '  9. Confidence scores? 10. Source labels? 11. Quantity status? 12. Cross-trade references?',
+    '  Final: "Completeness check: PASSED. N items, N flags. KB v' + KB_VERSION + '."'
   ].join('\n\n');
 }
 
@@ -1217,7 +1240,8 @@ function getSection(sectionName) {
     pipe_insulation: KB_I01,
     duct_insulation: KB_I02,
     equipment_insulation: KB_I03,
-    fire_specialist_insulation: KB_I04
+    fire_specialist_insulation: KB_I04,
+    extraction_logic: KB_X01
   };
   return sections[sectionName] || null;
 }
@@ -1280,5 +1304,6 @@ module.exports = {
   KB_I01,
   KB_I02,
   KB_I03,
-  KB_I04
+  KB_I04,
+  KB_X01
 };
