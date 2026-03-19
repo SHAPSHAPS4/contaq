@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.9';
+const KB_VERSION = '6.0';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 35;
+const KB_VERSION_SOURCES = 36;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -40,6 +40,7 @@ const KB_M02 = require('./kb-m02-fittings-valves');
 const KB_M03 = require('./kb-m03-hvac-ductwork');
 const KB_M04 = require('./kb-m04-mechanical-plant');
 const KB_E01 = require('./kb-e01-cable-types');
+const KB_E02 = require('./kb-e02-containment');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1010,7 +1011,25 @@ function getFullKnowledgeBase() {
     '  Cables NOT shown individually on drawings — containment shows ROUTES, not individual cables.',
     '  Schedule > Single-line diagram > GA measurement. Measure DB to furthest load + drops.',
     '  Add 10% waste + 400mm per termination (EACH end).',
-    '  Multiple cables share containment — count EACH CABLE individually, not just route length.'
+    '  Multiple cables share containment — count EACH CABLE individually, not just route length.',
+
+    '### KB-E02: Cable Containment',
+    'Cable Tray (m, note width): Perforated (standard), solid, basket/mesh (data), return flange. Widths 50-900mm. GS/HDG/SS/GRP.',
+    'Cable Ladder (m, note width + rung spacing): Heavy duty. Widths 300-900mm. Plant rooms, risers, industrial.',
+    'Trunking (m, note W×H): Standard steel, dado (multi-compartment), floor, mini (PVC), fire-rated. Sizes 50×50 to 300×100.',
+    'Conduit (m, note dia + type): Rigid steel (acts as CPC), rigid PVC, flexible steel (Copex), flex PVC. Dia 16-50mm.',
+    'Busbar (m, note A rating): Copper/aluminium. 100A-5000A. Tap-offs (nr — major cost item), end feeds, elbows, fire barriers at floors.',
+
+    'Containment Fittings (count as nr): bends, tees, reducers, risers, end caps. All types.',
+
+    'Segregation (BS 7671):',
+    '  LV Power: separate from ELV/data and fire alarm.',
+    '  ELV/Data: separate from LV power. Interference risk.',
+    '  Fire Alarm: DEDICATED containment or fire-rated clips. NEVER share with power. Non-compliance if shared.',
+    '  Flag: any fire/life-safety cables sharing containment with power.',
+
+    'Fill: Tray 50%, trunking 45%, conduit 40% max. Spare: 30-40% typical.',
+    'Supports: tray/ladder 1.5m, trunking 1.0m, rigid conduit 0.75m, flex conduit 0.5m, busbar 1.5-2.0m.'
   ].join('\n\n');
 }
 
@@ -1045,7 +1064,8 @@ function getSection(sectionName) {
     fittings_valves: KB_M02,
     hvac_ductwork: KB_M03,
     mechanical_plant: KB_M04,
-    cable_types: KB_E01
+    cable_types: KB_E01,
+    containment: KB_E02
   };
   return sections[sectionName] || null;
 }
@@ -1100,5 +1120,6 @@ module.exports = {
   KB_M02,
   KB_M03,
   KB_M04,
-  KB_E01
+  KB_E01,
+  KB_E02
 };
