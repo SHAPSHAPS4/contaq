@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const kbManager = require('../knowledge/kb-manager');
+const kbManager = require('../kb/index');
 
 router.get('/rules', (_req, res) => {
   res.json(kbManager.loadLearning());

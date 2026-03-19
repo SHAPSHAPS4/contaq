@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { callAI } = require('../services/ai');
-const kb = require('../knowledge/mep-knowledge-base');
+const kb = require('../kb/index');
 
 const TASK_PROMPT = `## YOUR TASK
 

@@ -1,0 +1,451 @@
+{
+  "id": "KB-I04",
+  "title": "Fire Rated & Specialist Insulation",
+  "version": "1.0",
+  "date": "2026-03-19",
+  "fire_rated": {
+    "purpose": "Maintain fire compartmentation where M&E services penetrate fire-rated walls and floors. Prevent fire and smoke spreading through service openings.",
+    "standards": [
+      "BS EN 1366-3 (fire resistance tests for penetration seals)",
+      "BS EN 13501-2 (fire classification of penetration seals)",
+      "Approved Document B (Building Regulations — fire safety)",
+      "BS 476-20 (legacy fire resistance test)"
+    ],
+    "rule": "Every service penetration through a fire-rated wall or floor MUST be fire stopped. The fire stop must match the fire rating of the wall/floor it passes through.",
+    "types": {
+      "intumescent_collar": {
+        "name": "Intumescent Pipe Collar",
+        "function": "Wraps around plastic pipe at fire wall penetration. Expands in fire to crush and seal the pipe opening after the plastic melts.",
+        "application": "Plastic pipes (uPVC, CPVC, ABS, PE) passing through fire-rated construction.",
+        "measurement": "nr — count 1 per pipe penetration.",
+        "specification_required": [
+          "Pipe material",
+          "Pipe diameter (mm)",
+          "Fire rating (minutes)",
+          "Wall/floor type (concrete, plasterboard, masonry)",
+          "Collar mounting (surface or recessed)"
+        ],
+        "brands": "Hilti CP 648-S, Quelfire QuelStop, Promat PROMASEAL, Rockwool Conlit",
+        "sizes": "Available for pipe diameters 32mm to 315mm typically. Larger sizes use wrap or compound.",
+        "note": "Intumescent collars are for PLASTIC pipes only. Metal pipes use different fire stop methods (sealant, compound, or wrap).",
+        "flag_if": [
+          "Plastic pipe through fire wall without collar shown",
+          "Collar fire rating not stated",
+          "Pipe diameter exceeds collar manufacturer range"
+        ]
+      },
+      "fire_rated_wrap": {
+        "name": "Fire-Rated Pipe Wrap / Bandage",
+        "function": "Mineral wool or intumescent wrap applied around pipe for a defined length either side of fire wall penetration.",
+        "application": "Metal pipes (steel, copper) passing through fire-rated construction. Also used on insulated pipe runs through fire compartments.",
+        "measurement": "m (linear) — wrap extends from wall face to specified distance each side (typically 500mm-1500mm per tested system).",
+        "specification_required": [
+          "Pipe material and diameter",
+          "Fire rating (minutes)",
+          "Wrap length either side of wall (per test certificate)",
+          "Wrap material and thickness",
+          "Tested system reference"
+        ],
+        "note": "The wrap length either side of the wall is specified by the manufacturer test certificate. Do NOT assume standard lengths — they vary by system.",
+        "flag_if": [
+          "Fire wrap specified without stating tested system",
+          "Wrap extent (length each side) not stated"
+        ]
+      },
+      "fire_rated_lagging": {
+        "name": "Fire-Rated Lagging / Insulation",
+        "function": "Continuous fire-rated insulation on pipe runs within fire compartments — maintains both thermal and fire performance.",
+        "application": "Pipe runs through protected escape routes, fire-rated risers, or where continuous fire rating is required along the pipe (not just at penetrations).",
+        "measurement": "m (linear) by pipe size. OR m² if around equipment.",
+        "material": "Dense mineral wool (non-combustible, Euroclass A1) with fire-rated facing (foil or intumescent facing).",
+        "note": "Different from standard thermal insulation — must be tested and certified for fire rating. Standard mineral wool provides some fire resistance but may not meet specific fire rating requirements without the correct facing and thickness.",
+        "flag_if": "Pipe runs within protected escape route without fire-rated insulation specification"
+      },
+      "firestopping_sleeve": {
+        "name": "Firestopping Sleeve / Pipe Sleeve with Intumescent",
+        "function": "Pre-formed sleeve cast into wall/floor during construction. Contains intumescent material that seals in fire.",
+        "application": "Multiple services through a single opening. Also used for cable bundles, mixed services.",
+        "measurement": "nr — count per penetration.",
+        "specification_required": [
+          "Sleeve diameter",
+          "Fire rating",
+          "Number and type of services passing through"
+        ],
+        "note": "Sleeves are often installed during the structural/architectural phase (builder's work). M&E contractor installs the fire sealant around services within the sleeve."
+      },
+      "fire_sealant": {
+        "name": "Fire-Rated Sealant / Compound",
+        "function": "Fills the annular gap between service and sleeve/opening in fire wall. Provides fire and smoke seal.",
+        "types": {
+          "acrylic": "Acrylic fire sealant — standard for small gaps around metal pipes and cables. Paintable.",
+          "intumescent": "Intumescent sealant — expands in fire. For larger gaps and plastic pipes.",
+          "compound": "Fire-rated compound / mortar — for large openings with multiple services (fire-rated pillows, batt, or compound).",
+          "wrap_and_sealant": "Mineral wool batt in opening sealed with intumescent sealant on both faces."
+        },
+        "measurement": "nr per penetration (typically included in the fire stopping item), or m (linear) for linear gap sealing at service routes.",
+        "brands": "Hilti CFS-S, Quelfire Intumescent Sealant, Promat PROMASEAL, 3M Fire Barrier",
+        "note": "Fire sealant is the most commonly required fire stopping item. Almost every service penetration needs sealant. Count carefully."
+      },
+      "transit_system": {
+        "name": "Fire-Rated Transit System",
+        "function": "Modular frame system for multiple services through a single fire-rated opening. Allows addition/removal of services without remaking the fire stop.",
+        "brands": "Hilti CFS-T, Roxtec, Beele STI ES-Seal, Hawke",
+        "application": "Plant room walls with many penetrations, riser entries, cable transit floors in data centres.",
+        "measurement": "nr per opening frame + nr per module/insert for each service within the frame.",
+        "note": "Transit systems are expensive but allow future service additions without breaching the fire barrier. Increasingly specified on premium commercial projects."
+      }
+    },
+    "fire_ratings": [
+      {
+        "rating": "30 minutes",
+        "code": "EI 30",
+        "typical_use": "Internal non-loadbearing partitions, low-risk areas"
+      },
+      {
+        "rating": "60 minutes",
+        "code": "EI 60",
+        "typical_use": "Standard fire compartment walls and floors. Most common rating."
+      },
+      {
+        "rating": "90 minutes",
+        "code": "EI 90",
+        "typical_use": "Enhanced compartmentation. Stairs, some risers."
+      },
+      {
+        "rating": "120 minutes",
+        "code": "EI 120",
+        "typical_use": "Major fire walls, protected shafts, stair enclosures, high-risk areas."
+      },
+      {
+        "rating": "240 minutes",
+        "code": "EI 240",
+        "typical_use": "Specialist — storage of hazardous materials, nuclear, industrial."
+      }
+    ],
+    "count_method": {
+      "rule": "Count EVERY service penetration through a fire-rated wall or floor. Each pipe, each cable, each duct = 1nr fire stop.",
+      "from_drawings": "Identify all fire-rated walls/floors on architectural/fire drawings. Count every M&E service crossing each fire barrier.",
+      "from_spec": "Spec may state fire stopping requirements per NRM2 WS 31. Cross-reference.",
+      "cross_ref": "Fire dampers in ductwork (KB-M03) are a separate item from pipe/cable fire stopping. Both are needed at the same wall if both duct and pipe penetrate.",
+      "note": "Fire stopping is one of the most commonly UNDERESTIMATED items in M&E takeoffs. Count methodically."
+    },
+    "flag_triggers": [
+      "Any pipework penetrating fire compartment wall/floor without fire stop detail — flag.",
+      "Spec references fire rating without stating minutes — flag.",
+      "Drawing shows fire wall penetration without fire stop schedule or detail — flag.",
+      "Plastic pipe through fire wall without intumescent collar — flag.",
+      "Fire stop product specified without test certificate reference — flag.",
+      "Fire rating of fire stop does not match fire rating of wall/floor — flag.",
+      "Large opening with multiple services and no transit system or compound detail — flag."
+    ]
+  },
+  "acoustic": {
+    "purpose": "Reduce noise transmission from mechanical services to occupied spaces. Prevent breakout noise from pipes, ducts, and equipment.",
+    "standards": [
+      "BS 8233 (Sound insulation in buildings)",
+      "BB93 (Acoustic design of schools)",
+      "HTM 08-01 (Healthcare)",
+      "CIBSE Guide B5 (Noise and vibration)"
+    ],
+    "types": {
+      "acoustic_pipe_lagging": {
+        "name": "Acoustic Pipe Lagging",
+        "function": "Reduces noise breakout from pipework (water flow noise, pump vibration transmission).",
+        "material": "Dense mineral wool (80-120 kg/m³) with heavy mass barrier layer (loaded vinyl or lead sheet). Often called \"mass loaded\" or \"acoustic lag\".",
+        "measurement": "m (linear) by pipe size.",
+        "typical_thickness": "25-50mm mineral wool + 5-10kg/m² mass barrier.",
+        "applications": [
+          "Waste and soil pipes above occupied areas",
+          "Water supply risers in residential/hotel walls",
+          "Heating pipes in residential party walls",
+          "Pipes near bedrooms, meeting rooms, courts, studios"
+        ],
+        "note": "Acoustic pipe lagging is significantly heavier and more expensive than standard thermal insulation. The mass barrier layer is the key acoustic element.",
+        "flag_if": "Noise-sensitive areas (bedrooms, courtrooms, studios) with pipes running through — check if acoustic lagging required."
+      },
+      "anti_vibration_mount": {
+        "name": "Anti-Vibration Mount / Isolator",
+        "function": "Prevents vibration from rotating equipment (pumps, fans, chillers) transmitting through structure to occupied spaces.",
+        "types": {
+          "rubber": "Rubber mount / pad — standard for most commercial plant. Simple, cost-effective.",
+          "spring": "Spring isolator — for larger/heavier equipment or where higher isolation efficiency needed.",
+          "inertia_base": "Inertia base (concrete block on springs) — heavy plant on upper floors, near sensitive areas.",
+          "flexible_connector": "Flexible connector on pipework/ductwork — isolates vibration at equipment connection."
+        },
+        "measurement": "nr — count per mount point. Check equipment schedule for weight and mount requirements.",
+        "cross_ref": "See KB-M04 for mechanical plant associated items.",
+        "note": "Anti-vibration is often specified by the acoustic consultant. Check acoustic report for recommendations."
+      },
+      "acoustic_enclosure": {
+        "name": "Acoustic Enclosure / Attenuation Chamber",
+        "function": "Fully encloses noisy equipment (generators, compressors, pumps) to contain noise.",
+        "measurement": "m² (surface area of enclosure panels). Or nr for proprietary packaged enclosures.",
+        "material": "Perforated steel outer skin, mineral wool acoustic infill, solid steel inner skin (mass-spring-mass construction).",
+        "specification_required": [
+          "Noise reduction target (dB)",
+          "Enclosure dimensions",
+          "Access doors/panels required",
+          "Ventilation within enclosure (equipment heat rejection)"
+        ],
+        "applications": [
+          "Generator acoustic canopy",
+          "Chiller acoustic enclosure",
+          "Compressor enclosure",
+          "Pump set enclosure (where noise is critical)"
+        ],
+        "note": "Acoustic enclosures need ventilation — the equipment inside generates heat. Ventilation louvres with acoustic attenuation are part of the enclosure.",
+        "flag_if": "Noisy equipment near occupied space without acoustic treatment specified."
+      },
+      "acoustic_duct_lining": {
+        "name": "Acoustic Duct Lining",
+        "function": "Internal lining of ductwork for noise attenuation. Absorbs airborne noise within duct.",
+        "note": "Covered in detail in KB-I02 (internal lining). Cross-reference.",
+        "cross_ref": "KB-I02"
+      }
+    },
+    "sensitive_areas": {
+      "description": "Areas where acoustic insulation is most likely to be required:",
+      "areas": [
+        {
+          "area": "Hotel bedrooms",
+          "standard": "BS 8233: 30dB LAeq (night)",
+          "note": "Very noise-sensitive. Pipes in walls/ceilings must be acoustically lagged."
+        },
+        {
+          "area": "Residential dwellings",
+          "standard": "Approved Document E + BS 8233",
+          "note": "Party walls, floors above/below. Waste pipes, heating pipes through structure."
+        },
+        {
+          "area": "Hospital wards",
+          "standard": "HTM 08-01: 35dB LAeq",
+          "note": "Plant rooms adjacent to wards are common problem. Vibration isolation critical."
+        },
+        {
+          "area": "Schools/classrooms",
+          "standard": "BB93: 35dB LAeq",
+          "note": "Particularly near plant rooms and above/below classrooms."
+        },
+        {
+          "area": "Courts/tribunals",
+          "standard": "Specialist",
+          "note": "Very strict noise criteria. All services acoustically treated."
+        },
+        {
+          "area": "Recording studios",
+          "standard": "NR15-NR20",
+          "note": "Extremely strict. Specialist acoustic design required."
+        },
+        {
+          "area": "Offices (open plan)",
+          "standard": "BS 8233: 40-45dB LAeq",
+          "note": "Standard commercial. Less stringent but still relevant near plant."
+        },
+        {
+          "area": "Theatres/cinemas",
+          "standard": "NR20-NR25",
+          "note": "Very strict during performance. HVAC noise is often the dominant concern."
+        }
+      ]
+    },
+    "flag_triggers": [
+      "Acoustic specification referenced without material type or performance requirement stated — flag.",
+      "Plant room adjacent to noise-sensitive area without acoustic treatment specification — flag.",
+      "Pipework through hotel/residential party walls without acoustic lagging — flag.",
+      "No anti-vibration mounts specified for rotating equipment (pumps, fans, chillers) — flag.",
+      "Acoustic enclosure specified without ventilation consideration — flag."
+    ]
+  },
+  "condensation_control": {
+    "purpose": "Prevent surface condensation on cold pipework, equipment, and ductwork. Condensation causes: water damage to ceilings/walls, mould growth, insulation degradation, corrosion.",
+    "rule": "ANY surface operating below the ambient dew point temperature WILL produce condensation if not properly insulated with a vapour-sealed system.",
+    "requirements": {
+      "chilled_water": {
+        "system": "Chilled Water (ChW) — typically 6°C flow / 12°C return",
+        "material": "Closed-cell elastomeric foam (Armaflex, K-Flex) — MANDATORY.",
+        "reason": "ChW temperature is well below ambient dew point (typically 12-18°C in UK buildings). Condensation is GUARANTEED without proper insulation.",
+        "vapour_barrier": "Integral — closed-cell structure provides inherent VB. NO additional VB needed if all joints are properly sealed.",
+        "joint_sealing": "ALL joints MUST be glued with manufacturer adhesive. Butt joints, longitudinal seams, and branch junctions ALL sealed.",
+        "support_inserts": "Vapour-sealed pipe support inserts at EVERY bracket/clip. Standard clips compress insulation → cold bridge → condensation → dripping.",
+        "thickness": "25-50mm depending on pipe size and ambient conditions. See KB-I01 thickness tables.",
+        "flag_if": [
+          "ChW insulation not specified as closed-cell/elastomeric",
+          "No joint sealing requirement stated",
+          "No support insert requirement stated"
+        ]
+      },
+      "cold_water": {
+        "system": "Cold Water Supply (CWS)",
+        "material": "Elastomeric foam — same as ChW but may be thinner (9-25mm depending on ambient).",
+        "reason": "L8 ACOP requires CWS to be maintained below 20°C. In warm plant rooms (25-35°C ambient), uninsulated CWS pipes warm up AND may condensate.",
+        "vapour_barrier": "Required — elastomeric provides integral VB.",
+        "thickness": "See KB-I01 CWS thickness table. Thicker insulation in warm environments.",
+        "flag_if": [
+          "CWS in plant room or warm ceiling void without insulation",
+          "CWS insulation specified as mineral wool without separate VB"
+        ]
+      },
+      "refrigerant": {
+        "system": "Refrigerant Pipework (VRF/split/DX)",
+        "material": "Elastomeric foam — BOTH liquid and suction lines.",
+        "reason": "Suction line carries cold refrigerant gas (typically 5-10°C). Will condensate immediately without insulation. Liquid line is warm but still needs insulation for efficiency.",
+        "thickness": "13-19mm typical.",
+        "cross_ref": "See KB-M03 for VRF/VRV system details.",
+        "flag_if": "Refrigerant pipe shown without insulation — flag BOTH lines."
+      },
+      "condensate": {
+        "system": "Condensate Drain Pipework",
+        "material": "Elastomeric foam — thin section (9-13mm).",
+        "reason": "Condensate from cooling coils (AHU, FCU, DX) is cold water. Uninsulated condensate pipe WILL drip.",
+        "note": "Condensate insulation is frequently missed in specifications. If cooling equipment is present, condensate pipes should be insulated.",
+        "flag_if": "Cooling equipment (AHU, FCU, VRF) shown without condensate pipe insulation specification."
+      },
+      "cold_ductwork": {
+        "system": "Cold Air Supply Ductwork",
+        "material": "External wrap with vapour barrier — glass wool foil-faced or elastomeric sheet.",
+        "reason": "Supply air from cooling coil is typically 12-16°C. Duct surface will condensate in warm ceiling void.",
+        "cross_ref": "See KB-I02 for duct insulation details.",
+        "flag_if": "Cold supply air ductwork without external insulation + VB."
+      }
+    },
+    "vapour_barrier_rules": [
+      "Vapour barrier must be CONTINUOUS — any break allows moisture migration to cold surface.",
+      "ALL joints sealed with manufacturer-specified adhesive or vapour barrier tape.",
+      "Pipe support inserts maintain VB continuity at brackets — standard clips break the VB.",
+      "Penetrations through VB (sensors, tapping points) must be sealed.",
+      "If VB is damaged during installation, it MUST be repaired immediately. Patch with matching material + adhesive.",
+      "VB is on the WARM side of the insulation (closest to the ambient air, furthest from the cold pipe).",
+      "For elastomeric insulation, the VB is the outer surface of the insulation itself — no separate VB needed if joints are sealed."
+    ],
+    "common_failures": [
+      "Unsealed joints in elastomeric insulation — moisture migrates through gap → condensation under insulation → corrosion.",
+      "Standard pipe clips crushing insulation — cold bridge at every support point → drip lines on ceiling.",
+      "Missing insulation on valves and fittings — cold bridge → localised condensation → dripping.",
+      "Insulation damaged during other trade installation — VB broken → condensation.",
+      "Insulation installed with gaps at tees and branches — cold spots → condensation.",
+      "Wrong material used (mineral wool without VB on cold pipe) — moisture migrates through fibrous insulation → saturated → useless → heavy → falls off."
+    ]
+  },
+  "specialist": {
+    "rule": "Specialist applications require specific materials, finishes, and installation methods. ALWAYS flag for estimator review — costs vary significantly from standard insulation.",
+    "catering_food": {
+      "name": "Catering & Food Service Areas",
+      "requirements": [
+        "Hygienic cladding: stainless steel (316L preferred) or smooth sealed PVC. No exposed mineral wool fibres.",
+        "All insulation fully sealed against moisture ingress (steam, wash-down water).",
+        "Smooth, cleanable external surface — no crevices, no exposed fixings.",
+        "Insulation must be food-safe — no contamination risk from insulation material.",
+        "All joints sealed with food-grade sealant.",
+        "Pest-resistant — no gaps where insects/rodents can nest in insulation."
+      ],
+      "typical_cladding": "Stainless steel 316L with hygienic press-stud closures or continuously welded seams.",
+      "cost_note": "Significantly more expensive than standard plant room insulation — 3-5× cost due to stainless steel and hygiene requirements.",
+      "flag_if": "Services in commercial kitchen or food production area without hygienic cladding specification."
+    },
+    "pharmaceutical_cleanroom": {
+      "name": "Pharmaceutical / Cleanroom",
+      "requirements": [
+        "Smooth, cleanable, non-shedding surfaces — no exposed mineral wool or glass fibre.",
+        "Closed-cell insulation (elastomeric or phenolic with sealed facing) to prevent particle shedding.",
+        "All penetrations through clean room boundary sealed to maintain room pressure and cleanliness.",
+        "Cladding: stainless steel 316L with welded or sealed joints. Flush with wall/ceiling surfaces.",
+        "Minimal exposed fixings — concealed fixing methods preferred.",
+        "All insulation materials must be compatible with clean room cleaning agents."
+      ],
+      "clean_room_classes": {
+        "ISO_5": "Class 100 — very stringent. No exposed insulation of any kind. All services concealed.",
+        "ISO_7": "Class 10,000 — strict. Minimal exposed services. Sealed smooth cladding where exposed.",
+        "ISO_8": "Class 100,000 — moderate. Similar to food production requirements."
+      },
+      "cost_note": "Clean room insulation is specialist — 5-10× standard cost. Always flag for specialist quotation.",
+      "flag_if": "Services in clean room or pharmaceutical area without specialist insulation specification."
+    },
+    "external_weather": {
+      "name": "External / Weathering Protection",
+      "requirements": [
+        "All insulation protected from UV degradation — UV destroys most insulation materials.",
+        "Weather-resistant cladding: aluminium (standard), stainless steel (coastal/corrosive), or UV-stable PVC jacket.",
+        "All joints and end caps sealed with weather-resistant sealant (silicone or butyl).",
+        "Prevent water ingress — water in insulation destroys thermal performance and causes corrosion.",
+        "Slope cladding joints to shed water (horizontal runs: joints on top, water runs off sides).",
+        "End caps at every termination to prevent water entering insulation from pipe/duct ends."
+      ],
+      "typical_cladding": {
+        "standard": "Aluminium stucco embossed, 0.8mm gauge (thicker than internal). Pop-riveted with sealant on laps.",
+        "coastal": "Stainless steel 316 or marine-grade aluminium. Standard aluminium corrodes in coastal environments.",
+        "industrial": "Aluminium or stainless steel with enhanced sealant and banding."
+      },
+      "cost_note": "External insulation is 1.5-2× internal cost due to heavier cladding, sealant, and weatherproofing.",
+      "flag_if": [
+        "External pipework/ductwork without weatherproof cladding",
+        "Coastal location without stainless steel or marine-grade cladding specification"
+      ]
+    },
+    "high_temperature": {
+      "name": "High Temperature (>120°C: Steam, HTHW)",
+      "requirements": [
+        "Standard elastomeric and phenolic insulation CANNOT be used above 120°C.",
+        "Material: calcium silicate sections (up to 650°C) or high-temperature mineral wool (up to 300°C+).",
+        "Double-layer insulation may be required for very high temperatures (>200°C) — inner layer high-temp, outer layer standard.",
+        "Personal protection cladding: where insulated surface temperature exceeds 60°C, outer cladding must bring surface below 60°C to prevent burns.",
+        "Expansion allowance: high-temperature pipes expand significantly. Insulation must accommodate expansion without cracking or opening gaps.",
+        "Stainless steel or aluminium cladding — painted mild steel also acceptable for internal."
+      ],
+      "personal_protection": {
+        "rule": "If the OUTER SURFACE of the insulation/cladding exceeds 60°C, it is a burn hazard. Spec should require sufficient insulation thickness to bring surface below 60°C.",
+        "standard": "HSE guidance — surface temperatures >60°C require either: increased insulation, warning labels, or physical barriers.",
+        "flag_if": "High temperature system (steam, HTHW >120°C) without personal protection assessment."
+      },
+      "cost_note": "High-temperature insulation is 2-4× standard cost. Calcium silicate is significantly more expensive and heavier than mineral wool.",
+      "flag_if": [
+        "Standard insulation specified for system >120°C",
+        "Steam or HTHW system without high-temp insulation spec",
+        "No personal protection assessment for high-temp pipework in accessible areas"
+      ]
+    },
+    "trace_heating": {
+      "name": "Trace Heating + Insulation",
+      "function": "Electric heating cable/tape applied to pipe surface under insulation. Prevents freezing or maintains process temperature.",
+      "applications": [
+        "Frost protection for external pipework",
+        "Frost protection for cold water in unheated spaces",
+        "Temperature maintenance for process pipework",
+        "Grease trap warm pipework (commercial kitchens)",
+        "Condensate pipe freeze protection"
+      ],
+      "components": {
+        "heating_cable": "Self-regulating or constant wattage cable. Measured in m (linear) along pipe. W/m rating per spec.",
+        "thermostat": "Ambient or pipe-mounted thermostat controlling trace heating. Count as nr.",
+        "junction_box": "Power connection and termination boxes. Count as nr.",
+        "insulation": "ALWAYS required over trace heating — the insulation retains the heat. Without insulation, trace heating is ineffective.",
+        "power_supply": "Dedicated electrical circuit for trace heating. Cross-reference KB-E."
+      },
+      "measurement": "Trace heating cable: m (linear). Thermostats and junction boxes: nr. Insulation over trace heating: m (per KB-I01).",
+      "note": "Trace heating is a COMBINED mechanical + electrical + insulation scope item. Ensure all three elements are counted.",
+      "flag_if": [
+        "Trace heating specified without insulation over it",
+        "External pipework in frost-risk area without trace heating or drain-down provision",
+        "Trace heating electrical supply not addressed"
+      ]
+    }
+  },
+  "flag_triggers": [
+    "Service penetration through fire-rated wall/floor without fire stopping detail — flag as CRITICAL.",
+    "Fire rating of fire stop not stated or does not match wall/floor rating — flag.",
+    "Plastic pipe through fire wall without intumescent collar — flag.",
+    "Acoustic treatment not specified for plant adjacent to noise-sensitive areas — flag.",
+    "Pipework through hotel/residential party walls without acoustic lagging — flag.",
+    "Cold pipework without closed-cell insulation and vapour barrier — flag condensation risk.",
+    "Chilled water valve/flange insulation not addressed — flag cold bridge risk.",
+    "Condensate pipe insulation not specified — flag dripping risk.",
+    "Services in food/catering area without hygienic cladding — flag.",
+    "Services in clean room without specialist insulation specification — flag.",
+    "External insulation without weatherproof cladding — flag.",
+    "Coastal location without marine-grade cladding — flag corrosion risk.",
+    "High temperature system (>120°C) with standard insulation material — flag wrong material.",
+    "Personal protection not assessed for high-temperature pipework in accessible areas — flag safety.",
+    "Trace heating specified without insulation over it — flag ineffective system.",
+    "External pipework without frost protection (trace heating or insulation) — flag freeze risk.",
+    "Fire stopping count appears low relative to number of fire walls on architectural drawings — flag potential undercount."
+  ]
+}

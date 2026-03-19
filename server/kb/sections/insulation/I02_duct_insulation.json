@@ -1,0 +1,290 @@
+{
+  "id": "KB-I02",
+  "title": "Ductwork Insulation",
+  "version": "1.0",
+  "date": "2026-03-19",
+  "insulation_types": {
+    "internal_lining": {
+      "name": "Internal Acoustic/Thermal Lining",
+      "function": "Acoustic attenuation of airborne noise within ductwork AND thermal insulation. Dual purpose.",
+      "material": {
+        "glass_wool_mat": {
+          "name": "Glass Wool Mat (Flexible)",
+          "description": "Flexible mat bonded to internal duct surface with adhesive and mechanical fixings (pins).",
+          "brands": "Isover Climaver, Knauf Ductslab, Superglass",
+          "standard": "BS EN 13162 (mineral wool thermal insulation products)",
+          "facing": "Neoprene-coated glass tissue facing — erosion-resistant to airflow up to 20 m/s.",
+          "note": "Most common for standard commercial ductwork."
+        },
+        "rigid_slab": {
+          "name": "Rigid Acoustic Slab",
+          "description": "Dense rigid mineral wool slab for higher acoustic performance.",
+          "use": "Where enhanced acoustic attenuation required — near plant rooms, above sensitive areas.",
+          "note": "Heavier and more expensive than flexible mat. Better at low-frequency noise."
+        },
+        "closed_cell_foam": {
+          "name": "Closed-Cell Foam Lining",
+          "description": "Elastomeric or PU foam sheet bonded internally. Smoother surface, easier to clean.",
+          "use": "Clean rooms, laboratories, healthcare — where hygiene is important.",
+          "note": "Higher cost but smoother, non-fibrous internal surface. No fibre shedding risk."
+        }
+      },
+      "thicknesses": {
+        "25mm": "Standard thickness for general acoustic/thermal lining.",
+        "50mm": "Enhanced acoustic performance. Used near plant, above meeting rooms, in noise-sensitive areas.",
+        "note": "Thickness affects INTERNAL duct dimensions — a duct lined with 25mm each side loses 50mm total from both W and H. Designer should have accounted for this in duct sizing."
+      },
+      "measurement": {
+        "unit": "m² (internal duct surface area)",
+        "formula_rectangular": "2 × (W_internal + H_internal) × Length. Use INTERNAL dimensions (duct size minus 2× lining thickness each side).",
+        "formula_circular": "π × D_internal × Length.",
+        "note": "Internal lining is measured by the INTERNAL surface it covers, not the external duct dimensions."
+      },
+      "duct_sizing_impact": {
+        "rule": "Internal lining REDUCES the effective duct cross-section. A 600×400 duct with 25mm lining has effective airway of 550×350.",
+        "flag_if": "Internal lining specified but duct sizes appear to be NOMINAL (not enlarged to compensate). Designer may have sized duct before adding lining thickness — flag for design check.",
+        "note": "The designer should size ducts to maintain required airflow AFTER lining is installed. If unsure, flag."
+      },
+      "fixing": {
+        "method": "Adhesive + insulation pins (weld pins or stick pins) with speed washers at ~300mm centres.",
+        "accessories": "Insulation pins, speed washers, adhesive, joint tape.",
+        "note": "Pins are welded to duct surface (before installation) or self-adhesive stick pins (applied after duct installation)."
+      }
+    },
+    "external_wrap": {
+      "name": "External Thermal Wrap / Board",
+      "function": "Thermal insulation applied to the OUTSIDE of ductwork. Prevents heat loss (hot ducts) or condensation (cold ducts).",
+      "material": {
+        "glass_wool_roll": {
+          "name": "Glass Wool Roll (Flexible Wrap)",
+          "description": "Flexible roll of glass wool, typically foil-faced. Wrapped around duct exterior.",
+          "brands": "Isover, Knauf, Superglass",
+          "standard": "BS EN 13162",
+          "facing": "Aluminium foil laminate — standard. Provides vapour resistance and clean finish.",
+          "note": "Most common and cost-effective for standard HVAC ducts."
+        },
+        "mineral_wool_slab": {
+          "name": "Mineral Wool Rigid Slab",
+          "description": "Rigid mineral wool slab wired or banded to duct exterior. For larger/heavier ducts.",
+          "use": "External ductwork, plant rooms, where more robust insulation needed.",
+          "note": "More labour-intensive than roll wrap. Better for flat surfaces (rectangular duct)."
+        },
+        "elastomeric_sheet": {
+          "name": "Elastomeric Foam Sheet",
+          "description": "Closed-cell rubber sheet (Armaflex/K-Flex) applied externally to duct.",
+          "use": "Cold air ducts, chilled water AHU supply, where condensation prevention is critical.",
+          "vapour_barrier": "Inherent — closed-cell structure provides integral vapour barrier.",
+          "note": "Essential for COLD air ductwork (supply air from chilled coil). Glass wool is NOT suitable for cold duct without additional vapour barrier."
+        },
+        "phenolic_slab": {
+          "name": "Phenolic Foam Slab",
+          "description": "Rigid phenolic board applied externally. Thinnest profile for thermal performance.",
+          "use": "Where space is very limited and thermal performance must be maximised.",
+          "note": "More expensive than glass wool. Justified in tight ceiling voids."
+        }
+      },
+      "thicknesses": {
+        "25mm": "Standard for supply air ductwork, general HVAC.",
+        "50mm": "Enhanced thermal performance. External ductwork, high temperature differential, Part L compliance.",
+        "75mm": "High-performance. Hot duct in cold space, or where Part L requires enhanced insulation.",
+        "note": "Check BS 5422 Table 12 for minimum thicknesses by duct temperature and ambient conditions."
+      },
+      "measurement": {
+        "unit": "m² (external duct surface area)",
+        "formula_rectangular": "2 × (W_external + H_external) × Length. Use EXTERNAL duct dimensions.",
+        "formula_circular": "π × D_external × Length.",
+        "note": "External wrap is measured by the OUTSIDE surface of the duct (duct fabrication dimensions)."
+      },
+      "vapour_barrier": {
+        "rule": "Required on ALL cold duct external insulation (supply air from cooling coil, chilled air distribution).",
+        "types": {
+          "foil_facing": "Aluminium foil laminate on insulation roll — provides adequate VB for most applications. Joints must be sealed with foil tape.",
+          "separate_membrane": "Additional polythene or foil membrane over insulation — for enhanced VB performance.",
+          "elastomeric": "Inherent VB in closed-cell material — no additional VB needed."
+        },
+        "joint_sealing": "ALL joints in vapour barrier MUST be sealed with foil tape or vapour barrier tape. Unsealed joints allow moisture ingress → condensation → insulation failure.",
+        "flag_if": "Cold duct insulation specified without vapour barrier — flag as condensation risk."
+      },
+      "fixing": {
+        "roll_wrap": "Self-adhesive lap, or pinned with insulation pins + speed washers + foil tape on joints.",
+        "slab": "Wired with galvanised wire, or banded with stainless steel banding at ~450mm centres.",
+        "accessories": "Foil tape, insulation pins, speed washers, wire ties, banding clips."
+      }
+    },
+    "fire_rated_wrap": {
+      "name": "Fire-Rated Duct Wrap / Fire Protection",
+      "function": "Maintains fire compartmentation where ductwork passes through fire-rated walls or floors WITHOUT a fire damper.",
+      "standard": "BS EN 1366-1 (fire resistance tests for ducts)",
+      "material": {
+        "mineral_wool_wrap": {
+          "name": "Mineral Wool Fire Wrap",
+          "description": "Dense mineral wool mat or slab, typically 60-100kg/m³ density, wrapped around duct and secured with pins/wire.",
+          "brands": "Rockwool Firestop, Isover ULTIMATE, Knauf Fire Roll",
+          "note": "Must be tested and certified to BS EN 1366-1 for the specific fire rating. Not all mineral wool achieves fire rating — only tested systems."
+        },
+        "intumescent_wrap": {
+          "name": "Intumescent Wrap",
+          "description": "Thin intumescent sheet that expands when exposed to fire, providing insulation barrier.",
+          "use": "Where space is limited for thick mineral wool fire wrap.",
+          "note": "Thinner profile than mineral wool fire wrap but more expensive."
+        },
+        "fire_rated_board": {
+          "name": "Fire-Rated Board System",
+          "description": "Calcium silicate or vermiculite board enclosure around duct.",
+          "use": "Large ducts, risers, where board enclosure is more practical than wrapping.",
+          "note": "Creates a fire-rated enclosure. May be builder's work rather than insulation scope. Check."
+        }
+      },
+      "fire_ratings": [
+        {
+          "rating": "30 minutes",
+          "code": "EI 30",
+          "typical_thickness": "30-40mm mineral wool",
+          "typical_use": "Short penetrations through non-critical partitions"
+        },
+        {
+          "rating": "60 minutes",
+          "code": "EI 60",
+          "typical_thickness": "50-60mm mineral wool",
+          "typical_use": "Standard fire compartment walls"
+        },
+        {
+          "rating": "90 minutes",
+          "code": "EI 90",
+          "typical_thickness": "60-80mm mineral wool",
+          "typical_use": "Enhanced fire compartmentation"
+        },
+        {
+          "rating": "120 minutes",
+          "code": "EI 120",
+          "typical_thickness": "80-100mm mineral wool",
+          "typical_use": "Major fire walls, stair enclosures, protected shafts"
+        }
+      ],
+      "measurement": {
+        "unit": "m² (duct surface area covered by fire wrap)",
+        "scope": "Fire-rated wrap must extend: from the fire-rated wall face to a distance specified in the test certificate (typically 500mm-1500mm either side of the wall). Check manufacturer certification.",
+        "note": "Do NOT assume fire wrap covers the entire duct run — it only covers the section through and either side of the fire barrier."
+      },
+      "when_required": [
+        "Ductwork passing through fire-rated walls WITHOUT a fire damper installed.",
+        "Ductwork within a protected escape route (stair enclosure, protected corridor).",
+        "Ductwork connecting to a fire-rated riser or shaft.",
+        "Kitchen extract ductwork through fire compartments (DW/172 + fire wrap).",
+        "Smoke extract ductwork (must maintain integrity during fire — BS EN 12101)."
+      ],
+      "fire_damper_vs_fire_wrap": {
+        "rule": "At a fire-rated penetration, EITHER a fire damper OR fire-rated duct wrap is used — not both.",
+        "fire_damper": "Fire damper = mechanical closure device inside the duct at the wall penetration. Stops airflow. Standard approach.",
+        "fire_wrap": "Fire wrap = insulation around the duct for a distance either side of the wall. Duct remains open. Used where fire dampers cannot be used (e.g. smoke extract, kitchen extract).",
+        "both_wrong": "If BOTH fire damper AND fire wrap are shown at the same penetration, flag for design clarification — this is unusual.",
+        "note": "Fire dampers are covered in KB-M03. Fire wrap is covered here in KB-I02."
+      },
+      "flag_triggers": [
+        "Fire rating requirement stated without specific product/thickness — flag.",
+        "Fire wrap shown on drawing without fire rating noted — flag.",
+        "Duct penetrating fire wall with no fire damper AND no fire wrap — flag as non-compliant.",
+        "Fire wrap specified without reference to tested system (BS EN 1366-1 cert) — flag.",
+        "Kitchen extract duct through fire wall without DW/172 + fire wrap — flag."
+      ]
+    }
+  },
+  "surface_area": {
+    "rule": "Ductwork insulation is measured in m² of duct surface area. NEVER measure duct insulation in linear metres (except circular duct where diameter is stated).",
+    "formulas": {
+      "rectangular": {
+        "formula": "SA = 2 × (W + H) × L",
+        "variables": "W = width (m), H = height (m), L = length (m)",
+        "example": {
+          "duct": "600mm × 400mm, 10m long",
+          "calc": "SA = 2 × (0.6 + 0.4) × 10 = 20.0 m²",
+          "note": "Use external dimensions for external wrap. Use internal dimensions for internal lining."
+        }
+      },
+      "circular": {
+        "formula": "SA = π × D × L",
+        "variables": "D = diameter (m), L = length (m)",
+        "example": {
+          "duct": "Ø315mm, 15m long",
+          "calc": "SA = π × 0.315 × 15 = 14.8 m²",
+          "note": "Use external diameter for external wrap."
+        },
+        "alternative": "Circular duct insulation can also be measured in m (linear) if diameter is always stated alongside. Check pricing method — some price per m, others per m²."
+      },
+      "flat_oval": {
+        "formula": "SA = (π × H + 2 × (W - H)) × L",
+        "variables": "W = major axis (m), H = minor axis (m), L = length (m)",
+        "example": {
+          "duct": "600mm × 200mm flat oval, 8m long",
+          "calc": "SA = (π × 0.2 + 2 × (0.6 - 0.2)) × 8 = (0.628 + 0.8) × 8 = 11.4 m²"
+        }
+      }
+    },
+    "practical_notes": [
+      "Include duct surface area at bends, tees, and fittings — these are insulated too.",
+      "Fittings allowance: add 10-15% to straight duct surface area to cover insulation at fittings.",
+      "If fittings are individually drawn, calculate their surface area separately for accuracy.",
+      "Access doors in insulated ductwork need insulated access panels — count as nr items.",
+      "Insulation stops at: terminal devices (diffusers, grilles), equipment connections (AHU, FCU), fire dampers (unless fire wrap continues through)."
+    ]
+  },
+  "specification_rules": {
+    "internal_vs_external": {
+      "rule": "ALWAYS confirm whether spec requires INTERNAL lining, EXTERNAL wrap, or BOTH.",
+      "both": "Some specs require BOTH internal lining (for acoustic) AND external wrap (for thermal). These are SEPARATE items with SEPARATE measurements.",
+      "flag_if": "Spec mentions \"insulated ductwork\" without stating internal, external, or both — flag for clarification."
+    },
+    "by_system_type": {
+      "supply_air": {
+        "typical": "External thermal wrap — prevents heat gain/loss between AHU and room.",
+        "cold_supply": "If supply air is cooled (from chilled water coil), vapour barrier is ESSENTIAL on external wrap.",
+        "note": "Supply air ducts are almost always insulated (thermal + energy efficiency). Uninsulated supply duct = energy waste."
+      },
+      "return_air": {
+        "typical": "Often NOT insulated if duct is within the conditioned space (ceiling void).",
+        "exceptions": "Insulate return duct if: in unconditioned space (external, plant room), long return run with significant heat gain/loss, spec requires it.",
+        "note": "Check spec — many projects do not insulate return air ducts. Flag if spec is silent on return duct insulation."
+      },
+      "extract_air": {
+        "typical": "Usually NOT insulated — extract air is being discarded.",
+        "exceptions": "Insulate if: kitchen extract (DW/172 fire wrap may be needed), fume extract (chemical containment), or where duct is in cold space and condensation is a risk.",
+        "note": "Toilet extract, general extract — typically uninsulated unless spec states otherwise."
+      },
+      "fresh_air_intake": {
+        "typical": "External wrap with vapour barrier — cold outside air will cause condensation on duct surface.",
+        "note": "Fresh air intake duct is COLD — always insulate with vapour barrier. Often missed in specs. Flag if not specified."
+      },
+      "kitchen_extract": {
+        "typical": "Fire-rated wrap — DW/172 spec ductwork. Fire wrap through compartment walls.",
+        "note": "Kitchen extract may need fire wrap for full length in some fire strategies, not just at wall penetrations. Check fire strategy."
+      },
+      "smoke_extract": {
+        "typical": "Fire-rated wrap or fire-rated duct system — must maintain integrity during fire.",
+        "standard": "BS EN 12101 for smoke control systems.",
+        "note": "Smoke extract ductwork fire rating is determined by the fire engineer. Check fire strategy document."
+      }
+    },
+    "flexible_duct": {
+      "rule": "Flexible ductwork is often supplied PRE-INSULATED (insulated flex). Check spec.",
+      "pre_insulated": "If flex is pre-insulated, do NOT add separate insulation — it is included in the flex duct item.",
+      "uninsulated": "If flex is uninsulated (bare metallic flex), separate insulation may be required — check spec.",
+      "flag_if": "Spec does not state whether flexible duct is insulated or uninsulated type — flag."
+    }
+  },
+  "flag_triggers": [
+    "Fire rating requirement stated without specific product, thickness, or tested system reference — flag.",
+    "Ductwork shown on drawing without insulation specification where insulation would normally be expected (supply air, fresh air intake) — flag.",
+    "Internal lining specified without stated effect on duct sizing — flag for design check.",
+    "Spec requiring vapour barrier without specifying material type or sealing method — flag.",
+    "Cold duct (chilled supply, fresh air intake) specified with mineral wool wrap but no vapour barrier — flag condensation risk.",
+    "Fire wrap extent not stated (how far either side of wall) — flag. Must match tested system certificate.",
+    "Duct penetrating fire wall with neither fire damper nor fire wrap — flag as non-compliant.",
+    "Kitchen extract duct through fire compartment without fire wrap reference — flag.",
+    "Internal AND external insulation both specified — confirm both are intended (not a spec error).",
+    "Return air duct insulation not mentioned — clarify if intentionally uninsulated or spec omission.",
+    "Flexible duct insulation status not stated (pre-insulated or bare) — flag.",
+    "Insulation shown stopping at a point on drawing with no apparent reason — flag for clarification.",
+    "Aluminium cladding over duct insulation specified — count as separate item (m²). Not included in basic insulation rate.",
+    "Insulation to existing ductwork specified — flag. May need removal of old insulation first (asbestos risk if pre-2000)."
+  ]
+}

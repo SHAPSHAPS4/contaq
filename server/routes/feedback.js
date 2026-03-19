@@ -9,8 +9,8 @@
 const express = require('express');
 const router = express.Router();
 const { callAI } = require('../services/ai');
-const kbManager = require('../knowledge/kb-manager');
-const kb = require('../knowledge/mep-knowledge-base');
+const kbManager = require('../kb/index');
+const kb = require('../kb/index');
 
 router.post('/process', async (req, res) => {
   try {

@@ -1,0 +1,567 @@
+{
+  "id": "KB-C02",
+  "title": "Estimating Principles & Waste Factors",
+  "version": "1.0",
+  "date": "2026-03-18",
+  "units": {
+    "linear": {
+      "symbol": "m",
+      "applies_to": [
+        "Pipework (all types)",
+        "Cables (all types)",
+        "Containment (tray, trunking, conduit, ladder)",
+        "Circular ductwork",
+        "Flat oval ductwork",
+        "Flexible ductwork",
+        "Pipe insulation (by pipe diameter)",
+        "Trace heating cable",
+        "Chases in walls/floors"
+      ],
+      "note": "Measured along centreline for pipes and ducts. Cable measured along containment route + drops."
+    },
+    "area": {
+      "symbol": "m²",
+      "applies_to": [
+        "Rectangular ductwork surface area",
+        "Duct insulation (external wrap/board)",
+        "Equipment insulation (vessels, tanks)",
+        "Fire stopping boards",
+        "Insulation to flat surfaces",
+        "Acoustic insulation panels"
+      ],
+      "note": "Rectangular duct: 2(W+H) × Length = m². Equipment: measure actual surface area."
+    },
+    "number": {
+      "symbol": "nr",
+      "applies_to": [
+        "Valves (all types)",
+        "Fittings (elbows, tees, reducers, flanges)",
+        "Equipment (AHUs, FCUs, pumps, boilers, chillers)",
+        "Electrical outlets (sockets, switches, data points)",
+        "Luminaires",
+        "Dampers (fire, volume, smoke)",
+        "Grilles, diffusers, louvres",
+        "Sensors, detectors, call points",
+        "Access doors, inspection hatches",
+        "Fire stopping penetrations",
+        "Pipe supports/brackets",
+        "Distribution boards, panels"
+      ],
+      "note": "Count individually. Equipment must include full specification."
+    },
+    "weight": {
+      "symbol": "kg",
+      "applies_to": [
+        "Structural steelwork for equipment supports",
+        "Equipment plinths/bases (if M&E scope)"
+      ],
+      "note": "Only used where M&E subcontractor provides structural supports. Rare in standard M&E takeoff."
+    },
+    "item": {
+      "symbol": "item",
+      "applies_to": [
+        "Testing and commissioning (per system)",
+        "Provisional sums",
+        "Attendance items",
+        "Labelling (per system)"
+      ],
+      "note": "Used for non-quantifiable scope items. Always describe what the item covers."
+    },
+    "rule": "NEVER mix units within the same line item. Each line item has exactly ONE unit. If an item needs multiple units (e.g. pipe + insulation), they are SEPARATE line items."
+  },
+  "waste_factors": {
+    "pipework": {
+      "copper": {
+        "range": "10-15%",
+        "low": 0.1,
+        "high": 0.15,
+        "default": 0.12,
+        "reason": "Offcuts from standard 3m or 6m lengths, bending waste, joint preparation",
+        "notes": "Use 10% for long straight runs, 15% for complex plant rooms with many short sections"
+      },
+      "carbon_steel_screwed": {
+        "range": "12-15%",
+        "low": 0.12,
+        "high": 0.15,
+        "default": 0.13,
+        "reason": "Threading waste, cutting allowance, nipple offcuts",
+        "notes": "Higher waste than welded due to threading requirements at each joint"
+      },
+      "carbon_steel_welded": {
+        "range": "8-10%",
+        "low": 0.08,
+        "high": 0.1,
+        "default": 0.09,
+        "reason": "Cutting waste, weld preparation, alignment adjustments",
+        "notes": "Lower waste — pipes cut to exact length and welded. Standard 6m lengths."
+      },
+      "cpvc_upvc": {
+        "range": "10-12%",
+        "low": 0.1,
+        "high": 0.12,
+        "default": 0.11,
+        "reason": "Solvent weld preparation, brittle material, cutting waste",
+        "notes": "Slightly higher waste than copper due to brittleness"
+      },
+      "mdpe": {
+        "range": "8-10%",
+        "low": 0.08,
+        "high": 0.1,
+        "default": 0.09,
+        "reason": "Coil end waste, fusion joint preparation",
+        "notes": "Supplied in coils (25m, 50m, 100m) — less waste than rigid pipe"
+      },
+      "stainless_steel": {
+        "range": "10-12%",
+        "low": 0.1,
+        "high": 0.12,
+        "default": 0.11,
+        "reason": "Precision cutting, press-fit preparation, material cost makes waste significant",
+        "notes": "Higher material cost — waste factor is commercially important"
+      },
+      "mlcp": {
+        "range": "8-10%",
+        "low": 0.08,
+        "high": 0.1,
+        "default": 0.09,
+        "reason": "Coil supply, press-fit jointing, minimal cutting waste",
+        "notes": "Multi-layer composite pipe. Supplied in coils. Low waste."
+      }
+    },
+    "cable": {
+      "general_wiring": {
+        "range": "10%",
+        "low": 0.08,
+        "high": 0.12,
+        "default": 0.1,
+        "reason": "Drum end waste, routing adjustments, stripping waste",
+        "notes": "Standard allowance for LSZH, SWA, twin & earth cable runs"
+      },
+      "containment_runs": {
+        "range": "5%",
+        "low": 0.04,
+        "high": 0.06,
+        "default": 0.05,
+        "reason": "Cutting waste at junctions, offcuts from standard 3m lengths",
+        "notes": "Cable tray, trunking, conduit — lower waste than cable due to rigid routing"
+      },
+      "fire_performance": {
+        "range": "10-12%",
+        "low": 0.1,
+        "high": 0.12,
+        "default": 0.11,
+        "reason": "FP200/MICC is harder to work with, more waste at terminations",
+        "notes": "Fire performance cable is stiffer and requires more care in bending"
+      },
+      "data_cable": {
+        "range": "12-15%",
+        "low": 0.12,
+        "high": 0.15,
+        "default": 0.13,
+        "reason": "Service loops at patch panels, testing loops, re-termination allowance",
+        "notes": "Higher waste — data cables need service loops and may require re-termination"
+      },
+      "termination_allowance": {
+        "per_termination": "300-500mm",
+        "default_mm": 400,
+        "reason": "Extra cable at each end for stripping, connection, and service loop",
+        "notes": "Add this PER TERMINATION POINT on top of the measured route length"
+      }
+    },
+    "ductwork": {
+      "rectangular": {
+        "range": "10%",
+        "low": 0.08,
+        "high": 0.12,
+        "default": 0.1,
+        "unit": "m² (surface area)",
+        "reason": "Sheet metal offcuts, joint allowances, seam waste, flange material",
+        "notes": "Applied to the calculated surface area: 2(W+H) × L × (1 + waste%)"
+      },
+      "circular": {
+        "range": "8%",
+        "low": 0.06,
+        "high": 0.1,
+        "default": 0.08,
+        "unit": "m (linear)",
+        "reason": "Pre-formed spiral duct has less waste than fabricated rectangular",
+        "notes": "Spiral duct supplied in standard lengths (3m typically). Less site fabrication."
+      },
+      "flat_oval": {
+        "range": "8%",
+        "low": 0.06,
+        "high": 0.1,
+        "default": 0.08,
+        "unit": "m (linear)",
+        "reason": "Similar to circular — pre-formed sections",
+        "notes": "Flat oval used where height is restricted but round duct performance desired"
+      },
+      "flexible": {
+        "range": "15%",
+        "low": 0.12,
+        "high": 0.18,
+        "default": 0.15,
+        "unit": "m (linear)",
+        "reason": "Routing adjustments, compression, offcuts, connection waste",
+        "notes": "Flex duct has highest waste — it compresses during installation and routing often changes on site"
+      }
+    },
+    "insulation": {
+      "pipe_sections": {
+        "range": "15%",
+        "low": 0.12,
+        "high": 0.18,
+        "default": 0.15,
+        "reason": "Valve boxing, flange covers, fitting insulation, joints, offcuts at bends",
+        "notes": "Includes allowance for insulating around valves, flanges, and fittings which use more material per metre"
+      },
+      "duct_wrap": {
+        "range": "12%",
+        "low": 0.1,
+        "high": 0.15,
+        "default": 0.12,
+        "reason": "Overlaps at joints, wastage at corners and offsets, pins and tape",
+        "notes": "Duct wrap is sheet material — overlaps at joints typically 50-75mm each side"
+      },
+      "duct_board": {
+        "range": "12%",
+        "low": 0.1,
+        "high": 0.15,
+        "default": 0.12,
+        "reason": "Cutting waste from standard sheet sizes, notching at corners",
+        "notes": "Rigid board insulation cut from standard 1200×600 or 1200×1000 sheets"
+      },
+      "equipment": {
+        "range": "10%",
+        "low": 0.08,
+        "high": 0.12,
+        "default": 0.1,
+        "reason": "Bespoke fabrication, cutting from sheets, curved surface waste",
+        "notes": "Equipment insulation is often bespoke — jackets or measured/cut on site"
+      }
+    },
+    "application_rules": [
+      "Waste factors are applied AFTER net measurement — they are a MULTIPLIER on the measured quantity.",
+      "Formula: Gross Qty = Net Qty × (1 + Waste Factor). Example: 100m pipe × 1.12 = 112m to order.",
+      "Always show waste as a SEPARATE line or note — never hide it in the measured quantity.",
+      "Estimator can adjust waste factors based on project-specific knowledge.",
+      "Use LOW end for simple, straight routing. Use HIGH end for complex plant rooms.",
+      "For NRM2 BoQ: quantities are NET (no waste). Waste is included in the RATE.",
+      "For material ordering: quantities INCLUDE waste."
+    ]
+  },
+  "fittings_allowance": {
+    "when_to_estimate": "Only estimate fittings when individual fittings are NOT shown on drawings AND no fittings schedule exists.",
+    "when_NOT_to_estimate": "If a fittings schedule exists in the specification or on a drawing, use the schedule — NEVER estimate when a schedule is available.",
+    "priority_order": [
+      "1. Use fittings schedule (from spec or drawings) — MOST ACCURATE",
+      "2. Count individually from GA drawings — ACCURATE",
+      "3. Estimate using allowance rates below — LEAST ACCURATE, flag as estimated"
+    ],
+    "elbow_allowances": {
+      "copper_small": {
+        "size_range": "<28mm (15mm, 22mm)",
+        "rate": "1 elbow per 2.5m",
+        "elbows_per_m": 0.4,
+        "notes": "Small bore domestic/commercial runs change direction frequently"
+      },
+      "copper_medium": {
+        "size_range": "28mm-54mm",
+        "rate": "1 elbow per 3.0m",
+        "elbows_per_m": 0.33,
+        "notes": "Medium bore — fewer direction changes than small bore"
+      },
+      "copper_large": {
+        "size_range": ">54mm",
+        "rate": "1 elbow per 3.5m",
+        "elbows_per_m": 0.29,
+        "notes": "Large bore copper — longer straight runs, fewer bends"
+      },
+      "steel_small": {
+        "size_range": "DN15-DN32",
+        "rate": "1 elbow per 3.0m",
+        "elbows_per_m": 0.33,
+        "notes": "Small bore screwed steel"
+      },
+      "steel_medium": {
+        "size_range": "DN40-DN80",
+        "rate": "1 elbow per 4.0m",
+        "elbows_per_m": 0.25,
+        "notes": "Medium bore steel — main distribution runs"
+      },
+      "steel_large": {
+        "size_range": ">DN80",
+        "rate": "1 elbow per 5.0m",
+        "elbows_per_m": 0.2,
+        "notes": "Large bore steel — main risers and headers"
+      },
+      "cpvc": {
+        "size_range": "All sizes",
+        "rate": "1 elbow per 3.0m",
+        "elbows_per_m": 0.33,
+        "notes": "CPVC/uPVC — similar to copper medium"
+      }
+    },
+    "always_count_individually": [
+      "Tees (every branch takeoff)",
+      "Reducers / enlargements (every size change)",
+      "Valves (isolation, control, check, PRV, safety)",
+      "Flanges and unions (at equipment connections)",
+      "Strainers",
+      "Flexible connectors",
+      "Expansion bellows / loops",
+      "Drain points and air vents"
+    ],
+    "riser_additional": [
+      "2× elbows at base of riser (horizontal to vertical)",
+      "2× elbows at top of riser (vertical to horizontal)",
+      "1× fire stopping penetration per floor",
+      "1× isolation valve per floor (if spec requires)"
+    ],
+    "ductwork_fittings": {
+      "rule": "Ductwork fittings should ALWAYS be counted individually from GA drawings.",
+      "items": [
+        "Bends (90°, 45°, swept)",
+        "Tees / branches",
+        "Tapers / reducers",
+        "Offsets",
+        "Transformation pieces (rect to circ)",
+        "End caps"
+      ],
+      "accessories": [
+        "Fire dampers (nr at fire walls)",
+        "Volume control dampers (nr inline)",
+        "Access doors (nr per spec requirement)",
+        "Flexible connections (nr at equipment)"
+      ],
+      "if_not_shown": "If ductwork fittings are not individually shown, allow 25% of straight duct quantity as fittings cost (Wendes method). Flag as estimated."
+    }
+  },
+  "supports": {
+    "pipework": {
+      "small_bore": {
+        "size_range": "<42mm",
+        "spacing": "1.5m",
+        "supports_per_m": 0.67,
+        "type": "Pipe clips, munsen rings, or channel brackets",
+        "notes": "BS 5422 / BSRIA guidance. Closer spacing for horizontal runs. Vertical runs need guide brackets."
+      },
+      "medium_bore": {
+        "size_range": "42mm-80mm",
+        "spacing": "2.0m",
+        "supports_per_m": 0.5,
+        "type": "Pipe brackets, roller supports, channel with beam clamps",
+        "notes": "Heavier fixings required. Check structural capacity of ceiling/steelwork."
+      },
+      "large_bore": {
+        "size_range": ">80mm",
+        "spacing": "2.5m",
+        "supports_per_m": 0.4,
+        "type": "Trapeze hangers, clevis hangers, roller supports",
+        "notes": "May need structural engineer sign-off for support point loads."
+      },
+      "riser_supports": {
+        "multiplier": 1.2,
+        "notes": "Add 20% to horizontal support quantities for riser sections. Risers need guide brackets and anchor points."
+      }
+    },
+    "cable_containment": {
+      "cable_tray": {
+        "spacing": "1.5m",
+        "supports_per_m": 0.67,
+        "type": "Cantilever brackets or threaded rod trapeze",
+        "notes": "Standard for perforated/ladder tray up to 600mm wide. Wider tray may need closer spacing."
+      },
+      "cable_ladder": {
+        "spacing": "1.5m",
+        "supports_per_m": 0.67,
+        "type": "Trapeze supports, wall brackets",
+        "notes": "Heavy duty — check load capacity and spanning capability."
+      },
+      "trunking": {
+        "spacing": "1.2m",
+        "supports_per_m": 0.83,
+        "type": "Trunking clips, saddle brackets",
+        "notes": "Smaller trunking may be surface mounted with direct fixings."
+      },
+      "conduit": {
+        "spacing": "1.0m",
+        "supports_per_m": 1,
+        "type": "Saddle clips, spacer bar saddles",
+        "notes": "Closer spacing to prevent sagging between supports."
+      }
+    },
+    "ductwork": {
+      "rectangular": {
+        "spacing": "2.0m",
+        "supports_per_m": 0.5,
+        "type": "Trapeze hangers with threaded rod, angle iron cradles",
+        "notes": "Standard for rectangular duct. May need closer spacing for large/heavy ducts."
+      },
+      "circular": {
+        "spacing": "2.5m",
+        "supports_per_m": 0.4,
+        "type": "Ring hangers, band supports, clevis hangers",
+        "notes": "Circular duct is self-supporting over longer spans than rectangular."
+      },
+      "flexible": {
+        "spacing": "1.5m",
+        "supports_per_m": 0.67,
+        "type": "Tape/strap hangers",
+        "notes": "Flex duct must not sag — support at closer centres than rigid duct."
+      },
+      "riser_supports": {
+        "multiplier": 1.2,
+        "notes": "Add 20% for vertical duct supports. Riser sections need angle brackets and thrust restraints."
+      }
+    },
+    "general_rules": [
+      "Support quantities are estimates — actual spacing depends on structural capacity of fixing points.",
+      "Threaded rod lengths depend on ceiling void depth — flag if not known.",
+      "Earthquake/seismic bracing: not standard UK but flag if spec mentions it.",
+      "Always check spec for specific support requirements — they override these defaults.",
+      "For heavy equipment (>50kg): engineer-designed supports required. Count as provisional item."
+    ]
+  },
+  "rounding": {
+    "rules": {
+      "linear": {
+        "rule": "Round UP to nearest 0.5m",
+        "examples": [
+          "4.3m → 4.5m",
+          "7.8m → 8.0m",
+          "12.1m → 12.5m"
+        ],
+        "reason": "Ensures sufficient material on site. Pipe and cable come in standard lengths — rounding up accounts for this."
+      },
+      "area": {
+        "rule": "Round UP to nearest 0.5m²",
+        "examples": [
+          "3.2m² → 3.5m²",
+          "8.7m² → 9.0m²"
+        ],
+        "reason": "Sheet materials cut from standard sizes — rounding up covers cutting waste."
+      },
+      "number": {
+        "rule": "Always whole numbers (round UP)",
+        "examples": [
+          "2.3 valves → 3 valves",
+          "Calculation gives 5.1 diffusers → 6 diffusers"
+        ],
+        "reason": "Cannot order fractional equipment. Always round up to next whole unit."
+      },
+      "weight": {
+        "rule": "Round UP to nearest 5kg",
+        "examples": [
+          "47kg → 50kg",
+          "103kg → 105kg"
+        ],
+        "reason": "Structural steel ordered in standard sections — round up for cutting waste."
+      }
+    },
+    "golden_rule": "NEVER round DOWN. Always favour excess over shortage. It is cheaper to have surplus material on site than to delay the programme waiting for a shortfall order."
+  },
+  "measurement": {
+    "methods": {
+      "scale_bar": {
+        "priority": 1,
+        "name": "Scale Bar Method",
+        "description": "Use the printed scale bar on the drawing to calibrate measurements.",
+        "accuracy": "Highest — scale bar scales with the print, compensating for print size changes.",
+        "when_to_use": "PREFERRED method. Use whenever a scale bar is present on the drawing.",
+        "how": "Measure the scale bar, calculate pixels-per-metre or mm-per-metre ratio, apply to all measurements on that sheet."
+      },
+      "stated_scale": {
+        "priority": 2,
+        "name": "Stated Scale Method",
+        "description": "Use the scale ratio stated in the title block (e.g. 1:100).",
+        "accuracy": "Good — but assumes the drawing was printed at the stated paper size (e.g. A1).",
+        "when_to_use": "When no scale bar is present but title block states a scale and paper size.",
+        "caveat": "If the drawing was printed on different paper (e.g. A1 drawing printed at A3), the stated scale is WRONG. Flag this risk.",
+        "how": "At 1:100 on A1 paper, 1mm on paper = 100mm (0.1m) in reality."
+      },
+      "coordinate": {
+        "priority": 3,
+        "name": "Coordinate / Grid Method",
+        "description": "Use building grid line spacings (known dimensions) to derive measurements.",
+        "accuracy": "Moderate — depends on grid accuracy and interpolation between grid lines.",
+        "when_to_use": "For complex routing where scale bar is absent, or to verify scale bar measurements.",
+        "how": "Identify two grid lines with known spacing (e.g. grids A-B = 7.5m). Measure the grid spacing on the drawing. Use ratio to calculate other distances."
+      },
+      "annotation": {
+        "priority": 0,
+        "name": "Annotated Dimensions",
+        "description": "Use dimensions explicitly annotated on the drawing.",
+        "accuracy": "Highest — figured dimensions always override measured/scaled dimensions.",
+        "when_to_use": "Wherever annotated dimensions are provided. These override all other methods.",
+        "rule": "FIGURED DIMENSIONS ALWAYS OVERRIDE SCALED MEASUREMENTS. If a drawing says \"15.0m\" but you measure 14.2m from scale, the answer is 15.0m."
+      }
+    },
+    "no_scale_protocol": [
+      "If NO scale bar AND no stated scale AND no grid reference dimensions:",
+      "  1. Flag immediately: \"No measurement reference available — cannot extract linear quantities\".",
+      "  2. Extract point counts (nr items) only — these do not depend on scale.",
+      "  3. Extract annotated dimensions only (sizes, ratings, specs from labels).",
+      "  4. Set confidence to \"Low\" for any length estimates.",
+      "  5. Recommend estimator obtains scaled drawings or site survey before finalising."
+    ],
+    "measurement_priority": "Annotated dimensions > Scale bar > Stated scale > Grid method > Do not measure"
+  },
+  "quantity_status": {
+    "classifications": {
+      "FIRM": {
+        "label": "Firm Quantity",
+        "drawing_status": [
+          "For Construction"
+        ],
+        "description": "Extracted from approved construction drawings. Reliable for ordering and pricing.",
+        "action": "Use directly for pricing and material ordering.",
+        "flag": false
+      },
+      "PRELIMINARY": {
+        "label": "Preliminary Quantity",
+        "drawing_status": [
+          "For Coordination",
+          "Preliminary",
+          "For Information"
+        ],
+        "description": "Extracted from non-final drawings. Routing and quantities may change.",
+        "action": "Use for budget estimates only. Add contingency. Do not order materials.",
+        "flag": true,
+        "recommended_contingency": "10-20%"
+      },
+      "TENDER": {
+        "label": "Tender Quantity",
+        "drawing_status": [
+          "Tender"
+        ],
+        "description": "Extracted from tender issue drawings. May differ from construction issue.",
+        "action": "Use for tender pricing. Note that construction issue may change quantities.",
+        "flag": true,
+        "recommended_contingency": "5-10%"
+      },
+      "ESTIMATED": {
+        "label": "Estimated Quantity",
+        "drawing_status": [
+          "Any — where measurement is uncertain"
+        ],
+        "description": "Quantity derived from estimation, not direct measurement. Low confidence.",
+        "action": "Flag for estimator review. State basis of estimate.",
+        "flag": true,
+        "recommended_contingency": "15-25%"
+      },
+      "FROM_SCHEDULE": {
+        "label": "Schedule Quantity",
+        "drawing_status": [
+          "Any — taken from equipment/fittings schedule"
+        ],
+        "description": "Quantity taken directly from a schedule rather than measured from drawing.",
+        "action": "Cross-reference schedule quantity with drawing count where possible.",
+        "flag": false,
+        "notes": "Schedule quantities are authoritative when they exist."
+      }
+    },
+    "rule": "ALWAYS state quantity status in extraction output. Every line item must have a status classification.",
+    "contingency_note": "Contingency percentages are recommendations — estimator may adjust based on project knowledge."
+  }
+}

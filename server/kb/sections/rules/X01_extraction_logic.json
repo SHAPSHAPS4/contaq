@@ -1,0 +1,382 @@
+{
+  "id": "KB-X01",
+  "title": "Quantity Extraction Logic",
+  "version": "1.0",
+  "date": "2026-03-19",
+  "priority": {
+    "rule": "For EVERY item extracted, use the highest available source. NEVER use a lower-priority source when a higher one exists.",
+    "levels": [
+      {
+        "priority": 1,
+        "source": "Equipment / Material Schedule",
+        "description": "Tabular schedule listing items with quantities, specifications, and model numbers.",
+        "reliability": "Highest — schedules are prepared by the designer and are the definitive quantity/spec source.",
+        "action": "Use schedule quantity and specification directly. Cross-reference drawing for location verification.",
+        "examples": [
+          "Luminaire schedule",
+          "Valve schedule",
+          "Equipment schedule",
+          "Cable schedule",
+          "Damper schedule",
+          "Pipe schedule",
+          "Data outlet schedule"
+        ],
+        "label_in_output": "Source: Schedule"
+      },
+      {
+        "priority": 2,
+        "source": "Drawing Annotation (Stated Dimension / Quantity)",
+        "description": "Dimensions or quantities explicitly written on the drawing as text annotations.",
+        "reliability": "High — figured dimensions are authoritative. They override scaled measurements.",
+        "action": "Use the stated value. Note: \"figured dimensions always override scaled measurements\".",
+        "examples": [
+          "Pipe size annotation \"DN50\"",
+          "Duct size \"600x400\"",
+          "Room area \"45m²\"",
+          "Pipe run annotated \"15.0m\"",
+          "Count annotated \"6nr diffusers\""
+        ],
+        "label_in_output": "Source: Drawing annotation"
+      },
+      {
+        "priority": 3,
+        "source": "Scale Measurement from Drawing",
+        "description": "Quantity measured from the drawing using the stated scale or scale bar.",
+        "reliability": "Good — standard method for linear measurements when no annotation exists.",
+        "action": "Measure along service centreline using drawing scale. Note measurement method and scale used.",
+        "prerequisites": [
+          "Scale bar present on drawing (preferred)",
+          "OR stated scale in title block with confirmed paper size",
+          "OR known grid dimensions for calibration"
+        ],
+        "examples": [
+          "Pipe run measured at 1:100 = 23.5m",
+          "Cable tray route measured at 1:50 = 42.0m"
+        ],
+        "label_in_output": "Source: Scale measurement",
+        "note": "If neither scale bar nor stated scale is available, DO NOT measure. Flag and extract counts only."
+      },
+      {
+        "priority": 4,
+        "source": "Estimated Allowance",
+        "description": "Quantity estimated using standard allowance rates when items are not individually shown.",
+        "reliability": "Lowest — estimates are approximations based on industry averages.",
+        "action": "Apply allowance rates from KB-C02. ALWAYS flag as estimated. State the basis of estimate.",
+        "examples": [
+          "Fittings allowance: 1 elbow per 3m (KB-C02)",
+          "Support brackets: 1 per 1.5m (KB-C02)",
+          "Cable termination: +400mm per end"
+        ],
+        "label_in_output": "Source: Estimated allowance",
+        "warning": "NEVER use estimated allowance when a schedule, annotation, or scale measurement is available. Estimated allowances are the LAST RESORT.",
+        "flag": true
+      }
+    ],
+    "validation_rule": "After extraction, review every item. If an item is labelled \"Estimated allowance\" but a schedule or drawing measurement exists for that item, upgrade to the higher-priority source."
+  },
+  "measurement": {
+    "linear": {
+      "name": "Linear Measurement (m)",
+      "applies_to": "Pipework, cables, containment, circular duct, flexible duct, conduit, trunking",
+      "method": [
+        "1. IDENTIFY start point (source: DB, pump, boiler, header, etc.) and end point (load: radiator, socket, terminal device, etc.).",
+        "2. TRACE the service route along the centreline as shown on the GA drawing.",
+        "3. INCLUDE all horizontal runs along the route.",
+        "4. INCLUDE vertical drops and rises — from tray/ceiling level down to equipment, up through risers.",
+        "5. If vertical distance is not shown on plan, estimate from: floor-to-floor height (KB-C01), ceiling void depth, equipment connection height. Flag as \"estimated vertical\".",
+        "6. SUM all segments for total route length.",
+        "7. APPLY waste factor from KB-C02 (noted separately).",
+        "8. APPLY rounding rule from KB-C02 (round UP to nearest 0.5m)."
+      ],
+      "do_not_measure_from": [
+        "Schematics or flow diagrams — these show LOGIC, not physical routing. Lengths are diagrammatic.",
+        "Riser diagrams — these show vertical distribution schematically. Lengths are NOT to scale.",
+        "Detail drawings — these show installation method at enlarged scale. Not for quantity extraction.",
+        "Single-line diagrams — these show circuit topology, not physical cable routes."
+      ],
+      "vertical_estimation": {
+        "rule": "When vertical runs cannot be measured from section drawings, estimate using:",
+        "methods": [
+          "Floor-to-floor height from architectural drawings or KB-C01 defaults (commercial 3.75m, residential 2.7m)",
+          "Ceiling void depth: typically 300-600mm above ceiling tiles",
+          "Equipment connection drop: typically 300-1500mm from tray/ceiling to equipment",
+          "Add 2× 90° elbows per vertical transition (fitting count)"
+        ],
+        "label": "Source: Estimated vertical — no section view provided.",
+        "cross_ref": "KB-C01 for floor-to-floor defaults. KB-M02 for riser fittings allowance."
+      }
+    },
+    "area": {
+      "name": "Area Measurement (m²)",
+      "applies_to": "Rectangular ductwork, duct insulation, equipment insulation, flat insulation boards, fire stopping boards",
+      "formulas": {
+        "rectangular_duct": {
+          "formula": "2 × (W + H) × L",
+          "note": "W and H in metres. L = total centreline length."
+        },
+        "circular_duct_surface": {
+          "formula": "π × D × L",
+          "note": "D in metres. For insulation measurement."
+        },
+        "flat_oval_duct": {
+          "formula": "(π × H + 2 × (W - H)) × L",
+          "note": "H = minor axis, W = major axis."
+        },
+        "cylinder_vessel": {
+          "formula": "π × D × (H + D/2)",
+          "note": "Vertical cylinder. Includes top and bottom."
+        },
+        "rectangular_tank": {
+          "formula": "2(LH + WH) + LW + LW(bottom)",
+          "note": "All 6 faces if fully insulated."
+        }
+      },
+      "rules": [
+        "Include surface area at bends, tees, and fittings — add 10-15% for fittings.",
+        "For insulation: use EXTERNAL duct dimensions for external wrap, INTERNAL for internal lining.",
+        "Cladding m² = insulation m² + 5-10% for laps and joints.",
+        "If equipment dimensions are not available, flag \"dimensions required — cannot calculate surface area\"."
+      ],
+      "cross_ref": "KB-I02 for duct insulation formulas. KB-I03 for equipment insulation formulas."
+    },
+    "count": {
+      "name": "Item Count (nr)",
+      "applies_to": "Valves, fittings, equipment, luminaires, outlets, dampers, detectors, sensors",
+      "method": [
+        "1. COUNT from drawing — identify every instance of the item symbol on each drawing sheet.",
+        "2. CROSS-CHECK against schedule — if a schedule exists, the schedule count is authoritative.",
+        "3. If counts DIFFER between drawing and schedule, flag the discrepancy. Use the schedule count.",
+        "4. AVOID double counting — check that the same item is not shown on multiple overlapping drawings.",
+        "5. For items with different types/sizes, count EACH TYPE separately as a separate line item."
+      ],
+      "double_count_risks": [
+        "Same item shown on both ceiling plan and floor plan — count ONCE.",
+        "Same item shown on both GA drawing and coordination drawing — count from GA only.",
+        "Equipment shown on plan AND on equipment schedule — use schedule count, verify against plan.",
+        "Items near drawing sheet boundaries — may appear on two adjacent sheets. Count ONCE.",
+        "Items in revision clouds on BOTH old and new revisions — count from latest revision only."
+      ],
+      "implicit_items": {
+        "rule": "Some items are ALWAYS required even if not shown on drawings. Include as \"Source: Implicit\" with Medium confidence.",
+        "items": [
+          "Isolation valves at equipment connections (KB-M02)",
+          "Strainers upstream of control valves and pumps (KB-M02)",
+          "Drain points at system low points (KB-M02)",
+          "Air vents at system high points (KB-M02)",
+          "Flexible connections at rotating equipment (KB-M02)",
+          "Fire stopping at every fire-rated wall/floor penetration (KB-I04)",
+          "Testing and commissioning per system (item)"
+        ],
+        "cross_ref": "KB-M02 for implicit mechanical items. KB-I04 for fire stopping."
+      }
+    }
+  },
+  "multi_floor": {
+    "rule": "When extracting from multiple drawings (multi-floor building), track quantities by floor AND by system. Provide both per-floor and total summaries.",
+    "process": [
+      "1. ASSIGN each drawing to a floor or area (e.g. \"Ground Floor\", \"Level 01\", \"Roof Plant\").",
+      "2. EXTRACT quantities per drawing/floor, keeping each floor's quantities separate.",
+      "3. IDENTIFY riser services that cross floor boundaries — measure vertical runs separately.",
+      "4. SUM per-floor quantities to get building totals.",
+      "5. PRESENT results as: per-floor breakdown + building total."
+    ],
+    "floor_assignment": {
+      "from_title_block": "Drawing title usually states the floor: \"Level 03 — HVAC Layout\", \"Ground Floor Lighting\".",
+      "from_annotation": "Floor level annotated on drawing: \"+3.750\", \"Level 2\", \"GF\", \"RF\".",
+      "common_abbreviations": {
+        "B1": "Basement Level 1",
+        "B2": "Basement Level 2",
+        "LG": "Lower Ground",
+        "GF": "Ground Floor",
+        "G": "Ground",
+        "L01": "Level 01 / First Floor",
+        "FF": "First Floor",
+        "L02": "Level 02 / Second Floor",
+        "RF": "Roof Level",
+        "RP": "Roof Plant"
+      }
+    },
+    "riser_tracking": {
+      "rule": "Risers (vertical service runs between floors) must be tracked separately from floor-level distribution.",
+      "measurement": [
+        "If riser diagram provided: identify services in riser, note sizes. Do NOT measure lengths from riser diagram (it is schematic).",
+        "Calculate riser length: number of floors served × floor-to-floor height.",
+        "Add fittings: 2× elbows at base (horizontal to vertical), 2× elbows at top, 1× fire stop per floor penetration.",
+        "Add isolation: 1× isolation valve per floor landing (if specified)."
+      ],
+      "cross_ref": "KB-C01 for floor-to-floor height defaults. KB-M02 for riser fittings. KB-I04 for fire stopping."
+    },
+    "similar_floors": {
+      "rule": "If multiple floors are identical (typical floors), measure ONE floor in detail and multiply by the number of typical floors.",
+      "check": "Verify that floors are truly identical — check drawing titles for \"Typical Floor\" or \"Levels 02-08 Typical\".",
+      "differences": "Even \"typical\" floors may differ at: riser connections (different branch sizes per floor), fire compartmentation (different at some levels), end floors (top/bottom may differ).",
+      "flag_if": "Drawing says \"typical\" but floor-specific details suggest differences — flag for clarification."
+    }
+  },
+  "extraction_decisions": {
+    "extract": {
+      "label": "EXTRACT — include in takeoff",
+      "criteria": "Item is clearly shown on a GA drawing (or schedule) with sufficient specification to identify it and a measurable/countable quantity.",
+      "confidence": "High",
+      "examples": [
+        "Pipe run shown on GA with annotated size and measurable route — extract length + size.",
+        "Diffuser shown on RCP and listed on luminaire schedule — extract count + type.",
+        "Cable tray shown on GA with annotated width — extract length + width.",
+        "Valve shown on drawing at identified location with size annotation — extract as nr + size."
+      ]
+    },
+    "extract_and_flag": {
+      "label": "EXTRACT but FLAG — include in takeoff with flag",
+      "criteria": "Item is shown/countable but has incomplete specification or measurement uncertainty.",
+      "confidence": "Medium or Low",
+      "scenarios": [
+        {
+          "scenario": "Item shown but spec incomplete",
+          "confidence": "Medium",
+          "example": "Pipe visible on drawing but material not annotated — extract length, flag \"material not stated\"."
+        },
+        {
+          "scenario": "Scale measurement without scale bar",
+          "confidence": "Medium",
+          "example": "Length measured using title block scale (no bar) — extract with note \"measured from stated scale, no scale bar\"."
+        },
+        {
+          "scenario": "Item on For Coordination drawing",
+          "confidence": "Medium",
+          "example": "Route shown on coordination drawing — extract as PRELIMINARY, flag \"For Coordination — may change\"."
+        },
+        {
+          "scenario": "Implicit item not shown",
+          "confidence": "Medium",
+          "example": "Isolation valves at pump connections (always required but not drawn) — extract as nr, flag \"implicit — verify\"."
+        },
+        {
+          "scenario": "Item measured by estimation",
+          "confidence": "Low",
+          "example": "Fittings estimated at 1 per 3m (not individually shown) — extract estimated count, flag \"estimated allowance\"."
+        },
+        {
+          "scenario": "Revision cloud area",
+          "confidence": "Low",
+          "example": "Item within revision cloud on For Construction drawing — extract but flag \"recently revised — verify current\"."
+        }
+      ]
+    },
+    "flag_no_extract": {
+      "label": "FLAG but DO NOT EXTRACT — note in flags section only",
+      "criteria": "Item exists on drawings but cannot be reliably quantified. Or item is on a drawing type that does not support quantity extraction.",
+      "confidence": "N/A — not extracted",
+      "scenarios": [
+        {
+          "scenario": "Item on schematic/flow diagram",
+          "reason": "Schematics show logic, not physical routing. Linear quantities would be fictitious."
+        },
+        {
+          "scenario": "Item on riser diagram without dimensions",
+          "reason": "Riser diagrams are not to scale. Measure risers from floor-to-floor heights instead."
+        },
+        {
+          "scenario": "Item on detail drawing only",
+          "reason": "Details show installation method, not quantities. Unless detail explicitly states a quantity."
+        },
+        {
+          "scenario": "Drawing quality too poor to measure",
+          "reason": "Blurred, low resolution, or illegible drawing. Measurement would be unreliable."
+        },
+        {
+          "scenario": "Revision cloud on Preliminary drawing",
+          "reason": "Design is still changing. Quantities in this area are unreliable."
+        },
+        {
+          "scenario": "Item with no specification whatsoever",
+          "reason": "Cannot identify what it is. Note symbol and location, flag for identification."
+        },
+        {
+          "scenario": "Item marked \"TBC\" or \"TBA\"",
+          "reason": "Design not confirmed. Include as flag — do not extract quantity."
+        }
+      ]
+    }
+  },
+  "completeness_check": {
+    "rule": "Before finalising ANY extraction output, run this completeness check. Every extraction must pass ALL checks.",
+    "checks": [
+      {
+        "check": "All trades addressed",
+        "question": "Have Mechanical, Electrical, AND Insulation trades all been considered?",
+        "action": "If drawings show services for a trade not yet extracted, flag as \"Trade not fully extracted — additional drawings may be required\".",
+        "note": "Even if a drawing is primarily mechanical, check for electrical items (BMS points, power supplies to valves) and insulation items (pipe insulation, fire stopping)."
+      },
+      {
+        "check": "All drawing sheets processed",
+        "question": "Has every drawing sheet provided been reviewed?",
+        "action": "List all drawing numbers processed. Flag any drawing sheets mentioned in the set that were not provided.",
+        "note": "Multi-sheet drawings may have a drawing index on Sheet 1 — check against it."
+      },
+      {
+        "check": "Title block extracted",
+        "question": "Has the drawing title block information been captured?",
+        "action": "Project name, drawing number, revision, scale, status, originator — all should be in the output metadata.",
+        "cross_ref": "KB-C01 for title block field list."
+      },
+      {
+        "check": "Drawing status assessed",
+        "question": "Has the drawing status been checked and flagged if not For Construction?",
+        "action": "If drawings are Preliminary, For Coordination, or Tender status — all quantities should be flagged as PRELIMINARY.",
+        "cross_ref": "KB-C01 for status hierarchy. KB-C04 for quantity status classification."
+      },
+      {
+        "check": "Legend/key referenced",
+        "question": "Was a legend/key used for symbol identification? If no legend exists, was this flagged?",
+        "action": "If no legend: flag prominently. All symbol identifications are assumptions.",
+        "cross_ref": "KB-C01 for legend rules."
+      },
+      {
+        "check": "Waste factors noted",
+        "question": "Have waste factors been noted SEPARATELY for every linear/area quantity?",
+        "action": "Waste factors from KB-C02 should appear as separate notes or columns — NEVER hidden inside the measured quantity.",
+        "cross_ref": "KB-C02 for waste factor tables."
+      },
+      {
+        "check": "Flags section populated",
+        "question": "Is the flags section present and populated?",
+        "action": "Every extraction MUST have a flags section. If nothing to flag, state \"No flags identified\". An empty flags section suggests incomplete review.",
+        "note": "It is VERY rare to have zero flags. A clean \"no flags\" output should itself be verified."
+      },
+      {
+        "check": "Implicit items considered",
+        "question": "Have implicit items (always required but not drawn) been included?",
+        "action": "Check KB-M02 implicit items list, KB-I04 fire stopping at penetrations, KB-E03 earthing.",
+        "cross_ref": "KB-M02 for implicit mechanical. KB-I04 for fire stopping. KB-E03 for earthing."
+      },
+      {
+        "check": "Confidence scores assigned",
+        "question": "Does every extracted item have a confidence score (High/Medium/Low)?",
+        "action": "No item should lack a confidence assessment. Score per KB-C02 confidence rules.",
+        "cross_ref": "KB-C02 for confidence scoring definitions."
+      },
+      {
+        "check": "Source labelled",
+        "question": "Is every item labelled with its source (Schedule/Drawing/Scale/Estimated/Implicit)?",
+        "action": "Every line item must state where the quantity came from. This is essential for audit trail.",
+        "cross_ref": "Section 1 of this module for source labels."
+      },
+      {
+        "check": "Quantity status classified",
+        "question": "Is every quantity classified as Firm, Preliminary, Tender, or Estimated?",
+        "action": "Based on drawing status per KB-C04 quantity status classification.",
+        "cross_ref": "KB-C04 for quantity status rules."
+      },
+      {
+        "check": "Cross-references checked",
+        "question": "Have related items across trades been cross-referenced?",
+        "action": "Electrical power to mechanical equipment, insulation to pipework, fire stopping at penetrations, BMS points at mechanical plant. These are common cross-trade items.",
+        "examples": [
+          "Pump extracted (mechanical) → power supply extracted (electrical) → pipe insulation extracted (insulation) → fire stopping at wall (insulation)",
+          "AHU extracted → ductwork → duct insulation → fire dampers → electrical supply → BMS points"
+        ]
+      }
+    ],
+    "final_statement": "After passing all checks, append to output: \"Completeness check: PASSED. [N] items extracted across [trades]. [N] flags raised. KB v[version].\""
+  }
+}
