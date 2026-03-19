@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.8';
-const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 34;
+const KB_VERSION = '5.9';
+const KB_VERSION_DATE = '2026-03-19';
+const KB_VERSION_SOURCES = 35;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -39,6 +39,7 @@ const KB_M01 = require('./kb-m01-pipe-materials');
 const KB_M02 = require('./kb-m02-fittings-valves');
 const KB_M03 = require('./kb-m03-hvac-ductwork');
 const KB_M04 = require('./kb-m04-mechanical-plant');
+const KB_E01 = require('./kb-e01-cable-types');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -983,7 +984,33 @@ function getFullKnowledgeBase() {
     'Gas (nr): Gas meter (flag — utility connection, confirm scope), Governor, Solenoid valve (safety — fire alarm interface), Unit heater (warm air/radiant), Gas pipework (m, Gas Safe registered).',
 
     'Equipment Schedule: ' + KB_M04.schedule_rules.priority[0],
-    '  Every equipment item has ASSOCIATED ITEMS (valves, flexibles, strainers, connections). Always include these.'
+    '  Every equipment item has ASSOCIATED ITEMS (valves, flexibles, strainers, connections). Always include these.',
+
+    '### KB-E01: Cable Types & Sizing',
+    'Power Cables:',
+    '  SWA (BS 6346/5467): Mains, sub-mains, underground. 1.5-300mm², 2-5 core. PVC or XLPE insulation. Armour = CPC earth.',
+    '  LSZH (BS 7211): STANDARD for ALL commercial interiors. Low smoke in fire. 1.5-300mm². MUST use in occupied buildings.',
+    '  PVC/T&E (BS 6004): Domestic only. NOT for commercial unless spec permits.',
+
+    'Fire Performance Cables:',
+    '  FP200: 30 min fire rating. Standard for fire alarm + emergency lighting. Red sheath. BS 8519 clips required.',
+    '  FP400: 60 min fire rating. Enhanced performance.',
+    '  MICC: 3+ hours (mineral insulated, non-combustible). Highest rating. 3-5× cost. Specialist termination. Hygroscopic — seal ends.',
+    '  BS 8519: Cable AND installation must BOTH achieve fire rating. Fire-rated clips mandatory. Segregation from non-FR cables.',
+
+    'Data & Comms:',
+    '  Cat5e (1Gbps/100m), Cat6 (10Gbps/55m), Cat6A (10Gbps/100m — larger dia, affects containment). 15% waste + service loops.',
+    '  Fibre: OM3/OM4 multimode (building backbone), OS2 singlemode (campus/long distance). Note core count.',
+    '  Coaxial: TV/CCTV legacy. Being replaced by Cat6 for IP systems.',
+
+    'Sizing: Format [cores]c × [size]mm² [type]. e.g. "4c × 16mm² SWA" = 3-phase sub-main.',
+    '  1.5mm²=lighting, 2.5mm²=sockets, 16mm²=small sub-main, 95mm²=main distribution, 240-300mm²=main incoming.',
+
+    'Cable Quantity Rules:',
+    '  Cables NOT shown individually on drawings — containment shows ROUTES, not individual cables.',
+    '  Schedule > Single-line diagram > GA measurement. Measure DB to furthest load + drops.',
+    '  Add 10% waste + 400mm per termination (EACH end).',
+    '  Multiple cables share containment — count EACH CABLE individually, not just route length.'
   ].join('\n\n');
 }
 
@@ -1017,7 +1044,8 @@ function getSection(sectionName) {
     pipe_materials_ref: KB_M01,
     fittings_valves: KB_M02,
     hvac_ductwork: KB_M03,
-    mechanical_plant: KB_M04
+    mechanical_plant: KB_M04,
+    cable_types: KB_E01
   };
   return sections[sectionName] || null;
 }
@@ -1071,5 +1099,6 @@ module.exports = {
   KB_M01,
   KB_M02,
   KB_M03,
-  KB_M04
+  KB_M04,
+  KB_E01
 };
