@@ -34,6 +34,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 
 const kb = require('./knowledge/mep-knowledge-base');
+const kbManager = require('./knowledge/kb-manager');
 
 const app = express();
 
@@ -165,11 +166,7 @@ app.post('/api/quote-files/analyse', (req, res) => proxyToAnthropic(req, res, '/
 app.post('/api/quotes/extract', (req, res) => proxyToAnthropic(req, res, '/api/quotes/extract'));
 
 /* ── Endpoint: Drawing Extractor (knowledge-base-enriched) ────────── */
-const DRAWING_EXTRACTOR_SYSTEM = `You are an expert M&E (Mechanical, Electrical, and Insulation) estimator with 20+ years of experience reading construction drawings. You work inside the Contraq platform.
-
-${kb.getFullKnowledgeBase()}
-
-## YOUR TASK
+const DRAWING_EXTRACTOR_TASK = `## YOUR TASK
 
 You will be provided with one or more PDF drawing pages. You must:
 
@@ -225,65 +222,14 @@ You will be provided with one or more PDF drawing pages. You must:
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
 app.post('/api/drawings/extract', (req, res) => {
-  // Inject the knowledge-base-enriched system prompt server-side
-  req.body.system = DRAWING_EXTRACTOR_SYSTEM;
+  const kbContent = kbManager.assembleKB('/api/drawings/extract');
+  req.body.system = `You are an expert M&E (Mechanical, Electrical, and Insulation) estimator with 20+ years of experience reading construction drawings. You work inside the Contraq platform.\n\n${kbContent}\n\n${DRAWING_EXTRACTOR_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 8000;
   proxyToAnthropic(req, res, '/api/drawings/extract');
 });
 
 /* ── Endpoint: Spec Reader (knowledge-base-enriched) ──────────────── */
-const SPEC_READER_SYSTEM = `You are an expert M&E estimator and specification reader with 20+ years of experience reading UK construction specifications. You work inside the Contraq platform.
-
-## M&E SPECIFICATION KNOWLEDGE
-
-### NRM2 Measurement Context
-${(() => {
-  const nrm2 = kb.getSection('nrm2');
-  return [
-    'Pipework: ' + nrm2.pipework.unit + '. Must state: ' + nrm2.pipework.must_state.join(', '),
-    'Ductwork: ' + nrm2.ductwork.unit + '. Must state: ' + nrm2.ductwork.must_state.join(', '),
-    'Insulation (pipes): ' + nrm2.insulation.pipework,
-    'Insulation (ducts): ' + nrm2.insulation.ductwork,
-    'Fire Stopping: ' + nrm2.fire_stopping.unit + '. Must state: ' + nrm2.fire_stopping.must_state.join(', '),
-    'Electrical Cable: ' + nrm2.electrical.cable,
-    'Electrical Containment: ' + nrm2.electrical.containment,
-    nrm2.key_principle
-  ].join('\n');
-})()}
-
-### Specification Intelligence
-${(() => {
-  const spec = kb.getSection('spec');
-  return [
-    'Document Precedence: ' + spec.precedence,
-    'JCT Rule: ' + spec.jct_rule,
-    'NEC Rule: ' + spec.nec_rule,
-    'Conflict Resolution Methods:',
-    ...spec.conflict_resolution.map(r => '  • ' + r),
-    '',
-    'BSRIA Default Values (when spec is silent):',
-    ...Object.entries(spec.bsria_defaults).map(([k,v]) => '  ' + k + ': ' + v),
-    '',
-    'Sense-Check Thresholds:',
-    ...Object.entries(spec.sense_check_thresholds).map(([k,v]) => '  ' + k + ': ' + v)
-  ].join('\n');
-})()}
-
-### NBS/CAWS Work Section Mapping
-Pipework (Y10) → NRM2 WS 38. Ductwork (Y20-Y25) → NRM2 WS 38. Insulation/Fire Stopping (Y50-Y53) → NRM2 WS 31.
-Fire Stopping (P12) → NRM2 WS 31. Builder's Work (P31) → NRM2 WS 41.
-
-### Specification Structure (NBS Convention)
-Part 1: General/Scope — scope, related work, standards, quality, submittals
-Part 2: Products — materials, manufacturers, performance criteria
-Part 3: Execution — installation methods, testing, commissioning, handover
-
-### Spec Types
-Descriptive (D): Performance criteria only, contractor selects.
-Descriptive+ (D+): Named basis-of-design + "or approved equal".
-Prescriptive (P): Exact manufacturer/model, no alternatives.
-
-## YOUR TASK
+const SPEC_READER_TASK = `## YOUR TASK
 
 You will be provided with one or more specification documents. You must:
 
@@ -337,54 +283,14 @@ You will be provided with one or more specification documents. You must:
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
 app.post('/api/specs/analyse', (req, res) => {
-  req.body.system = SPEC_READER_SYSTEM;
+  const kbContent = kbManager.assembleKB('/api/specs/analyse');
+  req.body.system = `You are an expert M&E estimator and specification reader with 20+ years of experience reading UK construction specifications. You work inside the Contraq platform.\n\n${kbContent}\n\n${SPEC_READER_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 8000;
   proxyToAnthropic(req, res, '/api/specs/analyse');
 });
 
 /* ── Endpoint: Takeoff Consolidator (Stage 3 — cross-reference) ───── */
-const TAKEOFF_CONSOLIDATOR_SYSTEM = `You are an expert M&E estimator inside the Contraq platform. You have 20+ years of experience cross-referencing construction drawings against specifications to produce accurate, auditable takeoffs for UK M&E subcontractors.
-
-## M&E CROSS-REFERENCING KNOWLEDGE
-
-### Document Precedence (A90 Standard)
-${(() => {
-  const spec = kb.getSection('spec');
-  return [
-    spec.precedence,
-    'JCT: ' + spec.jct_rule,
-    'NEC: ' + spec.nec_rule,
-    '',
-    'Conflict Resolution:',
-    ...spec.conflict_resolution.map(r => '  • ' + r)
-  ].join('\n');
-})()}
-
-### NRM2 Measurement Compliance
-${(() => {
-  const nrm2 = kb.getSection('nrm2');
-  return [
-    'Pipework: ' + nrm2.pipework.unit + '. Must state: ' + nrm2.pipework.must_state.join(', '),
-    'Ductwork: ' + nrm2.ductwork.unit + '. Must state: ' + nrm2.ductwork.must_state.join(', '),
-    'Insulation (pipes): ' + nrm2.insulation.pipework,
-    'Insulation (ducts): ' + nrm2.insulation.ductwork,
-    'Fire Stopping: ' + nrm2.fire_stopping.unit + '. Must state: ' + nrm2.fire_stopping.must_state.join(', '),
-    'Electrical Cable: ' + nrm2.electrical.cable,
-    'Containment: ' + nrm2.electrical.containment,
-    nrm2.key_principle
-  ].join('\n');
-})()}
-
-### BSRIA Sense-Check Thresholds
-${(() => {
-  const spec = kb.getSection('spec');
-  return Object.entries(spec.sense_check_thresholds).map(([k,v]) => '  ' + k + ': ' + v).join('\n');
-})()}
-
-### Implicit Inclusions (always in scope even if not drawn)
-Hangers/supports, isolation valves at equipment, drain points at low points, air vents at high points, labelling, fire stopping at rated penetrations.
-
-## YOUR TASK
+const TAKEOFF_CONSOLIDATOR_TASK = `## YOUR TASK
 
 You will be provided with:
 - A structured drawing extraction (JSON from the Drawing Analyser — Stage 1)
@@ -444,15 +350,14 @@ You must:
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
 app.post('/api/takeoff/consolidate', (req, res) => {
-  req.body.system = TAKEOFF_CONSOLIDATOR_SYSTEM;
+  const kbContent = kbManager.assembleKB('/api/takeoff/consolidate');
+  req.body.system = `You are an expert M&E estimator inside the Contraq platform. You have 20+ years of experience cross-referencing construction drawings against specifications.\n\n${kbContent}\n\n${TAKEOFF_CONSOLIDATOR_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 12000;
   proxyToAnthropic(req, res, '/api/takeoff/consolidate');
 });
 
 /* ── Endpoint: Feedback Loop (estimator corrections) ──────────────── */
-const FEEDBACK_SYSTEM = `You are an M&E estimating assistant inside the Contraq platform that has just completed an extraction. The estimator has reviewed your output and identified errors. You must learn from this feedback, correct your extraction, and produce updated rules.
-
-## M&E DOMAIN CONTEXT
+const FEEDBACK_TASK = `## M&E DOMAIN CONTEXT
 ${(() => {
   const qr = kb.getSection('quality_rules');
   const er = kb.getSection('estimating_rules');
@@ -539,15 +444,54 @@ Respond with a JSON object (no markdown, no backticks, no preamble):
 - If same error type corrected 3+ times, flag as PATTERN ERROR with heightened verification rule.
 - Return JSON ONLY.`;
 
-app.post('/api/feedback/process', (req, res) => {
-  req.body.system = FEEDBACK_SYSTEM;
+app.post('/api/feedback/process', async (req, res) => {
+  const kbContent = kbManager.assembleKB('/api/feedback/process');
+  req.body.system = `You are an M&E estimating assistant inside the Contraq platform that has just completed an extraction. The estimator has reviewed your output and identified errors. You must learn from this feedback, correct your extraction, and produce updated rules.\n\n${kbContent}\n\n${FEEDBACK_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 10000;
-  proxyToAnthropic(req, res, '/api/feedback/process');
+
+  // Intercept response to persist learned rules to disk
+  try {
+    const { model, max_tokens, system, messages } = req.body;
+    const safeModel = ALLOWED_MODELS.includes(model) ? model : 'claude-sonnet-4-6';
+    const cap = ENDPOINT_LIMITS['/api/feedback/process'] || 10000;
+    const safeMaxTokens = Math.min(parseInt(max_tokens, 10) || 10000, cap);
+
+    const anthropicBody = { model: safeModel, max_tokens: safeMaxTokens, messages };
+    if (system) anthropicBody.system = system;
+
+    const anthropicResp = await fetch(ANTHROPIC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': ANTHROPIC_VERSION },
+      body: JSON.stringify(anthropicBody)
+    });
+
+    const body = await anthropicResp.text();
+
+    // Persist learned rules from the AI response (async, non-blocking)
+    if (anthropicResp.ok) {
+      try { kbManager.processAndPersistFeedback(body); } catch (e) { console.warn('[KB Manager] Learning persistence failed:', e.message); }
+    }
+
+    res.status(anthropicResp.status).set('Content-Type', 'application/json').send(body);
+  } catch (err) {
+    console.error('[Contraq API] Feedback proxy error:', err.message);
+    res.status(502).json({ error: { type: 'proxy_error', message: 'Failed to reach AI service.' } });
+  }
+});
+
+/* ── Learning management endpoints ────────────────────────────────── */
+app.get('/api/learning/rules', (_req, res) => {
+  res.json(kbManager.loadLearning());
+});
+
+app.delete('/api/learning/rules', (_req, res) => {
+  kbManager.saveLearning([], []);
+  res.json({ status: 'cleared', message: 'All learned rules and pattern errors cleared.' });
 });
 
 /* ── Knowledge Base metadata endpoint ─────────────────────────────── */
 app.get('/api/knowledge-base', (_req, res) => {
-  res.json(kb.getMetadata());
+  res.json({ ...kb.getMetadata(), manager: kbManager.getStats() });
 });
 
 /* ── 404 catch-all ────────────────────────────────────────────────── */

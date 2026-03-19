@@ -26,7 +26,7 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '7.1';
+const KB_VERSION = '7.2';
 const KB_VERSION_DATE = '2026-03-19';
 const KB_VERSION_SOURCES = 47;
 
@@ -1372,5 +1372,8 @@ module.exports = {
   KB_X01,
   KB_X02,
   KB_X03,
-  KB_X04
+  KB_X04,
+  // Formatting helpers (exposed for KB Manager)
+  formatMap,
+  formatList
 };
