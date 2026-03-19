@@ -89,6 +89,13 @@ app.use('/api/', limiter);
 // KB injection — assembles per-endpoint knowledge base and attaches to req.kbPrompt
 app.use('/api/', kbInjectionMiddleware);
 
+/* ── Modular routes (new structured API + legacy compatibility) ──── */
+app.use('/api/drawings', require('./routes/drawings'));
+app.use('/api/specs', require('./routes/specs'));
+app.use('/api/takeoff', require('./routes/takeoff'));
+app.use('/api/feedback', require('./routes/feedback'));
+app.use('/api/learning', require('./routes/learning'));
+
 /* ── Health check ─────────────────────────────────────────────────── */
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', worker: process.pid });
@@ -160,6 +167,9 @@ async function proxyToAnthropic(req, res, endpointPath) {
   }
 }
 
+// Expose proxy function to route modules via app.set
+app.set('proxyToAnthropic', proxyToAnthropic);
+
 /* ── Endpoint: Journal AI Analysis ────────────────────────────────── */
 app.post('/api/journal/analyse', (req, res) => proxyToAnthropic(req, res, '/api/journal/analyse'));
 
@@ -225,11 +235,7 @@ You will be provided with one or more PDF drawing pages. You must:
 - DEFAULT CONSERVATIVE. Under-count and flag rather than over-count.
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
-app.post('/api/drawings/extract', (req, res) => {
-  req.body.system = `You are an expert M&E (Mechanical, Electrical, and Insulation) estimator with 20+ years of experience reading construction drawings. You work inside the Contraq platform.\n\n${req.kbPrompt}\n\n${DRAWING_EXTRACTOR_TASK}`;
-  if (!req.body.max_tokens) req.body.max_tokens = 8000;
-  proxyToAnthropic(req, res, '/api/drawings/extract');
-});
+// Drawing extraction handled by routes/drawings.js
 
 /* ── Endpoint: Spec Reader (knowledge-base-enriched) ──────────────── */
 const SPEC_READER_TASK = `## YOUR TASK
@@ -285,11 +291,7 @@ You will be provided with one or more specification documents. You must:
 - Note any risk items: LDs, bonding requirements, programme constraints, testing extent, warranty periods.
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
-app.post('/api/specs/analyse', (req, res) => {
-  req.body.system = `You are an expert M&E estimator and specification reader with 20+ years of experience reading UK construction specifications. You work inside the Contraq platform.\n\n${req.kbPrompt}\n\n${SPEC_READER_TASK}`;
-  if (!req.body.max_tokens) req.body.max_tokens = 8000;
-  proxyToAnthropic(req, res, '/api/specs/analyse');
-});
+// Spec analysis handled by routes/specs.js
 
 /* ── Endpoint: Takeoff Consolidator (Stage 3 — cross-reference) ───── */
 const TAKEOFF_CONSOLIDATOR_TASK = `## YOUR TASK
@@ -351,11 +353,7 @@ You must:
 - Ensure all items have NRM2-compliant units and descriptions.
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
-app.post('/api/takeoff/consolidate', (req, res) => {
-  req.body.system = `You are an expert M&E estimator inside the Contraq platform. You have 20+ years of experience cross-referencing construction drawings against specifications.\n\n${req.kbPrompt}\n\n${TAKEOFF_CONSOLIDATOR_TASK}`;
-  if (!req.body.max_tokens) req.body.max_tokens = 12000;
-  proxyToAnthropic(req, res, '/api/takeoff/consolidate');
-});
+// Takeoff consolidation handled by routes/takeoff.js
 
 /* ── Endpoint: Feedback Loop (estimator corrections) ──────────────── */
 const FEEDBACK_TASK = `## M&E DOMAIN CONTEXT
@@ -445,49 +443,8 @@ Respond with a JSON object (no markdown, no backticks, no preamble):
 - If same error type corrected 3+ times, flag as PATTERN ERROR with heightened verification rule.
 - Return JSON ONLY.`;
 
-app.post('/api/feedback/process', async (req, res) => {
-  req.body.system = `You are an M&E estimating assistant inside the Contraq platform that has just completed an extraction. The estimator has reviewed your output and identified errors. You must learn from this feedback, correct your extraction, and produce updated rules.\n\n${req.kbPrompt}\n\n${FEEDBACK_TASK}`;
-  if (!req.body.max_tokens) req.body.max_tokens = 10000;
-
-  // Intercept response to persist learned rules to disk
-  try {
-    const { model, max_tokens, system, messages } = req.body;
-    const safeModel = ALLOWED_MODELS.includes(model) ? model : 'claude-sonnet-4-6';
-    const cap = ENDPOINT_LIMITS['/api/feedback/process'] || 10000;
-    const safeMaxTokens = Math.min(parseInt(max_tokens, 10) || 10000, cap);
-
-    const anthropicBody = { model: safeModel, max_tokens: safeMaxTokens, messages };
-    if (system) anthropicBody.system = system;
-
-    const anthropicResp = await fetch(ANTHROPIC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': ANTHROPIC_VERSION },
-      body: JSON.stringify(anthropicBody)
-    });
-
-    const body = await anthropicResp.text();
-
-    // Persist learned rules from the AI response (async, non-blocking)
-    if (anthropicResp.ok) {
-      try { kbManager.processAndPersistFeedback(body); } catch (e) { console.warn('[KB Manager] Learning persistence failed:', e.message); }
-    }
-
-    res.status(anthropicResp.status).set('Content-Type', 'application/json').send(body);
-  } catch (err) {
-    console.error('[Contraq API] Feedback proxy error:', err.message);
-    res.status(502).json({ error: { type: 'proxy_error', message: 'Failed to reach AI service.' } });
-  }
-});
-
-/* ── Learning management endpoints ────────────────────────────────── */
-app.get('/api/learning/rules', (_req, res) => {
-  res.json(kbManager.loadLearning());
-});
-
-app.delete('/api/learning/rules', (_req, res) => {
-  kbManager.saveLearning([], []);
-  res.json({ status: 'cleared', message: 'All learned rules and pattern errors cleared.' });
-});
+// Feedback processing handled by routes/feedback.js
+// Learning management handled by routes/learning.js
 
 /* ── Knowledge Base metadata endpoint ─────────────────────────────── */
 app.get('/api/knowledge-base', (_req, res) => {
