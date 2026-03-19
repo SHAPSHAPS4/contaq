@@ -1,0 +1,325 @@
+/**
+ * KB-I03: Equipment & Vessel Insulation
+ *
+ * Structured reference for insulation of calorifiers, tanks,
+ * vessels, pumps, valves, cladding types, measurement rules,
+ * and flag triggers.
+ * Injected into extraction prompts at runtime.
+ *
+ * Part of Contraq M&E Knowledge Base v6.6
+ * Source: BS 5422, TIMSA Guide, NRM2, UK M&E practice
+ */
+
+const KB_I03 = {
+  id: 'KB-I03',
+  title: 'Equipment & Vessel Insulation',
+  version: '1.0',
+  date: '2026-03-19',
+
+  /* ══════════════════════════════════════════════════════════════
+     1. EQUIPMENT INSULATION TYPES
+     ══════════════════════════════════════════════════════════════ */
+  equipment: {
+
+    calorifiers_cylinders: {
+      name: 'Calorifiers & Hot Water Cylinders',
+      function: 'Store hot water — always insulated to minimise standing heat loss.',
+      supply_options: {
+        factory_insulated: {
+          description: 'Equipment supplied with factory-applied insulation (sprayed PU foam or rigid foam jacket).',
+          action: 'Note as "factory pre-insulated" in takeoff. No site-applied insulation required.',
+          check: 'Confirm factory insulation meets spec thickness and performance. Some specs require ADDITIONAL insulation over factory finish.',
+          flag_if: 'Spec insulation thickness exceeds factory insulation — additional site-applied insulation may be needed.'
+        },
+        site_applied: {
+          description: 'Insulation applied on site around bare vessel.',
+          measurement: 'm² (external surface area of vessel)',
+          materials: {
+            mineral_wool: 'Mineral wool slab or mat, wired on, with aluminium or PVC cladding. Standard for LTHW calorifiers.',
+            phenolic: 'Phenolic foam slab — thinner for equivalent performance. Space-constrained plant rooms.',
+            spray_foam: 'Spray-applied polyurethane foam — fast, seamless. Often for large vessels. Applied by specialist.'
+          },
+          typical_thickness: {
+            standard: '50mm (mineral wool or phenolic)',
+            enhanced: '75mm (where reduced standing loss required, Part L compliance)',
+            high_performance: '100mm (where spec demands very low standing loss)'
+          },
+          finishing: 'Aluminium cladding (standard), stainless steel (wet areas), PVC (internal/lower cost).'
+        }
+      },
+      surface_area_calc: {
+        vertical_cylinder: 'SA = π × D × H + 2 × π × (D/2)² = π × D × (H + D/2). Includes top and bottom caps.',
+        horizontal_cylinder: 'SA = π × D × L + 2 × π × (D/2)². Includes end caps.',
+        note: 'Use EXTERNAL dimensions of the vessel (before insulation). Equipment schedule should state dimensions.'
+      },
+      count_rule: 'If factory insulated: count as 1nr with note "factory insulated — verify meets spec". If site insulated: measure m² surface area + cladding m².',
+      associated_items: ['Insulation material (m²)', 'Cladding (m²)', 'Insulation fixings (pins, wire, banding)', 'Removable sections at inspection hatches and connections']
+    },
+
+    tanks: {
+      name: 'Tanks & Storage Vessels',
+      types: {
+        cold_water_tank: {
+          name: 'Cold Water Storage Tank (CWST)',
+          material: 'Elastomeric foam (closed-cell, integral VB) or phenolic foam slabs with vapour barrier.',
+          thickness: '25-50mm (depends on ambient temperature and L8 requirement to keep below 20°C)',
+          vapour_barrier: 'ESSENTIAL — cold water tank in warm plant room will condensate without VB.',
+          note: 'Lid must be insulated too — heat rises and warms water through uninsulated lid.',
+          flag_if: 'Cold water tank without insulation specification — flag for L8 compliance.'
+        },
+        buffer_vessel: {
+          name: 'Buffer Vessel / Thermal Store',
+          material: 'Mineral wool slab or phenolic, with cladding.',
+          thickness: '50mm minimum, 75mm for large vessels.',
+          note: 'Buffer vessels store heat — insulation prevents heat loss. Often factory pre-insulated with PU foam.'
+        },
+        expansion_vessel: {
+          name: 'Expansion Vessel',
+          material: 'Usually factory pre-insulated (if insulated at all).',
+          note: 'Small expansion vessels are often NOT insulated. Large pressurisation units may be insulated. Check spec.',
+          flag_if: 'Large expansion vessel or pressurisation unit without insulation mentioned — check spec.'
+        },
+        header_tank: {
+          name: 'Feed & Expansion Tank (F&E)',
+          material: 'Mineral wool or phenolic, with cladding. Lid insulated.',
+          thickness: '25-50mm',
+          note: 'Open-vented systems. Tank is usually in cold space (roof void). Frost protection may be required — check.'
+        },
+        brine_tank: {
+          name: 'Brine / Chemical Tank',
+          material: 'Specialist — depends on contents temperature and chemical compatibility.',
+          note: 'Specialist application. Check spec carefully for material compatibility.'
+        }
+      },
+      measurement: {
+        unit: 'm² (external surface area)',
+        includes: 'Sides + top + bottom (unless bottom is resting on insulated plinth).',
+        note: 'Rectangular tanks: SA = 2(L×H + W×H) + L×W (top) + L×W (bottom if insulated). Cylindrical: see calorifier formula.'
+      }
+    },
+
+    pumps: {
+      name: 'Pump Insulation',
+      rule: 'Pumps on heating and chilled water systems should be insulated. Check spec — not all specs require pump insulation.',
+      types: {
+        removable_box: {
+          name: 'Removable Pump Insulation Box',
+          description: 'Pre-fabricated removable insulation enclosure. Allows pump maintenance without destroying insulation.',
+          measurement: 'nr (count per pump)',
+          note: 'Removable boxes are measured by the insulation manufacturer from site dimensions. Supplied as bespoke items.'
+        },
+        removable_jacket: {
+          name: 'Removable Insulation Jacket / Mattress',
+          description: 'Flexible insulation jacket with Velcro/toggle fastening, shaped to fit pump casing.',
+          measurement: 'nr (count per pump)',
+          note: 'More expensive than permanent insulation but essential for pumps that need regular maintenance.'
+        },
+        permanent: {
+          name: 'Permanent Insulation (Site Applied)',
+          description: 'Mineral wool or elastomeric wrapped around pump casing. NOT recommended — prevents maintenance.',
+          measurement: 'm² (pump casing surface area)',
+          note: 'Rarely specified because it must be destroyed for pump maintenance. Removable type preferred.'
+        }
+      },
+      by_system: {
+        lthw: 'Insulate — hot pump casing loses heat. Removable box/jacket standard.',
+        chw: 'Insulate — cold pump casing causes condensation. Elastomeric or removable jacket with VB. CRITICAL.',
+        dhw_secondary: 'Insulate — hot water secondary return pump. Removable jacket.',
+        note: 'Cold system pumps (ChW) MUST have vapour-sealed insulation to prevent condensation dripping.'
+      },
+      flag_if: ['Pump on chilled water system without insulation — flag condensation risk.', 'Pump insulation specified as permanent (not removable) — flag maintenance access concern.']
+    },
+
+    valves_flanges: {
+      name: 'Valve & Flange Insulation',
+      rule: 'Valves and flanges on insulated pipework systems are insulated. Refer to KB-I01 for multiplier rates. Count as nr.',
+      types: {
+        valve_box_removable: {
+          name: 'Removable Valve Insulation Box',
+          description: 'Pre-formed or fabricated insulation box with hinged lid or Velcro closure. Allows valve operation without removing insulation.',
+          measurement: 'nr — 1 per insulated valve.',
+          sizing: 'Note pipe size and valve type — valve box size varies significantly.',
+          rate_guide: 'Allow 1.5× the linear pipe insulation rate per valve (KB-I01 reference).',
+          note: 'Isolation valves that need frequent access should ALWAYS have removable boxes, not permanent insulation.'
+        },
+        valve_permanent: {
+          name: 'Permanent Valve Insulation',
+          description: 'Site-fabricated insulation moulded around valve body. Permanent — must be cut to access valve.',
+          measurement: 'nr or included in linear pipe rate with multiplier.',
+          note: 'Cheaper than removable boxes but prevents easy valve maintenance. Check spec preference.'
+        },
+        flange_box: {
+          name: 'Flange Insulation Box / Cover',
+          description: 'Removable insulation cover for flanged joints. Two-piece with clips or Velcro.',
+          measurement: 'nr — 1 per flange PAIR.',
+          rate_guide: 'Allow 2× the linear pipe insulation rate per flange pair (KB-I01 reference).',
+          note: 'Flanges need removable insulation for bolt inspection and joint maintenance.'
+        },
+        large_bore_flanges: {
+          name: 'Large Bore Flange Insulation (>DN150)',
+          description: 'Large flanges may be measured as m² surface area rather than nr item due to the significant surface.',
+          measurement: 'm² for flanges >DN150, or nr with specific pricing.',
+          note: 'Large bore flange insulation is a significant item — more material and labour than small bore.'
+        },
+        strainer_box: {
+          name: 'Strainer Insulation Box',
+          description: 'Removable insulation box for Y-strainer or basket strainer. MUST be removable for cleaning.',
+          measurement: 'nr — 1 per strainer.',
+          note: 'Strainer boxes are ALWAYS removable. Strainers need frequent cleaning — permanent insulation is never acceptable.'
+        }
+      },
+      cold_system_note: 'Valve and flange insulation on cold/chilled systems MUST be vapour-sealed. Uninsulated valves on chilled pipework are cold bridges → condensation → dripping → damage. This is a common site problem — flag if not addressed.'
+    },
+
+    heat_exchangers: {
+      name: 'Heat Exchanger / PHE Insulation',
+      types: {
+        brazed_phe: {
+          name: 'Brazed Plate Heat Exchanger',
+          insulation: 'Removable insulation jacket. Factory-sized to fit specific model.',
+          measurement: 'nr — 1 per heat exchanger.',
+          note: 'Brazed PHEs are compact — jacket covers the plate pack. Some are factory pre-insulated.'
+        },
+        gasket_phe: {
+          name: 'Gasketed Plate Heat Exchanger',
+          insulation: 'Removable jacket or permanent insulation to frame and plate pack.',
+          measurement: 'nr or m² — depends on size.',
+          note: 'Gasket PHEs need plate removal for cleaning. Insulation MUST allow access to plate pack.'
+        },
+        shell_and_tube: {
+          name: 'Shell & Tube Heat Exchanger',
+          insulation: 'Site-applied mineral wool with cladding. End covers removable.',
+          measurement: 'm² (shell surface area).',
+          note: 'Larger item — measure surface area. End covers need removable insulation for tube cleaning.'
+        }
+      }
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     2. CLADDING TYPES
+     ══════════════════════════════════════════════════════════════ */
+  cladding: {
+    rule: 'Cladding is the external protective finish over insulation. It is a SEPARATE item from the insulation itself. Always note cladding type if specified.',
+
+    types: {
+      aluminium: {
+        name: 'Aluminium Cladding (Stucco Embossed)',
+        description: 'Pre-formed or site-bent aluminium sheet over insulation. Pop-riveted or banded.',
+        gauge: '0.6mm or 0.8mm typical.',
+        finish: 'Stucco embossed (textured) standard. Smooth (plain) available. Mill finish or painted.',
+        use: 'MOST COMMON cladding for commercial M&E. Plant rooms, risers, visible areas, external pipework.',
+        measurement: 'm² (surface area of cladding — same as insulation m² plus overlap allowance).',
+        accessories: 'Self-tapping screws, pop rivets, corner pieces, end caps, saddle supports.',
+        note: 'Aluminium cladding is a significant cost item — often 30-50% of total insulation cost.'
+      },
+      stainless_steel: {
+        name: 'Stainless Steel Cladding',
+        description: 'Stainless steel sheet (304 or 316 grade) over insulation.',
+        gauge: '0.5mm or 0.6mm typical.',
+        use: 'Food production, pharmaceutical, swimming pool plant, coastal/corrosive environments, high-hygiene areas.',
+        measurement: 'm²',
+        note: 'Significantly more expensive than aluminium (3-5×). Only specified where aluminium is not suitable.'
+      },
+      pvc: {
+        name: 'PVC Cladding / PVC Jacket',
+        description: 'Pre-formed PVC sections that clip or wrap around insulated pipe.',
+        use: 'Internal pipework where appearance matters but cost must be controlled. Often for visible pipework in corridors, offices.',
+        measurement: 'm (linear) by pipe size, or m².',
+        note: 'Cheaper than aluminium. Lighter weight. Not suitable for external use (UV degradation). Not fire rated — check if area requires non-combustible cladding.'
+      },
+      canvas: {
+        name: 'Canvas Finish (Scrim + Paint)',
+        description: 'Glass cloth (scrim) applied over insulation with adhesive, then painted.',
+        use: 'Plant rooms, back-of-house, where basic finish is acceptable and cost must be minimised.',
+        measurement: 'm² of surface area.',
+        note: 'Cheapest finish option. Suitable for concealed or plant room applications. Not weather-resistant. Not vandal-resistant.'
+      },
+      self_finish: {
+        name: 'Self-Finish (Foil Faced)',
+        description: 'Insulation is foil-faced and left with foil as the final finish. No additional cladding.',
+        use: 'Concealed areas (ceiling voids, risers where not visible). Where insulation is hidden by ceiling tiles or duct casing.',
+        measurement: 'No additional cladding item — included in insulation cost.',
+        note: 'Cheapest option — no separate cladding cost. Only suitable where insulation is not visible, not subject to damage, and not external.'
+      }
+    },
+
+    selection_guide: {
+      external: 'Aluminium (standard) or stainless steel (corrosive/coastal). Weather-resistant fixing method.',
+      plant_room_visible: 'Aluminium cladding — professional appearance, robust.',
+      plant_room_concealed: 'Canvas finish or self-finish (foil-faced).',
+      ceiling_void: 'Self-finish (foil-faced) — not visible. No cladding needed.',
+      food_pharma: 'Stainless steel 316 — hygienic, cleanable.',
+      corridors_visible: 'PVC cladding or aluminium — neat appearance.',
+      wet_areas: 'Stainless steel or sealed aluminium — moisture-resistant.'
+    },
+
+    measurement_rule: 'Cladding is measured as m² (same area as insulation + 5-10% for laps, joints, and fittings). Cladding accessories (rivets, screws, bands, corner pieces) are typically included in the m² rate.'
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     3. MEASUREMENT RULES
+     ══════════════════════════════════════════════════════════════ */
+  measurement_rules: {
+    general: [
+      'Equipment insulation is measured in m² (surface area) for site-applied insulation.',
+      'Pre-insulated equipment: count as nr with note "factory pre-insulated — verify meets spec".',
+      'Removable items (valve boxes, pump jackets): count as nr.',
+      'Cladding: measured separately from insulation as m².',
+      'Use equipment schedule dimensions to calculate surface area.',
+      'If dimensions not available from schedule or drawing, flag as "equipment dimensions required for insulation takeoff".'
+    ],
+
+    surface_area_formulas: {
+      vertical_cylinder: {
+        formula: 'SA = π × D × H + π × (D/2)² × 2',
+        simplified: 'SA ≈ π × D × (H + D/2)',
+        description: 'Cylinder sides + top cap + bottom cap.',
+        example: 'Calorifier: D=0.6m, H=1.8m → SA = π × 0.6 × (1.8 + 0.3) = 3.96 m²'
+      },
+      horizontal_cylinder: {
+        formula: 'SA = π × D × L + π × (D/2)² × 2',
+        description: 'Cylinder barrel + two end caps.',
+        example: 'Buffer vessel: D=0.8m, L=2.0m → SA = π × 0.8 × 2.0 + π × 0.16 = 5.53 m²'
+      },
+      rectangular_tank: {
+        formula: 'SA = 2(L×H + W×H) + L×W + L×W(bottom)',
+        description: 'Four sides + top + bottom (if insulated).',
+        example: 'CWS tank: 2.0×1.0×1.0m → SA = 2(2+1) + 2 + 2 = 10.0 m²',
+        note: 'Bottom may not be insulated if tank sits on insulated plinth. Check.'
+      }
+    },
+
+    pre_insulated_rule: {
+      rule: 'If equipment is factory pre-insulated, note in takeoff but DO NOT add site-applied insulation unless spec requires additional insulation over factory finish.',
+      items_often_pre_insulated: ['Small calorifiers / unvented cylinders', 'Expansion vessels', 'Some buffer vessels', 'Pre-insulated pump sets', 'Some pressurisation units'],
+      check: 'Always verify: (a) is it actually pre-insulated? (b) does factory insulation meet spec thickness? (c) does cladding still need to be applied over factory insulation?'
+    },
+
+    waste_factor: {
+      equipment: '10% — for cutting, shaping around connections, nozzles, and supports.',
+      cladding: '12% — for laps, joints, corner pieces, and shaping around protrusions.',
+      cross_ref: 'See KB-C02 for general waste factor rules.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     4. FLAG TRIGGERS
+     ══════════════════════════════════════════════════════════════ */
+  flag_triggers: [
+    'Equipment shown on drawings but not on equipment schedule — flag. Cannot determine dimensions for insulation measurement.',
+    'Equipment schedule exists but no insulation specification stated — flag. Insulation type, thickness, and finish unknown.',
+    'Cold equipment (ChW buffer, CWS tank) in warm environment without insulation — flag condensation risk.',
+    'High temperature equipment (steam, HTHW >100°C) — specialist insulation required (calcium silicate or high-temp mineral wool). Flag if standard insulation specified.',
+    'Pre-insulated equipment shown but spec requires additional insulation — flag for clarification.',
+    'Removable insulation not specified for items needing regular maintenance access (pumps, strainers, control valves) — flag.',
+    'Cladding type not stated — flag. Cladding is a significant cost and appearance factor.',
+    'Equipment in external location without weather-resistant cladding specified — flag.',
+    'Equipment insulation shown on hot system but not on cold system in same plant room — flag. Cold system also needs insulation (condensation).',
+    'Large vessel (>500 litres) without dimensions on schedule — flag. Cannot calculate surface area.',
+    'Insulation to existing equipment specified — flag. May need removal of old insulation first (asbestos risk if pre-2000 building).',
+    'Valve insulation on chilled water system not specified — flag. Uninsulated valves = cold bridges = condensation = dripping.'
+  ]
+};
+
+module.exports = KB_I03;

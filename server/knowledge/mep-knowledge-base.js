@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.5';
+const KB_VERSION = '6.6';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 41;
+const KB_VERSION_SOURCES = 42;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -46,6 +46,7 @@ const KB_E04 = require('./kb-e04-lighting-small-power');
 const KB_E05 = require('./kb-e05-specialist-electrical');
 const KB_I01 = require('./kb-i01-pipe-insulation');
 const KB_I02 = require('./kb-i02-duct-insulation');
+const KB_I03 = require('./kb-i03-equipment-insulation');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1132,7 +1133,23 @@ function getFullKnowledgeBase() {
     'By System: Supply=always insulate (VB if cold). Return=often NOT insulated (check spec). Extract=usually NOT (except kitchen DW/172). Fresh air intake=ALWAYS insulate+VB. Kitchen extract=fire wrap. Smoke extract=fire-rated per BS EN 12101.',
     '  Flex duct: often pre-insulated — check spec. If bare flex, insulate separately.',
 
-    '14 flag triggers including: fire rating without product, cold duct without VB, internal+external both specified, return duct insulation unclear, duct penetrating fire wall without protection.'
+    '14 flag triggers including: fire rating without product, cold duct without VB, internal+external both specified, return duct insulation unclear, duct penetrating fire wall without protection.',
+
+    '### KB-I03: Equipment & Vessel Insulation',
+    'Calorifiers/Cylinders: Factory pre-insulated (verify meets spec) OR site-applied m² (mineral wool/phenolic 50-75mm + cladding).',
+    'Tanks: CWS tank (elastomeric/phenolic 25-50mm, VB essential, insulate lid), Buffer (MW/phenolic 50mm+), Expansion (usually pre-insulated), F&E tank (frost protection check).',
+    'Pumps: Removable box/jacket (nr) — ALWAYS removable for maintenance. ChW pumps MUST be vapour-sealed.',
+    'Valves: Removable boxes (nr, 1.5× pipe rate), Flanges (nr pairs, 2× pipe rate), Strainers (nr, ALWAYS removable). Cold system valves = condensation risk if not insulated.',
+    'Heat Exchangers: Brazed PHE (removable jacket nr), Gasketed (removable for plate access), Shell&tube (m² + removable end covers).',
+
+    'Cladding (SEPARATE item from insulation):',
+    '  Aluminium (most common, 0.6-0.8mm stucco), Stainless steel (food/pharma/coastal, 3-5× aluminium cost), PVC (internal, cheaper), Canvas (plant room basic), Self-finish (foil-faced, concealed only).',
+    '  Measured: m² + 5-10% for laps. Cladding is 30-50% of total insulation cost.',
+
+    'Surface Area Formulas: Vertical cylinder π×D×(H+D/2), Horizontal cylinder π×D×L + 2×π×(D/2)², Rectangular tank 2(LH+WH)+LW+LW.',
+    '  Pre-insulated: note as nr, verify meets spec. Waste: equipment 10%, cladding 12%.',
+
+    '12 flag triggers: no schedule dimensions, no insulation spec, cold equipment condensation, high temp specialist, cladding not stated, existing equipment asbestos risk.'
   ].join('\n\n');
 }
 
@@ -1173,7 +1190,8 @@ function getSection(sectionName) {
     lighting_small_power: KB_E04,
     specialist_electrical: KB_E05,
     pipe_insulation: KB_I01,
-    duct_insulation: KB_I02
+    duct_insulation: KB_I02,
+    equipment_insulation: KB_I03
   };
   return sections[sectionName] || null;
 }
@@ -1234,5 +1252,6 @@ module.exports = {
   KB_E04,
   KB_E05,
   KB_I01,
-  KB_I02
+  KB_I02,
+  KB_I03
 };
