@@ -553,8 +553,46 @@ function getStats() {
   };
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   BUDGET-AWARE ASSEMBLY (used by middleware)
+   ══════════════════════════════════════════════════════════════════ */
+
+function getKBPromptWithBudget(endpoint, tokenBudget) {
+  const charBudget = tokenBudget * 4; // ~4 chars per token
+
+  // Try full assembly
+  const full = assembleKB(endpoint, { charBudget });
+  if (estimateTokens(full) <= tokenBudget) {
+    return { prompt: full, truncated: false };
+  }
+
+  // Fallback: critical sections only
+  console.warn(`[KB Manager] Token budget exceeded for ${endpoint}. Falling back to critical sections only.`);
+  const map = ENDPOINT_KB_MAP[endpoint];
+  if (!map) return { prompt: '', truncated: false };
+
+  const sections = [`## CONTRAQ M&E KNOWLEDGE BASE v${kb.KB_VERSION} (critical sections only)\n`];
+  for (const name of map.critical) {
+    const formatter = SECTION_FORMATTERS[name];
+    if (formatter) sections.push(formatter());
+  }
+
+  // Always include learning even in truncated mode
+  const learning = loadLearning();
+  if (learning.learnedRules.length || learning.patternErrors.length) {
+    sections.push(formatLearning(learning));
+  }
+
+  return {
+    prompt: sections.join('\n\n'),
+    truncated: true,
+    warningMessage: 'Non-critical KB sections omitted due to token budget.'
+  };
+}
+
 module.exports = {
   assembleKB,
+  getKBPromptWithBudget,
   loadLearning,
   saveLearning,
   processAndPersistFeedback,

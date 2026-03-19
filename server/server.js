@@ -35,6 +35,7 @@ const rateLimit = require('express-rate-limit');
 
 const kb = require('./knowledge/mep-knowledge-base');
 const kbManager = require('./knowledge/kb-manager');
+const { kbInjectionMiddleware } = require('./middleware/kb-injection');
 
 const app = express();
 
@@ -84,6 +85,9 @@ const limiter = rateLimit({
   message: { error: { type: 'rate_limit', message: 'Too many requests — please wait and try again.' } }
 });
 app.use('/api/', limiter);
+
+// KB injection — assembles per-endpoint knowledge base and attaches to req.kbPrompt
+app.use('/api/', kbInjectionMiddleware);
 
 /* ── Health check ─────────────────────────────────────────────────── */
 app.get('/api/health', (_req, res) => {
@@ -222,8 +226,7 @@ You will be provided with one or more PDF drawing pages. You must:
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
 app.post('/api/drawings/extract', (req, res) => {
-  const kbContent = kbManager.assembleKB('/api/drawings/extract');
-  req.body.system = `You are an expert M&E (Mechanical, Electrical, and Insulation) estimator with 20+ years of experience reading construction drawings. You work inside the Contraq platform.\n\n${kbContent}\n\n${DRAWING_EXTRACTOR_TASK}`;
+  req.body.system = `You are an expert M&E (Mechanical, Electrical, and Insulation) estimator with 20+ years of experience reading construction drawings. You work inside the Contraq platform.\n\n${req.kbPrompt}\n\n${DRAWING_EXTRACTOR_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 8000;
   proxyToAnthropic(req, res, '/api/drawings/extract');
 });
@@ -283,8 +286,7 @@ You will be provided with one or more specification documents. You must:
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
 app.post('/api/specs/analyse', (req, res) => {
-  const kbContent = kbManager.assembleKB('/api/specs/analyse');
-  req.body.system = `You are an expert M&E estimator and specification reader with 20+ years of experience reading UK construction specifications. You work inside the Contraq platform.\n\n${kbContent}\n\n${SPEC_READER_TASK}`;
+  req.body.system = `You are an expert M&E estimator and specification reader with 20+ years of experience reading UK construction specifications. You work inside the Contraq platform.\n\n${req.kbPrompt}\n\n${SPEC_READER_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 8000;
   proxyToAnthropic(req, res, '/api/specs/analyse');
 });
@@ -350,8 +352,7 @@ You must:
 - Return JSON ONLY. No markdown fences, no preamble, no trailing text.`;
 
 app.post('/api/takeoff/consolidate', (req, res) => {
-  const kbContent = kbManager.assembleKB('/api/takeoff/consolidate');
-  req.body.system = `You are an expert M&E estimator inside the Contraq platform. You have 20+ years of experience cross-referencing construction drawings against specifications.\n\n${kbContent}\n\n${TAKEOFF_CONSOLIDATOR_TASK}`;
+  req.body.system = `You are an expert M&E estimator inside the Contraq platform. You have 20+ years of experience cross-referencing construction drawings against specifications.\n\n${req.kbPrompt}\n\n${TAKEOFF_CONSOLIDATOR_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 12000;
   proxyToAnthropic(req, res, '/api/takeoff/consolidate');
 });
@@ -445,8 +446,7 @@ Respond with a JSON object (no markdown, no backticks, no preamble):
 - Return JSON ONLY.`;
 
 app.post('/api/feedback/process', async (req, res) => {
-  const kbContent = kbManager.assembleKB('/api/feedback/process');
-  req.body.system = `You are an M&E estimating assistant inside the Contraq platform that has just completed an extraction. The estimator has reviewed your output and identified errors. You must learn from this feedback, correct your extraction, and produce updated rules.\n\n${kbContent}\n\n${FEEDBACK_TASK}`;
+  req.body.system = `You are an M&E estimating assistant inside the Contraq platform that has just completed an extraction. The estimator has reviewed your output and identified errors. You must learn from this feedback, correct your extraction, and produce updated rules.\n\n${req.kbPrompt}\n\n${FEEDBACK_TASK}`;
   if (!req.body.max_tokens) req.body.max_tokens = 10000;
 
   // Intercept response to persist learned rules to disk
