@@ -455,6 +455,29 @@ function renderDashHome() {
     {icon:'\uD83D\uDC65',label:'Add client',action:"openClientModal(null)"},
     {icon:'\uD83D\uDCC8',label:'P&L',action:"dashNav('finance')"},
   ];
+
+  /* ── AI Platform Tools Card ───────────────────────────── */
+  var API_BASE = 'http://localhost:3001';
+  var aiTools = [
+    {icon:'\uD83D\uDCC0',label:'Full Quote Pipeline',desc:'Upload drawings + specs, extract, consolidate, price — end-to-end',url:API_BASE+'/quote-builder',accent:'#f97316'},
+    {icon:'\uD83D\uDCB0',label:'Pricing Panel',desc:'Price a takeoff with rate libraries, overheads, and CSV export',url:API_BASE+'/pricing',accent:'#3B6D11'},
+    {icon:'\u2699\uFE0F',label:'KB Admin Dashboard',desc:'Manage learned rules, pattern errors, and KB sections',url:API_BASE+'/admin/kb',accent:'#185FA5'},
+  ];
+  var aiToolsHtml = '<div class="card" style="margin-bottom:1.2rem;border:1.5px solid rgba(96,165,250,.2)">'
+    + '<div class="card-header" style="flex-direction:column;align-items:flex-start;gap:.4rem">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;width:100%">'
+    + '<span class="card-title">\uD83D\uDE80 AI Estimation Platform</span>'
+    + '<span style="font-family:var(--mono);font-size:.55rem;background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25);border-radius:3px;padding:.12rem .4rem;">KB v7.2</span></div>'
+    + '<div style="font-size:.72rem;color:var(--off3);">Full-page tools powered by the M&E Knowledge Base — open in new tab</div></div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;padding:.2rem 0">'
+    + aiTools.map(function(t){
+        return '<a href="'+t.url+'" target="_blank" rel="noopener" style="text-decoration:none;display:flex;flex-direction:column;gap:.35rem;padding:.75rem .85rem;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor=\''+t.accent+'\';this.style.boxShadow=\'0 2px 12px '+t.accent+'22\'" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'">'
+          + '<div style="display:flex;align-items:center;gap:.45rem;"><span style="font-size:1.1rem">'+t.icon+'</span><span style="font-size:.82rem;font-weight:600;color:'+t.accent+'">'+t.label+'</span></div>'
+          + '<div style="font-size:.66rem;color:var(--off3);line-height:1.4;">'+t.desc+'</div>'
+          + '<div style="font-family:var(--mono);font-size:.5rem;color:var(--off4);margin-top:auto;">Opens in new tab \u2192</div>'
+          + '</a>';
+      }).join('')
+    + '</div></div>';
   var quickHtml = '<div class="card"><div class="card-header"><span class="card-title">Quick actions</span></div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.2rem 0">'
     + qa.map(function(q){
@@ -473,6 +496,9 @@ function renderDashHome() {
 
   // Render as one complete grid string
   content.innerHTML += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem">'+actHtml+quickHtml+'</div>';
+
+  // AI Platform tools (full-page tools in new tabs)
+  content.innerHTML += aiToolsHtml;
 
   // Recent invoices + projects
   content.innerHTML += '<div class="card"><div class="card-header"><span class="card-title">Recent invoices</span><button class="btn btn-dark btn-xs" onclick="dashNav(\'invoices\')">View all →</button></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Ref</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="dash-inv-tbody"></tbody></table></div></div>';
