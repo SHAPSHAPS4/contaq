@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.8';
+const KB_VERSION = '6.9';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 44;
+const KB_VERSION_SOURCES = 45;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -49,6 +49,7 @@ const KB_I02 = require('./kb-i02-duct-insulation');
 const KB_I03 = require('./kb-i03-equipment-insulation');
 const KB_I04 = require('./kb-i04-fire-specialist-insulation');
 const KB_X01 = require('./kb-x01-extraction-logic');
+const KB_X02 = require('./kb-x02-confidence-scoring');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1197,7 +1198,27 @@ function getFullKnowledgeBase() {
     '  1. All trades addressed? 2. All sheets processed? 3. Title block extracted? 4. Status assessed?',
     '  5. Legend referenced? 6. Waste factors noted separately? 7. Flags section populated? 8. Implicit items?',
     '  9. Confidence scores? 10. Source labels? 11. Quantity status? 12. Cross-trade references?',
-    '  Final: "Completeness check: PASSED. N items, N flags. KB v' + KB_VERSION + '."'
+    '  Final: "Completeness check: PASSED. N items, N flags. KB v' + KB_VERSION + '."',
+
+    '### KB-X02: Confidence Scoring Rules',
+    'HIGH (75-100%): Clearly visible on For Construction GA, spec confirmed, quantity from schedule/annotation/scale bar, no conflicts, legend confirms symbols.',
+    'MEDIUM (45-74%): Visible but spec incomplete, scale without bar, minor ambiguity ±10%, For Coordination drawing, implicit item, CIBSE symbol assumed, revision cloud on FC drawing.',
+    'LOW (0-44%): Implied not shown, spec absent, poor drawing quality, significant ambiguity >20%, Preliminary/Tender, measured from schematic, unresolved conflict, TBC/TBA, no legend, estimated allowance.',
+
+    'HIGH Blockers (CANNOT be High if any true): Missing spec, measured from schematic, not For Construction, conflicting info, no legend, estimated allowance, implicit item.',
+
+    'Thresholds:',
+    '  <30% Low items: NORMAL — proceed, note Low items for review.',
+    '  30-50% Low: ELEVATED — flag entire drawing as LOW RELIABILITY. Estimator review before consolidation.',
+    '  >50% Low: CRITICAL — extraction UNRELIABLE. Recommend drawing re-issue.',
+    '  Project >40% Low: too uncertain for confident pricing.',
+
+    'Hallucination Prevention: Any item not traceable to drawing/schedule/spec → immediately flag, set Low, label "AI inference — not confirmed".',
+
+    'Pairing Rule: Every Low item MUST have: (1) specific flag explaining WHY, (2) what info would raise confidence, (3) whether to price as-is or hold.',
+    'Estimator MUST sign off ALL Low items before pricing. Unresolved Low items → tender qualifications.',
+
+    'Value×Risk: High value + Low confidence = HIGHEST RISK → flag to commercial team, qualify in tender, consider provisional sum.'
   ].join('\n\n');
 }
 
@@ -1241,7 +1262,8 @@ function getSection(sectionName) {
     duct_insulation: KB_I02,
     equipment_insulation: KB_I03,
     fire_specialist_insulation: KB_I04,
-    extraction_logic: KB_X01
+    extraction_logic: KB_X01,
+    confidence_scoring: KB_X02
   };
   return sections[sectionName] || null;
 }
@@ -1305,5 +1327,6 @@ module.exports = {
   KB_I02,
   KB_I03,
   KB_I04,
-  KB_X01
+  KB_X01,
+  KB_X02
 };
