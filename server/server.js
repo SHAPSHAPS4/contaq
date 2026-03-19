@@ -100,12 +100,16 @@ app.use('/api/takeoff', require('./routes/takeoff'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/learning', require('./routes/learning'));
 app.use('/api/kb', require('./routes/kb-admin'));
+app.use('/api/upload', require('./routes/upload'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
 /* ── Quote Builder frontend ───────────────────────────────────────── */
 const serverPath = require('node:path');
 app.get('/quote-builder', (_req, res) => {
   res.sendFile(serverPath.join(__dirname, '../public/quote-builder.html'));
+});
+app.get('/admin/kb', (_req, res) => {
+  res.sendFile(serverPath.join(__dirname, '../admin/kb-dashboard.html'));
 });
 
 app.get('/api/health', (_req, res) => {
