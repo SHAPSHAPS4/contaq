@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.1';
+const KB_VERSION = '6.2';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 37;
+const KB_VERSION_SOURCES = 38;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -42,6 +42,7 @@ const KB_M04 = require('./kb-m04-mechanical-plant');
 const KB_E01 = require('./kb-e01-cable-types');
 const KB_E02 = require('./kb-e02-containment');
 const KB_E03 = require('./kb-e03-electrical-equipment');
+const KB_E04 = require('./kb-e04-lighting-small-power');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1049,7 +1050,25 @@ function getFullKnowledgeBase() {
     '  Main bonding: gas, water, steel — 1nr clamp per service, 25mm² typical commercial.',
     '  Supplementary bonding: plant rooms, bathrooms — 1nr clamp per connection, 6mm² typical.',
     '  Systems: TN-S (utility earth), TN-C-S (PME, common UK), TT (own electrode, rural).',
-    '  Flag if NO earthing strategy shown — this is critical.'
+    '  Flag if NO earthing strategy shown — this is critical.',
+
+    '### KB-E04: Lighting & Small Power',
+    'Luminaires (nr from schedule): Recessed DL, surface DL, linear LED (600/1200/1500mm), pendant, bulkhead (IP65), floodlight (external), high bay (>6m ceiling), track light (track=m, spots=nr).',
+    '  Schedule is AUTHORITATIVE. Note: wattage, colour temp, IP rating, DALI/switched, emergency function.',
+    '  IP ratings: IP20 (dry), IP44 (splash/bathroom), IP65 (external/wet), IP67 (in-ground).',
+
+    'Emergency Lighting (nr, BS 5266):',
+    '  Self-contained (battery in fitting) vs Central battery (dedicated FP cable to EVERY fitting — massive cable impact).',
+    '  Maintained (M, always on), Non-maintained (NM, mains fail only). Duration: 1hr or 3hr (3hr standard commercial).',
+    '  Required at: exits, escape routes, intersections, level changes, call points, fire equipment, lifts, toilets >8m², open areas >60m².',
+    '  Flag if: type (self-contained/central) not stated, duration not specified, M/NM not stated.',
+
+    'Controls (nr): PIR/absence detector (Part L mandatory), daylight sensor, DALI controller/gateway (+ DALI bus cable), scene panel, timer/astronomical clock, BMS lighting point.',
+    '  DALI: 64 devices per line. Requires 2-core bus cable (separate from power). Count bus cable separately.',
+
+    'Small Power (nr): SSO (13A single), DSO (13A double — most common), SFCU (fused connection — fixed appliances), Floor box (note compartments + contents), Dado socket, Industrial/CEE (note A + voltage + IP), USB socket.',
+
+    'Specialist: EV charging (7/22/50kW, Part S mandatory for new builds, PME earthing restrictions), Server PDU (A+B dual-feed = 2× per rack), Raised floor outlets.'
   ].join('\n\n');
 }
 
@@ -1086,7 +1105,8 @@ function getSection(sectionName) {
     mechanical_plant: KB_M04,
     cable_types: KB_E01,
     containment: KB_E02,
-    electrical_equipment: KB_E03
+    electrical_equipment: KB_E03,
+    lighting_small_power: KB_E04
   };
   return sections[sectionName] || null;
 }
@@ -1143,5 +1163,6 @@ module.exports = {
   KB_M04,
   KB_E01,
   KB_E02,
-  KB_E03
+  KB_E03,
+  KB_E04
 };
