@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.3';
+const KB_VERSION = '6.4';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 39;
+const KB_VERSION_SOURCES = 40;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -44,6 +44,7 @@ const KB_E02 = require('./kb-e02-containment');
 const KB_E03 = require('./kb-e03-electrical-equipment');
 const KB_E04 = require('./kb-e04-lighting-small-power');
 const KB_E05 = require('./kb-e05-specialist-electrical');
+const KB_I01 = require('./kb-i01-pipe-insulation');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1089,7 +1090,31 @@ function getFullKnowledgeBase() {
 
     'BMS (ALWAYS SPECIALIST): DDC controller (I/O points, BACnet/Modbus), sensors (temp/humidity/CO2/pressure = AI), actuators (valves/dampers = AO), status (DI), commands (DO).',
     '  Scope boundary VARIES: check spec for who provides valves, actuators, VFDs, sensors. Flag if unclear.',
-    '  BMS points schedule is AUTHORITATIVE if provided. Flag if no points schedule.'
+    '  BMS points schedule is AUTHORITATIVE if provided. Flag if no points schedule.',
+
+    '### KB-I01: Pipe Insulation Materials & Specifications',
+    'Materials:',
+    '  Mineral Wool (BS EN 14303): LTHW/steam, up to 300°C+, non-combustible A1. Cheapest. Facing: plain/foil/canvas/cladding.',
+    '  Phenolic Foam (BS EN 14314, Kingspan Kooltherm): Hot+cold, -200 to +120°C. THINNEST profile. 1.5-2× mineral wool cost.',
+    '  Elastomeric Foam (BS EN 14313, Armaflex): Chilled/cold water PRIMARY, -50 to +105°C. INHERENT VAPOUR BARRIER. 2-3× mineral wool cost.',
+    '  Calcium Silicate (BS EN 14306): High temp steam/HTHW, up to 650°C. Rigid sections. Expensive.',
+
+    'Thickness Tables (BS 5422 / Part L minimums):',
+    '  LTHW: 15-22mm pipe=25mm, 28-35mm=30mm, 42-54mm=40mm, DN80-100=50mm, DN125-150=60mm, DN200+=75mm.',
+    '  CWS: 15-22mm=9mm elast, 28-54mm=13mm elast, >54mm=19-25mm. VAPOUR BARRIER ESSENTIAL.',
+    '  ChW: All sizes 25-50mm elastomeric. VB CRITICAL. Support inserts MANDATORY at every bracket.',
+    '  Refrigerant: BOTH liquid + suction lines insulated. 13-19mm elastomeric typical.',
+
+    'Notation: "[pipe dia]mm [pipe material], [insul thickness]mm [insul material], [facing]". Different specs = separate line items.',
+
+    'Valve & Fitting Insulation:',
+    '  Valves: nr, rate at 1.5× linear pipe rate. Flanges: nr, rate at 2× linear. Strainer boxes: nr (removable).',
+    '  Removable jackets for frequently accessed items.',
+    '  Valve insulation on cold/chilled is CRITICAL — uninsulated = condensation + dripping.',
+
+    'Waste: 15% pipe sections, 12% sheet. Accessories: adhesive, tape, pins, banding, VB tape, support inserts.',
+
+    'Flags: No material specified, no thickness stated, cold water without VB, chilled without elastomeric, no support inserts on cold, refrigerant uninsulated, condensate uninsulated, unheated space without insulation, asbestos risk if pre-2000 building.'
   ].join('\n\n');
 }
 
@@ -1128,7 +1153,8 @@ function getSection(sectionName) {
     containment: KB_E02,
     electrical_equipment: KB_E03,
     lighting_small_power: KB_E04,
-    specialist_electrical: KB_E05
+    specialist_electrical: KB_E05,
+    pipe_insulation: KB_I01
   };
   return sections[sectionName] || null;
 }
@@ -1187,5 +1213,6 @@ module.exports = {
   KB_E02,
   KB_E03,
   KB_E04,
-  KB_E05
+  KB_E05,
+  KB_I01
 };
