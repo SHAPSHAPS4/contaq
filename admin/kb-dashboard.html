@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contraq KB Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f8f6;color:#1a1a18;font-size:14px}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:#fff;border-right:1px solid #e8e6e0;padding:0;position:relative}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid #e8e6e0;font-weight:600;font-size:15px;letter-spacing:-0.3px}
+.sidebar-logo span{color:#185FA5}
+.nav-section{padding:16px 12px 8px;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;margin:2px 8px;cursor:pointer;font-size:13px;color:#444;transition:background .12s}
+.nav-item:hover{background:#f4f3ef}
+.nav-item.active{background:#E6F1FB;color:#185FA5;font-weight:500}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{padding:20px 16px;position:absolute;bottom:0;width:220px;border-top:1px solid #e8e6e0}
+.main{padding:28px 32px;overflow-y:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:20px;font-weight:600;letter-spacing:-0.4px}
+.page-meta{font-size:12px;color:#888;margin-top:3px}
+.btn{padding:7px 16px;border-radius:8px;border:1px solid #d8d6d0;background:#fff;color:#444;font-size:13px;cursor:pointer;font-weight:500;transition:background .12s}
+.btn:hover{background:#f4f3ef}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+.metric{background:#fff;border:1px solid #e8e6e0;border-radius:10px;padding:16px}
+.metric-label{font-size:11px;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+.metric-value{font-size:28px;font-weight:600;letter-spacing:-1px;line-height:1}
+.metric-sub{font-size:11px;color:#aaa;margin-top:4px}
+.card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:20px;margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.badge-blue{background:#E6F1FB;color:#185FA5}
+.badge-amber{background:#FAEEDA;color:#854F0B}
+.badge-red{background:#FCEBEB;color:#A32D2D}
+.badge-green{background:#EAF3DE;color:#3B6D11}
+.badge-gray{background:#f4f3ef;color:#5F5E5A}
+.section-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.chip{padding:9px 10px;border:1px solid #e8e6e0;border-radius:8px;cursor:pointer;transition:border-color .12s}
+.chip:hover{border-color:#185FA5}
+.chip-id{font-size:11px;font-weight:600;margin-bottom:2px}
+.chip-name{font-size:10px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.status-ok{background:#639922}
+.status-err{background:#E24B4A}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.rule-row{padding:12px 0;border-bottom:1px solid #f0ede8;display:flex;gap:12px;align-items:flex-start}
+.rule-row:last-child{border-bottom:none}
+.rule-id-badge{font-size:10px;font-weight:600;color:#185FA5;background:#E6F1FB;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-top:1px;flex-shrink:0}
+.rule-body{flex:1;min-width:0}
+.rule-trigger{font-size:11px;color:#888;margin-bottom:3px}
+.rule-action{font-size:13px;color:#1a1a18;line-height:1.4}
+.rule-footer{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.rule-date{font-size:10px;color:#bbb}
+.btn-xs{font-size:11px;padding:3px 9px;border:1px solid #e8e6e0;border-radius:6px;background:#fff;cursor:pointer;color:#555;transition:background .12s}
+.btn-xs:hover{background:#f4f3ef}
+.btn-xs-danger{color:#A32D2D;border-color:#F09595}
+.btn-xs-danger:hover{background:#FCEBEB}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.pill{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid #e8e6e0;background:#fff;color:#666;cursor:pointer;transition:all .12s}
+.pill.active{background:#E6F1FB;color:#185FA5;border-color:#B5D4F4}
+.search{font-size:12px;padding:5px 12px;border:1px solid #e8e6e0;border-radius:20px;outline:none;background:#fff;color:#1a1a18;min-width:180px}
+.search:focus{border-color:#185FA5}
+.form-panel{background:#f8f8f6;border-radius:10px;padding:16px;margin-top:12px;display:none}
+.form-panel.open{display:block}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-input{width:100%;font-size:13px;padding:8px 12px;border:1px solid #d8d6d0;border-radius:8px;background:#fff;color:#1a1a18;outline:none;font-family:inherit}
+.form-input:focus{border-color:#185FA5}
+.form-textarea{width:100%;font-size:13px;padding:8px 12px;border:1px solid #d8d6d0;border-radius:8px;background:#fff;color:#1a1a18;outline:none;font-family:inherit;min-height:70px;resize:vertical}
+.form-textarea:focus{border-color:#185FA5}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.pat-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0ede8}
+.pat-row:last-child{border-bottom:none}
+.pat-label{min-width:100px;flex-shrink:0}
+.pat-id{font-size:11px;font-weight:600}
+.pat-count{font-size:10px;color:#888}
+.bar-wrap{flex:1;height:5px;background:#f0ede8;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:#BA7517;transition:width .3s}
+.bar-fill.critical{background:#E24B4A}
+.err-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0ede8}
+.err-row:last-child{border-bottom:none}
+.err-label{font-size:12px;color:#555;min-width:150px;text-transform:capitalize}
+.err-bar-wrap{flex:1;height:5px;background:#f0ede8;border-radius:3px;overflow:hidden}
+.err-bar{height:100%;border-radius:3px;background:#888780;opacity:.7}
+.err-count{font-size:12px;font-weight:500;min-width:24px;text-align:right}
+.err-pct{font-size:11px;color:#aaa;min-width:30px;text-align:right}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;margin:16px}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.modal p{font-size:13px;color:#666;margin-bottom:16px;line-height:1.5}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+.empty{font-size:13px;color:#aaa;padding:20px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">Contraq <span>KB</span> admin</div>
+    <div class="nav-section">Knowledge base</div>
+    <div class="nav-item active"><span class="nav-dot" style="background:#185FA5"></span>Dashboard</div>
+    <div class="nav-item"><span class="nav-dot" style="background:#3B6D11"></span>Section browser</div>
+    <div class="nav-item"><span class="nav-dot" style="background:#BA7517"></span>Learned rules</div>
+    <div class="nav-item"><span class="nav-dot" style="background:#E24B4A"></span>Pattern errors</div>
+    <div class="nav-section">System</div>
+    <div class="nav-item"><span class="nav-dot" style="background:#888"></span>API endpoints</div>
+    <div class="nav-item"><span class="nav-dot" style="background:#888"></span>Token budgets</div>
+    <div class="nav-item"><span class="nav-dot" style="background:#888"></span>Export / import</div>
+    <div class="sidebar-footer">
+      <div style="font-size:11px;color:#aaa;margin-bottom:6px">KB v6.0 &nbsp;·&nbsp; <span id="sb-date"></span></div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="status-dot status-ok"></span>
+        <span style="font-size:11px;color:#3B6D11">All 22 sections loaded</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">KB admin dashboard</div>
+        <div class="page-meta">
+          Last feedback session: <span id="last-session"></span>
+          &nbsp;·&nbsp; API status: <span style="color:#3B6D11;font-weight:500">live</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="exportKB()">Export KB-L01 + L02</button>
+        <button class="btn btn-primary" onclick="toggleAddRule()">+ Add learned rule</button>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Learned rules</div>
+        <div class="metric-value" id="m-rules" style="color:#185FA5">7</div>
+        <div class="metric-sub">KB-L01 active</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Pattern errors</div>
+        <div class="metric-value" id="m-patterns" style="color:#BA7517">3</div>
+        <div class="metric-sub">KB-L02 registered</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Sections loaded</div>
+        <div class="metric-value" id="m-sections" style="color:#3B6D11">22</div>
+        <div class="metric-sub">of 22 total</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Feedback sessions</div>
+        <div class="metric-value" id="m-sessions" style="color:#534AB7">14</div>
+        <div class="metric-sub">total processed</div>
+      </div>
+    </div>
+
+    <!-- KB Sections -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">KB sections status</span>
+        <span class="badge badge-green" id="sections-badge">22 / 22 loaded</span>
+      </div>
+      <div class="section-grid" id="section-grid"></div>
+    </div>
+
+    <!-- Learned Rules -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Learned rules &nbsp;<span class="badge badge-blue" id="rule-badge">7</span></span>
+        <input class="search" type="text" placeholder="Search rules..." oninput="filterRules(this.value)">
+      </div>
+      <div class="filter-bar">
+        <button class="pill active" onclick="setFilter('all',this)">All</button>
+        <button class="pill" onclick="setFilter('QUANTITY_ERROR',this)">Quantity</button>
+        <button class="pill" onclick="setFilter('SPECIFICATION_ERROR',this)">Specification</button>
+        <button class="pill" onclick="setFilter('HALLUCINATION',this)">Hallucination</button>
+        <button class="pill" onclick="setFilter('CONVENTION_ERROR',this)">Convention</button>
+        <button class="pill" onclick="setFilter('MISSED_FLAG',this)">Missed flag</button>
+      </div>
+      <div id="rules-list"></div>
+      <div class="form-panel" id="add-form">
+        <div class="form-grid">
+          <input class="form-input" id="f-trigger" type="text" placeholder="Trigger condition">
+          <input class="form-input" id="f-type" type="text" placeholder="Error type (e.g. SPECIFICATION_ERROR)">
+        </div>
+        <div style="margin-bottom:10px">
+          <textarea class="form-textarea" id="f-action" style="width:100%" placeholder="Action — what the AI must do differently..."></textarea>
+        </div>
+        <div style="margin-bottom:10px">
+          <input class="form-input" id="f-reason" type="text" style="width:100%" placeholder="Reason — why this matters for accuracy">
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="toggleAddRule()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveRule()">Save rule</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom two columns -->
+    <div class="two-col">
+      <div class="card" style="margin-bottom:0">
+        <div class="card-header">
+          <span class="card-title">Pattern error registry</span>
+          <span class="badge badge-amber" id="pat-badge">3 active</span>
+        </div>
+        <div id="pattern-list"></div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-header">
+          <span class="card-title">Error breakdown</span>
+          <span class="badge badge-gray">14 sessions</span>
+        </div>
+        <div id="error-breakdown"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Promote modal -->
+<div class="modal-overlay" id="promote-modal">
+  <div class="modal">
+    <h3>Promote to static KB</h3>
+    <p>This rule will be flagged for promotion to a permanent KB section. Add any notes for the KB editor below — these will appear in the next KB build review.</p>
+    <textarea class="form-textarea" id="promote-notes" style="width:100%;min-height:100px" placeholder="Optional notes for the KB editor..."></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="closePromote()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmPromote()">Confirm promotion</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────
+
+const KB_SECTIONS = [
+  {id:'KB-C01',name:'Drawing standards',g:'Core',c:'#185FA5',ok:true},
+  {id:'KB-C02',name:'Estimating principles',g:'Core',c:'#185FA5',ok:true},
+  {id:'KB-C03',name:'UK standards',g:'Core',c:'#185FA5',ok:true},
+  {id:'KB-C04',name:'Document hierarchy',g:'Core',c:'#185FA5',ok:true},
+  {id:'KB-M01',name:'Pipe materials',g:'Mechanical',c:'#0F6E56',ok:true},
+  {id:'KB-M02',name:'Fittings & valves',g:'Mechanical',c:'#0F6E56',ok:true},
+  {id:'KB-M03',name:'HVAC & ductwork',g:'Mechanical',c:'#0F6E56',ok:true},
+  {id:'KB-M04',name:'Plant & equipment',g:'Mechanical',c:'#0F6E56',ok:true},
+  {id:'KB-M05',name:'Systems & services',g:'Mechanical',c:'#0F6E56',ok:true},
+  {id:'KB-E01',name:'Cable types',g:'Electrical',c:'#BA7517',ok:true},
+  {id:'KB-E02',name:'Cable containment',g:'Electrical',c:'#BA7517',ok:true},
+  {id:'KB-E03',name:'Distribution',g:'Electrical',c:'#BA7517',ok:true},
+  {id:'KB-E04',name:'Lighting & power',g:'Electrical',c:'#BA7517',ok:true},
+  {id:'KB-E05',name:'Specialist systems',g:'Electrical',c:'#BA7517',ok:true},
+  {id:'KB-I01',name:'Pipe insulation',g:'Insulation',c:'#534AB7',ok:true},
+  {id:'KB-I02',name:'Duct insulation',g:'Insulation',c:'#534AB7',ok:true},
+  {id:'KB-I03',name:'Equipment insulation',g:'Insulation',c:'#534AB7',ok:true},
+  {id:'KB-I04',name:'Fire & specialist',g:'Insulation',c:'#534AB7',ok:true},
+  {id:'KB-X01',name:'Extraction logic',g:'Rules',c:'#993C1D',ok:true},
+  {id:'KB-X02',name:'Confidence scoring',g:'Rules',c:'#993C1D',ok:true},
+  {id:'KB-X03',name:'Conflict resolution',g:'Rules',c:'#993C1D',ok:true},
+  {id:'KB-X04',name:'Hallucination prevention',g:'Rules',c:'#993C1D',ok:true},
+];
+
+// Replace with fetch('/api/kb/rules') in production
+let RULES = [
+  {rule_id:'LEARNED_001',error_type:'SPECIFICATION_ERROR',trigger:'Copper pipe shown without size annotation',action:'Cross-reference pipe schedule before extracting. If absent, mark specification as "unspecified" and set confidence to Low.',reason:'Unlabelled copper pipes were assigned default 22mm — incorrect for large bore runs.',date:'2026-03-10'},
+  {rule_id:'LEARNED_002',error_type:'HALLUCINATION',trigger:'Schematic drawing supplied without GA drawing',action:'Do not extract linear quantities. Flag immediately: "No GA drawing supplied — quantities cannot be extracted from schematic."',reason:'System was returning invented pipe lengths from riser schematics.',date:'2026-03-11'},
+  {rule_id:'LEARNED_003',error_type:'CONVENTION_ERROR',trigger:'BS 1710 colour coding absent from legend',action:'Do not assume service type from colour alone. Flag missing legend and mark all colour-dependent extractions as Low confidence.',reason:'Blue pipe was assumed as CWS when project used non-standard colours.',date:'2026-03-12'},
+  {rule_id:'LEARNED_004',error_type:'QUANTITY_ERROR',trigger:'Rectangular ductwork shown on GA drawing',action:'Always calculate surface area using 2(W+H) x Length. Never extract rectangular ductwork in linear metres.',reason:'Rectangular ductwork was returned in linear metres causing significant underquoting.',date:'2026-03-13'},
+  {rule_id:'LEARNED_005',error_type:'MISSED_FLAG',trigger:'Revision cloud present on drawing',action:'Flag revision cloud location: "Quantities in this area may be superseded — estimator to confirm against latest issue."',reason:'Revised areas were extracted without flagging, causing errors on reissued drawings.',date:'2026-03-14'},
+  {rule_id:'LEARNED_006',error_type:'SPECIFICATION_ERROR',trigger:'Insulation thickness not stated in spec',action:'Cross-reference BS 5422 minimum thicknesses by pipe size and service type. State assumption explicitly and set confidence to Medium.',reason:'Blank insulation thickness was causing zero-quantity outputs on insulation line items.',date:'2026-03-15'},
+  {rule_id:'LEARNED_007',error_type:'CONFIDENCE_ERROR',trigger:'Drawing status is For Coordination not For Construction',action:'Downgrade all extracted items to Medium confidence maximum. Add: "Coordination drawing — quantities subject to change."',reason:'For Coordination drawings were being treated as firm quantities.',date:'2026-03-17'},
+];
+
+// Replace with fetch('/api/kb/patterns') in production
+const PATTERNS = [
+  {pattern_id:'PATTERN_001',error_type:'SPECIFICATION_ERROR',occurrences:5,action:'Before extracting any specification, verify source: drawing annotation, schedule, or spec clause. Never default.'},
+  {pattern_id:'PATTERN_002',error_type:'QUANTITY_ERROR',occurrences:4,action:'Run self-audit on all linear quantities — confirm unit matches item type before outputting.'},
+  {pattern_id:'PATTERN_003',error_type:'MISSED_FLAG',occurrences:3,action:'Scan full drawing for revision clouds and status block before any extraction begins.'},
+];
+
+const BREAKDOWN = [
+  {type:'specification error',count:18,pct:34},
+  {type:'quantity error',count:13,pct:25},
+  {type:'missed flag',count:9,pct:17},
+  {type:'hallucination',count:6,pct:11},
+  {type:'convention error',count:4,pct:8},
+  {type:'confidence error',count:3,pct:5},
+];
+
+const TYPE_BADGE = {
+  SPECIFICATION_ERROR:'badge-amber',
+  QUANTITY_ERROR:'badge-amber',
+  HALLUCINATION:'badge-red',
+  MISSED_FLAG:'badge-red',
+  CONVENTION_ERROR:'badge-blue',
+  CONFIDENCE_ERROR:'badge-gray',
+  TRADE_ERROR:'badge-blue',
+  SCOPE_ERROR:'badge-gray',
+};
+
+// ── State ─────────────────────────────────────────────────────────────
+
+let activeFilter = 'all';
+let searchTerm = '';
+let promoteTarget = null;
+
+// ── Render functions ──────────────────────────────────────────────────
+
+function renderSections() {
+  document.getElementById('section-grid').innerHTML = KB_SECTIONS.map(s => `
+    <div class="chip" title="${s.g}: ${s.name}"
+      onclick="alert('${s.id}\\n${s.name}\\nGroup: ${s.g}\\nStatus: ${s.ok ? 'Loaded' : 'Missing'}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span class="chip-id" style="color:${s.c}">${s.id}</span>
+        <span class="status-dot ${s.ok ? 'status-ok' : 'status-err'}"></span>
+      </div>
+      <div class="chip-name">${s.name}</div>
+    </div>
+  `).join('');
+}
+
+function renderRules() {
+  const filtered = RULES.filter(r => {
+    const mf = activeFilter === 'all' || r.error_type === activeFilter;
+    const ms = !searchTerm || [r.rule_id, r.trigger, r.action, r.error_type]
+      .some(s => s.toLowerCase().includes(searchTerm));
+    return mf && ms;
+  });
+  document.getElementById('rule-badge').textContent = RULES.length;
+  document.getElementById('m-rules').textContent = RULES.length;
+  const el = document.getElementById('rules-list');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty">No rules match this filter.</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(r => `
+    <div class="rule-row">
+      <span class="rule-id-badge">${r.rule_id}</span>
+      <div class="rule-body">
+        <div class="rule-trigger">Trigger: ${r.trigger}</div>
+        <div class="rule-action">${r.action}</div>
+        <div class="rule-footer">
+          <span class="badge ${TYPE_BADGE[r.error_type] || 'badge-gray'}" style="font-size:10px">
+            ${r.error_type.replace(/_/g,' ').toLowerCase()}
+          </span>
+          <span class="rule-date">Added ${r.date}</span>
+          <span style="flex:1"></span>
+          <button class="btn-xs" onclick="openPromote('${r.rule_id}')">Promote to KB-C</button>
+          <button class="btn-xs btn-xs-danger" onclick="deleteRule('${r.rule_id}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPatterns() {
+  const max = Math.max(...PATTERNS.map(p => p.occurrences));
+  document.getElementById('pat-badge').textContent = PATTERNS.length + ' active';
+  document.getElementById('m-patterns').textContent = PATTERNS.length;
+  document.getElementById('pattern-list').innerHTML = PATTERNS.map(p => `
+    <div class="pat-row">
+      <div class="pat-label">
+        <div class="pat-id">${p.pattern_id}</div>
+        <div class="pat-count">${p.occurrences}x triggered</div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-fill ${p.occurrences >= 5 ? 'critical' : ''}"
+          style="width:${Math.round(p.occurrences / max * 100)}%"></div>
+      </div>
+      <span class="badge ${p.occurrences >= 5 ? 'badge-red' : 'badge-amber'}" style="font-size:10px;white-space:nowrap">
+        ${p.error_type.replace(/_ERROR/,'').toLowerCase()}
+      </span>
+    </div>
+  `).join('');
+}
+
+function renderBreakdown() {
+  const max = Math.max(...BREAKDOWN.map(e => e.count));
+  document.getElementById('error-breakdown').innerHTML = BREAKDOWN.map(e => `
+    <div class="err-row">
+      <div class="err-label">${e.type}</div>
+      <div class="err-bar-wrap">
+        <div class="err-bar" style="width:${Math.round(e.count / max * 100)}%"></div>
+      </div>
+      <div class="err-count">${e.count}</div>
+      <div class="err-pct">${e.pct}%</div>
+    </div>
+  `).join('');
+}
+
+// ── Interactions ──────────────────────────────────────────────────────
+
+function setFilter(type, btn) {
+  activeFilter = type;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  renderRules();
+}
+
+function filterRules(val) {
+  searchTerm = val.toLowerCase();
+  renderRules();
+}
+
+function toggleAddRule() {
+  document.getElementById('add-form').classList.toggle('open');
+}
+
+function saveRule() {
+  const trigger = document.getElementById('f-trigger').value.trim();
+  const type = (document.getElementById('f-type').value.trim() || 'SPECIFICATION_ERROR').toUpperCase();
+  const action = document.getElementById('f-action').value.trim();
+  const reason = document.getElementById('f-reason').value.trim();
+  if (!trigger || !action) { showToast('Trigger and action are required.'); return; }
+  const id = 'LEARNED_' + String(RULES.length + 1).padStart(3, '0');
+  const today = new Date().toISOString().slice(0, 10);
+  RULES.push({ rule_id: id, error_type: type, trigger, action, reason, date: today });
+  // TODO: POST to /api/kb/rules in production
+  ['f-trigger','f-type','f-action','f-reason'].forEach(i => document.getElementById(i).value = '');
+  toggleAddRule();
+  renderRules();
+  showToast(id + ' saved to KB-L01');
+}
+
+function deleteRule(id) {
+  if (!confirm('Delete ' + id + '? This cannot be undone.')) return;
+  RULES = RULES.filter(r => r.rule_id !== id);
+  // TODO: DELETE /api/kb/rules/:id in production
+  renderRules();
+  showToast(id + ' deleted');
+}
+
+function openPromote(id) {
+  promoteTarget = id;
+  document.getElementById('promote-notes').value = '';
+  document.getElementById('promote-modal').classList.add('open');
+}
+
+function closePromote() {
+  document.getElementById('promote-modal').classList.remove('open');
+  promoteTarget = null;
+}
+
+function confirmPromote() {
+  const notes = document.getElementById('promote-notes').value.trim();
+  // TODO: POST to /api/kb/promote with { rule_id: promoteTarget, notes } in production
+  console.log('Promote:', promoteTarget, notes);
+  showToast(promoteTarget + ' flagged for KB-C promotion');
+  closePromote();
+}
+
+function exportKB() {
+  const data = {
+    version: '6.0',
+    exported: new Date().toISOString(),
+    learned_rules: RULES,
+    pattern_errors: PATTERNS,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'KB_L01_L02_' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Exported KB-L01 + KB-L02');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+
+const now = new Date();
+document.getElementById('sb-date').textContent =
+  now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+document.getElementById('last-session').textContent =
+  now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+renderSections();
+renderRules();
+renderPatterns();
+renderBreakdown();
+
+// ── Production API integration (uncomment when backend is ready) ──────
+/*
+async function loadFromAPI() {
+  try {
+    const [rulesRes, patternsRes, statsRes] = await Promise.all([
+      fetch('/api/kb/rules'),
+      fetch('/api/kb/patterns'),
+      fetch('/api/kb/stats'),
+    ]);
+    RULES = await rulesRes.json();
+    const patterns = await patternsRes.json();
+    const stats = await statsRes.json();
+    document.getElementById('m-sessions').textContent = stats.total_sessions;
+    renderRules();
+    // extend renderPatterns and renderBreakdown similarly
+  } catch(e) {
+    console.error('KB API unavailable — using seed data', e);
+  }
+}
+loadFromAPI();
+*/
+</script>
+</body>
+</html>
