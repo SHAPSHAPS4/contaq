@@ -1,0 +1,404 @@
+/**
+ * KB-E03: Electrical Equipment & Distribution
+ *
+ * Structured reference for switchgear, transformers, standby power,
+ * metering, HV equipment, and earthing systems.
+ * Injected into extraction prompts at runtime.
+ *
+ * Part of Contraq M&E Knowledge Base v6.1
+ * Source: BS 7671 (18th Ed), BS EN 61439, IET, UK DNO practice
+ */
+
+const KB_E03 = {
+  id: 'KB-E03',
+  title: 'Electrical Equipment & Distribution',
+  version: '1.0',
+  date: '2026-03-19',
+
+  /* ══════════════════════════════════════════════════════════════
+     1. SWITCHGEAR & DISTRIBUTION
+     ══════════════════════════════════════════════════════════════ */
+  switchgear: {
+    unit: 'nr',
+    rule: 'Count every switchgear/distribution item individually. Always note current rating, phases, and number of ways/outgoers. Use equipment schedule if available.',
+
+    main_switchboard: {
+      name: 'Main LV Switchboard / Main Switch Panel (MSP)',
+      function: 'Primary LV distribution point for the building. Receives incoming supply from transformer or utility and distributes to sub-main circuits.',
+      specification_required: ['Incoming supply rating (kVA or A)', 'Voltage (400V 3-phase typical)', 'Number of outgoing ways', 'MCCB/ACB ratings per outgoer', 'Form of separation (Form 1/2/3/4 per BS EN 61439)', 'IP rating (IP31 standard internal, IP54 external)', 'Short circuit rating (kA)', 'Metering requirements'],
+      drawing_notations: ['MSP', 'MSB', 'main switchboard', 'main panel', 'LV switchboard', 'MLVP'],
+      associated_items: ['Incoming cable(s)', 'Earth bar', 'Neutral bar', 'Surge protection device (SPD)', 'Metering CTs', 'Power monitoring', 'Labelling'],
+      form_of_separation: {
+        form_1: 'No separation between busbars, functional units, or terminals. Basic.',
+        form_2: 'Separation of busbars from functional units. Terminals not separated.',
+        form_3: 'Separation of busbars, functional units, AND terminals from each other.',
+        form_4: 'As Form 3, plus separation of terminals of functional units from each other. Highest separation.',
+        note: 'Higher form number = safer for maintenance but more expensive. Form 2 is standard commercial. Form 4 for critical/hospital.'
+      },
+      flag_if: ['Rating not stated', 'Number of ways not shown', 'Form of separation not specified', 'Short circuit rating not stated']
+    },
+
+    distribution_board: {
+      name: 'Distribution Board (DB)',
+      function: 'Local distribution of circuits to final loads (lighting, sockets, equipment). Fed from main switchboard via sub-main cable.',
+      types: {
+        three_phase: {
+          name: 'Three Phase Distribution Board (TP&N)',
+          voltage: '400V three phase + neutral',
+          typical_ratings: ['100A', '125A', '160A', '200A', '250A', '400A', '630A'],
+          typical_ways: ['12-way', '18-way', '24-way', '36-way', '48-way'],
+          use: 'Standard commercial distribution. Each way has an MCB or RCBO.'
+        },
+        single_phase: {
+          name: 'Single Phase Distribution Board (SP&N)',
+          voltage: '230V single phase + neutral',
+          typical_ratings: ['63A', '80A', '100A', '125A'],
+          typical_ways: ['6-way', '8-way', '12-way', '16-way', '18-way', '24-way'],
+          use: 'Small commercial, residential, dedicated single-phase loads.'
+        }
+      },
+      specification_required: ['Current rating (A)', 'Single or three phase', 'Number of ways', 'Incoming device (isolator/MCCB/switch-fuse)', 'Protection type per way (MCB/RCBO/RCD+MCB)', 'IP rating', 'Surface or flush mounted'],
+      drawing_notations: ['DB', 'DB-01', 'distribution board', 'panel', 'LP (lighting panel)', 'PP (power panel)', 'MDB (main DB)', 'SDB (sub DB)'],
+      associated_items: ['Sub-main cable (from MSP)', 'Earth connection', 'Circuit cables (to loads)', 'Labels/circuit chart', 'Padlock provision'],
+      naming_convention: {
+        note: 'DBs are typically named by floor and function:',
+        examples: ['DB-L-GF = Lighting, Ground Floor', 'DB-P-02 = Power, Second Floor', 'DB-E-RF = Essential, Roof', 'DB-FA = Fire Alarm', 'DB-ML = Mechanical Loads']
+      },
+      flag_if: ['Rating not stated', 'Number of ways not shown', 'Phase not specified', 'Protection type (MCB vs RCBO) not stated']
+    },
+
+    consumer_unit: {
+      name: 'Consumer Unit (CU)',
+      function: 'Domestic/small commercial distribution board. Contains main switch and MCBs/RCBOs.',
+      standard: 'BS 7671 Amendment 3 requires all consumer units in domestic premises to be non-combustible (metal enclosure)',
+      typical_ratings: ['63A', '80A', '100A'],
+      typical_ways: ['6-way', '8-way', '10-way', '12-way', '14-way', '16-way'],
+      drawing_notations: ['CU', 'consumer unit', 'fuse board'],
+      note: 'Since BS 7671 18th Edition, ALL consumer units in domestic premises must be metal-clad (not plastic). Check if this applies.',
+      flag_if: ['Plastic consumer unit specified for domestic — flag as potentially non-compliant with Amendment 3']
+    },
+
+    mcc: {
+      name: 'Motor Control Centre (MCC)',
+      function: 'Centralised panel for controlling multiple motors — starters, VFDs, protection',
+      specification_required: ['Number of motor starters', 'Starter types (DOL, star-delta, VFD/VSD)', 'Motor ratings (kW) per starter', 'Total panel rating (A)', 'Control voltage (230V/24V)', 'Communication protocol (BMS interface)'],
+      drawing_notations: ['MCC', 'motor control centre', 'MCC-01', 'motor panel'],
+      associated_items: ['Power supply cable', 'Motor cables (1 per motor)', 'Control/BMS wiring', 'Earth connections'],
+      flag_if: ['Number of starters not stated', 'Motor ratings not shown', 'VFD/DOL not specified per motor']
+    },
+
+    capacitor_bank: {
+      name: 'Capacitor Bank / Power Factor Correction (PFC) Panel',
+      function: 'Corrects power factor to avoid reactive power charges from utility. Reduces current draw for same real power.',
+      specification_required: ['Rating (kVAr)', 'Number of stages (automatic switching)', 'Target power factor (typically 0.95 or higher)', 'Harmonic filtering (if required)'],
+      drawing_notations: ['PFC', 'capacitor bank', 'power factor', 'APFC'],
+      note: 'Only required for larger installations where power factor is an issue (typically >100kVA). Check if utility imposes reactive power charges.',
+      flag_if: ['Rating not stated', 'Large installation (>200kVA) without PFC shown — flag for spec check']
+    },
+
+    mccb_panel: {
+      name: 'MCCB Panel / MCCB Distribution Board',
+      function: 'Distribution using Moulded Case Circuit Breakers instead of MCBs. For higher current outgoers (>125A per way).',
+      specification_required: ['Panel rating (A)', 'Number of MCCB ways', 'MCCB ratings per way (A)', 'Short circuit rating (kA)'],
+      drawing_notations: ['MCCB panel', 'MCCB board', 'sub-main panel'],
+      note: 'Used between main switchboard and distribution boards. Each MCCB feeds a sub-main cable to a DB or group of loads.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     2. TRANSFORMERS
+     ══════════════════════════════════════════════════════════════ */
+  transformers: {
+    unit: 'nr',
+    rule: 'Count every transformer. Note kVA rating and primary/secondary voltages. HV transformers are SPECIALIST SCOPE — always flag.',
+
+    hv_lv: {
+      name: 'HV/LV Transformer',
+      function: 'Steps down high voltage (11kV or 6.6kV) to low voltage (400V). Located in transformer room or external compound.',
+      specification_required: ['Rating (kVA)', 'Primary voltage (11kV or 6.6kV)', 'Secondary voltage (400V)', 'Vector group (Dyn11 standard UK)', 'Impedance (%)', 'Cooling type (ONAN, AN)', 'Type (oil-filled, cast resin/dry type)'],
+      types: {
+        oil_filled: 'Traditional. External installation or in fire-rated transformer room with bund for oil containment.',
+        cast_resin: 'Dry type. Can be installed inside building without bund. Preferred for internal/commercial.',
+        note: 'Cast resin transformers are increasingly specified for new commercial buildings — no oil spill risk.'
+      },
+      drawing_notations: ['TX', 'transformer', 'XFMR', 'TX-01', '11kV/400V'],
+      associated_items: ['HV switchgear (ring main unit)', 'HV cable', 'LV cable to MSP', 'Transformer room ventilation', 'Fire protection (oil-filled)', 'Bund/oil containment (oil-filled)', 'Earth connection'],
+      flag_always: true,
+      flag_reason: 'HV/LV transformer installation involves DNO (Distribution Network Operator), specialist HV contractor, and building control approval. Always flag as specialist scope.'
+    },
+
+    step_down: {
+      name: 'Step-Down Transformer (LV/LV)',
+      function: 'Steps down LV voltage — e.g. 400V to 230V for dedicated loads, or 400V to 110V for site power.',
+      specification_required: ['Rating (kVA)', 'Primary voltage', 'Secondary voltage', 'Phase (single/three)'],
+      drawing_notations: ['step-down', 'LV transformer', '110V transformer', 'site transformer'],
+      common_applications: ['110V supply for construction site power tools', '230V supply from 400V 3-phase for dedicated loads', 'Voltage correction for imported equipment'],
+      flag_if: ['kVA rating not stated']
+    },
+
+    isolating: {
+      name: 'Isolating Transformer',
+      function: 'Provides galvanic isolation between primary and secondary. Safety requirement for certain applications.',
+      specification_required: ['Rating (kVA)', 'Voltages', 'Application (bathroom zone, medical IT system, etc.)'],
+      drawing_notations: ['isolating transformer', 'IT transformer', 'medical IT'],
+      common_applications: ['Bathroom/wet area zones (BS 7671 Section 701)', 'Medical IT systems (BS 7671 Section 710)', 'Testing/laboratory equipment'],
+      note: 'Medical IT systems (IEC 61557-8) require isolating transformer + insulation monitoring device (IMD). Both are nr items.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     3. STANDBY POWER
+     ══════════════════════════════════════════════════════════════ */
+  standby_power: {
+    unit: 'nr',
+    rule: 'Count every standby power item. Note kVA rating and autonomy/runtime. These are high-value items with significant associated works.',
+
+    generator: {
+      name: 'Standby Generator (Diesel/Gas)',
+      function: 'Provides electrical power during mains failure. Diesel is standard. Gas for CHP or continuous-rated.',
+      specification_required: ['Rating (kVA standby / kVA prime)', 'Fuel type (diesel standard)', 'Enclosure (internal/external/acoustic canopy)', 'Starting time (typically 10-15 seconds)', 'Autonomy (hours at full load — depends on fuel tank size)', 'Exhaust route', 'Cooling (radiator/remote cooler)', 'Noise level (dB at 1m)'],
+      drawing_notations: ['GEN', 'generator', 'standby gen', 'G-01', 'diesel generator'],
+      associated_items: ['Fuel tank (day tank + bulk tank)', 'Fuel pipework', 'Exhaust flue (m linear + terminal + acoustic attenuation)', 'Combustion air intake and discharge louvres', 'ATS (Automatic Transfer Switch)', 'Control panel', 'Battery charger + starting battery', 'Acoustic enclosure', 'Vibration isolation', 'Cable from generator to ATS', 'Ventilation for generator room (significant airflow)', 'Fire detection in generator room', 'Fuel filling point (external)'],
+      sizes: {
+        small: '20-100 kVA — small commercial, retail',
+        medium: '100-500 kVA — medium commercial, hotel',
+        large: '500-2000 kVA — large commercial, hospital, data centre',
+        note: 'Generator size is determined by essential load analysis — not total building load.'
+      },
+      flag_if: ['kVA not stated', 'Fuel tank size not specified', 'Exhaust route not shown', 'Ventilation not addressed', 'Generator shown without ATS']
+    },
+
+    ups: {
+      name: 'UPS (Uninterruptible Power Supply)',
+      function: 'Provides continuous power to critical loads during mains failure — bridges gap until generator starts or for short outages.',
+      types: {
+        online_double: 'Online double conversion — continuous power conditioning. All power through inverter. Standard for critical loads.',
+        line_interactive: 'Line-interactive — simpler, lower cost. Suitable for IT equipment, non-critical.',
+        static: 'Static UPS — large centralized system. Data centres, hospitals.',
+        rotary: 'Rotary UPS — flywheel-based. Long runtime without batteries. Specialist.'
+      },
+      specification_required: ['Rating (kVA)', 'Autonomy at full load (minutes — typically 5, 10, 15, 20, 30 min)', 'Input/output voltage and phases', 'Battery type (VRLA sealed lead-acid standard, lithium emerging)', 'Bypass (manual/automatic maintenance bypass)', 'Monitoring (SNMP, BMS interface)'],
+      drawing_notations: ['UPS', 'UPS-01', 'uninterruptible'],
+      associated_items: ['Battery cabinet/rack (may be separate from UPS)', 'Maintenance bypass switch', 'Input and output cables', 'Monitoring/alarm connection', 'Ventilation for battery room (hydrogen venting for VRLA)'],
+      flag_if: ['kVA not stated', 'Autonomy not specified', 'Battery location not shown', 'No maintenance bypass shown for UPS >10kVA']
+    },
+
+    ats: {
+      name: 'ATS (Automatic Transfer Switch)',
+      function: 'Automatically switches load from mains to generator (and back) during power failure.',
+      types: {
+        open_transition: 'Break-before-make — brief interruption during transfer. Standard for most applications.',
+        closed_transition: 'Make-before-break — momentary parallel. For sensitive loads that cannot tolerate any break.',
+        soft_load: 'Closed transition with programmable load transfer ramping.'
+      },
+      specification_required: ['Rating (A)', 'Number of poles (3-pole or 4-pole)', 'Transfer time (milliseconds)', 'Bypass facility'],
+      drawing_notations: ['ATS', 'transfer switch', 'changeover switch', 'auto changeover'],
+      note: 'ATS is shown between mains incomer and generator on single-line diagram. Essential loads downstream of ATS, non-essential loads upstream.',
+      flag_if: ['Rating not stated', 'Generator shown without ATS', 'Transfer type (open/closed) not specified']
+    },
+
+    battery_bank: {
+      name: 'Battery Bank / Battery System',
+      function: 'Energy storage for UPS, emergency lighting central battery, or DC systems',
+      specification_required: ['Capacity (Ah)', 'Voltage (typically 48V, 110V, 220V DC)', 'Type (VRLA, lithium-ion, NiCd)', 'Design life (5yr, 10yr)', 'Autonomy (minutes at rated load)'],
+      drawing_notations: ['battery', 'battery bank', 'BATT', 'central battery'],
+      associated_items: ['Battery rack/cabinet', 'Battery charger/rectifier', 'DC distribution board', 'Battery monitoring system', 'Ventilation (hydrogen venting for VRLA)'],
+      note: 'Battery rooms require ventilation to prevent hydrogen accumulation (VRLA batteries). BS EN 50272-2 applies. Check building regulations for battery room requirements.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     4. METERING & MONITORING
+     ══════════════════════════════════════════════════════════════ */
+  metering: {
+    unit: 'nr',
+    rule: 'Count every meter and monitoring device. Utility meters are typically BY OTHERS — flag scope boundary.',
+
+    utility_meter: {
+      name: 'Electricity Meter (Utility / Fiscal)',
+      function: 'Measures total building electricity consumption. Owned by utility company.',
+      drawing_notations: ['meter', 'utility meter', 'fiscal meter', 'kWh meter', 'smart meter'],
+      flag_always: true,
+      flag_reason: 'Utility meter is supplied and installed by the electricity utility company (UKPN, WPD, SSE, etc.). M&E contractor provides the metering cabinet and CT chamber. Confirm scope split.',
+      associated_items: ['Metering cabinet/panel (by M&E)', 'CT chamber (by M&E if HV metering)', 'Pulse output to BMS (if required)'],
+      note: 'Lead time for utility metering connection can be 12-20 weeks. Flag for programme.'
+    },
+
+    sub_metering: {
+      name: 'Sub-Metering / AMR (Automatic Meter Reading)',
+      function: 'Measures energy consumption of individual circuits, floors, or tenants for billing or monitoring.',
+      types: {
+        ct_meter: 'CT-operated energy meter — clamps around cable, non-invasive. Most common.',
+        direct_meter: 'Direct-connected meter — for smaller loads (<100A). Inline with circuit.',
+        pulse_meter: 'Pulse output meter — sends pulses to BMS/AMR for remote reading.'
+      },
+      specification_required: ['Number of meters', 'Circuits to be metered', 'Communication method (pulse, Modbus, BACnet, M-Bus, wireless)', 'AMR head-end system'],
+      drawing_notations: ['sub-meter', 'AMR', 'energy meter', 'kWh meter', 'tenant meter'],
+      associated_items: ['Current transformers (CTs) — typically 3nr per three-phase circuit metered', 'Communication cable (data/BMS)', 'AMR concentrator/gateway'],
+      flag_if: ['Number of metered circuits not stated', 'Communication protocol not specified', 'Part L compliance metering not addressed (mandatory for new non-domestic buildings)']
+    },
+
+    power_monitoring: {
+      name: 'Power Monitoring Unit (PMU) / Power Quality Meter',
+      function: 'Advanced monitoring of power quality — voltage, current, power factor, harmonics, THD',
+      specification_required: ['Parameters monitored', 'Communication protocol', 'Location (switchboard/DB)', 'Number of monitored circuits'],
+      drawing_notations: ['PMU', 'power monitor', 'PQ meter', 'multifunction meter'],
+      note: 'PMUs are typically installed in main switchboards and critical distribution boards. More expensive than basic sub-meters.'
+    },
+
+    current_transformers: {
+      name: 'Current Transformers (CTs)',
+      function: 'Transforms high current to measurable low current for metering. Required for every metered circuit.',
+      count_rule: 'Count 3nr CTs per three-phase metered circuit, 1nr CT per single-phase metered circuit.',
+      specification_required: ['Primary current rating (A)', 'Secondary current (5A or 1A standard)', 'Accuracy class (0.5 for billing, 1.0 for monitoring)', 'Type (split-core for retrofit, solid-core for new)'],
+      drawing_notations: ['CT', 'current transformer', 'metering CT'],
+      note: 'CTs are small items but there can be many of them. 10 metered three-phase circuits = 30 CTs. Count carefully.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     5. HV EQUIPMENT
+     ══════════════════════════════════════════════════════════════ */
+  hv_equipment: {
+    flag_always: true,
+    flag_reason: 'ALL HV equipment is SPECIALIST SCOPE. Requires: specialist HV contractor, DNO (Distribution Network Operator) involvement, HV authorised persons, specific safety procedures. M&E estimator should note HV equipment but flag that pricing requires specialist input.',
+
+    types: {
+      ring_main_unit: {
+        name: 'Ring Main Unit (RMU)',
+        function: 'HV switching point — connects building to DNO ring main. Typically 11kV.',
+        specification_required: ['Voltage (11kV standard UK)', 'Configuration (2-switch + fuse, or 2-switch + CB)', 'Rating (A)', 'Fault level (kA)'],
+        drawing_notations: ['RMU', 'ring main', 'HV switch', '11kV switch'],
+        note: 'RMU is often supplied by DNO and installed in a purpose-built substation room provided by the developer.'
+      },
+      hv_switchgear: {
+        name: 'HV Switchgear / HV Circuit Breaker',
+        function: 'Protection and isolation on HV circuits',
+        drawing_notations: ['HV CB', 'HV switchgear', 'vacuum CB', 'SF6 CB'],
+        note: 'Specialist — price from HV contractor quotation.'
+      },
+      hv_cable: {
+        name: 'HV Cable',
+        function: 'Carries high voltage power from DNO network to building transformer',
+        specification_required: ['Voltage (11kV)', 'Cable type (XLPE/SWA typical)', 'Size (mm²)', 'Length'],
+        drawing_notations: ['11kV cable', 'HV cable', 'HV mains'],
+        note: 'HV cable installation requires specialist jointing (heat-shrink terminations) and testing (HV insulation testing). NOT standard M&E scope.',
+        flag_if: 'Any HV cable shown — flag as specialist scope.'
+      }
+    },
+
+    dno_interface: {
+      note: 'DNO (Distribution Network Operator) involvement is required for:',
+      items: [
+        'New HV supply connection or upgrade',
+        'Transformer installation or replacement',
+        'Ring main unit installation',
+        'Metering (fiscal/utility)',
+        'Maximum demand assessment'
+      ],
+      uk_dnos: ['UKPN (London, South East, East)', 'WPD / National Grid (South West, Midlands, Wales)', 'SSEN (Scotland, Southern)', 'NPG (North East, Yorkshire)', 'Electricity North West', 'SP Energy Networks (Scotland, Merseyside, Wales)'],
+      lead_time: '12-52 weeks depending on scope. ALWAYS flag lead time risk for HV works.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     6. EARTHING SYSTEM
+     ══════════════════════════════════════════════════════════════ */
+  earthing: {
+    rule: 'Earthing is MANDATORY for every electrical installation per BS 7671. Flag if no earthing strategy is shown on drawings or specified.',
+
+    earth_electrode: {
+      name: 'Earth Electrode / Ground Rod',
+      function: 'Provides a physical connection to earth (soil). Required for TT earthing systems and supplementary earthing.',
+      types: {
+        driven_rod: 'Copper-clad steel rod driven into ground. Standard: 1.2m, 2.4m, or 3.0m sections. Multiple sections coupled for depth.',
+        earth_mat: 'Buried copper mesh/tape — for larger installations, substations.',
+        foundation_earth: 'Copper tape/cable embedded in building foundations during construction.'
+      },
+      specification_required: ['Type (rod, mat, foundation)', 'Target earth resistance (Ω — typically <10Ω, <1Ω for substations)', 'Number of rods', 'Depth'],
+      drawing_notations: ['earth rod', 'electrode', 'earth pit', 'test point'],
+      count_rule: 'Count every electrode. Note type and target resistance. Rods may need multiple sections to achieve required resistance.',
+      associated: ['Earth pit/inspection chamber (1nr per electrode)', 'Earth cable from electrode to earth bar']
+    },
+
+    earth_bar: {
+      name: 'Main Earth Bar / Earth Terminal',
+      function: 'Central connection point for all earthing conductors in the building or section.',
+      types: {
+        main_earth_terminal: 'MET — main earth terminal. One per building. Connection point for utility earth, electrode, and main protective conductors.',
+        supplementary_earth_bar: 'SEB — local earth bar in switchroom, plant room, or riser. Connects local earthing to main earth system.'
+      },
+      specification_required: ['Size (typically 50×6mm or 100×6mm copper bar)', 'Number of connection holes', 'Location'],
+      drawing_notations: ['MET', 'earth bar', 'EB', 'main earth', 'SEB'],
+      count_rule: 'Count every earth bar. Typically: 1nr MET + 1nr SEB per switchroom/plant room.',
+      note: 'Earth bars are mounted on insulated standoffs. Include mounting brackets and insulated supports.'
+    },
+
+    earth_cable: {
+      name: 'Earth Cable / Protective Conductor',
+      measurement: 'm (linear metres). Note conductor size (mm²).',
+      types: {
+        main_protective: 'Main protective conductor — from MET to main switchboard and to earth electrode. Green/yellow PVC or bare copper.',
+        supplementary_bonding: 'Supplementary bonding conductors — connecting exposed metalwork in zones (bathrooms, plant rooms).',
+        circuit_cpc: 'Circuit protective conductor — within each circuit cable (usually integral). Not separately measured unless singles in conduit.'
+      },
+      typical_sizes: {
+        '6mm²': 'Supplementary bonding (bathrooms, mechanical equipment)',
+        '10mm²': 'Supplementary bonding (larger equipment, pipework)',
+        '16mm²': 'Main bonding (gas, water, structural steel)',
+        '25mm²': 'Main protective conductor (small installation)',
+        '35mm²': 'Main protective conductor (medium installation)',
+        '50mm²': 'Main protective conductor (large installation)',
+        '70mm²': 'Main protective conductor to electrode (large)',
+        '120mm²': 'Main earth conductor (very large installation / substation)'
+      },
+      drawing_notations: ['earth cable', 'CPC', 'protective conductor', 'bonding conductor', 'green/yellow'],
+      note: 'Earth cable sizes are determined by BS 7671 calculations based on fault current. If not stated on drawings, flag for design check.'
+    },
+
+    bonding: {
+      name: 'Bonding Connections',
+      types: {
+        main_bonding: {
+          name: 'Main Protective Bonding',
+          function: 'Connects extraneous-conductive-parts (gas pipe, water pipe, structural steel) to MET within 600mm of building entry.',
+          items_to_bond: ['Incoming gas pipe', 'Incoming water main', 'Structural steelwork', 'Lightning protection system', 'Oil supply pipe (if present)', 'Other metallic services entering the building'],
+          conductor_size: '10mm² minimum, 25mm² typical for commercial.',
+          count_rule: 'Count 1nr bonding connection per service entering the building. Note conductor size and clamp type.'
+        },
+        supplementary_bonding: {
+          name: 'Supplementary Bonding',
+          function: 'Connects exposed metalwork within a zone to local earth — bathrooms, plant rooms, swimming pools.',
+          items_to_bond: ['Pipework (copper — exposed)', 'Radiators', 'Air conditioning units', 'Structural steel (accessible)', 'Cable tray/basket', 'Metal ductwork (if accessible)', 'Baths, sinks, showers (metal components)'],
+          conductor_size: '4mm² minimum, 6mm² typical.',
+          count_rule: 'Count 1nr bonding clamp per connection point. Can be many in a large plant room.',
+          note: 'BS 7671 18th Edition reduced supplementary bonding requirements in bathrooms IF main bonding and RCD protection is in place. Check spec.'
+        }
+      },
+      clamp_types: {
+        pipe_clamp: 'Brass clamp for copper/steel pipework.',
+        lug_clamp: 'Bolt-on lug for structural steel.',
+        earth_tag: 'Crimped lug for cable tray/basket.',
+        note: 'Count clamps as nr items. State size range (pipe diameter or steel thickness).'
+      }
+    },
+
+    flag_triggers: [
+      'No earthing strategy shown on drawings — flag as CRITICAL. Earthing is mandatory per BS 7671.',
+      'No main earth bar (MET) shown — flag.',
+      'No earth electrode shown and earthing system type (TN-S, TN-C-S, TT) not stated — flag.',
+      'No main bonding shown to gas, water, steel — flag.',
+      'Plant room shown without supplementary bonding — flag.',
+      'Bathroom/wet area without supplementary bonding assessment — flag for review.'
+    ],
+
+    earthing_systems: {
+      'TN-S': 'Separate neutral and earth from utility. Earth via utility cable sheath. Most reliable.',
+      'TN-C-S': 'Combined neutral/earth (PME) from utility, separated at building intake. Common in UK.',
+      'TT': 'No earth from utility — building must provide its own earth electrode. Common in rural areas.',
+      note: 'Earthing system type affects: electrode requirements, fault loop impedance, RCD selection. Check with DNO or incoming supply details.'
+    }
+  }
+};
+
+module.exports = KB_E03;

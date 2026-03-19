@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.0';
+const KB_VERSION = '6.1';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 36;
+const KB_VERSION_SOURCES = 37;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -41,6 +41,7 @@ const KB_M03 = require('./kb-m03-hvac-ductwork');
 const KB_M04 = require('./kb-m04-mechanical-plant');
 const KB_E01 = require('./kb-e01-cable-types');
 const KB_E02 = require('./kb-e02-containment');
+const KB_E03 = require('./kb-e03-electrical-equipment');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1029,7 +1030,26 @@ function getFullKnowledgeBase() {
     '  Flag: any fire/life-safety cables sharing containment with power.',
 
     'Fill: Tray 50%, trunking 45%, conduit 40% max. Spare: 30-40% typical.',
-    'Supports: tray/ladder 1.5m, trunking 1.0m, rigid conduit 0.75m, flex conduit 0.5m, busbar 1.5-2.0m.'
+    'Supports: tray/ladder 1.5m, trunking 1.0m, rigid conduit 0.75m, flex conduit 0.5m, busbar 1.5-2.0m.',
+
+    '### KB-E03: Electrical Equipment & Distribution',
+    'Switchgear (nr): MSP/main switchboard (kVA/A, ways, form of separation 1-4), DB (A, phases, ways, MCB/RCBO), Consumer unit (metal per 18th Ed), MCC (starters, VFDs), PFC panel (kVAr), MCCB panel.',
+    '  DB naming: DB-L-GF = Lighting Ground Floor, DB-P-02 = Power 2nd Floor.',
+
+    'Transformers (nr): HV/LV (kVA, 11kV→400V, ALWAYS FLAG SPECIALIST), Step-down (LV/LV), Isolating (medical IT, bathrooms).',
+
+    'Standby Power (nr): Generator (kVA, diesel, fuel tank + exhaust + ventilation + ATS required), UPS (kVA, autonomy mins, battery type), ATS (A, open/closed transition), Battery bank (Ah, ventilation for VRLA).',
+
+    'Metering (nr): Utility meter (FLAG — utility scope, 12-20 week lead), Sub-meters with CTs (3nr CT per 3-phase circuit), PMU, AMR system.',
+
+    'HV Equipment (ALWAYS FLAG SPECIALIST): RMU, HV switchgear, HV cable. DNO involvement mandatory. Lead time 12-52 weeks.',
+
+    'Earthing (MANDATORY per BS 7671):',
+    '  Earth electrode (nr), Earth bar MET+SEB (nr), Earth cable (m, note mm²), Bonding clamps (nr).',
+    '  Main bonding: gas, water, steel — 1nr clamp per service, 25mm² typical commercial.',
+    '  Supplementary bonding: plant rooms, bathrooms — 1nr clamp per connection, 6mm² typical.',
+    '  Systems: TN-S (utility earth), TN-C-S (PME, common UK), TT (own electrode, rural).',
+    '  Flag if NO earthing strategy shown — this is critical.'
   ].join('\n\n');
 }
 
@@ -1065,7 +1085,8 @@ function getSection(sectionName) {
     hvac_ductwork: KB_M03,
     mechanical_plant: KB_M04,
     cable_types: KB_E01,
-    containment: KB_E02
+    containment: KB_E02,
+    electrical_equipment: KB_E03
   };
   return sections[sectionName] || null;
 }
@@ -1121,5 +1142,6 @@ module.exports = {
   KB_M03,
   KB_M04,
   KB_E01,
-  KB_E02
+  KB_E02,
+  KB_E03
 };
