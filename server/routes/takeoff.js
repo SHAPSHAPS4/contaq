@@ -4,6 +4,7 @@ const { kbInjectionMiddleware } = require('../kb/middleware');
 const { callAI } = require('../services/ai');
 const { logSession } = require('../services/session-logger');
 const { validateExtraction, generateValidationReport } = require('../services/extraction-validator');
+const { checkScope } = require('../services/scope-checker');
 
 router.post('/consolidate', kbInjectionMiddleware, async (req, res) => {
   const startTime = Date.now();
@@ -43,8 +44,11 @@ router.post('/consolidate', kbInjectionMiddleware, async (req, res) => {
       model: model || 'claude-sonnet-4-6',
     });
 
+    // Run scope completeness check on the consolidated takeoff
+    const scopeCheck = checkScope(result.data);
+
     const duration = Date.now() - startTime;
-    logSession({ type: 'takeoff_consolidate', project_ref, duration_ms: duration, tokens: result.usage });
+    logSession({ type: 'takeoff_consolidate', project_ref, duration_ms: duration, tokens: result.usage, scope_gaps: scopeCheck.scope_gaps_found });
 
     res.json({
       success: true,
@@ -52,6 +56,8 @@ router.post('/consolidate', kbInjectionMiddleware, async (req, res) => {
       duration_ms: duration,
       usage: result.usage,
       takeoff: result.data,
+      scope_check: scopeCheck,
+      scope_gaps_warning: scopeCheck.scope_gaps_found > 0,
     });
   } catch (err) {
     console.error('[takeoff/consolidate]', err.message);

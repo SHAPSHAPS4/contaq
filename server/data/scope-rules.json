@@ -1,0 +1,124 @@
+{
+  "version": "1.0",
+  "rules": [
+    {
+      "rule_id": "SC-M-001",
+      "trade": "Mechanical",
+      "trigger_condition": "Any LTHW pipework present with total length > 10m",
+      "trigger_keywords": ["lthw","heating pipe","hot water pipe","copper pipe","steel pipe"],
+      "trigger_min_quantity": 10,
+      "trigger_unit": "m",
+      "implied_items": [
+        { "description": "Isolation valves (estimated 1 per 15m pipe run)", "unit": "nr", "estimate_formula": "trigger_quantity / 15", "minimum": 2 },
+        { "description": "Double regulating valves (estimated 1 per branch)", "unit": "nr", "estimate_formula": "trigger_quantity / 20", "minimum": 1 },
+        { "description": "Y-type strainers at pump inlets", "unit": "nr", "estimate_formula": "fixed:1", "minimum": 1 },
+        { "description": "Commissioning set at each index circuit", "unit": "nr", "estimate_formula": "fixed:1", "minimum": 1 }
+      ]
+    },
+    {
+      "rule_id": "SC-M-002",
+      "trade": "Mechanical",
+      "trigger_condition": "Any pump present",
+      "trigger_keywords": ["pump","circulator"],
+      "trigger_min_quantity": 1,
+      "trigger_unit": "nr",
+      "implied_items": [
+        { "description": "Flexible connections at pump connections", "unit": "nr", "estimate_formula": "trigger_quantity * 2", "minimum": 2 },
+        { "description": "Isolation valves at pump connections", "unit": "nr", "estimate_formula": "trigger_quantity * 2", "minimum": 2 },
+        { "description": "Non-return valve on pump discharge", "unit": "nr", "estimate_formula": "trigger_quantity", "minimum": 1 },
+        { "description": "Strainer on pump suction", "unit": "nr", "estimate_formula": "trigger_quantity", "minimum": 1 }
+      ]
+    },
+    {
+      "rule_id": "SC-M-003",
+      "trade": "Mechanical",
+      "trigger_condition": "Any boiler present",
+      "trigger_keywords": ["boiler","heat generator","heat source"],
+      "trigger_min_quantity": 1,
+      "trigger_unit": "nr",
+      "implied_items": [
+        { "description": "Safety relief valve on boiler", "unit": "nr", "estimate_formula": "trigger_quantity", "minimum": 1 },
+        { "description": "Expansion vessel sized for system", "unit": "nr", "estimate_formula": "fixed:1", "minimum": 1 },
+        { "description": "Pressurisation unit", "unit": "nr", "estimate_formula": "fixed:1", "minimum": 1 },
+        { "description": "Gas service isolation valve", "unit": "nr", "estimate_formula": "trigger_quantity", "minimum": 1 },
+        { "description": "Flue system (allow provisional)", "unit": "nr", "estimate_formula": "trigger_quantity", "minimum": 1 }
+      ]
+    },
+    {
+      "rule_id": "SC-M-004",
+      "trade": "Mechanical",
+      "trigger_condition": "Any AHU or MVHR present",
+      "trigger_keywords": ["ahu","air handling unit","mvhr","heat recovery"],
+      "trigger_min_quantity": 1,
+      "trigger_unit": "nr",
+      "implied_items": [
+        { "description": "Flexible ductwork connections at AHU", "unit": "nr", "estimate_formula": "trigger_quantity * 2", "minimum": 2 },
+        { "description": "Access doors adjacent to AHU", "unit": "nr", "estimate_formula": "trigger_quantity * 2", "minimum": 2 },
+        { "description": "Anti-vibration mounts for AHU", "unit": "nr", "estimate_formula": "trigger_quantity * 4", "minimum": 4 }
+      ]
+    },
+    {
+      "rule_id": "SC-E-001",
+      "trade": "Electrical",
+      "trigger_condition": "Any distribution board present",
+      "trigger_keywords": ["distribution board","db","consumer unit","panel board"],
+      "trigger_min_quantity": 1,
+      "trigger_unit": "nr",
+      "implied_items": [
+        { "description": "Earth bar at each distribution board", "unit": "nr", "estimate_formula": "trigger_quantity", "minimum": 1 },
+        { "description": "Main earth cable from DB to earth electrode", "unit": "m", "estimate_formula": "fixed:10", "minimum": 5 },
+        { "description": "DB label and circuit schedule", "unit": "nr", "estimate_formula": "trigger_quantity", "minimum": 1 }
+      ]
+    },
+    {
+      "rule_id": "SC-E-002",
+      "trade": "Electrical",
+      "trigger_condition": "Any cable containment present with length > 20m",
+      "trigger_keywords": ["cable tray","cable ladder","trunking","containment"],
+      "trigger_min_quantity": 20,
+      "trigger_unit": "m",
+      "implied_items": [
+        { "description": "Containment brackets and supports (1 per 1.5m)", "unit": "nr", "estimate_formula": "trigger_quantity / 1.5", "minimum": 10 },
+        { "description": "Earth continuity bonding straps (1 per 10m)", "unit": "nr", "estimate_formula": "trigger_quantity / 10", "minimum": 2 },
+        { "description": "Containment end caps and accessories (allow 10%)", "unit": "nr", "estimate_formula": "trigger_quantity * 0.1", "minimum": 5 }
+      ]
+    },
+    {
+      "rule_id": "SC-E-003",
+      "trade": "Electrical",
+      "trigger_condition": "Any fire alarm devices present",
+      "trigger_keywords": ["smoke detector","heat detector","call point","mcp","sounder","fire alarm"],
+      "trigger_min_quantity": 1,
+      "trigger_unit": "nr",
+      "implied_items": [
+        { "description": "Fire alarm control panel (if not in extraction)", "unit": "nr", "estimate_formula": "fixed:1", "minimum": 1 },
+        { "description": "Fire alarm cable FP200 (allow 5m per device)", "unit": "m", "estimate_formula": "trigger_quantity * 5", "minimum": 20 },
+        { "description": "Zone chart and cause-and-effect matrix", "unit": "nr", "estimate_formula": "fixed:1", "minimum": 1 }
+      ]
+    },
+    {
+      "rule_id": "SC-I-001",
+      "trade": "Insulation",
+      "trigger_condition": "Any LTHW pipework present",
+      "trigger_keywords": ["lthw","heating pipe","copper pipe lthw"],
+      "trigger_min_quantity": 1,
+      "trigger_unit": "m",
+      "implied_items": [
+        { "description": "Pipe insulation on all LTHW pipework (if not in extraction)", "unit": "m", "estimate_formula": "trigger_quantity", "minimum": 10 },
+        { "description": "Valve insulation boxes at all isolation valves", "unit": "nr", "estimate_formula": "trigger_quantity / 15", "minimum": 2 }
+      ]
+    },
+    {
+      "rule_id": "SC-I-002",
+      "trade": "Insulation",
+      "trigger_condition": "Any chilled water pipework present",
+      "trigger_keywords": ["chw","chilled water","cooling pipe"],
+      "trigger_min_quantity": 1,
+      "trigger_unit": "m",
+      "implied_items": [
+        { "description": "Elastomeric insulation with vapour barrier on all CHW pipework", "unit": "m", "estimate_formula": "trigger_quantity", "minimum": 5 },
+        { "description": "Insulation to all CHW valves and flanges", "unit": "nr", "estimate_formula": "trigger_quantity / 10", "minimum": 2 }
+      ]
+    }
+  ]
+}
