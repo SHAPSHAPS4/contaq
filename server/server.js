@@ -11,6 +11,11 @@ const os = require('node:os');
 
 /* ── Cluster: fork one worker per CPU core ────────────────────────── */
 if (cluster.isPrimary) {
+  // Initialise KB in primary process (validates files, creates learning dir)
+  require('dotenv').config();
+  const { initKB } = require('./knowledge/kb-init');
+  initKB();
+
   const numWorkers = Math.max(2, os.cpus().length);
   console.log(`[Contraq API] Primary process ${process.pid} — forking ${numWorkers} workers`);
 
