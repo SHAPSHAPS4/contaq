@@ -1,0 +1,400 @@
+/**
+ * KB-M04: Mechanical Plant & Equipment
+ *
+ * Structured reference for heat sources, hot water generation,
+ * cooling plant, distribution equipment, water treatment,
+ * gas equipment, and equipment schedule rules.
+ * Injected into extraction prompts at runtime.
+ *
+ * Part of Contraq M&E Knowledge Base v5.8
+ * Source: CIBSE Guide B, BSRIA, UK M&E plant practice
+ */
+
+const KB_M04 = {
+  id: 'KB-M04',
+  title: 'Mechanical Plant & Equipment',
+  version: '1.0',
+  date: '2026-03-18',
+
+  /* ══════════════════════════════════════════════════════════════
+     1. HEAT SOURCES
+     ══════════════════════════════════════════════════════════════ */
+  heat_sources: {
+    unit: 'nr',
+    rule: 'Count every heat source individually. Extract full specification from equipment schedule. Flag if specification is incomplete.',
+
+    gas_boiler: {
+      name: 'Gas Boiler',
+      function: 'Primary heat generation — burns natural gas to heat water',
+      specification_required: ['Output capacity (kW)', 'Type (condensing / non-condensing)', 'Configuration (wall-hung / floor-standing)', 'Flue type (room-sealed / open-flue)', 'Flow/return temperatures', 'Gas type (natural gas / LPG)', 'NOx class', 'Modulation range'],
+      drawing_notations: ['Boiler', 'B-01', 'Gas Boiler', 'GB', 'condensing boiler'],
+      associated_items: ['Flue/chimney system (m linear + terminal)', 'Gas connection and isolation valve', 'Condensate drain (condensing type)', 'Pump(s) — shunt/system', 'Expansion vessel', 'Safety valve', 'Air separator / dirt separator', 'Low loss header (multiple boiler installations)', 'Controls / BMS interface', 'Vibration mounts'],
+      cascade_note: 'Multiple boilers in cascade = count each boiler + cascade controller (1nr) + common header + hydraulic separator. Each boiler has its own flue, gas connection, and isolation valves.',
+      flag_if: ['Capacity not stated', 'Condensing/non-condensing not specified', 'Flue route not shown on drawings']
+    },
+    electric_boiler: {
+      name: 'Electric Boiler',
+      function: 'Heat generation using electrical resistance elements — no gas, no flue',
+      specification_required: ['Output capacity (kW)', 'Electrical supply (single/three phase)', 'Flow/return temperatures', 'Number of heating stages'],
+      drawing_notations: ['Electric Boiler', 'EB', 'E-Boiler'],
+      associated_items: ['Electrical supply (dedicated circuit — cross-reference KB-E)', 'Pump(s)', 'Expansion vessel', 'Safety valve', 'Controls'],
+      note: 'No flue or gas connection needed. Requires heavy electrical supply — check electrical capacity.',
+      flag_if: ['kW not stated', 'Electrical supply not confirmed']
+    },
+    heat_pump: {
+      name: 'Heat Pump (ASHP / GSHP / WSHP)',
+      function: 'Extracts heat from air, ground, or water source — high efficiency heating (and often cooling)',
+      types: {
+        ashp: {
+          name: 'Air Source Heat Pump (ASHP)',
+          location: 'External — roof, ground level, or plant compound',
+          notes: 'Needs clear airflow around unit. Noise to neighbours may be an issue. Defrost cycle in winter.'
+        },
+        gshp: {
+          name: 'Ground Source Heat Pump (GSHP)',
+          location: 'Internal plant room. Ground loop array external (boreholes or horizontal trenches).',
+          notes: 'Higher COP than ASHP but requires ground works. Ground loop is a significant additional cost.'
+        },
+        wshp: {
+          name: 'Water Source Heat Pump (WSHP)',
+          location: 'Internal. Water source: river, lake, aquifer, or closed-loop ground water.',
+          notes: 'Requires abstraction licence if open-loop. Heat rejection to water source.'
+        }
+      },
+      specification_required: ['Heating capacity (kW)', 'Cooling capacity (kW, if reversible)', 'COP (Coefficient of Performance)', 'SCOP (Seasonal COP)', 'Refrigerant type (R32, R290, R410A)', 'Flow temperatures (often lower than boiler: 45-55°C)', 'Electrical supply', 'Sound power level (dB)'],
+      drawing_notations: ['ASHP', 'HP', 'Heat Pump', 'GSHP', 'WSHP', 'HP-01'],
+      associated_items: ['Buffer vessel (often required for heat pumps)', 'Circulation pump(s)', 'Expansion vessel', 'Glycol fill (if outdoor pipework)', 'Controls / BMS', 'Vibration mounts', 'Acoustic enclosure (if noise-sensitive)', 'Ground loop array (GSHP only — measured in m of borehole or m of trench)'],
+      flag_if: ['COP not stated', 'Flow temperature not confirmed (affects radiator sizing)', 'Refrigerant type not specified', 'Ground loop details not provided (GSHP)']
+    },
+    chp: {
+      name: 'CHP Unit (Combined Heat and Power)',
+      function: 'Generates electricity AND heat simultaneously from gas. Electrical output offsets grid import.',
+      specification_required: ['Electrical output (kWe)', 'Thermal output (kWth)', 'Fuel type (natural gas)', 'Heat-to-power ratio', 'Running hours strategy'],
+      drawing_notations: ['CHP', 'CHP-01', 'cogeneration'],
+      associated_items: ['Gas connection (larger than boiler equivalent)', 'Flue system', 'Electrical switchgear and G59 interface', 'Thermal store / buffer', 'Pumps', 'Plate heat exchanger', 'Acoustic enclosure', 'Vibration isolation'],
+      note: 'CHP is complex — involves both mechanical AND electrical scope. Cross-reference KB-E for electrical generation interface.',
+      flag_if: ['Electrical and thermal outputs not both stated', 'G59 electrical interface not addressed', 'Acoustic treatment not specified']
+    },
+    district_hiu: {
+      name: 'District Heating HIU (Heat Interface Unit)',
+      function: 'Connects building to district heating network — plate heat exchanger between primary (district) and secondary (building) circuits',
+      specification_required: ['Heating capacity (kW)', 'DHW capacity (kW or l/min)', 'Primary flow/return temperatures', 'Secondary flow/return temperatures', 'Integrated or separate DHW'],
+      drawing_notations: ['HIU', 'Heat Interface', 'district heating', 'DH'],
+      associated_items: ['Primary connection (by district heating operator)', 'Secondary pumps', 'Expansion vessel', 'Controls', 'Energy meter'],
+      note: 'HIU replaces boiler plant. Primary side is typically by the district heating company. Secondary side is the M&E contractor scope.',
+      flag_if: ['Primary connection responsibility not clarified (often by others)', 'Capacity not stated']
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     2. HOT WATER GENERATION
+     ══════════════════════════════════════════════════════════════ */
+  hot_water: {
+    unit: 'nr',
+    rule: 'Count every HW generation unit. Note storage capacity (litres) and heating capacity (kW). L8 compliance affects storage temperature (60°C min) and distribution temperature (50°C at outlets).',
+
+    calorifier: {
+      name: 'Calorifier / Indirect Cylinder',
+      function: 'Stores hot water heated by an indirect coil (LTHW or steam)',
+      specification_required: ['Storage capacity (litres)', 'Coil rating / recovery rate (kW)', 'Primary medium (LTHW / steam)', 'Material (copper, stainless steel, glass-lined steel)', 'Standing heat loss (kWh/24hr)', 'Connections (primary in/out, secondary flow/return, cold feed, drain, T&P relief)'],
+      drawing_notations: ['Cal', 'CAL', 'calorifier', 'HW cylinder', 'DHW vessel', 'Cal-01'],
+      associated_items: ['Primary control valve (2-port or 3-port)', 'Primary pump (if dedicated)', 'Temperature sensor / thermostat', 'Safety valve (T&P relief)', 'Tundish and discharge pipe', 'Cold water feed connection', 'Secondary circulation pump', 'Insulation (always — cross-reference KB-I)', 'Expansion vessel (secondary side)', 'Drain valve'],
+      typical_sizes: ['100L (small domestic)', '150-200L (large domestic)', '300-500L (small commercial)', '500-1000L (medium commercial)', '1000-3000L (large commercial)'],
+      flag_if: ['Capacity not stated', 'Material not specified', 'L8 compliance not addressed in spec']
+    },
+    direct_electric: {
+      name: 'Direct Electric Water Heater',
+      function: 'Heats water directly using immersion elements — no primary heating circuit needed',
+      specification_required: ['Storage capacity (litres)', 'Heating element rating (kW)', 'Electrical supply', 'Recovery time'],
+      drawing_notations: ['EWH', 'electric water heater', 'immersion heater', 'unvented cylinder'],
+      associated_items: ['Electrical supply (dedicated circuit)', 'Pressure relief valve', 'Expansion vessel', 'Tundish'],
+      note: 'Common for point-of-use applications and where no central heating is available. Requires dedicated electrical circuit — cross-reference KB-E.',
+      flag_if: ['kW rating not stated', 'Electrical supply not confirmed']
+    },
+    instantaneous: {
+      name: 'Instantaneous Water Heater',
+      function: 'Heats water on demand with no storage — gas or electric',
+      types: {
+        gas: 'Gas-fired continuous flow (e.g. Rinnai, Bosch) — high flow rate, requires flue and gas connection.',
+        electric: 'Electric instantaneous — typically low flow rate (hand wash only), high kW for flow rate provided.'
+      },
+      specification_required: ['Flow rate (l/min at stated temperature rise)', 'Energy source (gas/electric)', 'kW rating', 'Temperature rise (°C)'],
+      drawing_notations: ['IWH', 'instant', 'multipoint', 'continuous flow'],
+      flag_if: ['Flow rate not stated', 'Energy source not confirmed']
+    },
+    thermal_store: {
+      name: 'Thermal Store',
+      function: 'Stores heat (not hot water) — primary water in vessel, DHW heated by passing through coil in store',
+      specification_required: ['Capacity (litres)', 'Heat input (kW)', 'DHW output (l/min at stated rise)'],
+      drawing_notations: ['TS', 'thermal store', 'heat store'],
+      note: 'Different from a calorifier — in a thermal store, the stored water is the primary (heating) water, not the domestic hot water. DHW is heated instantaneously by passing cold mains through a coil.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     3. COOLING PLANT
+     ══════════════════════════════════════════════════════════════ */
+  cooling: {
+    unit: 'nr',
+    rule: 'Count every cooling plant item. Note capacity (kW cooling). Cooling plant has significant electrical load — cross-reference KB-E.',
+
+    chiller: {
+      name: 'Chiller',
+      function: 'Produces chilled water (typically 6°C flow, 12°C return) for air conditioning',
+      types: {
+        air_cooled: {
+          name: 'Air-Cooled Chiller',
+          location: 'External — roof or ground level plant compound',
+          notes: 'Self-contained with integral condenser fans. No cooling tower needed. Lower efficiency than water-cooled. Noise consideration for neighbours.'
+        },
+        water_cooled: {
+          name: 'Water-Cooled Chiller',
+          location: 'Internal plant room. Requires separate cooling tower or dry cooler externally.',
+          notes: 'Higher efficiency than air-cooled. Requires condenser water circuit (additional pumps, pipework, cooling tower). More complex system.'
+        }
+      },
+      specification_required: ['Cooling capacity (kW)', 'Type (air-cooled / water-cooled)', 'Refrigerant (R32, R410A, R1234ze, R290)', 'COP / EER / SEER', 'ChW flow/return temperatures', 'Electrical supply (typically 3-phase)', 'Sound power level (dB)', 'Part load performance'],
+      drawing_notations: ['CH', 'Chiller', 'CH-01', 'AWHP (if reversible heat pump/chiller)'],
+      associated_items: ['Primary ChW pumps', 'Expansion vessel (ChW)', 'Buffer vessel (often required)', 'Control valves', 'Strainers', 'Vibration isolation', 'Acoustic treatment', 'Glycol (if frost risk)', 'Condenser water pumps and pipework (water-cooled only)'],
+      flag_if: ['Capacity not stated', 'Type not specified', 'Refrigerant not specified (F-gas regulations)', 'Electrical supply not confirmed']
+    },
+    cooling_tower: {
+      name: 'Cooling Tower',
+      function: 'Rejects heat from water-cooled chiller condenser circuit to atmosphere via evaporation',
+      specification_required: ['Heat rejection capacity (kW)', 'Type (open/closed circuit)', 'Approach temperature', 'Water treatment requirements (L8 Legionella)'],
+      drawing_notations: ['CT', 'cooling tower', 'CT-01'],
+      associated_items: ['Condenser water pumps', 'Water treatment (chemical dosing — L8 requirement)', 'Make-up water connection', 'Drain', 'Basin heater (frost protection)'],
+      note: 'L8 ACOP applies to open cooling towers — requires water treatment, monitoring, and risk assessment. This is a LEGAL REQUIREMENT.',
+      flag_if: ['L8 water treatment not addressed in spec', 'Capacity not stated']
+    },
+    dry_cooler: {
+      name: 'Dry Cooler / Adiabatic Cooler',
+      function: 'Rejects heat to atmosphere without evaporation (closed circuit) — alternative to cooling tower',
+      specification_required: ['Heat rejection capacity (kW)', 'Fluid temperatures', 'Glycol percentage', 'Fan power (kW)'],
+      drawing_notations: ['DC', 'dry cooler', 'DC-01', 'adiabatic cooler'],
+      note: 'No L8 Legionella risk (closed circuit). Lower efficiency than cooling tower but simpler and lower maintenance.',
+      flag_if: ['Capacity not stated', 'Glycol requirement not confirmed']
+    },
+    dx_split: {
+      name: 'DX Split System',
+      function: 'Direct expansion cooling — refrigerant-based, typically for individual rooms or server rooms',
+      specification_required: ['Cooling capacity (kW)', 'Indoor unit type (wall/cassette/ducted)', 'Refrigerant (R32, R410A)', 'Electrical supply'],
+      drawing_notations: ['DX', 'split', 'AC', 'split system', 'comfort cooling'],
+      associated_items: ['Indoor unit (nr)', 'Outdoor unit (nr)', 'Refrigerant pipework (m — liquid + suction)', 'Condensate drain (m)', 'Electrical supply to outdoor unit', 'Controls'],
+      note: 'Simpler than VRF — typically 1 outdoor to 1 indoor (or small multi-split: 1 outdoor to 2-5 indoor). For VRF/VRV systems see KB-M03.',
+      flag_if: ['Indoor and outdoor units not both shown', 'Capacity not stated']
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     4. DISTRIBUTION EQUIPMENT
+     ══════════════════════════════════════════════════════════════ */
+  distribution: {
+    unit: 'nr',
+    rule: 'Count every distribution item. Pumps are critical — note duty point (flow rate and head). Always check for duty/standby configuration.',
+
+    pump_single: {
+      name: 'Pump (Single)',
+      function: 'Circulates water through heating, cooling, or domestic hot water circuits',
+      types: {
+        inline: 'Inline (glandless/canned rotor) — compact, pipe-mounted. Common ≤DN80. Lower maintenance.',
+        base_mounted: 'Base-mounted (end-suction) — floor-mounted on concrete plinth. For larger duties. Requires foundation.',
+        close_coupled: 'Close-coupled — motor directly coupled to pump. Compact base-mounted option.'
+      },
+      specification_required: ['Flow rate (l/s or m³/hr)', 'Head / pressure (kPa or mH₂O)', 'Motor power (kW)', 'Type (inline/base-mounted)', 'Speed control (fixed/variable — VSD)', 'Electrical supply'],
+      drawing_notations: ['P', 'P-01', 'pump', 'PUMP', 'CP (circulation pump)'],
+      associated_items: ['Isolation valves (both sides)', 'Flexible connections (both sides)', 'Strainer (suction side)', 'Non-return valve (discharge side)', 'Pressure gauge (discharge)', 'Drain valve'],
+      flag_if: ['Duty point (flow/head) not stated', 'Fixed/variable speed not specified']
+    },
+    pump_set: {
+      name: 'Pump Set (Duty/Standby)',
+      function: 'Two pumps — one operates (duty), one on standby for redundancy or peak load',
+      configurations: {
+        duty_standby: 'One pump runs, other on standby. Auto-changeover on failure or timer.',
+        duty_assist: 'One pump runs normally, second starts for peak demand.',
+        duty_duty: 'Both pumps run simultaneously, each sized for 50% of total duty.'
+      },
+      count_rule: 'Count as 1nr SET (not 2nr pumps). Note configuration (D/S, D/A, D/D). Note individual pump duty.',
+      associated_items: 'Same as single pump × 2, PLUS: common header/manifold, changeover controls, non-return valves on each discharge.',
+      flag_if: ['Configuration (D/S vs D/A) not specified', 'Individual pump duty not stated']
+    },
+    expansion_vessel: {
+      name: 'Expansion Vessel',
+      function: 'Absorbs thermal expansion of water in closed heating/cooling circuits — maintains system pressure',
+      specification_required: ['Capacity (litres)', 'Pre-charge pressure (bar)', 'Maximum working pressure (bar)', 'System it serves (LTHW/ChW/DHW)'],
+      drawing_notations: ['EV', 'exp vessel', 'expansion vessel', 'EV-01'],
+      count_rule: 'Count every vessel. Note capacity. One per closed circuit typically.',
+      note: 'Expansion vessel is a MANDATORY item for every sealed/pressurised system. If not shown on drawings but sealed system exists, flag as potentially missing.',
+      flag_if: ['Capacity not stated', 'Pre-charge not specified', 'Missing from sealed system']
+    },
+    pressurisation_unit: {
+      name: 'Pressurisation Unit / Pressurisation Set',
+      function: 'Maintains system pressure automatically — combines expansion vessel, pressure switches, top-up valve, and controls',
+      specification_required: ['System volume (litres)', 'Fill pressure (bar)', 'Maximum pressure (bar)', 'Make-up water connection'],
+      drawing_notations: ['PU', 'press unit', 'pressurisation', 'PU-01'],
+      note: 'Replaces simple expansion vessel + filling loop for larger commercial systems. Includes integral pressure gauges, safety valve, and low-pressure alarm.',
+      flag_if: ['System volume/pressure not stated']
+    },
+    buffer_vessel: {
+      name: 'Buffer Vessel / Thermal Buffer',
+      function: 'Provides thermal mass to prevent short-cycling of heat pumps, boilers, or chillers. Smooths load fluctuations.',
+      specification_required: ['Capacity (litres)', 'System served (heating/cooling)', 'Connections (flow/return, drain)', 'Insulation (always required)'],
+      drawing_notations: ['BV', 'buffer', 'buffer vessel', 'thermal buffer', 'BV-01'],
+      note: 'Particularly important for heat pump systems — prevents compressor short-cycling. Also used for chiller systems with variable flow.',
+      flag_if: ['Capacity not stated', 'Heat pump system shown without buffer vessel — flag as potentially missing']
+    },
+    plate_heat_exchanger: {
+      name: 'Plate Heat Exchanger (PHE)',
+      function: 'Transfers heat between two fluid circuits without mixing them',
+      types: {
+        brazed: 'Brazed plate — compact, non-demountable. Standard for small-medium duties.',
+        gasket: 'Gasketed plate — demountable for cleaning. Standard for larger duties and where fouling is expected.'
+      },
+      specification_required: ['Duty (kW)', 'Primary flow/return temperatures', 'Secondary flow/return temperatures', 'Primary and secondary flow rates', 'Plate material (stainless steel standard)'],
+      drawing_notations: ['PHE', 'HX', 'heat exchanger', 'HE-01'],
+      associated_items: ['Isolation valves (both circuits)', 'Strainers (both circuits)', 'Pressure gauges', 'Temperature sensors', 'Drain valves'],
+      flag_if: ['Duty (kW) not stated', 'Temperatures not specified']
+    },
+    low_loss_header: {
+      name: 'Low Loss Header / Hydraulic Separator',
+      function: 'Decouples primary (boiler/heat pump) circuit from secondary (distribution) circuit. Allows independent flow rates.',
+      specification_required: ['Capacity (kW)', 'Primary and secondary flow rates', 'Connections (primary in/out, secondary in/out, drain, air vent)'],
+      drawing_notations: ['LLH', 'hydraulic separator', 'decoupler', 'buffer header'],
+      note: 'Required for multi-boiler/multi-pump systems. Allows primary and secondary circuits to have different flow rates.',
+      flag_if: ['Multiple boilers/heat pumps shown without hydraulic separation — flag as potentially missing']
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     5. WATER TREATMENT
+     ══════════════════════════════════════════════════════════════ */
+  water_treatment: {
+    unit: 'nr',
+    rule: 'Count every water treatment item. Often specified in commissioning section of spec rather than on drawings. Check both.',
+
+    chemical_dosing: {
+      name: 'Chemical Dosing Pot / Feeder',
+      function: 'Introduces corrosion inhibitor and biocide into closed heating/cooling systems',
+      specification_required: ['Capacity (litres)', 'System served', 'Chemical type (inhibitor/biocide)'],
+      drawing_notations: ['dosing pot', 'chemical feeder', 'CF', 'inhibitor pot'],
+      note: 'BSRIA BG 29 requires chemical treatment for all closed water systems. If not shown on drawings, check spec — it may be specified by clause rather than drawn.',
+      flag_if: ['Closed system (LTHW/ChW) without chemical dosing — flag as potentially missing']
+    },
+    water_softener: {
+      name: 'Water Softener',
+      function: 'Removes calcium and magnesium from make-up water to prevent scale in boilers, calorifiers, and cooling systems',
+      specification_required: ['Flow rate (l/min)', 'Capacity', 'Regeneration type (automatic/manual)', 'Water and drain connections'],
+      drawing_notations: ['WS', 'softener', 'water softener'],
+      note: 'Required in hard water areas. Check local water hardness. Essential for boiler and calorifier longevity.',
+      flag_if: ['Hard water area but no softener shown — flag for spec check']
+    },
+    uv_steriliser: {
+      name: 'UV Steriliser',
+      function: 'Ultraviolet light treatment for potable water — kills bacteria without chemicals',
+      specification_required: ['Flow rate (l/min)', 'UV dose (mJ/cm²)', 'Lamp type and replacement interval'],
+      drawing_notations: ['UV', 'UV steriliser', 'ultraviolet'],
+      note: 'Sometimes required for rainwater harvesting systems or borehole water. Check spec.'
+    },
+    filtration: {
+      name: 'Filtration Unit',
+      function: 'Removes particulates from water — various types for different applications',
+      types: {
+        strainer: 'Y-strainer or basket strainer — coarse filtration at point of entry.',
+        cartridge: 'Cartridge filter — finer filtration. Replaceable cartridge element.',
+        sand: 'Sand filter — for swimming pools, cooling tower make-up.',
+        carbon: 'Activated carbon filter — for taste/odour removal, chlorine removal.'
+      },
+      count_rule: 'Count every filter unit. Note type and micron rating if specified.'
+    },
+    side_stream: {
+      name: 'Side-Stream Filtration Unit',
+      function: 'Continuously filters a portion of circulating water to remove suspended solids — extends system life',
+      specification_required: ['Flow rate (% of system volume per hour)', 'Filtration type (magnetic, cyclonic, cartridge)'],
+      drawing_notations: ['side stream', 'dirt separator', 'magnetic filter', 'SpiroTrap'],
+      note: 'Increasingly specified on commercial LTHW and ChW systems. Improves heat transfer efficiency and extends equipment life.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     6. GAS EQUIPMENT
+     ══════════════════════════════════════════════════════════════ */
+  gas: {
+    unit: 'nr',
+    rule: 'Count every gas item individually. Gas installations require Gas Safe registered installers. Flag if gas scope boundary (utility vs M&E) is unclear.',
+
+    gas_meter: {
+      name: 'Gas Meter',
+      function: 'Measures gas consumption — interface between utility supply and building installation',
+      count_rule: 'Count if shown. Usually supplied and installed by gas utility company (by others).',
+      drawing_notations: ['GM', 'gas meter', 'meter'],
+      flag_always: true,
+      flag_reason: 'Gas meter is typically a UTILITY CONNECTION — confirm if by M&E contractor or by gas utility. Coordination with utility company required. Lead time may be significant.',
+      note: 'M&E scope typically starts DOWNSTREAM of the gas meter. Upstream is utility company scope. Confirm boundary.'
+    },
+    gas_governor: {
+      name: 'Gas Governor / Pressure Regulator',
+      function: 'Reduces gas pressure from mains pressure to building operating pressure',
+      specification_required: ['Inlet pressure (mbar)', 'Outlet pressure (mbar)', 'Flow rate (m³/hr)'],
+      drawing_notations: ['governor', 'gas governor', 'pressure regulator', 'GG'],
+      note: 'Often supplied with the gas meter by the utility company. Check scope boundary.'
+    },
+    gas_solenoid: {
+      name: 'Gas Solenoid Valve',
+      function: 'Electrically operated gas shut-off valve — closes on fire alarm signal or gas detection alarm',
+      specification_required: ['Size (DN)', 'Voltage (240V/24V)', 'Fail-safe position (normally closed)', 'Interface (fire alarm / gas detection)'],
+      drawing_notations: ['GSV', 'solenoid', 'gas solenoid', 'NCEV (normally closed emergency valve)'],
+      associated_items: ['Gas detection system (if specified)', 'Fire alarm interface', 'Electrical supply'],
+      note: 'Gas solenoid valves are SAFETY items. Require electrical connection to fire alarm or gas detection panel — cross-reference KB-E.'
+    },
+    gas_unit_heater: {
+      name: 'Gas-Fired Unit Heater',
+      function: 'Direct gas-fired space heater — warehouse, workshop, loading bay heating',
+      types: {
+        warm_air: 'Warm air unit heater — fan blows air over gas-fired heat exchanger. Ceiling-suspended.',
+        radiant: 'Radiant tube heater — infrared radiant heating. Ceiling-mounted. No air movement.',
+        plaque: 'Radiant plaque heater — ceramic element. Intense localised heat.'
+      },
+      specification_required: ['Output (kW)', 'Type (warm air / radiant tube / plaque)', 'Gas type (NG / LPG)', 'Flue type', 'Mounting (ceiling-suspended / wall)'],
+      drawing_notations: ['GUH', 'unit heater', 'radiant heater', 'RTH', 'warm air heater'],
+      associated_items: ['Gas connection and isolation valve', 'Flue/exhaust (m linear + terminal)', 'Electrical supply', 'Controls (thermostat, BMS)', 'Suspension brackets/chains'],
+      flag_if: ['Output not stated', 'Flue route not shown']
+    },
+    gas_pipework: {
+      name: 'Gas Pipework (Internal Distribution)',
+      measurement: 'm (linear metres). Material: carbon steel (black steel) or copper depending on size and application.',
+      specification_required: ['Pipe material', 'Pipe size (DN)', 'Pressure rating', 'Testing pressure'],
+      drawing_notations: ['Gas', 'gas main', 'yellow line on drawings (check legend)'],
+      note: 'Gas pipework must be installed by Gas Safe registered engineers. Requires pressure testing (BS 6891). Check spec for purging and testing requirements.',
+      associated_items: ['Isolation valves at each appliance', 'Capped test points', 'Labelling (BS 1710 yellow ochre)', 'Fire stopping at penetrations']
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     7. EQUIPMENT SCHEDULE RULES
+     ══════════════════════════════════════════════════════════════ */
+  schedule_rules: {
+    priority: [
+      '1. EQUIPMENT SCHEDULE: If provided, this is the AUTHORITATIVE source. Use it for count, specification, and model selection.',
+      '2. GA DRAWING: Count equipment from drawings if no schedule exists. Extract labels and annotations for specification.',
+      '3. SPECIFICATION CLAUSES: Spec may describe equipment requirements without a schedule. Extract key parameters.',
+      '4. NEVER ESTIMATE: Do not invent equipment specifications or quantities. If information is missing, flag it.'
+    ],
+    extraction_rules: [
+      'Extract model number if shown on schedule or drawings.',
+      'Extract all performance data: capacity (kW), flow rate (l/s), pressure (kPa), electrical supply.',
+      'Note manufacturer name if specified (and whether "or approved equal" is stated).',
+      'Cross-reference schedule quantities with drawing locations — flag any discrepancies.',
+      'Equipment without ANY specification data should be flagged as "Low confidence — spec required".'
+    ],
+    associated_items_rule: 'Every major equipment item has ASSOCIATED ITEMS (valves, flexibles, strainers, connections, controls). Check the associated items list for each equipment type and include them in the takeoff. These are often not individually drawn but are always required.',
+    flag_triggers: [
+      'Equipment shown on drawing but not in schedule — flag: "On drawing but not scheduled"',
+      'Equipment in schedule but not visible on drawing — flag: "Scheduled but not located on drawing"',
+      'Equipment without capacity/specification — flag: "Specification incomplete — Low confidence"',
+      'Equipment with "TBC" or "TBA" annotation — flag: "Specification to be confirmed"',
+      'Utility connections (gas meter, electrical intake) — flag: "Confirm scope boundary — may be by others"'
+    ]
+  }
+};
+
+module.exports = KB_M04;

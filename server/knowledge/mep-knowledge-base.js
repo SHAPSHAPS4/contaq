@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '5.7';
+const KB_VERSION = '5.8';
 const KB_VERSION_DATE = '2026-03-18';
-const KB_VERSION_SOURCES = 33;
+const KB_VERSION_SOURCES = 34;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -38,6 +38,7 @@ const KB_C04 = require('./kb-c04-document-hierarchy');
 const KB_M01 = require('./kb-m01-pipe-materials');
 const KB_M02 = require('./kb-m02-fittings-valves');
 const KB_M03 = require('./kb-m03-hvac-ductwork');
+const KB_M04 = require('./kb-m04-mechanical-plant');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -962,7 +963,27 @@ function getFullKnowledgeBase() {
     'AH Plant: AHU (note capacity, coils, filters, recovery), FCU (2-pipe or 4-pipe, mounting type), MVHR, extract fans, inline fans, attenuators.',
 
     'VRF/VRV: Outdoor units (nr, kW), Indoor units (nr by type: cassette/ducted/wall/floor), Refrigerant pipe (m — TWO pipes: liquid + suction, ACR copper, brazed), Condensate drains (m).',
-    '  Refrigerant pipe insulation ALWAYS required. Branch selectors at each split (nr).'
+    '  Refrigerant pipe insulation ALWAYS required. Branch selectors at each split (nr).',
+
+    '### KB-M04: Mechanical Plant & Equipment',
+    'Heat Sources (nr): Gas boiler (kW, condensing/non-condensing, flue, cascade), Electric boiler (kW), Heat pump ASHP/GSHP/WSHP (kW, COP, refrigerant), CHP (kWe+kWth), District HIU (kW).',
+    '  Boiler cascade: count each boiler + 1nr cascade controller + common header + hydraulic separator.',
+
+    'Hot Water (nr): Calorifier (litres, coil kW, L8 compliance), Direct electric (litres, kW), Instantaneous (l/min, kW), Thermal store.',
+    '  L8: storage ≥60°C, distribution ≥50°C at outlets, cold <20°C.',
+
+    'Cooling (nr): Chiller air-cooled/water-cooled (kW, refrigerant, COP), Cooling tower (kW, L8 water treatment MANDATORY), Dry cooler (kW), DX split.',
+
+    'Distribution (nr): Pumps single/duty-standby (l/s, kPa, inline/base-mounted, VSD), Expansion vessel (litres, bar), Pressurisation unit, Buffer vessel, PHE (kW), Low loss header.',
+    '  Every pump needs: isolation valves both sides, flexibles, strainer suction side, NRV discharge side.',
+    '  Every sealed system needs: expansion vessel + safety valve. Flag if missing.',
+
+    'Water Treatment (nr): Chemical dosing (BSRIA BG 29 — mandatory for closed systems), Softener, UV steriliser, Filtration, Side-stream filter.',
+
+    'Gas (nr): Gas meter (flag — utility connection, confirm scope), Governor, Solenoid valve (safety — fire alarm interface), Unit heater (warm air/radiant), Gas pipework (m, Gas Safe registered).',
+
+    'Equipment Schedule: ' + KB_M04.schedule_rules.priority[0],
+    '  Every equipment item has ASSOCIATED ITEMS (valves, flexibles, strainers, connections). Always include these.'
   ].join('\n\n');
 }
 
@@ -995,7 +1016,8 @@ function getSection(sectionName) {
     document_hierarchy: KB_C04,
     pipe_materials_ref: KB_M01,
     fittings_valves: KB_M02,
-    hvac_ductwork: KB_M03
+    hvac_ductwork: KB_M03,
+    mechanical_plant: KB_M04
   };
   return sections[sectionName] || null;
 }
@@ -1048,5 +1070,6 @@ module.exports = {
   KB_C04,
   KB_M01,
   KB_M02,
-  KB_M03
+  KB_M03,
+  KB_M04
 };
