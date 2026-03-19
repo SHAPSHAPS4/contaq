@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContraQ - Quote Builder</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --text: #1a1a18;
+  --primary: #185FA5;
+  --green: #3B6D11;
+  --amber: #BA7517;
+  --red: #E24B4A;
+  --border: #e8e6e0;
+  --bg: #ffffff;
+  --bg-light: #f7f6f3;
+  --bg-sidebar: #fafaf8;
+  --radius: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+html, body {
+  height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--bg-light);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── Layout ── */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.left-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.centre-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--bg-light);
+}
+
+.right-panel {
+  width: 340px;
+  min-width: 340px;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ── Sidebar sections ── */
+.sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-section h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.sidebar-logo {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-logo span {
+  font-weight: 400;
+  color: #888;
+  font-size: 12px;
+}
+
+/* ── Form fields ── */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(24,95,165,0.12);
+}
+
+/* ── Pipeline tracker ── */
+.pipeline-tracker { list-style: none; }
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 13px;
+  cursor: default;
+  position: relative;
+}
+
+.pipeline-step.clickable { cursor: pointer; }
+.pipeline-step.clickable:hover { color: var(--primary); }
+
+.pipeline-step .step-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.pipeline-step.active .step-dot {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.pipeline-step.complete .step-dot {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.pipeline-step.error .step-dot {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
+.pipeline-step .step-line {
+  position: absolute;
+  left: 11px;
+  top: 32px;
+  width: 2px;
+  height: 16px;
+  background: var(--border);
+}
+
+.pipeline-step.complete .step-line { background: var(--green); }
+.pipeline-step.active .step-line { background: var(--primary); }
+
+/* ── Uploaded files list ── */
+.file-list { list-style: none; }
+
+.file-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.file-list-item .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.file-list-item .status-dot.pending { background: #ccc; }
+.file-list-item .status-dot.processing { background: var(--amber); }
+.file-list-item .status-dot.complete { background: var(--green); }
+.file-list-item .status-dot.error { background: var(--red); }
+
+.file-list-item .file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-list-item .file-size {
+  color: #999;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--bg);
+  color: var(--text);
+  transition: all 0.15s;
+}
+
+.btn:hover { background: var(--bg-light); }
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.btn-primary:hover { background: #14508c; }
+
+.btn-primary:disabled {
+  background: #a0bdd8;
+  border-color: #a0bdd8;
+  cursor: not-allowed;
+}
+
+.btn-green {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+.btn-green:hover { background: #2d5a0d; }
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.btn-danger {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.btn-danger:hover { background: #fdf0f0; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* ── Stage header ── */
+.stage-header {
+  margin-bottom: 20px;
+}
+
+.stage-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stage-header p {
+  color: #777;
+  font-size: 14px;
+}
+
+/* ── Drop zones ── */
+.drop-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg);
+}
+
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--primary);
+  background: rgba(24,95,165,0.03);
+}
+
+.drop-zone .dz-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  color: #bbb;
+}
+
+.drop-zone .dz-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.drop-zone .dz-subtitle {
+  font-size: 12px;
+  color: #999;
+}
+
+.drop-zone-files {
+  margin-top: 16px;
+  text-align: left;
+}
+
+.drop-zone-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-light);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.drop-zone-file .file-info { flex: 1; overflow: hidden; }
+.drop-zone-file .file-info .fname { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.drop-zone-file .file-info .fsize { color: #999; font-size: 11px; }
+
+.drop-zone-file .remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  font-size: 16px;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.drop-zone-file .remove-btn:hover { color: var(--red); }
+
+.drop-zone-file .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #ccc;
+}
+
+.drop-zone-file .status-dot.pending { background: #ccc; }
+.drop-zone-file .status-dot.complete { background: var(--green); }
+
+/* ── Project ref ── */
+.upload-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.upload-actions .form-group { flex: 1; margin-bottom: 0; }
+
+/* ── Stage 2: Analysis cards ── */
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.analysis-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.analysis-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analysis-card .file-processing {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.progress-bar-container {
+  height: 6px;
+  background: var(--bg-light);
+  border-radius: 3px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+.progress-bar.complete { background: var(--green); }
+
+.analysis-status {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 12px;
+}
+
+.analysis-preview {
+  background: var(--bg-light);
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 12px;
+}
+
+.analysis-preview .preview-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+}
+
+.analysis-preview .preview-row .label { color: #777; }
+.analysis-preview .preview-row .value { font-weight: 500; }
+
+/* ── Takeoff table ── */
+.takeoff-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.takeoff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.takeoff-table th {
+  background: var(--bg-light);
+  border-bottom: 2px solid var(--border);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.takeoff-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.takeoff-table tr:last-child td { border-bottom: none; }
+.takeoff-table tbody tr:hover { background: rgba(24,95,165,0.02); }
+
+.takeoff-table tr.highlight-amber { border-left: 3px solid var(--amber); }
+.takeoff-table tr.highlight-red { border-left: 3px solid var(--red); }
+.takeoff-table tr.highlight-row { background: rgba(24,95,165,0.06) !important; }
+
+/* ── Confidence badges ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.badge-high { background: rgba(59,109,17,0.1); color: var(--green); }
+.badge-medium { background: rgba(186,117,23,0.1); color: var(--amber); }
+.badge-low { background: rgba(226,75,74,0.1); color: var(--red); }
+
+/* ── Source pills ── */
+.source-pill {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-right: 3px;
+  background: rgba(24,95,165,0.08);
+  color: var(--primary);
+}
+
+.source-pill.drawing { background: rgba(24,95,165,0.1); color: var(--primary); }
+.source-pill.spec { background: rgba(59,109,17,0.1); color: var(--green); }
+
+/* ── Conflicts section ── */
+.conflicts-section {
+  margin-bottom: 20px;
+}
+
+.conflicts-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(226,75,74,0.05);
+  border: 1px solid rgba(226,75,74,0.2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.conflicts-header .conflict-count {
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+.conflicts-body {
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+
+.conflicts-body.hidden { display: none; }
+
+.conflict-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.conflict-item:last-child { border-bottom: none; }
+
+.conflict-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(226,75,74,0.1);
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.conflict-details { flex: 1; }
+.conflict-details .conflict-title { font-weight: 600; margin-bottom: 2px; }
+.conflict-details .conflict-desc { color: #777; font-size: 12px; }
+
+/* ── Review toolbar ── */
+.review-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.review-toolbar .toolbar-spacer { flex: 1; }
+
+.filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  background: var(--bg);
+  transition: all 0.15s;
+}
+
+.filter-toggle.active {
+  border-color: var(--primary);
+  background: rgba(24,95,165,0.06);
+  color: var(--primary);
+}
+
+.filter-toggle:hover { border-color: #ccc; }
+
+/* ── Inline editable fields ── */
+.editable-qty {
+  width: 70px;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: inherit;
+  text-align: right;
+}
+
+.editable-qty:focus { border-color: var(--primary); outline: none; }
+
+.editable-notes {
+  width: 100%;
+  min-width: 120px;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.editable-notes:focus { border-color: var(--primary); outline: none; }
+
+.confidence-select {
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--bg);
+}
+
+/* ── Right panel ── */
+.right-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.right-section h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ai-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+.ai-pulse.idle { background: #ccc; animation: none; }
+.ai-pulse.processing { background: var(--amber); }
+.ai-pulse.error { background: var(--red); animation: none; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Donut chart ── */
+.donut-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.donut-chart {
+  width: 90px;
+  height: 90px;
+  position: relative;
+}
+
+.donut-chart svg { transform: rotate(-90deg); }
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.donut-center small {
+  font-size: 10px;
+  font-weight: 400;
+  color: #999;
+}
+
+.donut-legend { font-size: 12px; }
+
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.donut-legend-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-legend-item .count { font-weight: 600; margin-left: auto; padding-left: 12px; }
+
+/* ── Flags list ── */
+.flags-list {
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.flag-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  padding: 8px 6px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  border-bottom: none;
+}
+
+.flag-item:hover { background: rgba(24,95,165,0.04); }
+
+.flag-item input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.flag-item .flag-severity {
+  width: 4px;
+  height: 28px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.flag-item .flag-severity.high { background: var(--red); }
+.flag-item .flag-severity.medium { background: var(--amber); }
+.flag-item .flag-severity.low { background: var(--primary); }
+
+.flag-item .flag-text { flex: 1; }
+.flag-item .flag-text .flag-title { font-weight: 500; }
+.flag-item .flag-text .flag-desc { color: #999; font-size: 11px; }
+
+/* ── Processing log ── */
+.processing-log-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #1a1a18;
+  color: #aaa;
+  border-radius: var(--radius) var(--radius) 0 0;
+  font-size: 12px;
+  font-family: monospace;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.processing-log-toggle .chevron { transition: transform 0.2s; }
+.processing-log-toggle .chevron.open { transform: rotate(180deg); }
+
+.processing-log {
+  background: #1a1a18;
+  color: #88d660;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  padding: 12px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.processing-log.hidden { display: none; }
+
+.processing-log .log-line { white-space: pre-wrap; word-break: break-all; }
+.processing-log .log-line.error { color: var(--red); }
+.processing-log .log-line.warn { color: var(--amber); }
+.processing-log .log-line.info { color: #7eb8da; }
+
+/* ── Summary stats ── */
+.summary-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-card {
+  background: var(--bg-light);
+  border-radius: var(--radius);
+  padding: 10px;
+  text-align: center;
+}
+
+.stat-card .stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-card .stat-label {
+  font-size: 10px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ── Misc ── */
+.hidden { display: none !important; }
+
+.stage-view { display: none; }
+.stage-view.active { display: block; }
+
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.text-center { text-align: center; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #bbb;
+}
+
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 8px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #ccc; }
+
+/* ── Error/retry ── */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(226,75,74,0.06);
+  border: 1px solid rgba(226,75,74,0.2);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.error-banner .error-msg { flex: 1; color: var(--red); }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ====================== LEFT SIDEBAR ====================== -->
+  <aside class="left-sidebar">
+    <div class="sidebar-logo">
+      ContraQ <span>Quote Builder</span>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Project Information</h3>
+      <div class="form-group">
+        <label>Project Reference</label>
+        <input type="text" id="sidebar-project-ref" placeholder="e.g. PRJ-2026-042">
+      </div>
+      <div class="form-group">
+        <label>Project Name</label>
+        <input type="text" id="sidebar-project-name" placeholder="e.g. Building A M&E Fit-out">
+      </div>
+      <div class="form-group">
+        <label>Client</label>
+        <input type="text" id="sidebar-client" placeholder="Client name">
+      </div>
+      <div class="form-group">
+        <label>Estimator</label>
+        <input type="text" id="sidebar-estimator" placeholder="Your name">
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Pipeline</h3>
+      <ul class="pipeline-tracker" id="pipeline-tracker">
+        <li class="pipeline-step active" data-stage="1">
+          <div class="step-dot">1</div>
+          <span>Upload Documents</span>
+          <div class="step-line"></div>
+        </li>
+        <li class="pipeline-step" data-stage="2">
+          <div class="step-dot">2</div>
+          <span>Analyse</span>
+          <div class="step-line"></div>
+        </li>
+        <li class="pipeline-step" data-stage="3">
+          <div class="step-dot">3</div>
+          <span>Consolidate</span>
+          <div class="step-line"></div>
+        </li>
+        <li class="pipeline-step" data-stage="4">
+          <div class="step-dot">4</div>
+          <span>Review &amp; Export</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section" id="sidebar-files-section">
+      <h3>Uploaded Files</h3>
+      <ul class="file-list" id="sidebar-file-list">
+        <li style="color:#999;font-size:12px;">No files uploaded</li>
+      </ul>
+    </div>
+
+    <div style="flex:1;"></div>
+    <div class="sidebar-section" style="border-bottom:none;font-size:11px;color:#bbb;">
+      Auto-saved <span id="last-save-time">--</span>
+    </div>
+  </aside>
+
+  <!-- ====================== CENTRE PANEL ====================== -->
+  <main class="centre-panel" id="centre-panel">
+
+    <!-- ── STAGE 1: Upload ── -->
+    <div class="stage-view active" id="stage-1">
+      <div class="stage-header">
+        <h1>Upload Documents</h1>
+        <p>Drop your PDF drawings and specifications to begin extraction.</p>
+      </div>
+
+      <div class="drop-zones">
+        <div class="drop-zone" id="dz-drawings" data-type="drawings">
+          <div class="dz-icon">&#128209;</div>
+          <div class="dz-title">Drawings</div>
+          <div class="dz-subtitle">PDF only &middot; Drag &amp; drop or click</div>
+          <input type="file" accept=".pdf" multiple style="display:none" id="file-input-drawings">
+          <div class="drop-zone-files" id="dz-files-drawings"></div>
+        </div>
+        <div class="drop-zone" id="dz-specs" data-type="specs">
+          <div class="dz-icon">&#128196;</div>
+          <div class="dz-title">Specifications</div>
+          <div class="dz-subtitle">PDF only &middot; Drag &amp; drop or click</div>
+          <input type="file" accept=".pdf" multiple style="display:none" id="file-input-specs">
+          <div class="drop-zone-files" id="dz-files-specs"></div>
+        </div>
+      </div>
+
+      <div class="upload-actions">
+        <div class="form-group">
+          <label>Project Reference</label>
+          <input type="text" id="project-ref" placeholder="e.g. PRJ-2026-042">
+        </div>
+        <button class="btn btn-primary" id="btn-start-analysis" disabled>Start Analysis</button>
+      </div>
+    </div>
+
+    <!-- ── STAGE 2: Analyse ── -->
+    <div class="stage-view" id="stage-2">
+      <div class="stage-header">
+        <h1>Document Analysis</h1>
+        <p>AI is extracting quantities and specifications from your documents.</p>
+      </div>
+
+      <div id="analysis-error" class="error-banner hidden">
+        <span class="error-msg" id="analysis-error-msg"></span>
+        <button class="btn btn-sm btn-danger" id="btn-retry-analysis">Retry</button>
+      </div>
+
+      <div class="analysis-grid">
+        <div class="analysis-card" id="card-drawing">
+          <h3>&#128209; Drawing Analyser</h3>
+          <div class="file-processing" id="drawing-file-name">Waiting...</div>
+          <div class="progress-bar-container"><div class="progress-bar" id="drawing-progress"></div></div>
+          <div class="analysis-status" id="drawing-status">Pending</div>
+          <div class="analysis-preview hidden" id="drawing-preview">
+            <div class="preview-row"><span class="label">Trades found</span><span class="value" id="drawing-trades">--</span></div>
+            <div class="preview-row"><span class="label">Items extracted</span><span class="value" id="drawing-items">--</span></div>
+            <div class="preview-row"><span class="label">Avg. confidence</span><span class="value" id="drawing-confidence">--</span></div>
+          </div>
+          <button class="btn btn-sm mt-12 hidden" id="btn-view-drawing">View full extraction</button>
+        </div>
+
+        <div class="analysis-card" id="card-spec">
+          <h3>&#128196; Spec Reader</h3>
+          <div class="file-processing" id="spec-file-name">Waiting...</div>
+          <div class="progress-bar-container"><div class="progress-bar" id="spec-progress"></div></div>
+          <div class="analysis-status" id="spec-status">Pending</div>
+          <div class="analysis-preview hidden" id="spec-preview">
+            <div class="preview-row"><span class="label">Sections parsed</span><span class="value" id="spec-sections">--</span></div>
+            <div class="preview-row"><span class="label">Requirements</span><span class="value" id="spec-reqs">--</span></div>
+            <div class="preview-row"><span class="label">Avg. confidence</span><span class="value" id="spec-confidence">--</span></div>
+          </div>
+          <button class="btn btn-sm mt-12 hidden" id="btn-view-spec">View full extraction</button>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button class="btn btn-primary" id="btn-run-consolidation" disabled>Run Consolidation</button>
+      </div>
+
+      <div class="processing-log-toggle" id="log-toggle-2">
+        <span class="chevron" id="log-chevron-2">&#9660;</span> Processing Log
+      </div>
+      <div class="processing-log hidden" id="log-panel-2"></div>
+    </div>
+
+    <!-- ── STAGE 3: Consolidate ── -->
+    <div class="stage-view" id="stage-3">
+      <div class="stage-header">
+        <h1>Consolidated Takeoff</h1>
+        <p>Cross-referenced extraction from drawings and specifications.</p>
+      </div>
+
+      <div id="consolidate-error" class="error-banner hidden">
+        <span class="error-msg" id="consolidate-error-msg"></span>
+        <button class="btn btn-sm btn-danger" id="btn-retry-consolidation">Retry</button>
+      </div>
+
+      <div class="takeoff-table-wrapper">
+        <table class="takeoff-table" id="takeoff-table-3">
+          <thead>
+            <tr>
+              <th>Trade</th>
+              <th>Description</th>
+              <th>Specification</th>
+              <th style="text-align:right">Quantity</th>
+              <th>Unit</th>
+              <th>Source</th>
+              <th>Confidence</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="takeoff-body-3"></tbody>
+        </table>
+      </div>
+
+      <div class="conflicts-section" id="conflicts-section-3">
+        <div class="conflicts-header" id="conflicts-toggle-3">
+          <span>&#9888; Conflicts Detected</span>
+          <span class="conflict-count" id="conflict-count-3">0</span>
+        </div>
+        <div class="conflicts-body" id="conflicts-body-3"></div>
+      </div>
+
+      <div class="text-center">
+        <button class="btn btn-primary" id="btn-proceed-review">Proceed to Review</button>
+      </div>
+
+      <div class="processing-log-toggle" id="log-toggle-3">
+        <span class="chevron" id="log-chevron-3">&#9660;</span> Processing Log
+      </div>
+      <div class="processing-log hidden" id="log-panel-3"></div>
+    </div>
+
+    <!-- ── STAGE 4: Review ── -->
+    <div class="stage-view" id="stage-4">
+      <div class="stage-header">
+        <h1>Review &amp; Export</h1>
+        <p>Verify extractions, resolve flags, and export your quote.</p>
+      </div>
+
+      <div class="review-toolbar" id="review-toolbar">
+        <button class="btn btn-sm" id="btn-resolve-all">Resolve All Flags</button>
+        <div class="filter-toggle active" id="filter-all" data-filter="all">All</div>
+        <div class="filter-toggle" id="filter-flagged" data-filter="flagged">Flagged</div>
+        <div class="filter-toggle" id="filter-low" data-filter="low">Low Confidence</div>
+        <div class="filter-toggle" id="filter-conflicts" data-filter="conflicts">Conflicts</div>
+        <div class="toolbar-spacer"></div>
+        <button class="btn btn-sm" id="btn-export-csv">Export CSV</button>
+        <button class="btn btn-primary btn-sm" id="btn-export-quote">Export to Quote</button>
+      </div>
+
+      <div class="takeoff-table-wrapper">
+        <table class="takeoff-table" id="takeoff-table-4">
+          <thead>
+            <tr>
+              <th>Trade</th>
+              <th>Description</th>
+              <th>Specification</th>
+              <th style="text-align:right">Quantity</th>
+              <th>Unit</th>
+              <th>Source</th>
+              <th>Confidence</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="takeoff-body-4"></tbody>
+        </table>
+      </div>
+
+      <div class="conflicts-section" id="conflicts-section-4">
+        <div class="conflicts-header" id="conflicts-toggle-4">
+          <span>&#9888; Conflicts Detected</span>
+          <span class="conflict-count" id="conflict-count-4">0</span>
+        </div>
+        <div class="conflicts-body" id="conflicts-body-4"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ====================== RIGHT PANEL ====================== -->
+  <aside class="right-panel">
+    <div class="right-section">
+      <h3>AI Status</h3>
+      <div class="ai-status">
+        <div class="ai-pulse idle" id="ai-pulse"></div>
+        <span id="ai-status-text">Idle &mdash; awaiting documents</span>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <h3>Confidence Summary</h3>
+      <div class="donut-container">
+        <div class="donut-chart" id="donut-chart">
+          <svg viewBox="0 0 36 36" width="90" height="90">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#eee" stroke-width="5"/>
+            <circle id="donut-high" cx="18" cy="18" r="14" fill="none" stroke="var(--green)" stroke-width="5" stroke-dasharray="0 88" stroke-linecap="round"/>
+            <circle id="donut-medium" cx="18" cy="18" r="14" fill="none" stroke="var(--amber)" stroke-width="5" stroke-dasharray="0 88" stroke-linecap="round"/>
+            <circle id="donut-low" cx="18" cy="18" r="14" fill="none" stroke="var(--red)" stroke-width="5" stroke-dasharray="0 88" stroke-linecap="round"/>
+          </svg>
+          <div class="donut-center">
+            <span id="donut-total">0</span>
+            <small>items</small>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="donut-legend-item">
+            <div class="dot" style="background:var(--green)"></div>
+            <span>High</span>
+            <span class="count" id="legend-high">0</span>
+          </div>
+          <div class="donut-legend-item">
+            <div class="dot" style="background:var(--amber)"></div>
+            <span>Medium</span>
+            <span class="count" id="legend-medium">0</span>
+          </div>
+          <div class="donut-legend-item">
+            <div class="dot" style="background:var(--red)"></div>
+            <span>Low</span>
+            <span class="count" id="legend-low">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <h3>Summary Stats</h3>
+      <div class="summary-stats" id="summary-stats">
+        <div class="stat-card"><div class="stat-value" id="stat-items">0</div><div class="stat-label">Items</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-trades">0</div><div class="stat-label">Trades</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-flags">0</div><div class="stat-label">Flags</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-conflicts">0</div><div class="stat-label">Conflicts</div></div>
+      </div>
+    </div>
+
+    <div class="right-section" style="flex:1;display:flex;flex-direction:column;">
+      <h3>Active Flags</h3>
+      <ul class="flags-list" id="flags-list">
+        <li style="color:#999;font-size:12px;padding:8px 0;">No flags yet</li>
+      </ul>
+      <div class="mt-16">
+        <button class="btn btn-sm btn-green" id="btn-send-feedback" style="width:100%;" disabled>Send to Feedback Loop</button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// ============================================================================
+// STATE
+// ============================================================================
+const state = {
+  currentStage: 1,
+  stageStatus: { 1: 'active', 2: 'pending', 3: 'pending', 4: 'pending' },
+  drawingFiles: [],
+  specFiles: [],
+  projectRef: '',
+  projectName: '',
+  client: '',
+  estimator: '',
+  takeoffItems: [],
+  conflicts: [],
+  flags: [],
+  logLines: [],
+  analysisComplete: { drawing: false, spec: false },
+  consolidationComplete: false,
+  reviewFilter: 'all'
+};
+
+// ============================================================================
+// PLACEHOLDER DATA
+// ============================================================================
+const PLACEHOLDER_TAKEOFF = [
+  { id: 1, trade: 'Mechanical', description: 'Chilled water pipework, copper Type B', specification: 'BS EN 1057 Cu pipes, 15-54mm, PN16 rated', quantity: 340, unit: 'm', source: ['Drawing','Spec'], confidence: 'High', notes: '', hasConflict: false, flagged: false },
+  { id: 2, trade: 'Mechanical', description: 'LTHW pipework, steel pre-insulated', specification: 'BS 1387 medium grade steel, welded joints', quantity: 280, unit: 'm', source: ['Drawing','Spec'], confidence: 'High', notes: '', hasConflict: false, flagged: false },
+  { id: 3, trade: 'Mechanical', description: 'AHU - Air Handling Unit Type 1', specification: 'Eurovent certified, 4.5 m\u00b3/s, HEPA filtration H13', quantity: 3, unit: 'Nr', source: ['Drawing','Spec'], confidence: 'High', notes: '', hasConflict: false, flagged: false },
+  { id: 4, trade: 'Mechanical', description: 'FCU - Fan Coil Unit, ceiling concealed', specification: 'Carrier 42N, 2-pipe, 3.2kW cooling', quantity: 24, unit: 'Nr', source: ['Drawing'], confidence: 'Medium', notes: 'Spec references 22 units', hasConflict: true, flagged: true },
+  { id: 5, trade: 'Electrical', description: 'Containment - cable tray, galvanised', specification: 'Unitrunk heavy duty, 300mm wide, pre-galv', quantity: 185, unit: 'm', source: ['Drawing','Spec'], confidence: 'High', notes: '', hasConflict: false, flagged: false },
+  { id: 6, trade: 'Electrical', description: 'Distribution board, TP&N 12-way', specification: 'Hager VML, 125A incomer, 18th Edition IET', quantity: 6, unit: 'Nr', source: ['Drawing','Spec'], confidence: 'High', notes: '', hasConflict: false, flagged: false },
+  { id: 7, trade: 'Electrical', description: 'LED luminaire, recessed 600x600', specification: 'Thorn Omega Pro, 34W, 4000K, UGR<19', quantity: 156, unit: 'Nr', source: ['Drawing'], confidence: 'Medium', notes: 'Count from drawing only; spec does not itemise', hasConflict: false, flagged: true },
+  { id: 8, trade: 'Electrical', description: 'Emergency luminaire, maintained', specification: 'Eaton Blessing, 3hr duration, NM3, self-test', quantity: 42, unit: 'Nr', source: ['Spec'], confidence: 'Low', notes: 'Not shown on drawings', hasConflict: true, flagged: true },
+  { id: 9, trade: 'Insulation', description: 'Pipe insulation, CHW 25mm Armaflex', specification: 'Armacell AF-2, Class O, \u03bb=0.036 W/mK', quantity: 340, unit: 'm', source: ['Spec'], confidence: 'Medium', notes: 'Thickness assumed from spec table', hasConflict: false, flagged: true },
+  { id: 10, trade: 'Insulation', description: 'Duct insulation, 50mm mineral wool', specification: 'Knauf DDP, foil faced, fire rated A1', quantity: 420, unit: 'm\u00b2', source: ['Spec'], confidence: 'Low', notes: 'Missing from drawings - derived from duct schedule', hasConflict: true, flagged: true },
+  { id: 11, trade: 'Mechanical', description: 'Pumps, CHW secondary variable speed', specification: 'Grundfos TPE 65-410, IE5, integrated VSD', quantity: 2, unit: 'Nr', source: ['Drawing','Spec'], confidence: 'High', notes: '', hasConflict: false, flagged: false },
+  { id: 12, trade: 'Electrical', description: 'Small power, double socket outlets', specification: 'MK Logic Plus, white, BS 1363, shuttered', quantity: 88, unit: 'Nr', source: ['Drawing'], confidence: 'Medium', notes: 'Some RCPs unclear - count approximate', hasConflict: false, flagged: true }
+];
+
+const PLACEHOLDER_CONFLICTS = [
+  { id: 1, itemId: 4, title: 'FCU quantity mismatch', description: 'Drawing shows 24 fan coil units on RCPs; specification clause 5.3.2 references 22 units. Recommend verifying with architect.', type: 'Drawing vs Spec' },
+  { id: 2, itemId: 8, title: 'Emergency luminaires not on drawings', description: '42 emergency luminaires specified in electrical spec section 6.4 but no corresponding symbols found on lighting layout drawings.', type: 'Missing from Drawing' },
+  { id: 3, itemId: 10, title: 'Duct insulation not shown on drawings', description: 'Spec clause 8.2.1 calls for 50mm mineral wool on all supply ductwork, but insulation is not indicated on mechanical drawings.', type: 'Missing from Drawing' },
+  { id: 4, itemId: 4, title: 'FCU model discrepancy', description: 'Drawing schedule references Carrier 42N 2-pipe units; spec clause 5.3.1 mentions Daikin FWB series. Clarification needed.', type: 'Drawing vs Spec' }
+];
+
+const PLACEHOLDER_FLAGS = [
+  { id: 1, itemId: 4, severity: 'high', title: 'FCU quantity conflict', description: 'Drawing 24 vs Spec 22 - verify correct count', resolved: false },
+  { id: 2, itemId: 8, severity: 'high', title: 'Emergency lights missing from drawings', description: '42 units in spec only - no drawing verification', resolved: false },
+  { id: 3, itemId: 10, severity: 'high', title: 'Duct insulation unverified', description: 'Spec-only item, no drawing confirmation', resolved: false },
+  { id: 4, itemId: 7, severity: 'medium', title: 'LED luminaire count unconfirmed', description: 'Drawing count only - spec does not itemise quantities', resolved: false },
+  { id: 5, itemId: 9, severity: 'medium', title: 'Insulation thickness assumed', description: 'Derived from spec table, not explicitly stated per pipe size', resolved: false },
+  { id: 6, itemId: 12, severity: 'low', title: 'Socket outlet count approximate', description: 'Some RCP detail unclear at scanned resolution', resolved: false }
+];
+
+// ============================================================================
+// DOM HELPERS
+// ============================================================================
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// ============================================================================
+// STAGE MANAGEMENT
+// ============================================================================
+function setStage(n) {
+  state.currentStage = n;
+  $$('.stage-view').forEach(v => v.classList.remove('active'));
+  $(`#stage-${n}`).classList.add('active');
+  updatePipelineUI();
+  saveState();
+}
+
+function setStageStatus(n, status) {
+  state.stageStatus[n] = status;
+  updatePipelineUI();
+}
+
+function updatePipelineUI() {
+  $$('.pipeline-step').forEach(step => {
+    const s = parseInt(step.dataset.stage);
+    const status = state.stageStatus[s];
+    step.className = 'pipeline-step ' + status;
+    if (status === 'complete') {
+      step.classList.add('clickable');
+      step.querySelector('.step-dot').textContent = '\u2713';
+    } else {
+      step.querySelector('.step-dot').textContent = s;
+      step.classList.remove('clickable');
+    }
+    if (s === state.currentStage && status !== 'error') {
+      step.classList.add('active');
+    }
+  });
+}
+
+// Click completed stages
+$('#pipeline-tracker').addEventListener('click', (e) => {
+  const step = e.target.closest('.pipeline-step');
+  if (!step) return;
+  const s = parseInt(step.dataset.stage);
+  if (state.stageStatus[s] === 'complete' || s === state.currentStage) {
+    setStage(s);
+  }
+});
+
+// ============================================================================
+// FILE UPLOAD / DRAG & DROP
+// ============================================================================
+function setupDropZone(dzId, fileInputId, type) {
+  const dz = $(dzId);
+  const fi = $(fileInputId);
+
+  dz.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-btn')) return;
+    fi.click();
+  });
+
+  dz.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dz.classList.add('drag-over');
+  });
+
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+
+  dz.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    handleFiles(Array.from(e.dataTransfer.files), type);
+  });
+
+  fi.addEventListener('change', () => {
+    handleFiles(Array.from(fi.files), type);
+    fi.value = '';
+  });
+}
+
+function handleFiles(files, type) {
+  const pdfs = files.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+  if (pdfs.length === 0) {
+    alert('Only PDF files are accepted.');
+    return;
+  }
+  const arr = type === 'drawings' ? state.drawingFiles : state.specFiles;
+  pdfs.forEach(f => {
+    if (!arr.find(x => x.name === f.name && x.size === f.size)) {
+      arr.push({ name: f.name, size: f.size, status: 'pending', file: f });
+    }
+  });
+  renderDropZoneFiles(type);
+  renderSidebarFiles();
+  updateStartBtn();
+  saveState();
+}
+
+function removeFile(type, idx) {
+  const arr = type === 'drawings' ? state.drawingFiles : state.specFiles;
+  arr.splice(idx, 1);
+  renderDropZoneFiles(type);
+  renderSidebarFiles();
+  updateStartBtn();
+  saveState();
+}
+
+function renderDropZoneFiles(type) {
+  const containerId = type === 'drawings' ? '#dz-files-drawings' : '#dz-files-specs';
+  const arr = type === 'drawings' ? state.drawingFiles : state.specFiles;
+  const container = $(containerId);
+  if (arr.length === 0) { container.innerHTML = ''; return; }
+  container.innerHTML = arr.map((f, i) => `
+    <div class="drop-zone-file">
+      <div class="status-dot ${f.status}"></div>
+      <div class="file-info">
+        <div class="fname">${f.name}</div>
+        <div class="fsize">${formatFileSize(f.size)}</div>
+      </div>
+      <button class="remove-btn" onclick="event.stopPropagation();removeFile('${type}',${i})">&times;</button>
+    </div>
+  `).join('');
+}
+
+function renderSidebarFiles() {
+  const list = $('#sidebar-file-list');
+  const all = [
+    ...state.drawingFiles.map(f => ({ ...f, cat: 'Drawing' })),
+    ...state.specFiles.map(f => ({ ...f, cat: 'Spec' }))
+  ];
+  if (all.length === 0) {
+    list.innerHTML = '<li style="color:#999;font-size:12px;">No files uploaded</li>';
+    return;
+  }
+  list.innerHTML = all.map(f => `
+    <li class="file-list-item">
+      <div class="status-dot ${f.status}"></div>
+      <span class="file-name" title="${f.name}">${f.name}</span>
+      <span class="file-size">${f.cat}</span>
+    </li>
+  `).join('');
+}
+
+function updateStartBtn() {
+  const btn = $('#btn-start-analysis');
+  btn.disabled = !(state.drawingFiles.length > 0 && state.specFiles.length > 0);
+}
+
+setupDropZone('#dz-drawings', '#file-input-drawings', 'drawings');
+setupDropZone('#dz-specs', '#file-input-specs', 'specs');
+
+// ============================================================================
+// LOGGING
+// ============================================================================
+function addLog(panelId, message, type = '') {
+  const ts = new Date().toLocaleTimeString();
+  state.logLines.push({ panelId, message: `[${ts}] ${message}`, type });
+  const panel = $(panelId);
+  if (panel) {
+    const line = document.createElement('div');
+    line.className = 'log-line ' + type;
+    line.textContent = `[${ts}] ${message}`;
+    panel.appendChild(line);
+    panel.scrollTop = panel.scrollHeight;
+  }
+}
+
+// Log panel toggles
+['2','3'].forEach(n => {
+  $(`#log-toggle-${n}`).addEventListener('click', () => {
+    const panel = $(`#log-panel-${n}`);
+    const chevron = $(`#log-chevron-${n}`);
+    panel.classList.toggle('hidden');
+    chevron.classList.toggle('open');
+  });
+});
+
+// ============================================================================
+// AI STATUS
+// ============================================================================
+function setAIStatus(text, mode) {
+  const pulse = $('#ai-pulse');
+  const label = $('#ai-status-text');
+  pulse.className = 'ai-pulse ' + mode;
+  label.textContent = text;
+}
+
+// ============================================================================
+// STAGE 2: ANALYSIS (SIMULATED)
+// ============================================================================
+$('#btn-start-analysis').addEventListener('click', startAnalysis);
+$('#btn-retry-analysis').addEventListener('click', startAnalysis);
+
+function startAnalysis() {
+  setStageStatus(1, 'complete');
+  setStageStatus(2, 'active');
+  setStage(2);
+  state.analysisComplete = { drawing: false, spec: false };
+
+  $('#analysis-error').classList.add('hidden');
+  $('#btn-run-consolidation').disabled = true;
+
+  setAIStatus('Analysing documents...', 'processing');
+
+  // Mark files as processing
+  state.drawingFiles.forEach(f => f.status = 'processing');
+  state.specFiles.forEach(f => f.status = 'processing');
+  renderSidebarFiles();
+
+  simulateDrawingAnalysis();
+  simulateSpecAnalysis();
+}
+
+function simulateDrawingAnalysis() {
+  const bar = $('#drawing-progress');
+  const status = $('#drawing-status');
+  const fileName = $('#drawing-file-name');
+  const preview = $('#drawing-preview');
+  const viewBtn = $('#btn-view-drawing');
+
+  fileName.textContent = 'Processing: ' + (state.drawingFiles[0]?.name || 'drawings.pdf');
+  status.textContent = 'Extracting plan symbols and schedules...';
+  bar.style.width = '0%';
+  bar.classList.remove('complete');
+
+  addLog('#log-panel-2', 'Drawing analyser started', 'info');
+
+  // LIVE API CALL: POST http://localhost:3001/api/drawings/extract
+  // In production, this would POST the drawing files and receive extraction data.
+  // For demo, we simulate the progress.
+
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 15 + 5;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      bar.style.width = '100%';
+      bar.classList.add('complete');
+      status.textContent = 'Complete';
+      preview.classList.remove('hidden');
+      viewBtn.classList.remove('hidden');
+      $('#drawing-trades').textContent = '3 (Mechanical, Electrical, Insulation)';
+      $('#drawing-items').textContent = '9';
+      $('#drawing-confidence').textContent = '78%';
+      state.analysisComplete.drawing = true;
+      state.drawingFiles.forEach(f => f.status = 'complete');
+      renderSidebarFiles();
+      addLog('#log-panel-2', 'Drawing analysis complete: 9 items extracted across 3 trades', 'info');
+      checkAnalysisComplete();
+    } else {
+      bar.style.width = progress + '%';
+      if (progress > 30 && progress < 35) {
+        addLog('#log-panel-2', 'Found mechanical symbols on Level 1 plan');
+        status.textContent = 'Reading mechanical symbols...';
+      }
+      if (progress > 55 && progress < 60) {
+        addLog('#log-panel-2', 'Parsing electrical layout and schedules');
+        status.textContent = 'Parsing electrical layout...';
+      }
+      if (progress > 80 && progress < 85) {
+        addLog('#log-panel-2', 'Cross-referencing schedule data');
+        status.textContent = 'Cross-referencing schedules...';
+      }
+    }
+  }, 300);
+}
+
+function simulateSpecAnalysis() {
+  const bar = $('#spec-progress');
+  const status = $('#spec-status');
+  const fileName = $('#spec-file-name');
+  const preview = $('#spec-preview');
+  const viewBtn = $('#btn-view-spec');
+
+  fileName.textContent = 'Processing: ' + (state.specFiles[0]?.name || 'specification.pdf');
+  status.textContent = 'Parsing specification document...';
+  bar.style.width = '0%';
+  bar.classList.remove('complete');
+
+  addLog('#log-panel-2', 'Spec reader started', 'info');
+
+  // LIVE API CALL: POST http://localhost:3001/api/specs/analyse
+  // In production, this would POST the spec files and receive parsed data.
+
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 12 + 3;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      bar.style.width = '100%';
+      bar.classList.add('complete');
+      status.textContent = 'Complete';
+      preview.classList.remove('hidden');
+      viewBtn.classList.remove('hidden');
+      $('#spec-sections').textContent = '14 sections';
+      $('#spec-reqs').textContent = '47 requirements';
+      $('#spec-confidence').textContent = '82%';
+      state.analysisComplete.spec = true;
+      state.specFiles.forEach(f => f.status = 'complete');
+      renderSidebarFiles();
+      addLog('#log-panel-2', 'Spec analysis complete: 14 sections, 47 requirements parsed', 'info');
+      checkAnalysisComplete();
+    } else {
+      bar.style.width = progress + '%';
+      if (progress > 25 && progress < 30) {
+        addLog('#log-panel-2', 'Parsing mechanical specification section 5');
+        status.textContent = 'Reading mechanical clauses...';
+      }
+      if (progress > 50 && progress < 55) {
+        addLog('#log-panel-2', 'Parsing electrical specification section 6');
+        status.textContent = 'Reading electrical clauses...';
+      }
+      if (progress > 75 && progress < 80) {
+        addLog('#log-panel-2', 'Extracting product references and standards');
+        status.textContent = 'Extracting product references...';
+      }
+    }
+  }, 350);
+}
+
+function checkAnalysisComplete() {
+  if (state.analysisComplete.drawing && state.analysisComplete.spec) {
+    $('#btn-run-consolidation').disabled = false;
+    setAIStatus('Analysis complete \u2014 ready to consolidate', 'idle');
+    addLog('#log-panel-2', 'Both analyses complete. Ready for consolidation.', 'info');
+  }
+}
+
+// View extraction buttons
+$('#btn-view-drawing').addEventListener('click', () => alert('Full drawing extraction data would open in a modal. Demo mode: 9 items extracted from 3 trades.'));
+$('#btn-view-spec').addEventListener('click', () => alert('Full spec extraction data would open in a modal. Demo mode: 14 sections, 47 requirements parsed.'));
+
+// ============================================================================
+// STAGE 3: CONSOLIDATION
+// ============================================================================
+$('#btn-run-consolidation').addEventListener('click', runConsolidation);
+$('#btn-retry-consolidation').addEventListener('click', runConsolidation);
+
+function runConsolidation() {
+  setStageStatus(2, 'complete');
+  setStageStatus(3, 'active');
+  setStage(3);
+
+  $('#consolidate-error').classList.add('hidden');
+  setAIStatus('Consolidating takeoff data...', 'processing');
+  addLog('#log-panel-3', 'Consolidation engine started', 'info');
+
+  // LIVE API CALL: POST http://localhost:3001/api/takeoff/consolidate
+  // In production, this would send both extraction results for cross-referencing.
+
+  setTimeout(() => {
+    addLog('#log-panel-3', 'Merging drawing and spec extractions...');
+  }, 400);
+  setTimeout(() => {
+    addLog('#log-panel-3', 'Detecting conflicts between sources...', 'warn');
+  }, 900);
+  setTimeout(() => {
+    addLog('#log-panel-3', `Found ${PLACEHOLDER_CONFLICTS.length} conflicts`, 'warn');
+  }, 1300);
+  setTimeout(() => {
+    addLog('#log-panel-3', 'Generating confidence scores...');
+  }, 1700);
+  setTimeout(() => {
+    state.takeoffItems = JSON.parse(JSON.stringify(PLACEHOLDER_TAKEOFF));
+    state.conflicts = JSON.parse(JSON.stringify(PLACEHOLDER_CONFLICTS));
+    state.flags = JSON.parse(JSON.stringify(PLACEHOLDER_FLAGS));
+    state.consolidationComplete = true;
+
+    renderTakeoffTable('takeoff-body-3', false);
+    renderConflicts('conflicts-body-3', 'conflict-count-3');
+    updateRightPanel();
+
+    addLog('#log-panel-3', `Consolidation complete: ${state.takeoffItems.length} items, ${state.conflicts.length} conflicts, ${state.flags.length} flags`, 'info');
+    setAIStatus('Consolidation complete', 'idle');
+    saveState();
+  }, 2200);
+}
+
+// ============================================================================
+// TAKEOFF TABLE RENDERING
+// ============================================================================
+function renderTakeoffTable(bodyId, editable) {
+  const tbody = $(`#${bodyId}`);
+  const items = state.takeoffItems;
+  tbody.innerHTML = items.map((item, idx) => {
+    const confClass = item.confidence === 'High' ? 'badge-high' : item.confidence === 'Medium' ? 'badge-medium' : 'badge-low';
+    const rowClass = item.hasConflict ? 'highlight-red' : (item.confidence === 'Low' ? 'highlight-amber' : '');
+    const sources = item.source.map(s => `<span class="source-pill ${s.toLowerCase()}">${s}</span>`).join('');
+
+    if (editable) {
+      return `<tr class="${rowClass}" data-item-id="${item.id}" data-idx="${idx}">
+        <td>${item.trade}</td>
+        <td>${item.description}</td>
+        <td style="font-size:12px;color:#666;">${item.specification}</td>
+        <td style="text-align:right"><input type="number" class="editable-qty" value="${item.quantity}" data-idx="${idx}"></td>
+        <td>${item.unit}</td>
+        <td>${sources}</td>
+        <td><select class="confidence-select" data-idx="${idx}">
+          <option value="High" ${item.confidence==='High'?'selected':''}>High</option>
+          <option value="Medium" ${item.confidence==='Medium'?'selected':''}>Medium</option>
+          <option value="Low" ${item.confidence==='Low'?'selected':''}>Low</option>
+        </select></td>
+        <td><input type="text" class="editable-notes" value="${item.notes}" data-idx="${idx}" placeholder="Add note..."></td>
+      </tr>`;
+    } else {
+      return `<tr class="${rowClass}" data-item-id="${item.id}">
+        <td>${item.trade}</td>
+        <td>${item.description}</td>
+        <td style="font-size:12px;color:#666;">${item.specification}</td>
+        <td style="text-align:right;font-weight:500;">${item.quantity}</td>
+        <td>${item.unit}</td>
+        <td>${sources}</td>
+        <td><span class="badge ${confClass}">${item.confidence}</span></td>
+        <td style="font-size:12px;color:#777;">${item.notes}</td>
+      </tr>`;
+    }
+  }).join('');
+
+  if (editable) {
+    tbody.querySelectorAll('.editable-qty').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.idx);
+        state.takeoffItems[i].quantity = parseFloat(e.target.value) || 0;
+        saveState();
+      });
+    });
+    tbody.querySelectorAll('.confidence-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.idx);
+        state.takeoffItems[i].confidence = e.target.value;
+        updateRightPanel();
+        saveState();
+      });
+    });
+    tbody.querySelectorAll('.editable-notes').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const i = parseInt(e.target.dataset.idx);
+        state.takeoffItems[i].notes = e.target.value;
+        saveState();
+      });
+    });
+  }
+}
+
+function renderTakeoffTableFiltered(filter) {
+  const tbody = $('#takeoff-body-4');
+  let items = state.takeoffItems;
+
+  if (filter === 'flagged') items = items.filter(i => i.flagged);
+  else if (filter === 'low') items = items.filter(i => i.confidence === 'Low');
+  else if (filter === 'conflicts') items = items.filter(i => i.hasConflict);
+
+  tbody.innerHTML = items.map((item, realIdx) => {
+    const idx = state.takeoffItems.indexOf(item);
+    const confClass = item.confidence === 'High' ? 'badge-high' : item.confidence === 'Medium' ? 'badge-medium' : 'badge-low';
+    const rowClass = item.hasConflict ? 'highlight-red' : (item.confidence === 'Low' ? 'highlight-amber' : '');
+    const sources = item.source.map(s => `<span class="source-pill ${s.toLowerCase()}">${s}</span>`).join('');
+
+    return `<tr class="${rowClass}" data-item-id="${item.id}" data-idx="${idx}">
+      <td>${item.trade}</td>
+      <td>${item.description}</td>
+      <td style="font-size:12px;color:#666;">${item.specification}</td>
+      <td style="text-align:right"><input type="number" class="editable-qty" value="${item.quantity}" data-idx="${idx}"></td>
+      <td>${item.unit}</td>
+      <td>${sources}</td>
+      <td><select class="confidence-select" data-idx="${idx}">
+        <option value="High" ${item.confidence==='High'?'selected':''}>High</option>
+        <option value="Medium" ${item.confidence==='Medium'?'selected':''}>Medium</option>
+        <option value="Low" ${item.confidence==='Low'?'selected':''}>Low</option>
+      </select></td>
+      <td><input type="text" class="editable-notes" value="${item.notes}" data-idx="${idx}" placeholder="Add note..."></td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.editable-qty').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const i = parseInt(e.target.dataset.idx);
+      state.takeoffItems[i].quantity = parseFloat(e.target.value) || 0;
+      saveState();
+    });
+  });
+  tbody.querySelectorAll('.confidence-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const i = parseInt(e.target.dataset.idx);
+      state.takeoffItems[i].confidence = e.target.value;
+      updateRightPanel();
+      saveState();
+    });
+  });
+  tbody.querySelectorAll('.editable-notes').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const i = parseInt(e.target.dataset.idx);
+      state.takeoffItems[i].notes = e.target.value;
+      saveState();
+    });
+  });
+}
+
+// ============================================================================
+// CONFLICTS
+// ============================================================================
+function renderConflicts(bodyId, countId) {
+  const body = $(`#${bodyId}`);
+  const countEl = $(`#${countId}`);
+  countEl.textContent = state.conflicts.length;
+
+  body.innerHTML = state.conflicts.map(c => `
+    <div class="conflict-item" data-item-id="${c.itemId}">
+      <div class="conflict-icon">!</div>
+      <div class="conflict-details">
+        <div class="conflict-title">${c.title} <span class="badge badge-low" style="font-size:10px;margin-left:4px;">${c.type}</span></div>
+        <div class="conflict-desc">${c.description}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Conflict toggle
+['3','4'].forEach(n => {
+  const toggle = $(`#conflicts-toggle-${n}`);
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      $(`#conflicts-body-${n}`).classList.toggle('hidden');
+    });
+  }
+});
+
+// ============================================================================
+// STAGE 4: REVIEW
+// ============================================================================
+$('#btn-proceed-review').addEventListener('click', () => {
+  setStageStatus(3, 'complete');
+  setStageStatus(4, 'active');
+  setStage(4);
+  renderTakeoffTableFiltered('all');
+  renderConflicts('conflicts-body-4', 'conflict-count-4');
+  $('#btn-send-feedback').disabled = false;
+  setAIStatus('Review mode \u2014 awaiting your input', 'idle');
+});
+
+// Filter toggles
+$$('.filter-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.filter-toggle').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.reviewFilter = btn.dataset.filter;
+    renderTakeoffTableFiltered(state.reviewFilter);
+  });
+});
+
+// Resolve all flags
+$('#btn-resolve-all').addEventListener('click', () => {
+  state.flags.forEach(f => f.resolved = true);
+  state.takeoffItems.forEach(item => {
+    item.flagged = false;
+    item.hasConflict = false;
+  });
+  state.conflicts = [];
+  renderTakeoffTableFiltered(state.reviewFilter);
+  renderConflicts('conflicts-body-4', 'conflict-count-4');
+  updateRightPanel();
+  saveState();
+});
+
+// Export CSV
+$('#btn-export-csv').addEventListener('click', exportCSV);
+
+function exportCSV() {
+  const headers = ['Trade','Description','Specification','Quantity','Unit','Source','Confidence','Notes'];
+  const rows = state.takeoffItems.map(item => [
+    item.trade,
+    '"' + item.description.replace(/"/g, '""') + '"',
+    '"' + item.specification.replace(/"/g, '""') + '"',
+    item.quantity,
+    item.unit,
+    item.source.join('; '),
+    item.confidence,
+    '"' + item.notes.replace(/"/g, '""') + '"'
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (state.projectRef || 'takeoff') + '_quote_export.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Export to Quote
+$('#btn-export-quote').addEventListener('click', () => {
+  const unresolvedFlags = state.flags.filter(f => !f.resolved).length;
+  if (unresolvedFlags > 0) {
+    if (!confirm(`There are ${unresolvedFlags} unresolved flags. Export anyway?`)) return;
+  }
+  alert('Quote exported successfully! In production, this would send to the quoting system via API.');
+});
+
+// Send to feedback loop
+$('#btn-send-feedback').addEventListener('click', () => {
+  // LIVE API CALL: POST http://localhost:3001/api/feedback/process
+  // In production, this sends resolved data back for AI model improvement.
+  setAIStatus('Sending feedback data...', 'processing');
+  setTimeout(() => {
+    setAIStatus('Feedback sent successfully', 'idle');
+    alert('Feedback data sent to the AI learning loop. This will improve future extractions.');
+  }, 1000);
+});
+
+// ============================================================================
+// RIGHT PANEL
+// ============================================================================
+function updateRightPanel() {
+  const items = state.takeoffItems;
+  const high = items.filter(i => i.confidence === 'High').length;
+  const medium = items.filter(i => i.confidence === 'Medium').length;
+  const low = items.filter(i => i.confidence === 'Low').length;
+  const total = items.length;
+  const trades = [...new Set(items.map(i => i.trade))].length;
+  const activeFlags = state.flags.filter(f => !f.resolved).length;
+
+  // Stats
+  $('#stat-items').textContent = total;
+  $('#stat-trades').textContent = trades;
+  $('#stat-flags').textContent = activeFlags;
+  $('#stat-conflicts').textContent = state.conflicts.length;
+
+  // Donut
+  updateDonut(high, medium, low, total);
+
+  // Legend
+  $('#legend-high').textContent = high;
+  $('#legend-medium').textContent = medium;
+  $('#legend-low').textContent = low;
+  $('#donut-total').textContent = total;
+
+  // Flags list
+  renderFlags();
+}
+
+function updateDonut(high, medium, low, total) {
+  if (total === 0) return;
+  const circumference = 2 * Math.PI * 14; // ~87.96
+  const hPct = high / total;
+  const mPct = medium / total;
+  const lPct = low / total;
+
+  const hLen = hPct * circumference;
+  const mLen = mPct * circumference;
+  const lLen = lPct * circumference;
+
+  const hOffset = 0;
+  const mOffset = -(hLen);
+  const lOffset = -(hLen + mLen);
+
+  $('#donut-high').setAttribute('stroke-dasharray', `${hLen} ${circumference - hLen}`);
+  $('#donut-high').setAttribute('stroke-dashoffset', `${hOffset}`);
+
+  $('#donut-medium').setAttribute('stroke-dasharray', `${mLen} ${circumference - mLen}`);
+  $('#donut-medium').setAttribute('stroke-dashoffset', `${mOffset}`);
+
+  $('#donut-low').setAttribute('stroke-dasharray', `${lLen} ${circumference - lLen}`);
+  $('#donut-low').setAttribute('stroke-dashoffset', `${lOffset}`);
+}
+
+function renderFlags() {
+  const list = $('#flags-list');
+  const activeFlags = state.flags.filter(f => !f.resolved);
+  if (activeFlags.length === 0) {
+    list.innerHTML = '<li style="color:#999;font-size:12px;padding:8px 0;">All flags resolved</li>';
+    return;
+  }
+  list.innerHTML = activeFlags.map(f => `
+    <li class="flag-item" data-item-id="${f.itemId}" onclick="highlightRow(${f.itemId})">
+      <input type="checkbox" ${f.resolved ? 'checked' : ''} onclick="event.stopPropagation();toggleFlag(${f.id}, this.checked)">
+      <div class="flag-severity ${f.severity}"></div>
+      <div class="flag-text">
+        <div class="flag-title">${f.title}</div>
+        <div class="flag-desc">${f.description}</div>
+      </div>
+    </li>
+  `).join('');
+}
+
+function highlightRow(itemId) {
+  $$('.takeoff-table tr').forEach(tr => tr.classList.remove('highlight-row'));
+  $$(`.takeoff-table tr[data-item-id="${itemId}"]`).forEach(tr => {
+    tr.classList.add('highlight-row');
+    tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  setTimeout(() => {
+    $$('.takeoff-table tr.highlight-row').forEach(tr => tr.classList.remove('highlight-row'));
+  }, 3000);
+}
+
+function toggleFlag(flagId, resolved) {
+  const flag = state.flags.find(f => f.id === flagId);
+  if (flag) {
+    flag.resolved = resolved;
+    updateRightPanel();
+    saveState();
+  }
+}
+
+// Make toggleFlag and highlightRow global
+window.toggleFlag = toggleFlag;
+window.highlightRow = highlightRow;
+window.removeFile = removeFile;
+
+// ============================================================================
+// AUTO-SAVE TO LOCALSTORAGE
+// ============================================================================
+function saveState() {
+  try {
+    const toSave = {
+      currentStage: state.currentStage,
+      stageStatus: state.stageStatus,
+      projectRef: state.projectRef,
+      projectName: state.projectName,
+      client: state.client,
+      estimator: state.estimator,
+      takeoffItems: state.takeoffItems,
+      conflicts: state.conflicts,
+      flags: state.flags,
+      consolidationComplete: state.consolidationComplete,
+      drawingFilesMeta: state.drawingFiles.map(f => ({ name: f.name, size: f.size, status: f.status })),
+      specFilesMeta: state.specFiles.map(f => ({ name: f.name, size: f.size, status: f.status }))
+    };
+    localStorage.setItem('contraq-quote-builder', JSON.stringify(toSave));
+    $('#last-save-time').textContent = new Date().toLocaleTimeString();
+  } catch (e) { /* silently fail */ }
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('contraq-quote-builder');
+    if (!saved) return;
+    const data = JSON.parse(saved);
+
+    if (data.projectRef) { state.projectRef = data.projectRef; $('#project-ref').value = data.projectRef; $('#sidebar-project-ref').value = data.projectRef; }
+    if (data.projectName) { state.projectName = data.projectName; $('#sidebar-project-name').value = data.projectName; }
+    if (data.client) { state.client = data.client; $('#sidebar-client').value = data.client; }
+    if (data.estimator) { state.estimator = data.estimator; $('#sidebar-estimator').value = data.estimator; }
+
+    if (data.takeoffItems && data.takeoffItems.length > 0) {
+      state.takeoffItems = data.takeoffItems;
+      state.conflicts = data.conflicts || [];
+      state.flags = data.flags || [];
+      state.stageStatus = data.stageStatus || state.stageStatus;
+      state.consolidationComplete = data.consolidationComplete || false;
+
+      if (data.drawingFilesMeta) {
+        state.drawingFiles = data.drawingFilesMeta.map(f => ({ ...f, file: null }));
+        renderDropZoneFiles('drawings');
+      }
+      if (data.specFilesMeta) {
+        state.specFiles = data.specFilesMeta.map(f => ({ ...f, file: null }));
+        renderDropZoneFiles('specs');
+      }
+      renderSidebarFiles();
+      updateRightPanel();
+
+      // Restore to the saved stage
+      if (data.currentStage) {
+        setStage(data.currentStage);
+        if (data.currentStage >= 3) {
+          renderTakeoffTable('takeoff-body-3', false);
+          renderConflicts('conflicts-body-3', 'conflict-count-3');
+        }
+        if (data.currentStage >= 4) {
+          renderTakeoffTableFiltered('all');
+          renderConflicts('conflicts-body-4', 'conflict-count-4');
+          $('#btn-send-feedback').disabled = false;
+        }
+      }
+    }
+  } catch (e) { /* silently fail */ }
+}
+
+// ============================================================================
+// FIELD SYNCING
+// ============================================================================
+$('#project-ref').addEventListener('input', (e) => {
+  state.projectRef = e.target.value;
+  $('#sidebar-project-ref').value = e.target.value;
+  saveState();
+});
+
+$('#sidebar-project-ref').addEventListener('input', (e) => {
+  state.projectRef = e.target.value;
+  $('#project-ref').value = e.target.value;
+  saveState();
+});
+
+$('#sidebar-project-name').addEventListener('input', (e) => { state.projectName = e.target.value; saveState(); });
+$('#sidebar-client').addEventListener('input', (e) => { state.client = e.target.value; saveState(); });
+$('#sidebar-estimator').addEventListener('input', (e) => { state.estimator = e.target.value; saveState(); });
+
+// ============================================================================
+// INIT
+// ============================================================================
+loadState();
+updatePipelineUI();
+</script>
+</body>
+</html>

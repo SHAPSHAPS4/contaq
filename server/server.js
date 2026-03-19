@@ -102,6 +102,12 @@ app.use('/api/learning', require('./routes/learning'));
 app.use('/api/kb', require('./routes/kb-admin'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
+/* ── Quote Builder frontend ───────────────────────────────────────── */
+const serverPath = require('node:path');
+app.get('/quote-builder', (_req, res) => {
+  res.sendFile(serverPath.join(__dirname, '../public/quote-builder.html'));
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', worker: process.pid });
 });
