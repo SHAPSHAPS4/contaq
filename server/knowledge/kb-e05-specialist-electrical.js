@@ -1,0 +1,478 @@
+/**
+ * KB-E05: Specialist Electrical Systems
+ *
+ * Structured reference for fire alarm, access control, CCTV,
+ * data/comms, PA/VA, and BMS systems.
+ * Injected into extraction prompts at runtime.
+ *
+ * Part of Contraq M&E Knowledge Base v6.3
+ * Source: BS 5839, BS EN 62676, BS EN 50849, BS 7671, BACnet/Modbus, UK M&E practice
+ */
+
+const KB_E05 = {
+  id: 'KB-E05',
+  title: 'Specialist Electrical Systems',
+  version: '1.0',
+  date: '2026-03-19',
+
+  /* ══════════════════════════════════════════════════════════════
+     1. FIRE ALARM SYSTEM
+     ══════════════════════════════════════════════════════════════ */
+  fire_alarm: {
+    unit: 'nr (count every component individually)',
+    standard: 'BS 5839-1 (non-domestic), BS 5839-6 (domestic)',
+    specialist_flag: true,
+    specialist_note: 'Fire alarm is typically SPECIALIST SCOPE — installed by a fire alarm contractor (e.g. ADT, Tyco, Honeywell, Kentec approved installer). M&E contractor may provide containment and builder\'s work only. ALWAYS confirm scope boundary.',
+
+    system_types: {
+      conventional: {
+        name: 'Conventional (Zone) System',
+        description: 'Detectors wired in zones. Panel indicates ZONE in alarm, not individual device.',
+        typical_use: 'Small buildings, simple layouts. Being superseded by addressable.',
+        cabling: '2-core FP200 per zone loop. Separate cable per zone.'
+      },
+      addressable: {
+        name: 'Addressable System',
+        description: 'Each detector has unique address. Panel identifies INDIVIDUAL device in alarm.',
+        typical_use: 'Standard for commercial, healthcare, education. All new installations.',
+        cabling: '2-core FP200 loop cable. Multiple devices on single loop (up to 126-250 per loop depending on manufacturer).'
+      },
+      analogue_addressable: {
+        name: 'Analogue Addressable',
+        description: 'Advanced addressable — each detector reports analogue signal level. Panel makes alarm decision based on trends.',
+        typical_use: 'Large commercial, hospital, complex buildings. Current industry standard.',
+        cabling: 'Same as addressable — 2-core FP200 loop.'
+      }
+    },
+
+    components: {
+      facp: {
+        name: 'Fire Alarm Control Panel (FACP)',
+        function: 'Central brain of fire alarm system. Receives signals, makes alarm decisions, activates sounders, interfaces with other systems.',
+        specification_required: ['Number of loops (addressable) or zones (conventional)', 'Capacity (number of devices per loop)', 'Number of sounder circuits', 'Cause-and-effect programming', 'Repeater panels (if required)', 'Network capability (for multi-panel sites)', 'Interfaces (BMS, gas shut-off, AHU shutdown, lift recall, door release, sprinkler monitoring)'],
+        drawing_notations: ['FACP', 'FAP', 'fire panel', 'FA panel', 'control panel'],
+        count_rule: 'Count main panel + any repeater panels. Note number of loops/zones.',
+        associated_items: ['Mains power supply (dedicated circuit)', 'Battery backup (24hr standby + 30min alarm)', 'Printer (if specified)', 'Remote indicator panel / mimic', 'Network cable (for multi-panel)'],
+        flag_if: ['Number of loops/zones not stated', 'Cause-and-effect matrix not provided', 'Interfaces not listed']
+      },
+      smoke_detector: {
+        name: 'Smoke Detector',
+        types: {
+          optical: 'Optical (photoelectric) — detects visible smoke particles. Standard for most applications. Preferred for slow-burning fires.',
+          ionisation: 'Ionisation — detects invisible combustion products. Faster response to flaming fires. RARELY used now due to radioactive source.',
+          multi_sensor: 'Multi-sensor (optical + heat combined) — best all-round detection. Reduces false alarms. Increasingly standard.',
+          beam: 'Beam detector — transmitter and receiver across large space. For atriums, warehouses, high ceilings (>10m).',
+          aspirating: 'Aspirating (VESDA/HSSD) — air sampled through pipe network. Very early detection. Data centres, archives, clean rooms.'
+        },
+        drawing_notations: ['SD', 'smoke det', 'OSD (optical)', 'MSD (multi-sensor)', 'beam detector', 'VESDA'],
+        count_rule: 'Count every detector. Note type. Category determines coverage — cross-reference BS 5839.',
+        spacing: 'Optical: typically 1 per 100m² (7.5m radius). Heat: 1 per 50m² (5.3m radius). Check BS 5839 tables for exact spacing by ceiling height.',
+        flag_if: 'Detectors shown but system category not stated — category drives detector count.'
+      },
+      heat_detector: {
+        name: 'Heat Detector',
+        types: {
+          fixed_temp: 'Fixed temperature — alarms at set temperature (typically 57°C or 90°C).',
+          rate_of_rise: 'Rate of rise — alarms on rapid temperature increase. More responsive.',
+          combined: 'Combined rate-of-rise + fixed temperature. Most common.'
+        },
+        typical_use: 'Kitchens, plant rooms, boiler rooms, garages — where smoke detectors would cause false alarms.',
+        drawing_notations: ['HD', 'heat det', 'thermal detector'],
+        count_rule: 'Count every detector. Note type. Closer spacing than smoke detectors (5.3m radius per BS 5839).'
+      },
+      call_point: {
+        name: 'Manual Call Point (MCP / Break Glass)',
+        function: 'Manual fire alarm activation by occupant. Red box at exit doors.',
+        locations: ['At every exit door on escape routes', 'At every storey exit onto stairway', 'At final exits to outside', 'Maximum 45m travel distance between MCPs (BS 5839)'],
+        drawing_notations: ['MCP', 'CP', 'break glass', 'BG', 'manual call point'],
+        count_rule: 'Count every MCP. Note location. Check BS 5839 spacing requirements.',
+        height: '1.4m above finished floor level (standard mounting height).'
+      },
+      sounder: {
+        name: 'Sounder (Audible Alarm Device)',
+        function: 'Emits audible alarm signal throughout building on fire alarm activation.',
+        types: {
+          wall_sounder: 'Wall-mounted sounder. Standard for corridors, offices.',
+          ceiling_sounder: 'Ceiling-mounted sounder. For open-plan areas.',
+          sounder_beacon: 'Combined sounder + visual beacon. Required where hearing-impaired occupants may be present (Equality Act). BS 8300.',
+          beacon_only: 'Visual alarm device (VAD) only. For high-noise areas where sounders cannot be heard.'
+        },
+        drawing_notations: ['SND', 'sounder', 'S/B (sounder/beacon)', 'VAD', 'beacon'],
+        count_rule: 'Count every sounder and beacon individually. Note if combined sounder/beacon.',
+        coverage: 'Sound level: minimum 65dB throughout building, 75dB in bedrooms (BS 5839). Visual beacons: visible from all positions in the room.',
+        flag_if: 'No sounder/beacons shown in areas where hearing-impaired may work — flag for Equality Act compliance.'
+      },
+      interface_unit: {
+        name: 'Interface Unit / Module',
+        function: 'Connects fire alarm to other systems — input or output signal.',
+        types: {
+          input: 'Input module — receives signal FROM another system (sprinkler flow switch, gas detection, smoke vent confirming open).',
+          output: 'Output module — sends signal TO another system (gas solenoid shut-off, AHU shutdown, door hold-open release, lift recall, BMS).',
+          relay: 'Relay module — volt-free contact for interface between systems.'
+        },
+        drawing_notations: ['I/O', 'interface', 'module', 'relay', 'input module', 'output module'],
+        count_rule: 'Count every interface. Note type (input/output) and what it connects to.',
+        note: 'Interface units are often missed in early takeoffs. The cause-and-effect matrix defines all interfaces. If C&E matrix not provided, flag.'
+      }
+    },
+
+    cable: {
+      type: 'FP200 Gold (standard) or MICC (enhanced fire performance)',
+      measurement: 'm (linear metres)',
+      count_rule: 'Measure loop length from FACP around all devices and back to panel. Add 10% waste + 300mm per device for termination.',
+      loop_configuration: {
+        addressable: 'Single loop cable visits all devices on the loop in sequence, returns to panel. Class A (monitored return path) or Class B (single path).',
+        conventional: 'Separate cable per zone. Each zone cable runs from panel to furthest device with T-offs to each detector.',
+        note: 'Class A (loop with return) uses approximately 2× the cable of Class B (radial). Check spec for loop class.'
+      },
+      installation: 'Fire-rated clips per BS 8519. Red FP200 cable. Dedicated containment or fire-rated clips. Segregated from power cables. See KB-E01 and KB-E02.'
+    },
+
+    categories_ref: 'Fire alarm system categories (L1-L5, M, P1-P2) are defined in KB-C03 under BS 5839. Category determines detector coverage extent.'
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     2. ACCESS CONTROL
+     ══════════════════════════════════════════════════════════════ */
+  access_control: {
+    unit: 'nr',
+    specialist_flag: true,
+    specialist_note: 'Access control is typically specialist scope — installed by a security contractor. M&E may provide power supply, containment, and builder\'s work. Confirm scope boundary.',
+
+    components: {
+      controller: {
+        name: 'Access Control Panel / Controller',
+        function: 'Controls door locks based on credential authentication. Manages access permissions, logs events.',
+        specification_required: ['Number of doors controlled (2-door, 4-door, 8-door per controller)', 'Communication (TCP/IP, RS-485)', 'Software platform', 'Battery backup'],
+        drawing_notations: ['ACP', 'access controller', 'door controller', 'AC panel'],
+        count_rule: 'Count every controller. Note number of doors per controller. A 4-door controller manages 4 access points.'
+      },
+      card_reader: {
+        name: 'Card Reader / Credential Reader',
+        types: {
+          proximity: 'Proximity card reader — HID iCLASS, MIFARE. Standard commercial.',
+          smart_card: 'Smart card reader — contactless or contact. Higher security.',
+          biometric: 'Fingerprint, iris, facial recognition. High security areas.',
+          keypad: 'PIN code keypad. Simple, no card required. Often combined with card reader.',
+          mobile: 'Bluetooth/NFC mobile credential reader. Smartphone-based access.'
+        },
+        drawing_notations: ['CR', 'card reader', 'reader', 'prox reader'],
+        count_rule: 'Count 1nr per access point SIDE. A controlled door with entry+exit readers = 2nr readers. Entry-only (free exit) = 1nr reader.',
+        note: 'Readers are mounted on the SECURE side of the door (where you present credential to enter).'
+      },
+      electric_lock: {
+        name: 'Electric Lock',
+        types: {
+          maglock: 'Electromagnetic lock (maglock) — holds door closed with magnet. Fail-safe (unlocks on power loss — fire safety). Requires: door contact, request-to-exit.',
+          electric_strike: 'Electric strike — replaces standard strike plate. Door looks normal. Fail-secure or fail-safe available.',
+          motor_lock: 'Motorised lock — deadbolt. Highest security. Slower operation.',
+          solenoid_bolt: 'Solenoid bolt lock — electric bolt. Fast. Common for turnstiles, gates.'
+        },
+        drawing_notations: ['ML', 'maglock', 'electric lock', 'ES (electric strike)', 'EM lock'],
+        count_rule: 'Count 1nr per controlled door. Note type (maglock/strike).',
+        note: 'Maglocks MUST be fail-safe (unlock on power loss or fire alarm activation) for fire escape doors. This is a LIFE SAFETY requirement.'
+      },
+      door_contact: {
+        name: 'Door Contact / Door Position Switch',
+        function: 'Detects whether door is open or closed. Feeds back to access controller and/or fire alarm.',
+        drawing_notations: ['DC', 'door contact', 'reed switch', 'DPS'],
+        count_rule: 'Count 1nr per controlled door. Usually concealed in door frame.'
+      },
+      rex: {
+        name: 'Request to Exit (REX)',
+        function: 'Allows egress without card. Push button or passive infrared sensor inside controlled area.',
+        types: {
+          button: 'Push-to-exit button — green button near door.',
+          sensor: 'PIR REX — detects approach from inside. Hands-free.',
+          break_glass: 'Emergency break-glass REX — for fire exit doors (green, not red).'
+        },
+        drawing_notations: ['REX', 'RTE', 'exit button', 'push to exit'],
+        count_rule: 'Count 1nr per controlled door (on the exit side). Note type.'
+      },
+      psu: {
+        name: 'Power Supply Unit (PSU)',
+        function: 'Provides 12V or 24V DC to locks, readers, controllers. Includes battery backup.',
+        specification_required: ['Voltage (12V/24V DC)', 'Current capacity (A)', 'Battery backup duration (typically 4hr)'],
+        drawing_notations: ['PSU', 'power supply', 'access PSU'],
+        count_rule: 'Count 1nr per location or per group of doors (PSU serves multiple locks). Typically 1nr per 2-4 doors.'
+      }
+    },
+
+    per_door_summary: {
+      typical_controlled_door: ['1nr card reader (entry side)', '1nr REX button (exit side)', '1nr electric lock (maglock or strike)', '1nr door contact', 'Share of controller (1 controller per 2-4 doors)', 'Share of PSU (1 PSU per 2-4 doors)', 'Cable: data (Cat5e/6) to reader + power cable to lock + door contact cable'],
+      note: 'A "per door" count is useful for estimating when individual items are not shown. Multiply by number of controlled doors.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     3. CCTV SYSTEM
+     ══════════════════════════════════════════════════════════════ */
+  cctv: {
+    unit: 'nr',
+    specialist_flag: true,
+    specialist_note: 'CCTV is typically specialist scope — installed by a security contractor. M&E may provide containment, data network switches, and power. Confirm scope boundary.',
+
+    components: {
+      camera: {
+        name: 'IP Camera',
+        types: {
+          dome: 'Dome camera — ceiling-mounted, vandal-resistant housing. Standard for internal. Fixed or varifocal lens.',
+          bullet: 'Bullet camera — wall-mounted, cylindrical housing. Standard for external. Weather-resistant. Longer range.',
+          ptz: 'PTZ camera (Pan-Tilt-Zoom) — remotely controlled movement and zoom. For large areas, car parks, perimeters. Significantly more expensive.',
+          fisheye: 'Fisheye / panoramic — 360° view from single camera. Reduces camera count for open areas.',
+          turret: 'Turret camera — compact dome alternative. Flexible mounting. Increasingly popular.'
+        },
+        specification_required: ['Resolution (2MP/4MP/8MP)', 'Lens type (fixed, varifocal, motorised zoom)', 'IR range for night vision (m)', 'IP rating (IP66/IP67 for external)', 'IK rating (IK10 for vandal)', 'PoE powered (standard) or separate PSU', 'Analytics (people counting, ANPR, motion detection)'],
+        drawing_notations: ['CAM', 'camera', 'CCTV', 'dome', 'bullet', 'PTZ'],
+        count_rule: 'Count every camera. Note type and location (internal/external).'
+      },
+      nvr: {
+        name: 'NVR (Network Video Recorder)',
+        function: 'Records and stores video from IP cameras. Provides playback, search, export.',
+        specification_required: ['Number of channels (8, 16, 32, 64)', 'Storage capacity (TB)', 'Recording days at resolution/fps', 'PoE ports (if integrated PoE switch)', 'RAID configuration'],
+        drawing_notations: ['NVR', 'DVR', 'recorder', 'video recorder'],
+        count_rule: 'Count every NVR. Note channels and storage. 1 channel per camera minimum.',
+        note: 'NVR is located in comms room or security control room. Requires: data network connection, monitor, UPS power (recommended).'
+      },
+      monitor: {
+        name: 'CCTV Monitor',
+        specification_required: ['Size (inches)', 'Resolution', 'Wall-mounted or desk'],
+        drawing_notations: ['monitor', 'display', 'CCTV monitor'],
+        count_rule: 'Count every monitor. Typically in security control room.'
+      },
+      poe_switch: {
+        name: 'PoE Network Switch',
+        function: 'Provides data connection AND power to IP cameras over Cat cable (Power over Ethernet).',
+        specification_required: ['Number of PoE ports', 'PoE budget (watts)', 'Managed or unmanaged', 'Uplink ports'],
+        drawing_notations: ['PoE switch', 'network switch', 'data switch'],
+        count_rule: 'Count every switch. 1 PoE port per camera minimum.',
+        note: 'May be part of main IT network or dedicated CCTV network. Check spec for network architecture.'
+      }
+    },
+
+    cable: {
+      ip_system: 'Cat6/Cat6A — standard for IP CCTV. One cable per camera. PoE carries power and data on same cable.',
+      analogue: 'Coaxial (RG59/Shotgun) — legacy analogue CCTV. Separate power cable needed.',
+      measurement: 'm (linear). Measure from NVR/switch location to each camera position.',
+      note: 'IP cameras use structured cabling (Cat6) — same as data network. Count CCTV cables separately from general data cabling.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     4. DATA & COMMUNICATIONS
+     ══════════════════════════════════════════════════════════════ */
+  data_comms: {
+    unit: 'nr / m',
+    specialist_flag: true,
+    specialist_note: 'Structured cabling is often by a specialist data contractor. M&E may provide containment only. However, some M&E contractors include data cabling. ALWAYS confirm scope boundary.',
+
+    components: {
+      network_switch: {
+        name: 'Network Switch',
+        types: {
+          unmanaged: 'Unmanaged — plug-and-play. Small networks, non-critical.',
+          managed_l2: 'Layer 2 managed — VLAN support, QoS, monitoring. Standard commercial.',
+          managed_l3: 'Layer 3 managed — routing capability. Core/distribution switches.',
+          poe: 'PoE switch — provides power over Ethernet to connected devices (cameras, WAPs, phones). Note PoE budget (W).'
+        },
+        specification_required: ['Number of ports (8, 16, 24, 48)', 'Speed (1G, 10G)', 'PoE (yes/no, budget in W)', 'Managed/unmanaged', 'Uplink ports (SFP/SFP+)'],
+        drawing_notations: ['switch', 'data switch', 'network switch', 'SW', 'PoE switch'],
+        count_rule: 'Count every switch. Note port count and PoE capability.'
+      },
+      patch_panel: {
+        name: 'Patch Panel',
+        function: 'Termination point for structured cabling in comms cabinet. One port per cable.',
+        specification_required: ['Number of ports (24-port or 48-port standard)', 'Category (Cat5e/Cat6/Cat6A)', 'Rack size (1U per 24-port panel)'],
+        drawing_notations: ['PP', 'patch panel'],
+        count_rule: 'Count every panel. Typically 1nr 24-port panel per 24 data outlets served.',
+        note: 'Patch panels are mounted in server racks / comms cabinets.'
+      },
+      comms_cabinet: {
+        name: 'Server Rack / Comms Cabinet',
+        types: {
+          floor_standing: '42U full height — standard server room / main comms room.',
+          wall_mounted: '6U-18U — small comms room, floor distribution. Wall-mounted.',
+          open_rack: '42U open frame — data centre, where ventilation is critical.'
+        },
+        specification_required: ['Size (U height)', 'Width (600mm or 800mm)', 'Depth (600mm, 800mm, 1000mm)', 'Type (floor/wall/open)', 'Power (dedicated circuit)', 'Cooling (check heat load)'],
+        drawing_notations: ['rack', 'cabinet', 'comms cab', 'server rack', 'data cabinet', 'CR'],
+        count_rule: 'Count every rack/cabinet. Note size and location.',
+        associated_items: ['Dedicated power circuit (2× if dual-feed)', 'PDU within rack', 'Patch panels', 'Switches', 'Fibre patch panel (if fibre backbone)', 'Cable management', 'UPS (if critical)']
+      },
+      data_outlet: {
+        name: 'Data Outlet (RJ45)',
+        function: 'Wall or floor outlet for data/telephone connection. Connected to patch panel via Cat cable.',
+        specification_required: ['Category (Cat5e/Cat6/Cat6A)', 'Number of ports per plate (1-gang, 2-gang)', 'Mounting (flush, surface, dado, floor box)'],
+        drawing_notations: ['DO', 'data outlet', 'RJ45', 'data point', 'DP'],
+        count_rule: 'Count every outlet. Standard: 1× Cat6 per desk position. Many specs require 2× per position (voice + data or dual data).',
+        note: 'Each data outlet requires: 1× Cat cable from outlet to patch panel, 1× patch panel port, 1× patch lead (not usually in M&E scope).'
+      },
+      fibre_panel: {
+        name: 'Fibre Optic Patch Panel',
+        function: 'Terminates fibre optic cables in comms cabinet. Provides patch connections between fibre backbone and equipment.',
+        specification_required: ['Number of ports / fibres', 'Connector type (LC duplex standard)', 'Fibre type (OM3/OM4/OS2)'],
+        drawing_notations: ['FPP', 'fibre panel', 'fibre patch', 'ODF'],
+        count_rule: 'Count every fibre panel. Typically 1nr per comms cabinet with fibre backbone connection.'
+      },
+      wap: {
+        name: 'Wireless Access Point (WAP / AP)',
+        function: 'Provides Wi-Fi coverage. Ceiling-mounted, PoE-powered.',
+        specification_required: ['Standard (Wi-Fi 6 / Wi-Fi 6E)', 'Coverage area (m²)', 'PoE requirement (802.3af/at/bt)', 'Mounting (ceiling/wall)', 'Controller (cloud/on-premise)'],
+        drawing_notations: ['WAP', 'AP', 'wireless', 'Wi-Fi', 'access point'],
+        count_rule: 'Count every WAP. Note mounting location. Each WAP needs: 1× Cat6/Cat6A cable + 1× PoE switch port.',
+        coverage: 'Typical: 1 WAP per 150-250m² for standard office density. Higher density for lecture halls, conference areas.'
+      }
+    },
+
+    structured_cabling: {
+      measurement: 'm (linear). Measure from comms cabinet to each outlet location.',
+      cable_types: 'Cat5e, Cat6, Cat6A — see KB-E01 for detailed specifications.',
+      count_rule: 'One cable per data outlet. One cable per WAP. One cable per IP camera. One cable per PoE device.',
+      waste: '15% waste + service loops at patch panel (3m loop standard).',
+      note: 'Cross-reference KB-E01 for cable specifications and KB-E02 for containment.'
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     5. PUBLIC ADDRESS / VOICE ALARM
+     ══════════════════════════════════════════════════════════════ */
+  pa_va: {
+    unit: 'nr',
+    specialist_flag: true,
+    specialist_note: 'PA/VA systems are typically specialist scope. Voice Alarm (VA) is a LIFE SAFETY system requiring BS 5839-8 compliance and fire-rated cable.',
+
+    system_types: {
+      pa: {
+        name: 'Public Address (PA)',
+        function: 'Background music, announcements, paging. NOT life safety.',
+        standard: 'BS EN 60849 (being replaced by BS EN 50849)',
+        cable: 'Standard speaker cable (non-fire-rated). 100V line distribution.',
+        note: 'PA is NOT a life safety system. Standard cable and installation.'
+      },
+      va: {
+        name: 'Voice Alarm (VA)',
+        function: 'Emergency voice evacuation messages. IS a LIFE SAFETY system.',
+        standard: 'BS 5839-8 (Voice Alarm), BS EN 50849',
+        cable: 'Fire-rated cable MANDATORY (FP200 or equivalent). BS 8519 installation.',
+        note: 'VA MUST use fire-rated cable, fire-rated containment, and meet BS 5839-8. Significantly more expensive than PA. Always confirm if system is PA or VA.',
+        flag_always: true,
+        flag_reason: 'Voice Alarm is life safety. Fire-rated cable (FP200) is mandatory. Installation must comply with BS 8519. Cost is 2-3× a standard PA system.'
+      }
+    },
+
+    components: {
+      amplifier: {
+        name: 'PA/VA Amplifier / Rack',
+        function: 'Central amplification unit. Processes audio, amplifies signal to speakers.',
+        specification_required: ['Total power output (W)', 'Number of zones', 'Redundancy (N+1 for VA)', 'Fire alarm interface (mandatory for VA)', 'Battery backup (mandatory for VA — 30 min minimum)'],
+        drawing_notations: ['PA amp', 'VA rack', 'amplifier', 'PA/VA panel'],
+        count_rule: 'Count main amplifier rack + any remote amplifiers. Note total wattage and zone count.'
+      },
+      speaker: {
+        name: 'Speaker / Loudspeaker',
+        types: {
+          ceiling: 'Ceiling-mounted — round, flush or surface. Most common for commercial interiors.',
+          wall: 'Wall-mounted — for corridors, staircases, external areas.',
+          column: 'Column speaker — high output, directional. Atria, large spaces.',
+          horn: 'Horn speaker — external, high-noise areas, car parks.',
+          pendant: 'Pendant speaker — suspended. High ceilings, retail, atria.'
+        },
+        specification_required: ['Type (ceiling/wall/horn/column)', 'Power rating (W)', 'Impedance/transformer tap', 'IP rating (external)', 'Fire-rated (VA system)'],
+        drawing_notations: ['SPK', 'speaker', 'LS', 'loudspeaker', 'PA speaker', 'VA speaker'],
+        count_rule: 'Count every speaker. Note type and power tap. VA speakers must be fire-rated.',
+        coverage: 'Ceiling speakers: typically 1 per 25-40m² for speech intelligibility. Closer spacing for VA (higher coverage requirement).'
+      },
+      microphone: {
+        name: 'Microphone / Paging Station',
+        types: {
+          desk: 'Desk-mounted gooseneck microphone — for reception, security.',
+          wall: 'Wall-mounted paging station — for fire control, duty manager.',
+          fireman: 'Fireman\'s microphone — BS 5839-8 requirement at fire panel location.'
+        },
+        drawing_notations: ['mic', 'microphone', 'paging station', 'fireman\'s mic'],
+        count_rule: 'Count every microphone/paging point. VA systems MUST have fireman\'s microphone at fire alarm panel.',
+        note: 'Fireman\'s microphone is mandatory for VA systems (BS 5839-8). Usually adjacent to the fire alarm panel.'
+      }
+    }
+  },
+
+  /* ══════════════════════════════════════════════════════════════
+     6. BMS / BUILDING MANAGEMENT SYSTEM
+     ══════════════════════════════════════════════════════════════ */
+  bms: {
+    unit: 'nr',
+    specialist_flag: true,
+    specialist_note: 'BMS is ALWAYS a specialist scope item. The BMS contractor designs, supplies, installs, and commissions the BMS. M&E contractor provides: power supply to BMS panels, containment for BMS cabling, mechanical equipment with BMS-compatible controls. ALWAYS confirm scope boundary — it varies significantly between projects.',
+
+    components: {
+      controller: {
+        name: 'BMS Controller / DDC Panel (Direct Digital Control)',
+        function: 'Local intelligence — reads sensors, controls actuators, runs control sequences. Communicates with central BMS.',
+        types: {
+          general_purpose: 'General purpose controller (GPC) — programmable, handles multiple plant items.',
+          application_specific: 'Application-specific controller (ASC) — factory-programmed for specific equipment (AHU, boiler).',
+          unitary: 'Unitary controller — small, fixed I/O count. For FCUs, VAVs, fan coils.',
+          io_module: 'I/O expansion module — adds inputs/outputs to existing controller.'
+        },
+        specification_required: ['Number of I/O points (AI, AO, DI, DO)', 'Communication protocol (BACnet IP, BACnet MS/TP, Modbus, LON)', 'Enclosure (IP rating)', 'Power supply'],
+        drawing_notations: ['DDC', 'BMS controller', 'outstation', 'DDC panel', 'BMS panel'],
+        count_rule: 'Count every controller. Note I/O count and protocol. Typically 1nr per plant room or per major plant item.'
+      },
+      field_devices: {
+        name: 'BMS Field Devices',
+        categories: {
+          sensors: {
+            temperature: 'Duct temp, pipe temp (strap-on/immersion/pocket), room temp, outside air temp.',
+            humidity: 'Duct humidity, room humidity.',
+            pressure: 'Duct pressure (differential), pipe pressure, room pressure (clean rooms).',
+            co2: 'CO₂ sensor — demand-controlled ventilation. Room or duct mounted.',
+            flow: 'Water flow meter/switch. Air flow sensor (pitot/thermal).',
+            level: 'Tank/vessel level sensor or switch.'
+          },
+          actuators: {
+            valve_actuator: 'Motorised actuator on 2-port or 3-port control valve.',
+            damper_actuator: 'Motorised actuator on duct damper (VCD, fire/smoke).',
+            vfd: 'Variable frequency drive — motor speed control for pumps/fans. Sometimes M&E scope, sometimes BMS scope.'
+          }
+        },
+        count_rule: 'Count every sensor and actuator as 1nr BMS point. Note type (AI/AO/DI/DO) for each.',
+        io_types: {
+          AI: 'Analogue Input — temperature, humidity, pressure, CO₂ (variable signal, typically 0-10V or 4-20mA).',
+          AO: 'Analogue Output — valve position, damper position, VFD speed (variable signal).',
+          DI: 'Digital Input — on/off status, alarm, switch position (binary signal).',
+          DO: 'Digital Output — start/stop command, open/close (binary signal).'
+        }
+      },
+      network: {
+        name: 'BMS Network',
+        cabling: {
+          bacnet_ip: 'Cat5e/Cat6 Ethernet — standard for BACnet IP. Uses existing structured cabling network or dedicated BMS LAN.',
+          bacnet_mstp: 'Screened twisted pair (STP) — RS-485 bus. BACnet MS/TP. Maximum 4000ft per segment. Up to 127 devices.',
+          modbus: 'Screened twisted pair (STP) — RS-485 bus. Modbus RTU. Similar to BACnet MS/TP.',
+          lon: 'LON (LonWorks) — twisted pair. Older protocol, still in use.',
+          note: 'BMS network cabling is measured in m (linear). Cable type depends on protocol. Always note protocol.'
+        },
+        head_end: {
+          name: 'BMS Head-End / Supervisor',
+          function: 'Central PC/server running BMS software. Graphical interface, trending, alarms, scheduling.',
+          items: ['Server/PC', 'BMS software licence', 'Monitor(s)', 'UPS (recommended)', 'Network connection'],
+          count_rule: 'Count as 1nr system. Note software and licence requirements.'
+        }
+      }
+    },
+
+    scope_boundary: {
+      typically_bms_contractor: ['BMS controllers/DDC panels', 'BMS field sensors (temp, humidity, CO₂, pressure)', 'BMS cabling (network + field wiring)', 'BMS software and commissioning', 'Integration with third-party systems'],
+      typically_me_contractor: ['Motorised valves and actuators on M&E equipment', 'VFDs/VSDs on pumps and fans', 'Power supply to BMS panels', 'Containment for BMS cabling', 'Mechanical equipment with BMS-ready controls'],
+      varies_by_project: ['Control valves (sometimes M&E, sometimes BMS)', 'Damper actuators (sometimes M&E, sometimes BMS)', 'VFDs (sometimes M&E, sometimes BMS)', 'Room sensors (sometimes M&E, sometimes BMS)'],
+      rule: 'ALWAYS check the specification for the BMS scope boundary. It varies significantly. If unclear, flag for estimator clarification before pricing.'
+    },
+
+    points_schedule: {
+      rule: 'If a BMS points schedule is provided, use it as AUTHORITATIVE for point counts. It lists every sensor, actuator, and status point with I/O type.',
+      flag_if: 'No BMS points schedule provided — flag. Cannot accurately price BMS without a points schedule.'
+    }
+  }
+};
+
+module.exports = KB_E05;

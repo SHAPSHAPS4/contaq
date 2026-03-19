@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.2';
+const KB_VERSION = '6.3';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 38;
+const KB_VERSION_SOURCES = 39;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -43,6 +43,7 @@ const KB_E01 = require('./kb-e01-cable-types');
 const KB_E02 = require('./kb-e02-containment');
 const KB_E03 = require('./kb-e03-electrical-equipment');
 const KB_E04 = require('./kb-e04-lighting-small-power');
+const KB_E05 = require('./kb-e05-specialist-electrical');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1068,7 +1069,27 @@ function getFullKnowledgeBase() {
 
     'Small Power (nr): SSO (13A single), DSO (13A double — most common), SFCU (fused connection — fixed appliances), Floor box (note compartments + contents), Dado socket, Industrial/CEE (note A + voltage + IP), USB socket.',
 
-    'Specialist: EV charging (7/22/50kW, Part S mandatory for new builds, PME earthing restrictions), Server PDU (A+B dual-feed = 2× per rack), Raised floor outlets.'
+    'Specialist: EV charging (7/22/50kW, Part S mandatory for new builds, PME earthing restrictions), Server PDU (A+B dual-feed = 2× per rack), Raised floor outlets.',
+
+    '### KB-E05: Specialist Electrical Systems',
+    'Fire Alarm (BS 5839, SPECIALIST): FACP (loops/zones), smoke det (optical/multi-sensor/beam/VESDA), heat det, MCP (45m max spacing), sounder/beacon (65dB min), interface modules (I/O for gas shut-off, AHU, lifts).',
+    '  Cable: FP200 (standard) or MICC (enhanced). Fire-rated clips per BS 8519. Class A loop = 2× cable of Class B.',
+    '  System category (L1-L5/M/P) determines detector coverage — MUST be stated. Flag if missing.',
+
+    'Access Control (SPECIALIST): Controller (2/4/8 door), card reader (1nr per SIDE — entry+exit = 2nr), electric lock (maglock fail-safe for fire exits), door contact, REX, PSU.',
+    '  Per controlled door: ~1 reader + 1 lock + 1 contact + 1 REX + share of controller/PSU.',
+
+    'CCTV (SPECIALIST): IP camera (dome/bullet/PTZ, note resolution MP), NVR (channels, TB storage), monitor, PoE switch. Cable: Cat6 per camera (PoE = power+data on same cable).',
+
+    'Data & Comms (often SPECIALIST): Network switch (ports, PoE), patch panel (24/48 port), comms cabinet (6U-42U), data outlet RJ45 (1-2× per desk), fibre panel, WAP (1 per 150-250m², PoE).',
+    '  One Cat6 cable per outlet. 15% waste + 3m service loop. Separate from CCTV cable count.',
+
+    'PA/VA: PA = not life safety (standard cable). VA = LIFE SAFETY (FP200 mandatory, BS 5839-8). VA is 2-3× cost of PA.',
+    '  Amplifier (W, zones), speakers (ceiling/wall/horn, W), microphone. VA requires fireman\'s microphone at fire panel.',
+
+    'BMS (ALWAYS SPECIALIST): DDC controller (I/O points, BACnet/Modbus), sensors (temp/humidity/CO2/pressure = AI), actuators (valves/dampers = AO), status (DI), commands (DO).',
+    '  Scope boundary VARIES: check spec for who provides valves, actuators, VFDs, sensors. Flag if unclear.',
+    '  BMS points schedule is AUTHORITATIVE if provided. Flag if no points schedule.'
   ].join('\n\n');
 }
 
@@ -1106,7 +1127,8 @@ function getSection(sectionName) {
     cable_types: KB_E01,
     containment: KB_E02,
     electrical_equipment: KB_E03,
-    lighting_small_power: KB_E04
+    lighting_small_power: KB_E04,
+    specialist_electrical: KB_E05
   };
   return sections[sectionName] || null;
 }
@@ -1164,5 +1186,6 @@ module.exports = {
   KB_E01,
   KB_E02,
   KB_E03,
-  KB_E04
+  KB_E04,
+  KB_E05
 };
