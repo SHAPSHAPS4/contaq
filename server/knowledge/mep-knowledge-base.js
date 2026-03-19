@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.9';
+const KB_VERSION = '7.0';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 45;
+const KB_VERSION_SOURCES = 46;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -50,6 +50,7 @@ const KB_I03 = require('./kb-i03-equipment-insulation');
 const KB_I04 = require('./kb-i04-fire-specialist-insulation');
 const KB_X01 = require('./kb-x01-extraction-logic');
 const KB_X02 = require('./kb-x02-confidence-scoring');
+const KB_X03 = require('./kb-x03-conflict-resolution');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1218,7 +1219,26 @@ function getFullKnowledgeBase() {
     'Pairing Rule: Every Low item MUST have: (1) specific flag explaining WHY, (2) what info would raise confidence, (3) whether to price as-is or hold.',
     'Estimator MUST sign off ALL Low items before pricing. Unresolved Low items → tender qualifications.',
 
-    'Value×Risk: High value + Low confidence = HIGHEST RISK → flag to commercial team, qualify in tender, consider provisional sum.'
+    'Value×Risk: High value + Low confidence = HIGHEST RISK → flag to commercial team, qualify in tender, consider provisional sum.',
+
+    '### KB-X03: Conflict Resolution Rules',
+    'GOLDEN RULE: NEVER resolve a conflict silently. ALWAYS flag. Every conflict → 3 outputs: (1) resolution applied, (2) what each source said, (3) flag for estimator.',
+
+    'Conflict Types & Resolution:',
+    '  Drawing vs Spec: default to Spec (material/quality). Drawing for quantity/position. Confidence: Medium.',
+    '  Drawing vs Drawing (same rev): DO NOT extract. Flag both. Confidence: Low. Estimator resolves.',
+    '  Drawing vs Drawing (diff rev): use LATEST revision. Flag superseded. Confidence: High if FC.',
+    '  Spec vs Spec: flag BOTH clauses. Do NOT resolve. Use conservative interpretation as provisional. Confidence: Low.',
+    '  Schedule vs Drawing: use Schedule (higher authority). Flag discrepancy. Confidence: High.',
+    '  BoQ vs Drawing: use BoQ (contractual). Flag discrepancy. Note for final account.',
+    '  Annotation vs Scale: ALWAYS use annotation (figured dimension overrides scale). Flag if >10% discrepancy.',
+
+    'Severity Levels:',
+    '  CRITICAL: blocks extraction — two FC drawings conflict, spec vs drawing show different system. STOP and request clarification.',
+    '  MODERATE: affects quantity/spec — different sizes, counts differ. Extract from higher authority, flag both values.',
+    '  MINOR: detail only — <5% dimension, abbreviation difference. Extract best interpretation, note in flags.',
+
+    '7-point Detection Checklist: multiple revisions, material mismatch, schedule vs drawing count, spec contradiction, annotation vs spec, status mismatch, cross-discipline conflict.'
   ].join('\n\n');
 }
 
@@ -1263,7 +1283,8 @@ function getSection(sectionName) {
     equipment_insulation: KB_I03,
     fire_specialist_insulation: KB_I04,
     extraction_logic: KB_X01,
-    confidence_scoring: KB_X02
+    confidence_scoring: KB_X02,
+    conflict_resolution: KB_X03
   };
   return sections[sectionName] || null;
 }
@@ -1328,5 +1349,6 @@ module.exports = {
   KB_I03,
   KB_I04,
   KB_X01,
-  KB_X02
+  KB_X02,
+  KB_X03
 };
