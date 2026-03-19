@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contraq - Pricing Panel</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --text: #1a1a18;
+    --primary: #185FA5;
+    --green: #3B6D11;
+    --amber: #BA7517;
+    --red: #E24B4A;
+    --border: #e8e6e0;
+    --bg: #ffffff;
+    --bg-muted: #f7f6f3;
+    --mechanical: #0F6E56;
+    --electrical: #BA7517;
+    --insulation: #534AB7;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text);
+    background: var(--bg-muted);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+
+  .container { max-width: 1440px; margin: 0 auto; padding: 16px 24px 120px; }
+
+  /* ── HEADER ROW ── */
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .header-row .project-ref {
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    padding: 6px 12px;
+    background: var(--bg-muted);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .header-row input[type="text"] {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 220px;
+    color: var(--text);
+  }
+  .header-row input[type="text"]:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+
+  .btn {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn:hover { background: var(--bg-muted); }
+  .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-primary:hover { background: #14508c; }
+  .btn-green { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-green:hover { background: #2e5a0d; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-amber { background: var(--amber); color: #fff; border-color: var(--amber); }
+  .btn-amber:hover { background: #9e6413; }
+  .btn-red { background: var(--red); color: #fff; border-color: var(--red); }
+
+  .spacer { flex: 1; }
+
+  /* ── COLLAPSIBLE SECTIONS ── */
+  .collapsible {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--bg);
+    border-bottom: 1px solid transparent;
+  }
+  .collapsible-header:hover { background: var(--bg-muted); }
+  .collapsible-header .chevron {
+    transition: transform 0.2s;
+    font-size: 12px;
+    color: #888;
+  }
+  .collapsible.open .collapsible-header { border-bottom-color: var(--border); }
+  .collapsible.open .collapsible-header .chevron { transform: rotate(180deg); }
+  .collapsible-body { display: none; padding: 16px; }
+  .collapsible.open .collapsible-body { display: block; }
+
+  /* ── OVERHEAD SLIDERS ── */
+  .sliders-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+  }
+  .slider-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .slider-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+  .slider-value {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-top: 4px;
+  }
+
+  /* ── SUMMARY CARDS ── */
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .summary-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .summary-card .card-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #777;
+    margin-bottom: 4px;
+  }
+  .summary-card .card-value {
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .card-grand .card-value { color: var(--primary); }
+  .card-grand { border-top: 3px solid var(--primary); }
+
+  /* ── TRADE BAR ── */
+  .trade-bar-section {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .trade-bar-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #777;
+    margin-bottom: 10px;
+  }
+  .trade-bar {
+    display: flex;
+    height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .trade-bar div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 40px;
+    transition: width 0.3s;
+  }
+  .trade-bar-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  /* ── TABLE SECTION ── */
+  .table-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .table-controls select {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .table-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--bg-muted);
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #555;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr:hover { background: #fafaf8; }
+  tbody tr.editing { background: #eef4fb; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+  }
+  .badge-priced { background: #e8f5e1; color: var(--green); }
+  .badge-unpriced { background: #fef3e0; color: var(--amber); }
+  .badge-override { background: #e1ecf7; color: var(--primary); }
+
+  .actions-cell { display: flex; gap: 4px; }
+
+  .inline-input {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 3px 6px;
+    border: 1px solid var(--primary);
+    border-radius: 4px;
+    width: 80px;
+    text-align: right;
+    color: var(--text);
+  }
+
+  /* ── UNPRICED PANEL ── */
+  .unpriced-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .unpriced-item:last-child { border-bottom: none; }
+  .unpriced-item .item-desc { flex: 1; }
+  .unpriced-item .item-desc strong { font-size: 13px; }
+  .unpriced-item .item-desc span { display: block; font-size: 12px; color: #777; }
+  .unpriced-input {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 110px;
+    text-align: right;
+  }
+  .unpriced-input:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+
+  /* ── STICKY FOOTER ── */
+  .totals-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-top: 2px solid var(--border);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    z-index: 100;
+  }
+  .totals-footer-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    padding: 10px 24px;
+  }
+  .footer-cell {
+    text-align: center;
+    padding: 4px 8px;
+    border-right: 1px solid var(--border);
+  }
+  .footer-cell:last-child { border-right: none; }
+  .footer-cell .footer-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #888;
+  }
+  .footer-cell .footer-value {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .footer-grand .footer-value {
+    color: var(--primary);
+    font-size: 22px;
+  }
+
+  @media (max-width: 900px) {
+    .sliders-row { grid-template-columns: repeat(2, 1fr); }
+    .summary-cards { grid-template-columns: repeat(2, 1fr); }
+    .totals-footer-inner { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══ HEADER ROW ═══ -->
+  <div class="header-row">
+    <div class="project-ref">Project ABC-123</div>
+    <input type="text" id="quoteRef" placeholder="QT-YYYYMMDD-001">
+    <div class="spacer"></div>
+    <button class="btn" onclick="recalculate()">Recalculate</button>
+    <button class="btn btn-primary" onclick="saveQuote()">Save Quote</button>
+    <button class="btn" onclick="exportCSV()">Export CSV</button>
+  </div>
+
+  <!-- ═══ OVERHEAD CONTROLS ═══ -->
+  <div class="collapsible" id="overheadSection">
+    <div class="collapsible-header" onclick="toggleCollapsible('overheadSection')">
+      <span>Overhead &amp; Margin Controls</span>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="sliders-row">
+        <div class="slider-group">
+          <label>Labour Uplift</label>
+          <input type="range" id="slider-labour" min="0" max="50" value="15" oninput="onSliderChange()">
+          <div class="slider-value" id="val-labour">15%</div>
+        </div>
+        <div class="slider-group">
+          <label>Material Uplift</label>
+          <input type="range" id="slider-material" min="0" max="50" value="10" oninput="onSliderChange()">
+          <div class="slider-value" id="val-material">10%</div>
+        </div>
+        <div class="slider-group">
+          <label>Overhead</label>
+          <input type="range" id="slider-overhead" min="0" max="30" value="12" oninput="onSliderChange()">
+          <div class="slider-value" id="val-overhead">12%</div>
+        </div>
+        <div class="slider-group">
+          <label>Profit</label>
+          <input type="range" id="slider-profit" min="0" max="30" value="8" oninput="onSliderChange()">
+          <div class="slider-value" id="val-profit">8%</div>
+        </div>
+        <div class="slider-group">
+          <label>Contingency</label>
+          <input type="range" id="slider-contingency" min="0" max="20" value="5" oninput="onSliderChange()">
+          <div class="slider-value" id="val-contingency">5%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUMMARY CARDS ═══ -->
+  <div class="summary-cards">
+    <div class="summary-card card-grand">
+      <div class="card-label">Grand Total</div>
+      <div class="card-value" id="card-grand">&pound;0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="card-label">Material Total</div>
+      <div class="card-value" id="card-material">&pound;0.00</div>
+    </div>
+    <div class="summary-card">
+      <div class="card-label">Labour Total</div>
+      <div class="card-value" id="card-labour">&pound;0.00</div>
+    </div>
+    <div class="summary-card" id="card-unpriced-wrap">
+      <div class="card-label">Unpriced Items</div>
+      <div class="card-value" id="card-unpriced">0</div>
+    </div>
+  </div>
+
+  <!-- ═══ TRADE BREAKDOWN BAR ═══ -->
+  <div class="trade-bar-section">
+    <h3>Trade Breakdown</h3>
+    <div class="trade-bar" id="tradeBar"></div>
+    <div class="trade-bar-legend">
+      <span><span class="legend-dot" style="background:var(--mechanical)"></span>Mechanical</span>
+      <span><span class="legend-dot" style="background:var(--electrical)"></span>Electrical</span>
+      <span><span class="legend-dot" style="background:var(--insulation)"></span>Insulation</span>
+    </div>
+  </div>
+
+  <!-- ═══ TABLE FILTERS ═══ -->
+  <div class="table-controls">
+    <label style="font-weight:600;font-size:13px;">Filter:</label>
+    <select id="filterTrade" onchange="renderTable()">
+      <option value="">All Trades</option>
+      <option value="Mechanical">Mechanical</option>
+      <option value="Electrical">Electrical</option>
+      <option value="Insulation">Insulation</option>
+    </select>
+    <select id="filterStatus" onchange="renderTable()">
+      <option value="">All Statuses</option>
+      <option value="priced">Priced</option>
+      <option value="unpriced">Unpriced</option>
+      <option value="manual_override">Manual Override</option>
+    </select>
+  </div>
+
+  <!-- ═══ PRICED ITEMS TABLE ═══ -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Trade</th>
+          <th>Description</th>
+          <th>Spec</th>
+          <th>Qty</th>
+          <th>Unit</th>
+          <th>Mat &pound;</th>
+          <th>Labour &pound;</th>
+          <th>Total &pound;</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ═══ UNPRICED ITEMS PANEL ═══ -->
+  <div class="collapsible open" id="unpricedSection">
+    <div class="collapsible-header" onclick="toggleCollapsible('unpricedSection')">
+      <span>Unpriced Items (<span id="unpricedCount">0</span>)</span>
+      <span class="chevron">&#9660;</span>
+    </div>
+    <div class="collapsible-body" id="unpricedBody"></div>
+  </div>
+
+</div>
+
+<!-- ═══ STICKY TOTALS FOOTER ═══ -->
+<div class="totals-footer">
+  <div class="totals-footer-inner">
+    <div class="footer-cell">
+      <div class="footer-label">Material</div>
+      <div class="footer-value" id="foot-material">&pound;0</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">Labour</div>
+      <div class="footer-value" id="foot-labour">&pound;0</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">Overhead</div>
+      <div class="footer-value" id="foot-overhead">&pound;0</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">Profit</div>
+      <div class="footer-value" id="foot-profit">&pound;0</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">Contingency</div>
+      <div class="footer-value" id="foot-contingency">&pound;0</div>
+    </div>
+    <div class="footer-cell footer-grand">
+      <div class="footer-label">Grand Total</div>
+      <div class="footer-value" id="foot-grand">&pound;0</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// PLACEHOLDER DATA — 12 items, 3 trades
+// ═══════════════════════════════════════════
+const items = [
+  { id: 1,  trade: "Mechanical",  desc: "LTHW Copper Pipework 28mm",         spec: "BS EN 1057 R250",       qty: 120, unit: "m",   matRate: 18.50, labourRate: 24.00, status: "priced",   override: null },
+  { id: 2,  trade: "Mechanical",  desc: "Gate Valve PN16 28mm",              spec: "BS 5154",               qty: 14,  unit: "nr",  matRate: 42.00, labourRate: 35.00, status: "priced",   override: null },
+  { id: 3,  trade: "Mechanical",  desc: "Plate Heat Exchanger 250kW",        spec: "316 SS Brazed",         qty: 1,   unit: "nr",  matRate: 4850.00, labourRate: 1200.00, status: "priced", override: null },
+  { id: 4,  trade: "Mechanical",  desc: "Centrifugal Pump Grundfos TP 50",   spec: "Cast Iron, 2.2kW",      qty: 2,   unit: "nr",  matRate: 1650.00, labourRate: 480.00, status: "priced",   override: null },
+  { id: 5,  trade: "Electrical",  desc: "SWA Cable 4C 6mm\u00B2",           spec: "BS 5467 XLPE",          qty: 200, unit: "m",   matRate: 8.75,  labourRate: 12.50, status: "priced",   override: null },
+  { id: 6,  trade: "Electrical",  desc: "Distribution Board 12-Way TPN",     spec: "BS EN 61439",           qty: 3,   unit: "nr",  matRate: 385.00, labourRate: 320.00, status: "priced",   override: null },
+  { id: 7,  trade: "Electrical",  desc: "Emergency Luminaire 3W LED",        spec: "BS 5266 Maintained",    qty: 24,  unit: "nr",  matRate: 48.00, labourRate: 28.00, status: "priced",   override: null },
+  { id: 8,  trade: "Insulation",  desc: "Pipe Insulation Rockwool 28mm 25thk", spec: "BS 5422 Class O",    qty: 120, unit: "m",   matRate: 6.20,  labourRate: 9.50,  status: "priced",   override: null },
+  { id: 9,  trade: "Mechanical",  desc: "AHU Supply Unit 2.5 m\u00B3/s",    spec: "Eurovent Certified",    qty: 1,   unit: "nr",  matRate: 0,     labourRate: 0,     status: "unpriced", override: null },
+  { id: 10, trade: "Electrical",  desc: "Fire Alarm Panel Addressable",      spec: "BS 5839 Pt.1",         qty: 1,   unit: "nr",  matRate: 0,     labourRate: 0,     status: "unpriced", override: null },
+  { id: 11, trade: "Insulation",  desc: "Ductwork Insulation 50mm Slab",     spec: "BS 5422 Class O",      qty: 85,  unit: "m\u00B2", matRate: 0, labourRate: 0,     status: "unpriced", override: null },
+  { id: 12, trade: "Mechanical",  desc: "BMS Controller & Outstations",      spec: "BACnet IP",            qty: 1,   unit: "lot", matRate: 0,     labourRate: 0,     status: "unpriced", override: null },
+];
+
+let editingId = null;
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+(function init() {
+  // Auto-generate quote reference
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  document.getElementById('quoteRef').value = `QT-${y}${m}${d}-001`;
+
+  // Load overheads (placeholder — would fetch from API)
+  // LIVE API CALL — GET http://localhost:3001/api/pricing/overheads
+  // fetch('http://localhost:3001/api/pricing/overheads')
+  //   .then(r => r.json())
+  //   .then(data => { applyOverheadsFromServer(data); });
+
+  recalculate();
+})();
+
+// ═══════════════════════════════════════════
+// COLLAPSIBLE TOGGLE
+// ═══════════════════════════════════════════
+function toggleCollapsible(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════
+// SLIDER CHANGES
+// ═══════════════════════════════════════════
+function onSliderChange() {
+  ['labour', 'material', 'overhead', 'profit', 'contingency'].forEach(key => {
+    const v = document.getElementById('slider-' + key).value;
+    document.getElementById('val-' + key).textContent = v + '%';
+  });
+  recalculate();
+}
+
+function getOverheads() {
+  return {
+    labourUplift:  +document.getElementById('slider-labour').value / 100,
+    materialUplift: +document.getElementById('slider-material').value / 100,
+    overhead:      +document.getElementById('slider-overhead').value / 100,
+    profit:        +document.getElementById('slider-profit').value / 100,
+    contingency:   +document.getElementById('slider-contingency').value / 100,
+  };
+}
+
+// ═══════════════════════════════════════════
+// RECALCULATE ALL
+// ═══════════════════════════════════════════
+function recalculate() {
+  // LIVE API CALL — POST http://localhost:3001/api/pricing/price
+  // fetch('http://localhost:3001/api/pricing/price', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ items, overheads: getOverheads() })
+  // }).then(r => r.json()).then(data => { /* update from server */ });
+
+  const oh = getOverheads();
+
+  let totalMat = 0, totalLab = 0;
+  const tradeTotals = { Mechanical: 0, Electrical: 0, Insulation: 0 };
+
+  items.forEach(item => {
+    if (item.override !== null) {
+      // Override: count full override as the item total
+      const ov = item.override;
+      tradeTotals[item.trade] = (tradeTotals[item.trade] || 0) + ov;
+      // Split proportionally for mat/lab display (rough)
+      totalMat += ov * 0.55;
+      totalLab += ov * 0.45;
+    } else if (item.status === 'priced' || item.status === 'manual_override') {
+      const mat = item.matRate * item.qty;
+      const lab = item.labourRate * item.qty;
+      totalMat += mat;
+      totalLab += lab;
+      tradeTotals[item.trade] = (tradeTotals[item.trade] || 0) + mat + lab;
+    }
+  });
+
+  const matWithUplift = totalMat * (1 + oh.materialUplift);
+  const labWithUplift = totalLab * (1 + oh.labourUplift);
+  const subtotal = matWithUplift + labWithUplift;
+  const overheadVal = subtotal * oh.overhead;
+  const profitVal = (subtotal + overheadVal) * oh.profit;
+  const contingencyVal = (subtotal + overheadVal + profitVal) * oh.contingency;
+  const grandTotal = subtotal + overheadVal + profitVal + contingencyVal;
+
+  const unpricedCount = items.filter(i => i.status === 'unpriced').length;
+
+  // Summary cards
+  document.getElementById('card-grand').textContent = fmt(grandTotal);
+  document.getElementById('card-material').textContent = fmt(matWithUplift);
+  document.getElementById('card-labour').textContent = fmt(labWithUplift);
+  document.getElementById('card-unpriced').textContent = unpricedCount;
+
+  const uw = document.getElementById('card-unpriced-wrap');
+  uw.style.borderTop = unpricedCount > 5 ? '3px solid var(--red)' : unpricedCount > 0 ? '3px solid var(--amber)' : '1px solid var(--border)';
+  document.getElementById('card-unpriced').style.color = unpricedCount > 5 ? 'var(--red)' : unpricedCount > 0 ? 'var(--amber)' : 'var(--text)';
+
+  // Footer
+  document.getElementById('foot-material').textContent = fmt(matWithUplift);
+  document.getElementById('foot-labour').textContent = fmt(labWithUplift);
+  document.getElementById('foot-overhead').textContent = fmt(overheadVal);
+  document.getElementById('foot-profit').textContent = fmt(profitVal);
+  document.getElementById('foot-contingency').textContent = fmt(contingencyVal);
+  document.getElementById('foot-grand').textContent = fmt(grandTotal);
+
+  // Trade bar
+  const tradeTotal = tradeTotals.Mechanical + tradeTotals.Electrical + tradeTotals.Insulation;
+  const bar = document.getElementById('tradeBar');
+  if (tradeTotal > 0) {
+    const mp = (tradeTotals.Mechanical / tradeTotal * 100).toFixed(1);
+    const ep = (tradeTotals.Electrical / tradeTotal * 100).toFixed(1);
+    const ip = (tradeTotals.Insulation / tradeTotal * 100).toFixed(1);
+    bar.innerHTML =
+      `<div style="width:${mp}%;background:var(--mechanical)">${mp}%</div>` +
+      `<div style="width:${ep}%;background:var(--electrical)">${ep}%</div>` +
+      `<div style="width:${ip}%;background:var(--insulation)">${ip}%</div>`;
+  } else {
+    bar.innerHTML = '<div style="width:100%;background:#ddd;color:#999">No priced data</div>';
+  }
+
+  // Unpriced count in header
+  document.getElementById('unpricedCount').textContent = unpricedCount;
+
+  renderTable();
+  renderUnpriced();
+}
+
+// ═══════════════════════════════════════════
+// FORMAT CURRENCY
+// ═══════════════════════════════════════════
+function fmt(n) {
+  return '\u00A3' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// ═══════════════════════════════════════════
+// RENDER TABLE
+// ═══════════════════════════════════════════
+function renderTable() {
+  const filterTrade = document.getElementById('filterTrade').value;
+  const filterStatus = document.getElementById('filterStatus').value;
+
+  let filtered = items;
+  if (filterTrade) filtered = filtered.filter(i => i.trade === filterTrade);
+  if (filterStatus) filtered = filtered.filter(i => i.status === filterStatus);
+
+  const tbody = document.getElementById('itemsBody');
+  tbody.innerHTML = '';
+
+  filtered.forEach(item => {
+    const mat = item.matRate * item.qty;
+    const lab = item.labourRate * item.qty;
+    const total = item.override !== null ? item.override : mat + lab;
+    const isEditing = editingId === item.id;
+
+    const tr = document.createElement('tr');
+    if (isEditing) tr.classList.add('editing');
+
+    const badgeClass = item.status === 'priced' ? 'badge-priced'
+                     : item.status === 'unpriced' ? 'badge-unpriced'
+                     : 'badge-override';
+    const badgeLabel = item.status === 'manual_override' ? 'Override' : item.status;
+
+    if (isEditing) {
+      tr.innerHTML = `
+        <td>${item.trade}</td>
+        <td>${item.desc}</td>
+        <td>${item.spec}</td>
+        <td>${item.qty}</td>
+        <td>${item.unit}</td>
+        <td><input class="inline-input" type="number" step="0.01" id="edit-mat-${item.id}" value="${item.matRate}"></td>
+        <td><input class="inline-input" type="number" step="0.01" id="edit-lab-${item.id}" value="${item.labourRate}"></td>
+        <td>${fmt(total)}</td>
+        <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+        <td class="actions-cell">
+          <button class="btn btn-green btn-sm" onclick="saveEdit(${item.id})">Save</button>
+          <button class="btn btn-sm" onclick="cancelEdit()">Cancel</button>
+        </td>`;
+    } else {
+      tr.innerHTML = `
+        <td>${item.trade}</td>
+        <td>${item.desc}</td>
+        <td>${item.spec}</td>
+        <td>${item.qty}</td>
+        <td>${item.unit}</td>
+        <td>${fmt(mat)}</td>
+        <td>${fmt(lab)}</td>
+        <td style="font-weight:600">${fmt(total)}</td>
+        <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+        <td class="actions-cell">
+          <button class="btn btn-sm" onclick="startEdit(${item.id})" title="Edit rates">Edit</button>
+          <button class="btn btn-amber btn-sm" onclick="promptOverride(${item.id})" title="Manual override total">Override</button>
+          <button class="btn btn-green btn-sm" onclick="acceptItem(${item.id})" title="Mark reviewed">Accept</button>
+        </td>`;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════
+// TABLE ACTIONS
+// ═══════════════════════════════════════════
+function startEdit(id) {
+  editingId = id;
+  renderTable();
+}
+
+function cancelEdit() {
+  editingId = null;
+  renderTable();
+}
+
+function saveEdit(id) {
+  const item = items.find(i => i.id === id);
+  const matVal = parseFloat(document.getElementById('edit-mat-' + id).value);
+  const labVal = parseFloat(document.getElementById('edit-lab-' + id).value);
+  if (!isNaN(matVal)) item.matRate = matVal;
+  if (!isNaN(labVal)) item.labourRate = labVal;
+  if (item.status === 'unpriced' && (matVal > 0 || labVal > 0)) {
+    item.status = 'priced';
+  }
+  item.override = null;
+  editingId = null;
+  recalculate();
+}
+
+function promptOverride(id) {
+  const item = items.find(i => i.id === id);
+  const current = item.override !== null ? item.override : item.matRate * item.qty + item.labourRate * item.qty;
+  const val = prompt(`Manual override total for:\n${item.desc}\n\nEnter total (GBP):`, current.toFixed(2));
+  if (val === null) return;
+  const n = parseFloat(val);
+  if (isNaN(n) || n < 0) return;
+
+  // LIVE API CALL — POST http://localhost:3001/api/pricing/override
+  // fetch('http://localhost:3001/api/pricing/override', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ itemId: id, overrideTotal: n })
+  // }).then(r => r.json()).then(data => { /* confirm */ });
+
+  item.override = n;
+  item.status = 'manual_override';
+  recalculate();
+}
+
+function acceptItem(id) {
+  const item = items.find(i => i.id === id);
+  if (item.status === 'unpriced') {
+    alert('Cannot accept an unpriced item. Please price it first.');
+    return;
+  }
+  item._accepted = true;
+  // Visual feedback
+  alert(`Item "${item.desc}" marked as reviewed.`);
+}
+
+// ═══════════════════════════════════════════
+// UNPRICED PANEL
+// ═══════════════════════════════════════════
+function renderUnpriced() {
+  const unpriced = items.filter(i => i.status === 'unpriced');
+  const body = document.getElementById('unpricedBody');
+  if (unpriced.length === 0) {
+    body.innerHTML = '<p style="color:#888;font-size:13px;">All items are priced.</p>';
+    return;
+  }
+  body.innerHTML = '';
+  unpriced.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'unpriced-item';
+    div.innerHTML = `
+      <div class="item-desc">
+        <strong>${item.desc}</strong>
+        <span>${item.trade} &middot; ${item.spec} &middot; ${item.qty} ${item.unit}</span>
+      </div>
+      <label style="font-size:12px;color:#777;">Mat &pound;/unit</label>
+      <input class="unpriced-input" type="number" step="0.01" id="up-mat-${item.id}" placeholder="0.00">
+      <label style="font-size:12px;color:#777;">Lab &pound;/unit</label>
+      <input class="unpriced-input" type="number" step="0.01" id="up-lab-${item.id}" placeholder="0.00">
+      <button class="btn btn-green btn-sm" onclick="applyUnpriced(${item.id})">Apply</button>
+    `;
+    body.appendChild(div);
+  });
+}
+
+function applyUnpriced(id) {
+  const item = items.find(i => i.id === id);
+  const mat = parseFloat(document.getElementById('up-mat-' + id).value);
+  const lab = parseFloat(document.getElementById('up-lab-' + id).value);
+  if ((isNaN(mat) || mat <= 0) && (isNaN(lab) || lab <= 0)) {
+    alert('Please enter at least one rate.');
+    return;
+  }
+  item.matRate = isNaN(mat) ? 0 : mat;
+  item.labourRate = isNaN(lab) ? 0 : lab;
+  item.status = 'priced';
+  recalculate();
+}
+
+// ═══════════════════════════════════════════
+// SAVE QUOTE
+// ═══════════════════════════════════════════
+function saveQuote() {
+  const quoteRef = document.getElementById('quoteRef').value;
+  const oh = getOverheads();
+
+  // LIVE API CALL — POST http://localhost:3001/api/pricing/save-quote
+  // fetch('http://localhost:3001/api/pricing/save-quote', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ quoteRef, projectRef: 'ABC-123', items, overheads: oh })
+  // }).then(r => r.json()).then(data => { alert('Quote saved: ' + data.id); });
+
+  alert('Quote "' + quoteRef + '" saved successfully (placeholder).');
+}
+
+// ═══════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════
+function exportCSV() {
+  // LIVE API CALL — POST http://localhost:3001/api/pricing/export-csv
+  // fetch('http://localhost:3001/api/pricing/export-csv', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ quoteRef: document.getElementById('quoteRef').value, items, overheads: getOverheads() })
+  // }).then(r => r.blob()).then(blob => { /* download */ });
+
+  // Client-side CSV fallback
+  const oh = getOverheads();
+  let csv = 'Trade,Description,Spec,Qty,Unit,Mat Rate,Labour Rate,Mat Total,Labour Total,Line Total,Status\n';
+  items.forEach(i => {
+    const mt = i.matRate * i.qty;
+    const lt = i.labourRate * i.qty;
+    const tot = i.override !== null ? i.override : mt + lt;
+    csv += `"${i.trade}","${i.desc}","${i.spec}",${i.qty},"${i.unit}",${i.matRate.toFixed(2)},${i.labourRate.toFixed(2)},${mt.toFixed(2)},${lt.toFixed(2)},${tot.toFixed(2)},${i.status}\n`;
+  });
+
+  // Append summary
+  const matTotal = items.reduce((s, i) => s + i.matRate * i.qty, 0);
+  const labTotal = items.reduce((s, i) => s + i.labourRate * i.qty, 0);
+  csv += `\nSummary\nMaterial Total,${(matTotal * (1 + oh.materialUplift)).toFixed(2)}\n`;
+  csv += `Labour Total,${(labTotal * (1 + oh.labourUplift)).toFixed(2)}\n`;
+
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = document.getElementById('quoteRef').value + '.csv';
+  a.click();
+}
+</script>
+
+</body>
+</html>

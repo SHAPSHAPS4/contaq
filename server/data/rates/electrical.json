@@ -1,0 +1,25 @@
+{
+  "trade": "Electrical",
+  "version": "1.0",
+  "currency": "GBP",
+  "last_updated": "2026-03-01",
+  "rates": [
+    { "description": "1.5mm2 LSZH cable", "keywords": ["1.5mm","lszh","cable 1.5"], "unit": "m", "material_rate": 0.80, "labour_rate": 1.20, "source": "ECA 2026" },
+    { "description": "2.5mm2 LSZH cable", "keywords": ["2.5mm","cable 2.5"], "unit": "m", "material_rate": 1.10, "labour_rate": 1.30, "source": "ECA 2026" },
+    { "description": "4mm2 LSZH cable", "keywords": ["4mm","cable 4mm"], "unit": "m", "material_rate": 1.60, "labour_rate": 1.40, "source": "ECA 2026" },
+    { "description": "6mm2 LSZH cable", "keywords": ["6mm","cable 6mm"], "unit": "m", "material_rate": 2.20, "labour_rate": 1.50, "source": "ECA 2026" },
+    { "description": "16mm2 SWA cable", "keywords": ["16mm swa","swa 16"], "unit": "m", "material_rate": 5.50, "labour_rate": 3.50, "source": "ECA 2026" },
+    { "description": "25mm2 SWA cable", "keywords": ["25mm swa","swa 25"], "unit": "m", "material_rate": 7.80, "labour_rate": 4.00, "source": "ECA 2026" },
+    { "description": "FP200 fire alarm cable", "keywords": ["fp200","fire alarm cable","fp cable"], "unit": "m", "material_rate": 1.80, "labour_rate": 1.50, "source": "ECA 2026" },
+    { "description": "150mm cable tray", "keywords": ["150mm tray","cable tray 150"], "unit": "m", "material_rate": 8.00, "labour_rate": 7.00, "source": "ECA 2026" },
+    { "description": "300mm cable tray", "keywords": ["300mm tray","cable tray 300"], "unit": "m", "material_rate": 12.00, "labour_rate": 8.00, "source": "ECA 2026" },
+    { "description": "450mm cable tray", "keywords": ["450mm tray","cable tray 450"], "unit": "m", "material_rate": 16.00, "labour_rate": 9.00, "source": "ECA 2026" },
+    { "description": "100x50 trunking", "keywords": ["100x50","trunking 100"], "unit": "m", "material_rate": 6.00, "labour_rate": 6.50, "source": "ECA 2026" },
+    { "description": "20mm conduit", "keywords": ["20mm conduit"], "unit": "m", "material_rate": 1.20, "labour_rate": 3.50, "source": "ECA 2026" },
+    { "description": "Distribution board", "keywords": ["distribution board","db","consumer unit"], "unit": "nr", "material_rate": 320.00, "labour_rate": 180.00, "source": "ECA 2026" },
+    { "description": "Double socket outlet", "keywords": ["double socket","dso","socket outlet"], "unit": "nr", "material_rate": 18.00, "labour_rate": 22.00, "source": "ECA 2026" },
+    { "description": "LED recessed downlight", "keywords": ["downlight","led downlight","recessed light"], "unit": "nr", "material_rate": 45.00, "labour_rate": 30.00, "source": "ECA 2026" },
+    { "description": "Emergency luminaire", "keywords": ["emergency light","emergency luminaire","exit sign"], "unit": "nr", "material_rate": 85.00, "labour_rate": 35.00, "source": "ECA 2026" },
+    { "description": "Smoke detector", "keywords": ["smoke detector","optical detector","heat detector"], "unit": "nr", "material_rate": 28.00, "labour_rate": 25.00, "source": "ECA 2026" }
+  ]
+}

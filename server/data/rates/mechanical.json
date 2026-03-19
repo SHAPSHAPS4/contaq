@@ -1,0 +1,26 @@
+{
+  "trade": "Mechanical",
+  "version": "1.0",
+  "currency": "GBP",
+  "last_updated": "2026-03-01",
+  "rates": [
+    { "description": "15mm copper pipe supply and fix", "keywords": ["15mm","copper","pipe","CWS","HWS","LTHW"], "unit": "m", "material_rate": 4.50, "labour_rate": 8.00, "source": "BCIS 2026" },
+    { "description": "22mm copper pipe supply and fix", "keywords": ["22mm","copper"], "unit": "m", "material_rate": 6.00, "labour_rate": 9.00, "source": "BCIS 2026" },
+    { "description": "28mm copper pipe supply and fix", "keywords": ["28mm","copper"], "unit": "m", "material_rate": 8.50, "labour_rate": 10.00, "source": "BCIS 2026" },
+    { "description": "35mm copper pipe supply and fix", "keywords": ["35mm","copper"], "unit": "m", "material_rate": 12.00, "labour_rate": 11.50, "source": "BCIS 2026" },
+    { "description": "42mm copper pipe supply and fix", "keywords": ["42mm","copper"], "unit": "m", "material_rate": 16.00, "labour_rate": 13.00, "source": "BCIS 2026" },
+    { "description": "54mm copper pipe supply and fix", "keywords": ["54mm","copper"], "unit": "m", "material_rate": 22.00, "labour_rate": 15.00, "source": "BCIS 2026" },
+    { "description": "DN50 steel pipe supply and fix", "keywords": ["DN50","steel","black steel","carbon steel"], "unit": "m", "material_rate": 18.00, "labour_rate": 20.00, "source": "BCIS 2026" },
+    { "description": "DN80 steel pipe supply and fix", "keywords": ["DN80","steel"], "unit": "m", "material_rate": 28.00, "labour_rate": 25.00, "source": "BCIS 2026" },
+    { "description": "DN100 steel pipe supply and fix", "keywords": ["DN100","steel"], "unit": "m", "material_rate": 38.00, "labour_rate": 30.00, "source": "BCIS 2026" },
+    { "description": "Ball valve 15-22mm", "keywords": ["ball valve","isolation valve","15mm valve","22mm valve"], "unit": "nr", "material_rate": 12.00, "labour_rate": 18.00, "source": "BCIS 2026" },
+    { "description": "Ball valve 28-42mm", "keywords": ["ball valve 28","ball valve 35","ball valve 42"], "unit": "nr", "material_rate": 22.00, "labour_rate": 22.00, "source": "BCIS 2026" },
+    { "description": "Butterfly valve DN50-DN100", "keywords": ["butterfly valve","DN50 valve","DN80 valve","DN100 valve"], "unit": "nr", "material_rate": 85.00, "labour_rate": 35.00, "source": "BCIS 2026" },
+    { "description": "Circulating pump inline", "keywords": ["pump","circulator","inline pump"], "unit": "nr", "material_rate": 350.00, "labour_rate": 120.00, "source": "BCIS 2026" },
+    { "description": "Rectangular ductwork Class A", "keywords": ["rectangular duct","GMS duct","ductwork","class a"], "unit": "m2", "material_rate": 28.00, "labour_rate": 22.00, "source": "HVCA 2026" },
+    { "description": "Circular ductwork", "keywords": ["circular duct","spiral duct","round duct"], "unit": "m", "material_rate": 18.00, "labour_rate": 14.00, "source": "HVCA 2026" },
+    { "description": "Flexible ductwork", "keywords": ["flexible duct","flex duct"], "unit": "m", "material_rate": 8.00, "labour_rate": 10.00, "source": "HVCA 2026" },
+    { "description": "Fire damper", "keywords": ["fire damper"], "unit": "nr", "material_rate": 180.00, "labour_rate": 90.00, "source": "HVCA 2026" },
+    { "description": "Supply diffuser", "keywords": ["diffuser","supply grille","air terminal"], "unit": "nr", "material_rate": 35.00, "labour_rate": 25.00, "source": "HVCA 2026" }
+  ]
+}

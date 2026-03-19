@@ -1,0 +1,9 @@
+{
+  "labour_uplift_pct": 15,
+  "material_uplift_pct": 10,
+  "overhead_pct": 12,
+  "profit_pct": 8,
+  "contingency_pct": 5,
+  "last_updated": "2026-03-01",
+  "notes": "Standard Contraq overhead structure. Adjust per project in the quote builder."
+}

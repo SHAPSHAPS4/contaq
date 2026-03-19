@@ -101,6 +101,7 @@ app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/learning', require('./routes/learning'));
 app.use('/api/kb', require('./routes/kb-admin'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/pricing', require('./routes/pricing'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
 /* ── Quote Builder frontend ───────────────────────────────────────── */
@@ -110,6 +111,9 @@ app.get('/quote-builder', (_req, res) => {
 });
 app.get('/admin/kb', (_req, res) => {
   res.sendFile(serverPath.join(__dirname, '../admin/kb-dashboard.html'));
+});
+app.get('/pricing', (_req, res) => {
+  res.sendFile(serverPath.join(__dirname, '../public/pricing-panel.html'));
 });
 
 app.get('/api/health', (_req, res) => {

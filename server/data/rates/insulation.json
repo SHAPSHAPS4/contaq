@@ -1,0 +1,18 @@
+{
+  "trade": "Insulation",
+  "version": "1.0",
+  "currency": "GBP",
+  "last_updated": "2026-03-01",
+  "rates": [
+    { "description": "15mm pipe 25mm phenolic insulation", "keywords": ["15mm pipe insulation","15mm phenolic","pipe insulation 15"], "unit": "m", "material_rate": 3.50, "labour_rate": 5.00, "source": "TICA 2026" },
+    { "description": "22mm pipe 25mm phenolic insulation", "keywords": ["22mm pipe insulation","22mm phenolic"], "unit": "m", "material_rate": 4.20, "labour_rate": 5.50, "source": "TICA 2026" },
+    { "description": "28mm pipe 30mm phenolic insulation", "keywords": ["28mm pipe insulation","28mm phenolic"], "unit": "m", "material_rate": 5.00, "labour_rate": 6.00, "source": "TICA 2026" },
+    { "description": "42mm pipe 40mm mineral wool insulation", "keywords": ["42mm pipe insulation","42mm mineral wool"], "unit": "m", "material_rate": 7.50, "labour_rate": 7.50, "source": "TICA 2026" },
+    { "description": "54mm pipe 40mm mineral wool insulation", "keywords": ["54mm pipe insulation","54mm mineral wool"], "unit": "m", "material_rate": 9.00, "labour_rate": 8.50, "source": "TICA 2026" },
+    { "description": "Chilled water pipe elastomeric insulation", "keywords": ["chilled water insulation","elastomeric","armaflex","chw insulation"], "unit": "m", "material_rate": 8.00, "labour_rate": 9.00, "source": "TICA 2026" },
+    { "description": "Ductwork external wrap insulation", "keywords": ["duct insulation","duct wrap","ductwork insulation"], "unit": "m2", "material_rate": 12.00, "labour_rate": 10.00, "source": "TICA 2026" },
+    { "description": "Fire rated duct wrap 60 min", "keywords": ["fire rated duct","fire wrap","60 min duct"], "unit": "m2", "material_rate": 28.00, "labour_rate": 18.00, "source": "TICA 2026" },
+    { "description": "Valve insulation box", "keywords": ["valve insulation","valve box","insulated valve"], "unit": "nr", "material_rate": 18.00, "labour_rate": 15.00, "source": "TICA 2026" },
+    { "description": "Calorifier insulation", "keywords": ["calorifier insulation","cylinder insulation","vessel insulation"], "unit": "nr", "material_rate": 180.00, "labour_rate": 120.00, "source": "TICA 2026" }
+  ]
+}
