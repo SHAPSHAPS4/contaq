@@ -3,6 +3,7 @@ const router = express.Router();
 const { kbInjectionMiddleware } = require('../kb/middleware');
 const { callAI } = require('../services/ai');
 const { logSession } = require('../services/session-logger');
+const { validateExtraction, generateValidationReport } = require('../services/extraction-validator');
 
 router.post('/consolidate', kbInjectionMiddleware, async (req, res) => {
   const startTime = Date.now();
@@ -18,6 +19,18 @@ router.post('/consolidate', kbInjectionMiddleware, async (req, res) => {
     }
 
     if (!drawing_extraction) return res.status(400).json({ error: 'drawing_extraction required' });
+
+    // Validation gate — block if extraction quality is too low
+    const validation = validateExtraction(drawing_extraction);
+    if (!validation.passed && !req.body.override_validation) {
+      return res.status(422).json({
+        success: false,
+        blocked: true,
+        validation,
+        report: generateValidationReport(validation, project_ref),
+        message: 'Extraction quality too low to proceed. Review validation report and submit with override_validation: true to force.',
+      });
+    }
 
     const systemPrompt = `You are an expert M&E estimating assistant performing takeoff consolidation.\nRead the following knowledge base before processing.\n${req.kbPrompt}`.trim();
 

@@ -102,6 +102,7 @@ app.use('/api/learning', require('./routes/learning'));
 app.use('/api/kb', require('./routes/kb-admin'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/pricing', require('./routes/pricing'));
+app.use('/api/validate', require('./routes/validation'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
 /* ── Quote Builder frontend ───────────────────────────────────────── */
