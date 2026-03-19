@@ -270,7 +270,7 @@ const KB_SECTIONS = [
   {id:'KB-X04',name:'Hallucination prevention',g:'Rules',c:'#993C1D',ok:true},
 ];
 
-// Replace with fetch('/api/kb/rules') in production
+// Replace with fetch('http://localhost:3001/api/kb/rules') in production
 let RULES = [
   {rule_id:'LEARNED_001',error_type:'SPECIFICATION_ERROR',trigger:'Copper pipe shown without size annotation',action:'Cross-reference pipe schedule before extracting. If absent, mark specification as "unspecified" and set confidence to Low.',reason:'Unlabelled copper pipes were assigned default 22mm — incorrect for large bore runs.',date:'2026-03-10'},
   {rule_id:'LEARNED_002',error_type:'HALLUCINATION',trigger:'Schematic drawing supplied without GA drawing',action:'Do not extract linear quantities. Flag immediately: "No GA drawing supplied — quantities cannot be extracted from schematic."',reason:'System was returning invented pipe lengths from riser schematics.',date:'2026-03-11'},
@@ -281,7 +281,7 @@ let RULES = [
   {rule_id:'LEARNED_007',error_type:'CONFIDENCE_ERROR',trigger:'Drawing status is For Coordination not For Construction',action:'Downgrade all extracted items to Medium confidence maximum. Add: "Coordination drawing — quantities subject to change."',reason:'For Coordination drawings were being treated as firm quantities.',date:'2026-03-17'},
 ];
 
-// Replace with fetch('/api/kb/patterns') in production
+// Replace with fetch('http://localhost:3001/api/kb/patterns') in production
 const PATTERNS = [
   {pattern_id:'PATTERN_001',error_type:'SPECIFICATION_ERROR',occurrences:5,action:'Before extracting any specification, verify source: drawing annotation, schedule, or spec clause. Never default.'},
   {pattern_id:'PATTERN_002',error_type:'QUANTITY_ERROR',occurrences:4,action:'Run self-audit on all linear quantities — confirm unit matches item type before outputting.'},
@@ -416,26 +416,25 @@ function toggleAddRule() {
   document.getElementById('add-form').classList.toggle('open');
 }
 
-function saveRule() {
+async function saveRule() {
   const trigger = document.getElementById('f-trigger').value.trim();
   const type = (document.getElementById('f-type').value.trim() || 'SPECIFICATION_ERROR').toUpperCase();
   const action = document.getElementById('f-action').value.trim();
   const reason = document.getElementById('f-reason').value.trim();
   if (!trigger || !action) { showToast('Trigger and action are required.'); return; }
-  const id = 'LEARNED_' + String(RULES.length + 1).padStart(3, '0');
-  const today = new Date().toISOString().slice(0, 10);
-  RULES.push({ rule_id: id, error_type: type, trigger, action, reason, date: today });
-  // TODO: POST to /api/kb/rules in production
+  const res = await fetch('http://localhost:3001/api/kb/rules', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ error_type: type, trigger, action, reason }) });
+  const data = await res.json();
+  RULES.push(data.rule);
   ['f-trigger','f-type','f-action','f-reason'].forEach(i => document.getElementById(i).value = '');
   toggleAddRule();
   renderRules();
-  showToast(id + ' saved to KB-L01');
+  showToast(data.rule.rule_id + ' saved to KB-L01');
 }
 
-function deleteRule(id) {
+async function deleteRule(id) {
   if (!confirm('Delete ' + id + '? This cannot be undone.')) return;
+  await fetch('http://localhost:3001/api/kb/rules/' + id, { method: 'DELETE' });
   RULES = RULES.filter(r => r.rule_id !== id);
-  // TODO: DELETE /api/kb/rules/:id in production
   renderRules();
   showToast(id + ' deleted');
 }
@@ -451,10 +450,9 @@ function closePromote() {
   promoteTarget = null;
 }
 
-function confirmPromote() {
+async function confirmPromote() {
   const notes = document.getElementById('promote-notes').value.trim();
-  // TODO: POST to /api/kb/promote with { rule_id: promoteTarget, notes } in production
-  console.log('Promote:', promoteTarget, notes);
+  await fetch('http://localhost:3001/api/kb/promote', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ rule_id: promoteTarget, notes }) });
   showToast(promoteTarget + ' flagged for KB-C promotion');
   closePromote();
 }
@@ -495,27 +493,47 @@ renderRules();
 renderPatterns();
 renderBreakdown();
 
-// ── Production API integration (uncomment when backend is ready) ──────
-/*
+// ── Live API integration ──────────────────────────────────────────────
 async function loadFromAPI() {
   try {
-    const [rulesRes, patternsRes, statsRes] = await Promise.all([
-      fetch('/api/kb/rules'),
-      fetch('/api/kb/patterns'),
-      fetch('/api/kb/stats'),
+    const [rulesRes, patternsRes, statsRes, sectionsRes] = await Promise.all([
+      fetch('http://localhost:3001/api/kb/rules'),
+      fetch('http://localhost:3001/api/kb/patterns'),
+      fetch('http://localhost:3001/api/kb/stats'),
+      fetch('http://localhost:3001/api/kb/sections'),
     ]);
     RULES = await rulesRes.json();
     const patterns = await patternsRes.json();
     const stats = await statsRes.json();
-    document.getElementById('m-sessions').textContent = stats.total_sessions;
+    const sections = await sectionsRes.json();
+
+    KB_SECTIONS.forEach(s => {
+      const live = sections.find(x => x.id === s.id);
+      if (live) s.ok = live.loaded;
+    });
+
+    document.getElementById('m-sessions').textContent = stats.total_sessions || 0;
+    renderSections();
     renderRules();
-    // extend renderPatterns and renderBreakdown similarly
+
+    const maxPat = Math.max(...patterns.map(p => p.occurrences), 1);
+    document.getElementById('pattern-list').innerHTML = patterns.map(p => `
+      <div class="pat-row">
+        <div class="pat-label"><div class="pat-id">${p.pattern_id}</div><div class="pat-count">${p.occurrences}x triggered</div></div>
+        <div class="bar-wrap"><div class="bar-fill ${p.occurrences >= 5 ? 'critical' : ''}" style="width:${Math.round(p.occurrences / maxPat * 100)}%"></div></div>
+        <span class="badge ${p.occurrences >= 5 ? 'badge-red' : 'badge-amber'}" style="font-size:10px;white-space:nowrap">${p.error_type.replace(/_ERROR/,'').toLowerCase()}</span>
+      </div>
+    `).join('') || '<div class="empty">No pattern errors detected yet.</div>';
+    document.getElementById('pat-badge').textContent = patterns.length + ' active';
+    document.getElementById('m-patterns').textContent = patterns.length;
+
+    document.getElementById('sections-badge').textContent = sections.filter(s => s.loaded).length + ' / ' + sections.length + ' loaded';
+    document.getElementById('m-sections').textContent = sections.filter(s => s.loaded).length;
   } catch(e) {
-    console.error('KB API unavailable — using seed data', e);
+    console.warn('KB API unavailable — using seed data', e);
   }
 }
 loadFromAPI();
-*/
 </script>
 </body>
 </html>

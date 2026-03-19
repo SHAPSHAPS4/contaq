@@ -99,6 +99,7 @@ app.use('/api/specs', require('./routes/specs'));
 app.use('/api/takeoff', require('./routes/takeoff'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/learning', require('./routes/learning'));
+app.use('/api/kb', require('./routes/kb-admin'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
 app.get('/api/health', (_req, res) => {
