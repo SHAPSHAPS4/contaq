@@ -26,9 +26,9 @@
  *  23-25 BSRIA BG 85/87, A90 Document Precedence
  */
 
-const KB_VERSION = '6.6';
+const KB_VERSION = '6.7';
 const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 42;
+const KB_VERSION_SOURCES = 43;
 
 /* ── Structured KB modules ────────────────────────────────────── */
 const KB_C01 = require('./kb-c01-drawing-standards');
@@ -47,6 +47,7 @@ const KB_E05 = require('./kb-e05-specialist-electrical');
 const KB_I01 = require('./kb-i01-pipe-insulation');
 const KB_I02 = require('./kb-i02-duct-insulation');
 const KB_I03 = require('./kb-i03-equipment-insulation');
+const KB_I04 = require('./kb-i04-fire-specialist-insulation');
 
 /* ══════════════════════════════════════════════════════════════════
    CIBSE SYMBOL REFERENCE
@@ -1149,7 +1150,31 @@ function getFullKnowledgeBase() {
     'Surface Area Formulas: Vertical cylinder π×D×(H+D/2), Horizontal cylinder π×D×L + 2×π×(D/2)², Rectangular tank 2(LH+WH)+LW+LW.',
     '  Pre-insulated: note as nr, verify meets spec. Waste: equipment 10%, cladding 12%.',
 
-    '12 flag triggers: no schedule dimensions, no insulation spec, cold equipment condensation, high temp specialist, cladding not stated, existing equipment asbestos risk.'
+    '12 flag triggers: no schedule dimensions, no insulation spec, cold equipment condensation, high temp specialist, cladding not stated, existing equipment asbestos risk.',
+
+    '### KB-I04: Fire Rated & Specialist Insulation',
+    'Fire Rated (BS EN 1366-3, AD-B):',
+    '  Intumescent collar (nr, PLASTIC pipes only), fire wrap (m, metal pipes — extent per test cert), fire lagging (m, continuous in escape routes), firestopping sleeve (nr), fire sealant (nr per penetration), transit system (nr frame + nr per module).',
+    '  Ratings: 30/60/90/120/240 min. Must match wall/floor rating. Count EVERY penetration — commonly underestimated.',
+
+    'Acoustic (BS 8233, BB93, HTM):',
+    '  Pipe lagging (m, dense MW + mass barrier), anti-vib mounts (nr — rubber/spring/inertia base), acoustic enclosures (m²).',
+    '  Sensitive areas: hotels 30dB, residential AD-E, hospitals 35dB, schools BB93 35dB, theatres NR20-25.',
+
+    'Condensation Control:',
+    '  ChW: closed-cell elastomeric MANDATORY, all joints sealed, support inserts at every bracket.',
+    '  CWS: elastomeric in warm spaces, L8 <20°C.',
+    '  Refrigerant: BOTH lines insulated. Condensate: insulate or it drips.',
+    '  VB rules: continuous, warm side, sealed joints, repair damage immediately.',
+
+    'Specialist Applications:',
+    '  Catering: SS316L hygienic cladding, sealed, food-safe, pest-resistant. 3-5× standard cost.',
+    '  Pharma/cleanroom: non-shedding, closed-cell, SS316L welded, ISO class dependent. 5-10× cost.',
+    '  External: UV protection, weather cladding (Al standard, SS coastal), sealed joints. 1.5-2× cost.',
+    '  High temp (>120°C): calcium silicate or high-temp MW, personal protection (<60°C surface). 2-4× cost.',
+    '  Trace heating: cable (m) + thermostat (nr) + insulation over cable. Combined M&E&I scope.',
+
+    '17 flag triggers: fire penetrations without stops, acoustic near sensitive areas, cold pipes without VB, wrong material for temperature, trace heating without insulation.'
   ].join('\n\n');
 }
 
@@ -1191,7 +1216,8 @@ function getSection(sectionName) {
     specialist_electrical: KB_E05,
     pipe_insulation: KB_I01,
     duct_insulation: KB_I02,
-    equipment_insulation: KB_I03
+    equipment_insulation: KB_I03,
+    fire_specialist_insulation: KB_I04
   };
   return sections[sectionName] || null;
 }
@@ -1253,5 +1279,6 @@ module.exports = {
   KB_E05,
   KB_I01,
   KB_I02,
-  KB_I03
+  KB_I03,
+  KB_I04
 };
