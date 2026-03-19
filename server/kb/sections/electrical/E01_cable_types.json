@@ -1,619 +1,621 @@
 {
-  "id": "KB-E01",
+  "section_id": "KB-E01",
   "title": "Cable Types & Sizing",
   "version": "1.0",
-  "date": "2026-03-19",
-  "power": {
-    "swa": {
-      "name": "SWA (Steel Wire Armoured)",
-      "full_description": "PVC or XLPE insulated, steel wire armoured, PVC sheathed",
-      "standard": "BS 6346 (PVC/SWA/PVC), BS 5467 (XLPE/SWA/PVC)",
-      "applications": [
-        "Main incoming supply",
-        "Sub-main distribution",
-        "Underground/buried runs",
-        "External cable routes",
-        "Riser cables",
-        "Motor feeds"
-      ],
-      "conductor_sizes_mm2": [
-        1.5,
-        2.5,
-        4,
-        6,
-        10,
-        16,
-        25,
-        35,
-        50,
-        70,
-        95,
-        120,
-        150,
-        185,
-        240,
-        300
-      ],
-      "cores": {
-        "2-core": "Single phase (L + N). Earth via armour.",
-        "3-core": "Three phase (L1 + L2 + L3). Earth via armour. OR single phase (L + N + E).",
-        "4-core": "Three phase + neutral (L1 + L2 + L3 + N). Earth via armour.",
-        "5-core": "Three phase + neutral + earth (L1 + L2 + L3 + N + E). Full cable."
-      },
-      "insulation_types": {
-        "pvc": {
-          "name": "PVC/SWA/PVC",
-          "max_temp": "70°C",
-          "standard": "BS 6346",
-          "note": "Standard for most applications."
+  "last_updated": "2026-03-19",
+  "data": {
+    "power": {
+      "swa": {
+        "name": "SWA (Steel Wire Armoured)",
+        "full_description": "PVC or XLPE insulated, steel wire armoured, PVC sheathed",
+        "standard": "BS 6346 (PVC/SWA/PVC), BS 5467 (XLPE/SWA/PVC)",
+        "applications": [
+          "Main incoming supply",
+          "Sub-main distribution",
+          "Underground/buried runs",
+          "External cable routes",
+          "Riser cables",
+          "Motor feeds"
+        ],
+        "conductor_sizes_mm2": [
+          1.5,
+          2.5,
+          4,
+          6,
+          10,
+          16,
+          25,
+          35,
+          50,
+          70,
+          95,
+          120,
+          150,
+          185,
+          240,
+          300
+        ],
+        "cores": {
+          "2-core": "Single phase (L + N). Earth via armour.",
+          "3-core": "Three phase (L1 + L2 + L3). Earth via armour. OR single phase (L + N + E).",
+          "4-core": "Three phase + neutral (L1 + L2 + L3 + N). Earth via armour.",
+          "5-core": "Three phase + neutral + earth (L1 + L2 + L3 + N + E). Full cable."
         },
-        "xlpe": {
-          "name": "XLPE/SWA/PVC",
-          "max_temp": "90°C",
-          "standard": "BS 5467",
-          "note": "Higher current rating than PVC for same size. Preferred for larger loads and higher ambient temperatures."
-        }
-      },
-      "drawing_notations": [
-        "SWA",
-        "XLPE/SWA",
-        "PVC/SWA",
-        "armoured cable"
-      ],
-      "installation": {
-        "buried_direct": "Direct buried at 600mm minimum depth. Sand surround. Route marker tape above.",
-        "buried_duct": "In underground duct/draw pit system. Allows cable replacement without excavation.",
-        "surface_cleat": "Surface-mounted on cable cleats. External walls, risers, plant rooms.",
-        "tray_ladder": "On cable tray or ladder rack. Standard for internal distribution."
-      },
-      "armour_earthing": "SWA armour is used as the circuit protective conductor (CPC/earth) in most installations. Must be properly terminated with brass gland at each end.",
-      "common_sizes": {
-        "lighting": "2c 1.5mm² or 3c 1.5mm²",
-        "small_power": "3c 2.5mm²",
-        "sub_main_small": "4c 16mm² or 5c 16mm²",
-        "sub_main_medium": "4c 35mm² or 4c 70mm²",
-        "sub_main_large": "4c 95mm² to 4c 300mm²",
-        "motor_small": "4c 2.5mm² to 4c 6mm²",
-        "motor_large": "4c 16mm² to 4c 95mm²"
-      }
-    },
-    "lszh": {
-      "name": "LSZH (Low Smoke Zero Halogen)",
-      "full_description": "Low smoke zero halogen insulated and sheathed cable — reduced toxic fume emission in fire",
-      "standard": "BS 7211",
-      "applications": [
-        "Standard for ALL commercial interiors",
-        "Public buildings",
-        "Hospitals and care homes",
-        "Transport infrastructure (railways, airports, tunnels)",
-        "Occupied spaces where evacuation may be needed",
-        "Anywhere BS 7671 or spec mandates low smoke"
-      ],
-      "conductor_sizes_mm2": [
-        1.5,
-        2.5,
-        4,
-        6,
-        10,
-        16,
-        25,
-        35,
-        50,
-        70,
-        95,
-        120,
-        150,
-        185,
-        240,
-        300
-      ],
-      "cores": {
-        "2-core": "Single phase (L + N)",
-        "3-core": "Single phase + earth (L + N + E) or three phase (L1 + L2 + L3)",
-        "4-core": "Three phase + neutral",
-        "5-core": "Three phase + neutral + earth"
-      },
-      "drawing_notations": [
-        "LSZH",
-        "LSOH",
-        "LSF",
-        "low smoke",
-        "XLPE/LSZH"
-      ],
-      "note": "LSZH is now STANDARD for most UK commercial installations. If spec says \"cables suitable for occupied areas\" or \"low smoke\", this means LSZH. PVC insulated cable should NOT be used in occupied commercial buildings unless spec explicitly permits it.",
-      "variants": {
-        "singles": "Single-core LSZH in conduit/trunking — standard for final circuits in commercial.",
-        "multicore": "Multicore LSZH — for open tray/ladder installation.",
-        "swa_lszh": "XLPE/SWA/LSZH — armoured cable with LSZH outer sheath. For mains/sub-mains in sensitive areas."
-      }
-    },
-    "pvc": {
-      "name": "PVC/PVC (Twin & Earth, Flat Cable)",
-      "full_description": "PVC insulated and sheathed flat cable — domestic/residential standard",
-      "standard": "BS 6004",
-      "applications": [
-        "Domestic wiring",
-        "Residential installations",
-        "Light commercial (where LSZH not required)",
-        "Concealed in walls/ceilings"
-      ],
-      "conductor_sizes_mm2": [
-        1,
-        1.5,
-        2.5,
-        4,
-        6,
-        10,
-        16
-      ],
-      "types": {
-        "twin_and_earth": "2-core + earth (flat cable). Standard domestic power and lighting.",
-        "three_and_earth": "3-core + earth. Two-way switching, multi-circuit.",
-        "singles": "Single-core in conduit. Colour-coded per BS 7671."
-      },
-      "drawing_notations": [
-        "T&E",
-        "twin & earth",
-        "PVC flat",
-        "6242Y",
-        "6243Y"
-      ],
-      "note": "PVC cable is being replaced by LSZH in commercial buildings. Still standard for domestic. Check spec carefully.",
-      "colour_code": {
-        "current": "Brown = L, Blue = N, Green/Yellow = E (BS 7671 harmonised colours)",
-        "old": "Red = L, Black = N, Green/Yellow = E (pre-2004 — may be found in existing buildings)"
-      }
-    },
-    "flexible": {
-      "name": "Flexible Cable",
-      "types": {
-        "3183Y": "PVC flex — general purpose, appliance connections.",
-        "3183TQ": "Tough rubber flex — outdoor, portable equipment.",
-        "H07RN-F": "Heavy-duty rubber flex — construction site, industrial.",
-        "SY": "Steel wire braided flex — control cable, machinery connection."
-      },
-      "applications": [
-        "Equipment final connections",
-        "Portable appliances",
-        "Machinery connections",
-        "Control cable runs"
-      ],
-      "note": "Flexible cables are typically for FINAL CONNECTIONS to equipment, not permanent wiring. Count separately from fixed wiring.",
-      "count_rule": "Count as m (linear) or as \"allowance per equipment connection\" depending on spec."
-    }
-  },
-  "fire_performance": {
-    "rule": "Fire performance cables are used for LIFE SAFETY systems. They must maintain circuit integrity during a fire for a specified period. The cable TYPE and INSTALLATION METHOD must both comply with BS 8519.",
-    "fp200": {
-      "name": "FP200 Gold",
-      "manufacturer": "Prysmian (formerly BICC)",
-      "standard": "BS 7629-1, BS EN 50200",
-      "fire_rating": "30 minutes circuit integrity (BS EN 50200 with water spray)",
-      "applications": [
-        "Fire alarm circuits (BS 5839)",
-        "Emergency lighting circuits (BS 5266)",
-        "Fire suppression system wiring",
-        "Smoke ventilation controls",
-        "Refuge call systems",
-        "Fire shutter controls"
-      ],
-      "conductor_sizes_mm2": [
-        1,
-        1.5,
-        2.5
-      ],
-      "cores": [
-        "2-core",
-        "3-core",
-        "4-core"
-      ],
-      "drawing_notations": [
-        "FP200",
-        "FP",
-        "fire rated",
-        "fire performance",
-        "FR cable",
-        "fire alarm cable"
-      ],
-      "colour": "Red outer sheath (standard for fire alarm cable)",
-      "installation": {
-        "clips": "Red fire-rated clips at centres per BS 8519.",
-        "segregation": "Must be segregated from non-fire rated cables.",
-        "containment": "If in containment, containment must also be fire-rated or cable must be on its own dedicated tray with fire-rated clips.",
-        "note": "BS 8519 specifies that BOTH cable AND installation method must achieve fire rating. Cable alone is not enough."
-      }
-    },
-    "fp400": {
-      "name": "FP400",
-      "manufacturer": "Prysmian",
-      "standard": "BS EN 50200",
-      "fire_rating": "60 minutes circuit integrity",
-      "applications": [
-        "Enhanced fire performance — where 30 mins is insufficient",
-        "High-rise life safety",
-        "Critical evacuation systems"
-      ],
-      "conductor_sizes_mm2": [
-        1.5,
-        2.5
-      ],
-      "drawing_notations": [
-        "FP400",
-        "enhanced FP"
-      ],
-      "note": "Higher fire rating than FP200. More expensive. Used where fire strategy requires longer circuit integrity."
-    },
-    "micc": {
-      "name": "MICC (Mineral Insulated Copper Clad)",
-      "full_name": "Mineral Insulated Metal Sheathed (MIMS) Cable",
-      "standard": "BS EN 60702-1",
-      "fire_rating": "3+ hours (effectively unlimited fire resistance — mineral insulation is non-combustible)",
-      "applications": [
-        "Highest fire performance requirement",
-        "Critical life safety in high-risk areas",
-        "Fire pump supplies",
-        "Sprinkler system controls",
-        "Smoke extract fan supplies",
-        "Generator essential supplies",
-        "Nuclear and petrochemical installations"
-      ],
-      "conductor_sizes_mm2": [
-        1,
-        1.5,
-        2.5,
-        4
-      ],
-      "cores": [
-        "1-core",
-        "2-core",
-        "3-core",
-        "4-core",
-        "7-core",
-        "12-core",
-        "19-core"
-      ],
-      "construction": {
-        "conductor": "Solid copper conductors",
-        "insulation": "Compressed magnesium oxide (MgO) powder — non-combustible mineral insulation",
-        "sheath": "Seamless copper tube sheath",
-        "note": "The mineral insulation and copper sheath make MICC virtually indestructible in fire. However, it is hygroscopic — exposed ends must be sealed immediately."
-      },
-      "drawing_notations": [
-        "MICC",
-        "MI cable",
-        "mineral insulated",
-        "pyrotenax"
-      ],
-      "installation_notes": [
-        "Requires specialist MICC termination skills (pot and seal or compression glands).",
-        "Exposed ends must be sealed immediately to prevent moisture ingress (magnesium oxide is hygroscopic).",
-        "Bending radius is larger than flexible cables — plan routes carefully.",
-        "Labour-intensive to install — significantly higher installation cost than FP200.",
-        "Can be surface-mounted without additional fire protection (the cable IS the fire protection)."
-      ],
-      "cost_note": "MICC is 3-5× the material cost and 2-3× the labour cost of FP200. Only specified where highest fire rating is required.",
-      "flag_if": "MICC specified for standard fire alarm (where FP200 would suffice) — may be overspecified. Flag for estimator review."
-    },
-    "bs8519": {
-      "name": "BS 8519 Compliance",
-      "title": "Selection and Installation of Fire-Resistant Power and Control Cable Systems",
-      "key_requirements": [
-        "Both cable AND installation method must achieve the required fire rating.",
-        "Fire-rated clips/cleats at specified centres (typically 300mm for FP200).",
-        "Cable support must maintain circuit integrity — standard plastic clips are NOT acceptable.",
-        "Containment (if used) must be fire-rated or cable must be independently fire-rated.",
-        "Segregation from non-fire-rated cables.",
-        "Route selection: avoid areas where cable would be subjected to mechanical damage in a fire (falling debris, collapsing ceilings)."
-      ],
-      "common_support_systems": [
-        "Red fire-rated cable clips (Prysmian, Batt, etc.) — most common for FP200",
-        "Fire-rated cable tray (steel with fire-rated coating)",
-        "Fire-rated cable cleats (for larger MICC and FP cables)",
-        "Steel conduit (provides fire protection to cable within)"
-      ],
-      "note": "The SUPPORT SYSTEM is as important as the cable. An FP200 cable on plastic clips will fail in a fire because the clips melt. Always specify fire-rated support."
-    }
-  },
-  "data_comms": {
-    "rule": "Data cables are measured in m (linear). Add 15% waste + service loops at patch panels. Often installed by a specialist data contractor — check scope boundary.",
-    "cat5e": {
-      "name": "Category 5e (Cat5e)",
-      "standard": "TIA/EIA-568-B, ISO/IEC 11801",
-      "performance": "Up to 1 Gbps at 100m",
-      "bandwidth": "100 MHz",
-      "applications": [
-        "Basic data networking",
-        "VoIP telephones",
-        "CCTV (IP cameras)",
-        "BMS communication"
-      ],
-      "construction": "4 twisted pairs, UTP (unshielded) or FTP (foil-screened)",
-      "drawing_notations": [
-        "Cat5e",
-        "Cat 5e",
-        "UTP",
-        "data cable"
-      ],
-      "note": "Minimum acceptable standard for new installations. Being superseded by Cat6/Cat6A in most new commercial projects."
-    },
-    "cat6": {
-      "name": "Category 6 (Cat6)",
-      "standard": "TIA/EIA-568-B.2-1, ISO/IEC 11801",
-      "performance": "Up to 1 Gbps at 100m, 10 Gbps at 55m",
-      "bandwidth": "250 MHz",
-      "applications": [
-        "Standard commercial data networking",
-        "High-speed data",
-        "PoE (Power over Ethernet) devices",
-        "IP CCTV",
-        "Wireless access points"
-      ],
-      "construction": "4 twisted pairs with central spline separator, UTP or FTP",
-      "drawing_notations": [
-        "Cat6",
-        "Cat 6",
-        "U/UTP Cat6"
-      ],
-      "note": "Current standard for most UK commercial installations. Suitable for most applications."
-    },
-    "cat6a": {
-      "name": "Category 6A (Cat6A)",
-      "standard": "TIA/EIA-568-B.2-10, ISO/IEC 11801",
-      "performance": "Up to 10 Gbps at 100m (full channel)",
-      "bandwidth": "500 MHz",
-      "applications": [
-        "High-performance data networking",
-        "10 Gigabit Ethernet",
-        "PoE+ and PoE++ (high power)",
-        "Hospital and healthcare data",
-        "Data centres",
-        "Future-proofed installations"
-      ],
-      "construction": "4 twisted pairs, thicker than Cat6. Usually S/FTP (screened/foil) or F/UTP (foil/unshielded)",
-      "drawing_notations": [
-        "Cat6A",
-        "Cat 6A",
-        "S/FTP Cat6A",
-        "augmented Cat6"
-      ],
-      "note": "Recommended for future-proofing. Larger diameter than Cat6 — affects containment sizing. More expensive."
-    },
-    "fibre_optic": {
-      "multimode": {
-        "om3": {
-          "name": "OM3 Multimode",
-          "bandwidth": "2000 MHz·km",
-          "max_10g": "300m",
-          "colour": "Aqua jacket",
-          "use": "Building backbone, floor-to-floor, short inter-building links"
+        "insulation_types": {
+          "pvc": {
+            "name": "PVC/SWA/PVC",
+            "max_temp": "70°C",
+            "standard": "BS 6346",
+            "note": "Standard for most applications."
+          },
+          "xlpe": {
+            "name": "XLPE/SWA/PVC",
+            "max_temp": "90°C",
+            "standard": "BS 5467",
+            "note": "Higher current rating than PVC for same size. Preferred for larger loads and higher ambient temperatures."
+          }
         },
-        "om4": {
-          "name": "OM4 Multimode",
-          "bandwidth": "4700 MHz·km",
-          "max_10g": "550m",
-          "colour": "Aqua or violet jacket",
-          "use": "Data centre, high-speed backbone, longer inter-building links"
+        "drawing_notations": [
+          "SWA",
+          "XLPE/SWA",
+          "PVC/SWA",
+          "armoured cable"
+        ],
+        "installation": {
+          "buried_direct": "Direct buried at 600mm minimum depth. Sand surround. Route marker tape above.",
+          "buried_duct": "In underground duct/draw pit system. Allows cable replacement without excavation.",
+          "surface_cleat": "Surface-mounted on cable cleats. External walls, risers, plant rooms.",
+          "tray_ladder": "On cable tray or ladder rack. Standard for internal distribution."
+        },
+        "armour_earthing": "SWA armour is used as the circuit protective conductor (CPC/earth) in most installations. Must be properly terminated with brass gland at each end.",
+        "common_sizes": {
+          "lighting": "2c 1.5mm² or 3c 1.5mm²",
+          "small_power": "3c 2.5mm²",
+          "sub_main_small": "4c 16mm² or 5c 16mm²",
+          "sub_main_medium": "4c 35mm² or 4c 70mm²",
+          "sub_main_large": "4c 95mm² to 4c 300mm²",
+          "motor_small": "4c 2.5mm² to 4c 6mm²",
+          "motor_large": "4c 16mm² to 4c 95mm²"
         }
       },
-      "singlemode": {
-        "os2": {
-          "name": "OS2 Singlemode",
-          "bandwidth": "Effectively unlimited",
-          "max_distance": "10+ km",
-          "colour": "Yellow jacket",
-          "use": "Campus backbone, long distance, WAN connections, carrier links"
+      "lszh": {
+        "name": "LSZH (Low Smoke Zero Halogen)",
+        "full_description": "Low smoke zero halogen insulated and sheathed cable — reduced toxic fume emission in fire",
+        "standard": "BS 7211",
+        "applications": [
+          "Standard for ALL commercial interiors",
+          "Public buildings",
+          "Hospitals and care homes",
+          "Transport infrastructure (railways, airports, tunnels)",
+          "Occupied spaces where evacuation may be needed",
+          "Anywhere BS 7671 or spec mandates low smoke"
+        ],
+        "conductor_sizes_mm2": [
+          1.5,
+          2.5,
+          4,
+          6,
+          10,
+          16,
+          25,
+          35,
+          50,
+          70,
+          95,
+          120,
+          150,
+          185,
+          240,
+          300
+        ],
+        "cores": {
+          "2-core": "Single phase (L + N)",
+          "3-core": "Single phase + earth (L + N + E) or three phase (L1 + L2 + L3)",
+          "4-core": "Three phase + neutral",
+          "5-core": "Three phase + neutral + earth"
+        },
+        "drawing_notations": [
+          "LSZH",
+          "LSOH",
+          "LSF",
+          "low smoke",
+          "XLPE/LSZH"
+        ],
+        "note": "LSZH is now STANDARD for most UK commercial installations. If spec says \"cables suitable for occupied areas\" or \"low smoke\", this means LSZH. PVC insulated cable should NOT be used in occupied commercial buildings unless spec explicitly permits it.",
+        "variants": {
+          "singles": "Single-core LSZH in conduit/trunking — standard for final circuits in commercial.",
+          "multicore": "Multicore LSZH — for open tray/ladder installation.",
+          "swa_lszh": "XLPE/SWA/LSZH — armoured cable with LSZH outer sheath. For mains/sub-mains in sensitive areas."
         }
       },
-      "core_counts": [
-        "4-core",
-        "8-core",
-        "12-core",
-        "24-core",
-        "48-core",
-        "96-core"
-      ],
-      "drawing_notations": [
-        "FO",
-        "fibre",
-        "fiber",
-        "OM3",
-        "OM4",
-        "OS2",
-        "multimode",
-        "singlemode"
-      ],
-      "measurement": "m (linear). Note core count AND type (OM3/OM4/OS2). Add 10% waste.",
-      "note": "Fibre requires specialist termination (fusion splicing or pre-terminated). Labour cost per termination is higher than copper."
-    },
-    "coaxial": {
-      "name": "Coaxial Cable",
-      "types": {
-        "rg59": "RG59 — standard for analogue CCTV (being phased out)",
-        "rg6": "RG6 — satellite/TV distribution, higher bandwidth",
-        "ct100": "CT100 — UK standard TV/satellite distribution cable"
+      "pvc": {
+        "name": "PVC/PVC (Twin & Earth, Flat Cable)",
+        "full_description": "PVC insulated and sheathed flat cable — domestic/residential standard",
+        "standard": "BS 6004",
+        "applications": [
+          "Domestic wiring",
+          "Residential installations",
+          "Light commercial (where LSZH not required)",
+          "Concealed in walls/ceilings"
+        ],
+        "conductor_sizes_mm2": [
+          1,
+          1.5,
+          2.5,
+          4,
+          6,
+          10,
+          16
+        ],
+        "types": {
+          "twin_and_earth": "2-core + earth (flat cable). Standard domestic power and lighting.",
+          "three_and_earth": "3-core + earth. Two-way switching, multi-circuit.",
+          "singles": "Single-core in conduit. Colour-coded per BS 7671."
+        },
+        "drawing_notations": [
+          "T&E",
+          "twin & earth",
+          "PVC flat",
+          "6242Y",
+          "6243Y"
+        ],
+        "note": "PVC cable is being replaced by LSZH in commercial buildings. Still standard for domestic. Check spec carefully.",
+        "colour_code": {
+          "current": "Brown = L, Blue = N, Green/Yellow = E (BS 7671 harmonised colours)",
+          "old": "Red = L, Black = N, Green/Yellow = E (pre-2004 — may be found in existing buildings)"
+        }
       },
-      "applications": [
-        "TV distribution (IRS/communal aerial)",
-        "CCTV (analogue systems — legacy)",
-        "Satellite distribution",
-        "MATV systems"
-      ],
-      "drawing_notations": [
-        "coax",
-        "coaxial",
-        "RG6",
-        "CT100",
-        "TV cable"
-      ],
-      "note": "Coaxial is increasingly replaced by Cat6/Cat6A for IP-based CCTV and IPTV. Check if system is analogue (coax) or IP (Cat cable)."
-    }
-  },
-  "specialist": {
-    "instrument": {
-      "name": "MIMS / Multicore Instrument Cable",
-      "applications": [
-        "BMS sensor wiring",
-        "Instrumentation",
-        "Process control signals",
-        "Temperature sensor loops"
-      ],
-      "typical": "2-core or multicore (4, 8, 12, 20 pair). Often screened (shielded) to prevent interference.",
-      "drawing_notations": [
-        "instrument cable",
-        "MIMS",
-        "signal cable",
-        "sensor cable"
-      ],
-      "note": "Often specified by the BMS/controls contractor. Check scope boundary."
-    },
-    "screened": {
-      "name": "Screened / Shielded Cable",
-      "applications": [
-        "BMS communication (BACnet, Modbus)",
-        "Audio-visual systems",
-        "Control signals",
-        "Intercom systems"
-      ],
-      "types": {
-        "belden": "Belden type — high-quality screened cable. Various grades.",
-        "liycy": "LiYCY — flexible screened cable for controls.",
-        "generic": "Screened multicore — copper braid or foil screen over twisted pairs."
-      },
-      "drawing_notations": [
-        "screened cable",
-        "shielded",
-        "BMS cable",
-        "control cable",
-        "SWA/SY"
-      ],
-      "note": "Screening prevents electromagnetic interference (EMI). Important for analogue signals and communication buses."
-    },
-    "speaker": {
-      "name": "Speaker Cable / PA-VA Cable",
-      "applications": [
-        "Public address systems",
-        "Voice alarm (VA) systems",
-        "Background music",
-        "Paging"
-      ],
-      "types": {
-        "standard": "100V line speaker cable — 2-core, typically 1.5mm²",
-        "fire_rated": "Fire-rated speaker cable (FP200 type) — required for voice alarm systems (life safety)",
-        "enhanced": "Enhanced fire-rated (BS 5839-8 compliant) for VA systems"
-      },
-      "drawing_notations": [
-        "speaker cable",
-        "PA cable",
-        "VA cable",
-        "100V line"
-      ],
-      "note": "Voice Alarm is a LIFE SAFETY system — requires fire-rated cable (usually FP200 or equivalent). Standard PA (background music) may use non-fire-rated cable. Check system classification.",
-      "flag_if": "VA system specified but cable type not stated — flag for clarification on fire rating requirement."
-    },
-    "fire_alarm": {
-      "name": "Fire Alarm Cable",
-      "standard": "BS 5839-1 specifies cable requirements per system type",
-      "types": {
-        "standard": "FP200 Gold (standard for most fire alarm installations)",
-        "enhanced": "FP400 or MICC (where enhanced fire performance required)",
-        "conventional": "2-core FP200 for conventional (zone) systems",
-        "addressable": "2-core FP200 for addressable loop wiring",
-        "cause_effect": "Multicore FP200 for cause-and-effect interface wiring"
-      },
-      "drawing_notations": [
-        "fire alarm cable",
-        "FA cable",
-        "FP200",
-        "fire cable",
-        "red cable"
-      ],
-      "colour": "Red outer sheath is STANDARD for fire alarm cable in the UK.",
-      "count_rule": "Measure loop length (m) from fire alarm panel around all devices and back. Add 10% waste. Add 300mm per device for termination. Multiple loops = separate measurements."
-    }
-  },
-  "sizing_notation": {
-    "format": "[cores] × [conductor size]mm² [cable type]",
-    "examples": [
-      {
-        "notation": "3c × 2.5mm² LSZH",
-        "meaning": "3-core, 2.5mm² conductor, LSZH insulation. Single phase power (L+N+E)."
-      },
-      {
-        "notation": "4c × 16mm² SWA",
-        "meaning": "4-core, 16mm² conductor, SWA armoured. Three phase sub-main (L1+L2+L3+N, earth via armour)."
-      },
-      {
-        "notation": "5c × 95mm² XLPE/SWA",
-        "meaning": "5-core, 95mm² conductor, XLPE insulated, SWA. Three phase main feed (L1+L2+L3+N+E)."
-      },
-      {
-        "notation": "2c × 1.5mm² FP200",
-        "meaning": "2-core, 1.5mm² conductor, FP200 fire rated. Fire alarm or emergency lighting circuit."
-      },
-      {
-        "notation": "1c × 70mm² (×4+E)",
-        "meaning": "Four single-core 70mm² phase/neutral cables + separate earth. Large sub-main in trunking/tray. Notation varies."
+      "flexible": {
+        "name": "Flexible Cable",
+        "types": {
+          "3183Y": "PVC flex — general purpose, appliance connections.",
+          "3183TQ": "Tough rubber flex — outdoor, portable equipment.",
+          "H07RN-F": "Heavy-duty rubber flex — construction site, industrial.",
+          "SY": "Steel wire braided flex — control cable, machinery connection."
+        },
+        "applications": [
+          "Equipment final connections",
+          "Portable appliances",
+          "Machinery connections",
+          "Control cable runs"
+        ],
+        "note": "Flexible cables are typically for FINAL CONNECTIONS to equipment, not permanent wiring. Count separately from fixed wiring.",
+        "count_rule": "Count as m (linear) or as \"allowance per equipment connection\" depending on spec."
       }
-    ],
-    "phase_identification": {
-      "single_phase": "2-core (L+N) or 3-core (L+N+E). Supply: 230V AC.",
-      "three_phase": "3-core (L1+L2+L3) or 4-core (+N) or 5-core (+N+E). Supply: 400V AC.",
-      "rule": "If drawing says \"3-phase supply\" — expect 4-core or 5-core cable. If drawing says \"single phase\" — expect 2-core or 3-core."
     },
-    "conductor_size_guide": {
-      "1.0mm²": "Lighting circuits (domestic)",
-      "1.5mm²": "Lighting circuits (commercial), fire alarm, emergency lighting",
-      "2.5mm²": "Small power (sockets), fire alarm (larger systems)",
-      "4mm²": "Cooker circuits (domestic), larger power circuits",
-      "6mm²": "Shower circuits, small motor feeds",
-      "10mm²": "Electric cooker, small sub-main",
-      "16mm²": "Small sub-main, motor feeds",
-      "25mm²": "Sub-main distribution",
-      "35mm²": "Sub-main distribution",
-      "50mm²": "Sub-main, main incoming (small building)",
-      "70mm²": "Main distribution",
-      "95mm²": "Main distribution",
-      "120mm²": "Main incoming / large sub-main",
-      "150mm²": "Main incoming",
-      "185mm²": "Main incoming (large building)",
-      "240mm²": "Main incoming (large building)",
-      "300mm²": "Main incoming (very large building / campus)"
+    "fire_performance": {
+      "rule": "Fire performance cables are used for LIFE SAFETY systems. They must maintain circuit integrity during a fire for a specified period. The cable TYPE and INSTALLATION METHOD must both comply with BS 8519.",
+      "fp200": {
+        "name": "FP200 Gold",
+        "manufacturer": "Prysmian (formerly BICC)",
+        "standard": "BS 7629-1, BS EN 50200",
+        "fire_rating": "30 minutes circuit integrity (BS EN 50200 with water spray)",
+        "applications": [
+          "Fire alarm circuits (BS 5839)",
+          "Emergency lighting circuits (BS 5266)",
+          "Fire suppression system wiring",
+          "Smoke ventilation controls",
+          "Refuge call systems",
+          "Fire shutter controls"
+        ],
+        "conductor_sizes_mm2": [
+          1,
+          1.5,
+          2.5
+        ],
+        "cores": [
+          "2-core",
+          "3-core",
+          "4-core"
+        ],
+        "drawing_notations": [
+          "FP200",
+          "FP",
+          "fire rated",
+          "fire performance",
+          "FR cable",
+          "fire alarm cable"
+        ],
+        "colour": "Red outer sheath (standard for fire alarm cable)",
+        "installation": {
+          "clips": "Red fire-rated clips at centres per BS 8519.",
+          "segregation": "Must be segregated from non-fire rated cables.",
+          "containment": "If in containment, containment must also be fire-rated or cable must be on its own dedicated tray with fire-rated clips.",
+          "note": "BS 8519 specifies that BOTH cable AND installation method must achieve fire rating. Cable alone is not enough."
+        }
+      },
+      "fp400": {
+        "name": "FP400",
+        "manufacturer": "Prysmian",
+        "standard": "BS EN 50200",
+        "fire_rating": "60 minutes circuit integrity",
+        "applications": [
+          "Enhanced fire performance — where 30 mins is insufficient",
+          "High-rise life safety",
+          "Critical evacuation systems"
+        ],
+        "conductor_sizes_mm2": [
+          1.5,
+          2.5
+        ],
+        "drawing_notations": [
+          "FP400",
+          "enhanced FP"
+        ],
+        "note": "Higher fire rating than FP200. More expensive. Used where fire strategy requires longer circuit integrity."
+      },
+      "micc": {
+        "name": "MICC (Mineral Insulated Copper Clad)",
+        "full_name": "Mineral Insulated Metal Sheathed (MIMS) Cable",
+        "standard": "BS EN 60702-1",
+        "fire_rating": "3+ hours (effectively unlimited fire resistance — mineral insulation is non-combustible)",
+        "applications": [
+          "Highest fire performance requirement",
+          "Critical life safety in high-risk areas",
+          "Fire pump supplies",
+          "Sprinkler system controls",
+          "Smoke extract fan supplies",
+          "Generator essential supplies",
+          "Nuclear and petrochemical installations"
+        ],
+        "conductor_sizes_mm2": [
+          1,
+          1.5,
+          2.5,
+          4
+        ],
+        "cores": [
+          "1-core",
+          "2-core",
+          "3-core",
+          "4-core",
+          "7-core",
+          "12-core",
+          "19-core"
+        ],
+        "construction": {
+          "conductor": "Solid copper conductors",
+          "insulation": "Compressed magnesium oxide (MgO) powder — non-combustible mineral insulation",
+          "sheath": "Seamless copper tube sheath",
+          "note": "The mineral insulation and copper sheath make MICC virtually indestructible in fire. However, it is hygroscopic — exposed ends must be sealed immediately."
+        },
+        "drawing_notations": [
+          "MICC",
+          "MI cable",
+          "mineral insulated",
+          "pyrotenax"
+        ],
+        "installation_notes": [
+          "Requires specialist MICC termination skills (pot and seal or compression glands).",
+          "Exposed ends must be sealed immediately to prevent moisture ingress (magnesium oxide is hygroscopic).",
+          "Bending radius is larger than flexible cables — plan routes carefully.",
+          "Labour-intensive to install — significantly higher installation cost than FP200.",
+          "Can be surface-mounted without additional fire protection (the cable IS the fire protection)."
+        ],
+        "cost_note": "MICC is 3-5× the material cost and 2-3× the labour cost of FP200. Only specified where highest fire rating is required.",
+        "flag_if": "MICC specified for standard fire alarm (where FP200 would suffice) — may be overspecified. Flag for estimator review."
+      },
+      "bs8519": {
+        "name": "BS 8519 Compliance",
+        "title": "Selection and Installation of Fire-Resistant Power and Control Cable Systems",
+        "key_requirements": [
+          "Both cable AND installation method must achieve the required fire rating.",
+          "Fire-rated clips/cleats at specified centres (typically 300mm for FP200).",
+          "Cable support must maintain circuit integrity — standard plastic clips are NOT acceptable.",
+          "Containment (if used) must be fire-rated or cable must be independently fire-rated.",
+          "Segregation from non-fire-rated cables.",
+          "Route selection: avoid areas where cable would be subjected to mechanical damage in a fire (falling debris, collapsing ceilings)."
+        ],
+        "common_support_systems": [
+          "Red fire-rated cable clips (Prysmian, Batt, etc.) — most common for FP200",
+          "Fire-rated cable tray (steel with fire-rated coating)",
+          "Fire-rated cable cleats (for larger MICC and FP cables)",
+          "Steel conduit (provides fire protection to cable within)"
+        ],
+        "note": "The SUPPORT SYSTEM is as important as the cable. An FP200 cable on plastic clips will fail in a fire because the clips melt. Always specify fire-rated support."
+      }
     },
-    "standardise_rule": "Always note BOTH cores AND conductor size in extraction output. Format: \"[cores]c × [size]mm² [type]\". Never note cable size without the type."
-  },
-  "quantity_rules": {
-    "general": [
-      "Cables are NOT usually shown individually on GA drawings — the drawing shows CONTAINMENT routes.",
-      "Cable quantities come from: cable schedule (best), single-line diagram (good), or measurement from DB to load (estimated).",
-      "Always measure from SOURCE (DB/panel) to FURTHEST LOAD point along the containment route.",
-      "Include vertical drops: riser height + drop from tray to equipment.",
-      "Add 10% waste for routing adjustments, drum end waste, and cutting."
-    ],
-    "termination_allowance": {
-      "per_end": "300-500mm",
-      "default": "400mm",
-      "note": "Add this at EACH END of every cable run — at the DB and at the load. So a cable between a DB and a socket = route length + 400mm + 400mm."
+    "data_comms": {
+      "rule": "Data cables are measured in m (linear). Add 15% waste + service loops at patch panels. Often installed by a specialist data contractor — check scope boundary.",
+      "cat5e": {
+        "name": "Category 5e (Cat5e)",
+        "standard": "TIA/EIA-568-B, ISO/IEC 11801",
+        "performance": "Up to 1 Gbps at 100m",
+        "bandwidth": "100 MHz",
+        "applications": [
+          "Basic data networking",
+          "VoIP telephones",
+          "CCTV (IP cameras)",
+          "BMS communication"
+        ],
+        "construction": "4 twisted pairs, UTP (unshielded) or FTP (foil-screened)",
+        "drawing_notations": [
+          "Cat5e",
+          "Cat 5e",
+          "UTP",
+          "data cable"
+        ],
+        "note": "Minimum acceptable standard for new installations. Being superseded by Cat6/Cat6A in most new commercial projects."
+      },
+      "cat6": {
+        "name": "Category 6 (Cat6)",
+        "standard": "TIA/EIA-568-B.2-1, ISO/IEC 11801",
+        "performance": "Up to 1 Gbps at 100m, 10 Gbps at 55m",
+        "bandwidth": "250 MHz",
+        "applications": [
+          "Standard commercial data networking",
+          "High-speed data",
+          "PoE (Power over Ethernet) devices",
+          "IP CCTV",
+          "Wireless access points"
+        ],
+        "construction": "4 twisted pairs with central spline separator, UTP or FTP",
+        "drawing_notations": [
+          "Cat6",
+          "Cat 6",
+          "U/UTP Cat6"
+        ],
+        "note": "Current standard for most UK commercial installations. Suitable for most applications."
+      },
+      "cat6a": {
+        "name": "Category 6A (Cat6A)",
+        "standard": "TIA/EIA-568-B.2-10, ISO/IEC 11801",
+        "performance": "Up to 10 Gbps at 100m (full channel)",
+        "bandwidth": "500 MHz",
+        "applications": [
+          "High-performance data networking",
+          "10 Gigabit Ethernet",
+          "PoE+ and PoE++ (high power)",
+          "Hospital and healthcare data",
+          "Data centres",
+          "Future-proofed installations"
+        ],
+        "construction": "4 twisted pairs, thicker than Cat6. Usually S/FTP (screened/foil) or F/UTP (foil/unshielded)",
+        "drawing_notations": [
+          "Cat6A",
+          "Cat 6A",
+          "S/FTP Cat6A",
+          "augmented Cat6"
+        ],
+        "note": "Recommended for future-proofing. Larger diameter than Cat6 — affects containment sizing. More expensive."
+      },
+      "fibre_optic": {
+        "multimode": {
+          "om3": {
+            "name": "OM3 Multimode",
+            "bandwidth": "2000 MHz·km",
+            "max_10g": "300m",
+            "colour": "Aqua jacket",
+            "use": "Building backbone, floor-to-floor, short inter-building links"
+          },
+          "om4": {
+            "name": "OM4 Multimode",
+            "bandwidth": "4700 MHz·km",
+            "max_10g": "550m",
+            "colour": "Aqua or violet jacket",
+            "use": "Data centre, high-speed backbone, longer inter-building links"
+          }
+        },
+        "singlemode": {
+          "os2": {
+            "name": "OS2 Singlemode",
+            "bandwidth": "Effectively unlimited",
+            "max_distance": "10+ km",
+            "colour": "Yellow jacket",
+            "use": "Campus backbone, long distance, WAN connections, carrier links"
+          }
+        },
+        "core_counts": [
+          "4-core",
+          "8-core",
+          "12-core",
+          "24-core",
+          "48-core",
+          "96-core"
+        ],
+        "drawing_notations": [
+          "FO",
+          "fibre",
+          "fiber",
+          "OM3",
+          "OM4",
+          "OS2",
+          "multimode",
+          "singlemode"
+        ],
+        "measurement": "m (linear). Note core count AND type (OM3/OM4/OS2). Add 10% waste.",
+        "note": "Fibre requires specialist termination (fusion splicing or pre-terminated). Labour cost per termination is higher than copper."
+      },
+      "coaxial": {
+        "name": "Coaxial Cable",
+        "types": {
+          "rg59": "RG59 — standard for analogue CCTV (being phased out)",
+          "rg6": "RG6 — satellite/TV distribution, higher bandwidth",
+          "ct100": "CT100 — UK standard TV/satellite distribution cable"
+        },
+        "applications": [
+          "TV distribution (IRS/communal aerial)",
+          "CCTV (analogue systems — legacy)",
+          "Satellite distribution",
+          "MATV systems"
+        ],
+        "drawing_notations": [
+          "coax",
+          "coaxial",
+          "RG6",
+          "CT100",
+          "TV cable"
+        ],
+        "note": "Coaxial is increasingly replaced by Cat6/Cat6A for IP-based CCTV and IPTV. Check if system is analogue (coax) or IP (Cat cable)."
+      }
     },
-    "schedule_priority": [
-      "1. CABLE SCHEDULE: If provided, this is AUTHORITATIVE. It lists every cable with: circuit ref, from, to, cable type, size, route, measured length.",
-      "2. SINGLE-LINE DIAGRAM: Shows circuit topology. Can derive cable sizes and approximate routes.",
-      "3. GA DRAWING MEASUREMENT: Measure containment route from DB to load. Least accurate — flag as estimated.",
-      "4. NEVER ESTIMATE cable quantities without at least a containment route shown on drawings."
-    ],
-    "multiple_cables": {
-      "rule": "Multiple cables often share the same containment route. Note the NUMBER of cables in the route, not just the route length.",
-      "example": "A 50m cable tray run serving 10 sockets might contain 10 separate 3c × 2.5mm² cables. The CABLE quantity is 10 × (route length to each socket + drops + terminations), NOT 50m.",
-      "warning": "Measuring containment length and calling it \"cable length\" is a common error. Containment = route. Cable = individual circuit."
+    "specialist": {
+      "instrument": {
+        "name": "MIMS / Multicore Instrument Cable",
+        "applications": [
+          "BMS sensor wiring",
+          "Instrumentation",
+          "Process control signals",
+          "Temperature sensor loops"
+        ],
+        "typical": "2-core or multicore (4, 8, 12, 20 pair). Often screened (shielded) to prevent interference.",
+        "drawing_notations": [
+          "instrument cable",
+          "MIMS",
+          "signal cable",
+          "sensor cable"
+        ],
+        "note": "Often specified by the BMS/controls contractor. Check scope boundary."
+      },
+      "screened": {
+        "name": "Screened / Shielded Cable",
+        "applications": [
+          "BMS communication (BACnet, Modbus)",
+          "Audio-visual systems",
+          "Control signals",
+          "Intercom systems"
+        ],
+        "types": {
+          "belden": "Belden type — high-quality screened cable. Various grades.",
+          "liycy": "LiYCY — flexible screened cable for controls.",
+          "generic": "Screened multicore — copper braid or foil screen over twisted pairs."
+        },
+        "drawing_notations": [
+          "screened cable",
+          "shielded",
+          "BMS cable",
+          "control cable",
+          "SWA/SY"
+        ],
+        "note": "Screening prevents electromagnetic interference (EMI). Important for analogue signals and communication buses."
+      },
+      "speaker": {
+        "name": "Speaker Cable / PA-VA Cable",
+        "applications": [
+          "Public address systems",
+          "Voice alarm (VA) systems",
+          "Background music",
+          "Paging"
+        ],
+        "types": {
+          "standard": "100V line speaker cable — 2-core, typically 1.5mm²",
+          "fire_rated": "Fire-rated speaker cable (FP200 type) — required for voice alarm systems (life safety)",
+          "enhanced": "Enhanced fire-rated (BS 5839-8 compliant) for VA systems"
+        },
+        "drawing_notations": [
+          "speaker cable",
+          "PA cable",
+          "VA cable",
+          "100V line"
+        ],
+        "note": "Voice Alarm is a LIFE SAFETY system — requires fire-rated cable (usually FP200 or equivalent). Standard PA (background music) may use non-fire-rated cable. Check system classification.",
+        "flag_if": "VA system specified but cable type not stated — flag for clarification on fire rating requirement."
+      },
+      "fire_alarm": {
+        "name": "Fire Alarm Cable",
+        "standard": "BS 5839-1 specifies cable requirements per system type",
+        "types": {
+          "standard": "FP200 Gold (standard for most fire alarm installations)",
+          "enhanced": "FP400 or MICC (where enhanced fire performance required)",
+          "conventional": "2-core FP200 for conventional (zone) systems",
+          "addressable": "2-core FP200 for addressable loop wiring",
+          "cause_effect": "Multicore FP200 for cause-and-effect interface wiring"
+        },
+        "drawing_notations": [
+          "fire alarm cable",
+          "FA cable",
+          "FP200",
+          "fire cable",
+          "red cable"
+        ],
+        "colour": "Red outer sheath is STANDARD for fire alarm cable in the UK.",
+        "count_rule": "Measure loop length (m) from fire alarm panel around all devices and back. Add 10% waste. Add 300mm per device for termination. Multiple loops = separate measurements."
+      }
     },
-    "riser_cables": {
-      "rule": "Riser cables (vertical) are measured from the DB (typically basement or ground floor) to the load floor.",
-      "per_floor": "Add floor-to-floor height per floor served. Add 2m per floor for horizontal routing from riser to DB.",
-      "note": "Riser cables are often the longest and most expensive cables in a building. Always calculate carefully."
+    "sizing_notation": {
+      "format": "[cores] × [conductor size]mm² [cable type]",
+      "examples": [
+        {
+          "notation": "3c × 2.5mm² LSZH",
+          "meaning": "3-core, 2.5mm² conductor, LSZH insulation. Single phase power (L+N+E)."
+        },
+        {
+          "notation": "4c × 16mm² SWA",
+          "meaning": "4-core, 16mm² conductor, SWA armoured. Three phase sub-main (L1+L2+L3+N, earth via armour)."
+        },
+        {
+          "notation": "5c × 95mm² XLPE/SWA",
+          "meaning": "5-core, 95mm² conductor, XLPE insulated, SWA. Three phase main feed (L1+L2+L3+N+E)."
+        },
+        {
+          "notation": "2c × 1.5mm² FP200",
+          "meaning": "2-core, 1.5mm² conductor, FP200 fire rated. Fire alarm or emergency lighting circuit."
+        },
+        {
+          "notation": "1c × 70mm² (×4+E)",
+          "meaning": "Four single-core 70mm² phase/neutral cables + separate earth. Large sub-main in trunking/tray. Notation varies."
+        }
+      ],
+      "phase_identification": {
+        "single_phase": "2-core (L+N) or 3-core (L+N+E). Supply: 230V AC.",
+        "three_phase": "3-core (L1+L2+L3) or 4-core (+N) or 5-core (+N+E). Supply: 400V AC.",
+        "rule": "If drawing says \"3-phase supply\" — expect 4-core or 5-core cable. If drawing says \"single phase\" — expect 2-core or 3-core."
+      },
+      "conductor_size_guide": {
+        "1.0mm²": "Lighting circuits (domestic)",
+        "1.5mm²": "Lighting circuits (commercial), fire alarm, emergency lighting",
+        "2.5mm²": "Small power (sockets), fire alarm (larger systems)",
+        "4mm²": "Cooker circuits (domestic), larger power circuits",
+        "6mm²": "Shower circuits, small motor feeds",
+        "10mm²": "Electric cooker, small sub-main",
+        "16mm²": "Small sub-main, motor feeds",
+        "25mm²": "Sub-main distribution",
+        "35mm²": "Sub-main distribution",
+        "50mm²": "Sub-main, main incoming (small building)",
+        "70mm²": "Main distribution",
+        "95mm²": "Main distribution",
+        "120mm²": "Main incoming / large sub-main",
+        "150mm²": "Main incoming",
+        "185mm²": "Main incoming (large building)",
+        "240mm²": "Main incoming (large building)",
+        "300mm²": "Main incoming (very large building / campus)"
+      },
+      "standardise_rule": "Always note BOTH cores AND conductor size in extraction output. Format: \"[cores]c × [size]mm² [type]\". Never note cable size without the type."
     },
-    "spare_capacity": {
-      "rule": "Spec may require spare cables or spare ways in containment. Count spare cables separately.",
-      "typical": "10-20% spare capacity in containment. Spare cables may be pulled in and coiled at each end.",
-      "flag_if": "Spec mentions spare capacity but does not quantify it — flag for clarification."
+    "quantity_rules": {
+      "general": [
+        "Cables are NOT usually shown individually on GA drawings — the drawing shows CONTAINMENT routes.",
+        "Cable quantities come from: cable schedule (best), single-line diagram (good), or measurement from DB to load (estimated).",
+        "Always measure from SOURCE (DB/panel) to FURTHEST LOAD point along the containment route.",
+        "Include vertical drops: riser height + drop from tray to equipment.",
+        "Add 10% waste for routing adjustments, drum end waste, and cutting."
+      ],
+      "termination_allowance": {
+        "per_end": "300-500mm",
+        "default": "400mm",
+        "note": "Add this at EACH END of every cable run — at the DB and at the load. So a cable between a DB and a socket = route length + 400mm + 400mm."
+      },
+      "schedule_priority": [
+        "1. CABLE SCHEDULE: If provided, this is AUTHORITATIVE. It lists every cable with: circuit ref, from, to, cable type, size, route, measured length.",
+        "2. SINGLE-LINE DIAGRAM: Shows circuit topology. Can derive cable sizes and approximate routes.",
+        "3. GA DRAWING MEASUREMENT: Measure containment route from DB to load. Least accurate — flag as estimated.",
+        "4. NEVER ESTIMATE cable quantities without at least a containment route shown on drawings."
+      ],
+      "multiple_cables": {
+        "rule": "Multiple cables often share the same containment route. Note the NUMBER of cables in the route, not just the route length.",
+        "example": "A 50m cable tray run serving 10 sockets might contain 10 separate 3c × 2.5mm² cables. The CABLE quantity is 10 × (route length to each socket + drops + terminations), NOT 50m.",
+        "warning": "Measuring containment length and calling it \"cable length\" is a common error. Containment = route. Cable = individual circuit."
+      },
+      "riser_cables": {
+        "rule": "Riser cables (vertical) are measured from the DB (typically basement or ground floor) to the load floor.",
+        "per_floor": "Add floor-to-floor height per floor served. Add 2m per floor for horizontal routing from riser to DB.",
+        "note": "Riser cables are often the longest and most expensive cables in a building. Always calculate carefully."
+      },
+      "spare_capacity": {
+        "rule": "Spec may require spare cables or spare ways in containment. Count spare cables separately.",
+        "typical": "10-20% spare capacity in containment. Spare cables may be pulled in and coiled at each end.",
+        "flag_if": "Spec mentions spare capacity but does not quantify it — flag for clarification."
+      }
     }
   }
 }

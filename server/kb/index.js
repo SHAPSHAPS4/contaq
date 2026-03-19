@@ -244,8 +244,11 @@ function assembleKBPrompt(endpoint, options = {}) {
    ══════════════════════════════════════════════════════════════════ */
 
 function formatSection(sectionId, content) {
+  // Handle wrapped format: { section_id, title, version, last_updated, data }
   const title = content.title || content.id || sectionId;
-  return `═══ ${sectionId}: ${title} ═══\n${JSON.stringify(content, null, 2)}`;
+  const ver = content.version ? ` v${content.version}` : '';
+  const payload = content.data || content; // Use .data if wrapped, raw content otherwise
+  return `═══ ${sectionId}: ${title}${ver} ═══\n${JSON.stringify(payload, null, 2)}`;
 }
 
 function formatLearnedRules(rules) {
@@ -345,15 +348,20 @@ function processAndPersistFeedback(aiResponseText) {
 
 function getMetadata() {
   const dynamic = loadDynamicSections();
+  const sectionVersions = {};
+  for (const [id, cached] of Object.entries(_kbCache)) {
+    if (cached) sectionVersions[id] = { title: cached.title || id, version: cached.version || '1.0' };
+  }
   return {
     version: KB_VERSION,
     date: KB_VERSION_DATE,
     sources: KB_VERSION_SOURCES,
     sections: Object.keys(KB_SECTIONS).length,
-    cached: Object.keys(_kbCache).length,
+    cached: Object.keys(_kbCache).filter(k => _kbCache[k]).length,
     learned_rules: (dynamic['KB-L01']?.learned_rules || []).length,
     pattern_errors: (dynamic['KB-L02']?.pattern_errors || []).length,
-    endpoints: Object.keys(ENDPOINT_SECTIONS).length
+    endpoints: Object.keys(ENDPOINT_SECTIONS).length,
+    section_versions: sectionVersions
   };
 }
 

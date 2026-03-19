@@ -1,516 +1,518 @@
 {
-  "id": "KB-I01",
+  "section_id": "KB-I01",
   "title": "Pipe Insulation Materials & Specifications",
   "version": "1.0",
-  "date": "2026-03-19",
-  "materials": {
-    "mineral_wool": {
-      "name": "Mineral Wool (Rock Wool / Glass Wool)",
-      "standard": "BS EN 14303",
-      "types": {
-        "rock_wool": {
-          "name": "Rock Wool (Stone Wool)",
-          "brand_examples": "Rockwool, Paroc, Knauf",
-          "density": "Higher density, better high-temp performance."
+  "last_updated": "2026-03-19",
+  "data": {
+    "materials": {
+      "mineral_wool": {
+        "name": "Mineral Wool (Rock Wool / Glass Wool)",
+        "standard": "BS EN 14303",
+        "types": {
+          "rock_wool": {
+            "name": "Rock Wool (Stone Wool)",
+            "brand_examples": "Rockwool, Paroc, Knauf",
+            "density": "Higher density, better high-temp performance."
+          },
+          "glass_wool": {
+            "name": "Glass Wool",
+            "brand_examples": "Isover, Superglass, Knauf",
+            "density": "Lower density, lighter, good for general HVAC."
+          }
         },
-        "glass_wool": {
-          "name": "Glass Wool",
-          "brand_examples": "Isover, Superglass, Knauf",
-          "density": "Lower density, lighter, good for general HVAC."
-        }
-      },
-      "temperature_range": "-40°C to +300°C (rock wool up to 700°C for specialist grades)",
-      "applications": [
-        "LTHW heating pipework (primary application)",
-        "MTHW and HTHW pipework",
-        "Steam pipework",
-        "Boiler flue insulation",
-        "Plant room pipework",
-        "General thermal insulation to hot services"
-      ],
-      "facing_types": {
-        "plain": "Unfaced — requires separate finishing (cladding, tape). Cheapest.",
-        "foil_faced": "Aluminium foil laminate — provides vapour resistance and clean finish. Standard for most M&E.",
-        "canvas_faced": "Woven glass tissue — for painting or where aesthetic finish needed.",
-        "wire_netting": "Galvanised wire netting over plain — external pipework, high-vibration areas.",
-        "aluminium_cladding": "Separate aluminium sheet cladding — external pipework, plant rooms, visible areas. Measured separately."
-      },
-      "form": {
-        "preformed_sections": "Pre-formed half-round sections — snap around pipe. Standard for pipe insulation.",
-        "mat_roll": "Flexible mat/roll — for wrapping around vessels, large-bore pipes, irregular shapes.",
-        "slab": "Rigid slab — for flat surfaces, tank walls, equipment."
-      },
-      "fire_rating": "Non-combustible (Euroclass A1 for unfaced rock wool). Excellent fire performance.",
-      "cost_note": "Most cost-effective insulation for hot services. Thicker sections needed compared to phenolic for same performance."
-    },
-    "phenolic_foam": {
-      "name": "Phenolic Foam",
-      "standard": "BS EN 14314",
-      "brand_examples": "Kingspan Kooltherm, Knauf PipeSection",
-      "temperature_range": "-200°C to +120°C",
-      "applications": [
-        "LTHW heating pipework",
-        "DHWS hot water pipework",
-        "CWS cold water pipework",
-        "Chilled water pipework (with vapour barrier facing)",
-        "Refrigeration pipework (low temperature)",
-        "Space-constrained installations (thinnest section)"
-      ],
-      "facing_types": {
-        "foil_faced": "Aluminium foil — standard. Provides vapour barrier and clean finish.",
-        "tissue_faced": "Glass tissue — for areas requiring painting.",
-        "note": "Foil facing provides adequate vapour resistance for most hot-service applications. For cold/chilled services, check if additional vapour sealing at joints is required."
-      },
-      "form": "Pre-formed half-round sections. Available in 1m lengths standard.",
-      "fire_rating": "Euroclass B-s1,d0 (limited combustibility). Good fire performance but not A1.",
-      "advantage": "THINNEST insulation for equivalent thermal performance. Ideal where space is limited (ceiling voids, risers, congested plant rooms).",
-      "cost_note": "More expensive per metre than mineral wool. Justified by space saving and thinner profile. Approximately 1.5-2× mineral wool cost."
-    },
-    "elastomeric_foam": {
-      "name": "Elastomeric Foam (Flexible Rubber)",
-      "standard": "BS EN 14313",
-      "brand_examples": "Armacell Armaflex, K-Flex, Kaiflex",
-      "temperature_range": "-50°C to +105°C (standard grades). Up to +150°C for high-temp grades.",
-      "applications": [
-        "Chilled water pipework (PRIMARY application)",
-        "Cold water pipework (condensation prevention)",
-        "Refrigerant pipework (VRF/split systems — ALWAYS insulated)",
-        "Condensate pipework",
-        "Domestic cold water (L8 compliance — prevent warming above 20°C)",
-        "Air conditioning pipework"
-      ],
-      "vapour_barrier": {
-        "inherent": true,
-        "description": "Closed-cell structure provides INHERENT vapour barrier — no separate vapour barrier needed.",
-        "note": "This is the KEY advantage for cold services — prevents condensation forming on cold pipe surface. Mineral wool does NOT have inherent vapour barrier."
-      },
-      "facing_types": {
-        "plain": "Self-sealing — plain black rubber. Standard for concealed pipework.",
-        "self_adhesive": "Self-adhesive longitudinal seam — faster installation.",
-        "uv_resistant": "UV-resistant outer skin — for exposed external applications.",
-        "coloured": "Coloured finish available (grey, white) — for exposed visible areas."
-      },
-      "form": {
-        "tube": "Pre-slit tube sections — opens and wraps around pipe. Standard for pipe insulation.",
-        "sheet": "Flat sheet — for wrapping valves, fittings, irregular shapes, equipment.",
-        "roll": "Continuous roll — for large-bore pipes and vessels."
-      },
-      "fire_rating": {
-        "standard": "Euroclass B-s3,d0 or C-s3,d0 depending on grade.",
-        "enhanced": "Armaflex Ultima — Euroclass B-s1,d0. Enhanced fire grade for plenums and escape routes.",
-        "note": "Standard elastomeric may not meet fire requirements in plenums, escape routes, or high-risk areas. Check spec for fire class requirement."
-      },
-      "installation_notes": [
-        "All joints MUST be glued with manufacturer adhesive — gaps allow condensation.",
-        "Do NOT compress elastomeric insulation against supports — reduces performance and creates cold bridges.",
-        "Vapour-sealed support inserts required at pipe clips/brackets on cold services.",
-        "Self-adhesive grades reduce installation time but are more expensive."
-      ],
-      "cost_note": "More expensive than mineral wool per metre. Essential for cold services due to integral vapour barrier. Approximately 2-3× mineral wool cost."
-    },
-    "calcium_silicate": {
-      "name": "Calcium Silicate",
-      "standard": "BS EN 14306",
-      "brand_examples": "Promat, Skamol",
-      "temperature_range": "Up to +650°C (specialist grades to 1000°C)",
-      "applications": [
-        "High temperature steam pipework",
-        "HTHW pipework",
-        "Exhaust and flue insulation",
-        "Industrial process pipework",
-        "High-temperature equipment"
-      ],
-      "form": "Rigid pre-formed half-round sections and flat slabs. Heavy — requires robust support.",
-      "facing": "Typically finished with aluminium cladding (measured separately) or canvas and paint.",
-      "fire_rating": "Non-combustible (Euroclass A1). Excellent fire performance.",
-      "cost_note": "Significantly more expensive than mineral wool. Only used for high-temperature applications where mineral wool is insufficient.",
-      "flag_if": "Calcium silicate specified — check if operating temperature actually requires it. Often over-specified where mineral wool would suffice."
-    },
-    "pir": {
-      "name": "PIR (Polyisocyanurate)",
-      "standard": "BS EN 14315",
-      "brand_examples": "Various — similar performance to phenolic",
-      "temperature_range": "-70°C to +120°C",
-      "applications": [
-        "General pipework insulation",
-        "HVAC systems",
-        "Similar applications to phenolic"
-      ],
-      "form": "Pre-formed sections.",
-      "fire_rating": "Euroclass B or C depending on grade and facing.",
-      "note": "Similar to phenolic in performance. Less common in UK M&E than phenolic (Kingspan Kooltherm dominates). Check spec for which is specified.",
-      "cost_note": "Similar cost to phenolic. Material choice often driven by spec preference."
-    }
-  },
-  "thickness_tables": {
-    "source": "BS 5422 / Part L Building Regulations / TIMSA HVAC Guide",
-    "rule": "These are MINIMUM thicknesses for compliance. Specification may require MORE than minimum. Always check spec first — these tables are the FALLBACK when spec is silent.",
-    "lthw_heating": {
-      "system": "LTHW Heating (75/65°C or 82/71°C)",
-      "material_default": "Mineral wool or phenolic foam",
-      "table": [
-        {
-          "pipe_od_mm": 15,
-          "insulation_mm": 25,
-          "notes": "BS 5422 Table 7 minimum"
-        },
-        {
-          "pipe_od_mm": 22,
-          "insulation_mm": 25,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 28,
-          "insulation_mm": 30,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 35,
-          "insulation_mm": 30,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 42,
-          "insulation_mm": 40,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 54,
-          "insulation_mm": 40,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 67,
-          "insulation_mm": 40,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 76,
-          "insulation_mm": 40,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 89,
-          "insulation_mm": 50,
-          "notes": "DN80 steel"
-        },
-        {
-          "pipe_od_mm": 108,
-          "insulation_mm": 50,
-          "notes": "DN100 copper or steel"
-        },
-        {
-          "pipe_od_mm": 114,
-          "insulation_mm": 50,
-          "notes": "DN100 steel"
-        },
-        {
-          "pipe_od_mm": 139,
-          "insulation_mm": 60,
-          "notes": "DN125 steel"
-        },
-        {
-          "pipe_od_mm": 168,
-          "insulation_mm": 60,
-          "notes": "DN150 steel"
-        },
-        {
-          "pipe_od_mm": 219,
-          "insulation_mm": 75,
-          "notes": "DN200 steel"
-        },
-        {
-          "pipe_od_mm": 273,
-          "insulation_mm": 75,
-          "notes": "DN250 steel"
-        },
-        {
-          "pipe_od_mm": 324,
-          "insulation_mm": 75,
-          "notes": "DN300 steel"
-        }
-      ],
-      "general_rule": "For pipes >54mm: approximately pipe diameter ÷ 2 as minimum insulation thickness. Always verify against BS 5422 table.",
-      "note": "Phenolic foam thicknesses may be thinner than mineral wool for same performance due to lower thermal conductivity. Check manufacturer data."
-    },
-    "dhw_hot_water": {
-      "system": "DHWS (Domestic Hot Water Supply, 60°C storage, 55°C distribution)",
-      "material_default": "Mineral wool or phenolic foam",
-      "table": [
-        {
-          "pipe_od_mm": 15,
-          "insulation_mm": 25,
-          "notes": "BS 5422 Table 9"
-        },
-        {
-          "pipe_od_mm": 22,
-          "insulation_mm": 25,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 28,
-          "insulation_mm": 25,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 35,
-          "insulation_mm": 30,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 42,
-          "insulation_mm": 30,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 54,
-          "insulation_mm": 35,
-          "notes": ""
-        }
-      ],
-      "note": "DHW insulation must maintain distribution temperature above 50°C at outlets (L8 ACOP). Dead legs must be minimised. Secondary return must be insulated."
-    },
-    "cws_cold_water": {
-      "system": "CWS (Cold Water Supply — prevent warming above 20°C per L8)",
-      "material_default": "Elastomeric foam (Armaflex) — MUST have vapour barrier",
-      "table": [
-        {
-          "pipe_od_mm": 15,
-          "insulation_mm": 9,
-          "notes": "Minimum for condensation prevention in plant room"
-        },
-        {
-          "pipe_od_mm": 22,
-          "insulation_mm": 9,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 28,
-          "insulation_mm": 13,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 35,
-          "insulation_mm": 13,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 42,
-          "insulation_mm": 13,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 54,
-          "insulation_mm": 19,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 67,
-          "insulation_mm": 19,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 76,
-          "insulation_mm": 19,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 89,
-          "insulation_mm": 19,
-          "notes": "Check TIMSA for larger sizes"
-        },
-        {
-          "pipe_od_mm": 108,
-          "insulation_mm": 25,
-          "notes": ""
-        }
-      ],
-      "l8_note": "L8 ACOP requires cold water to be maintained below 20°C. In warm plant rooms or ceiling voids, thicker insulation may be needed. TIMSA guide recommends checking ambient temperature assumptions.",
-      "vapour_barrier": "ESSENTIAL for cold water insulation. Elastomeric foam provides integral VB. If mineral wool is used for cold water (not recommended), a separate vapour barrier is mandatory.",
-      "flag_if": "Cold water insulation specified as mineral wool without vapour barrier — flag as potential condensation risk."
-    },
-    "chilled_water": {
-      "system": "Chilled Water (typically 6°C flow / 12°C return)",
-      "material_default": "Elastomeric foam (Armaflex) — MANDATORY closed-cell with integral VB",
-      "table": [
-        {
-          "pipe_od_mm": 15,
-          "insulation_mm": 25,
-          "notes": "Higher thickness due to greater temperature differential"
-        },
-        {
-          "pipe_od_mm": 22,
-          "insulation_mm": 25,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 28,
-          "insulation_mm": 25,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 35,
-          "insulation_mm": 25,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 42,
-          "insulation_mm": 32,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 54,
-          "insulation_mm": 32,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 76,
-          "insulation_mm": 32,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 89,
-          "insulation_mm": 40,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 114,
-          "insulation_mm": 40,
-          "notes": ""
-        },
-        {
-          "pipe_od_mm": 168,
-          "insulation_mm": 50,
-          "notes": "Check TIMSA for larger"
-        }
-      ],
-      "vapour_barrier": "CRITICAL. Chilled water operates below ambient dew point — condensation is guaranteed without proper vapour-sealed insulation. All joints must be glued and sealed.",
-      "support_inserts": "Vapour-sealed pipe support inserts MANDATORY at every bracket/clip. Standard pipe clips crush elastomeric insulation and create cold bridges → condensation → dripping → ceiling damage.",
-      "flag_if": [
-        "Chilled water insulation not specified as elastomeric/closed-cell — flag.",
-        "No mention of vapour barrier — flag.",
-        "No mention of support inserts — flag."
-      ]
-    },
-    "refrigerant": {
-      "system": "Refrigerant Pipework (VRF/split systems)",
-      "material_default": "Elastomeric foam (Armaflex)",
-      "rule": "BOTH liquid and suction lines MUST be insulated. Suction line is cold — condensation risk. Liquid line carries warm refrigerant but still needs insulation for efficiency.",
-      "typical_thickness": "13-19mm for most VRF/split system refrigerant pipes.",
-      "flag_if": "Refrigerant pipework shown without insulation specification — flag. Both lines need insulation.",
-      "cross_ref": "See KB-M03 for VRF/VRV system details."
-    },
-    "condensate": {
-      "system": "Condensate Drain Pipework",
-      "material_default": "Elastomeric foam (prevents condensation on cold condensate pipe)",
-      "typical_thickness": "9-13mm",
-      "note": "Condensate from AHUs, FCUs, and DX units is cold. Uninsulated condensate pipes will drip. Often missed in specs — flag if not addressed."
-    },
-    "unheated_spaces": {
-      "rule": "ALL pipework in unheated spaces (car parks, loading bays, external, exposed risers) requires insulation per Part L. Even CWS and waste pipes may need frost protection insulation.",
-      "frost_protection": "Trace heating + insulation may be required for pipework at risk of freezing (external, unheated car parks). Cross-reference spec for trace heating requirements.",
-      "flag_if": "Pipework shown in unheated space without insulation specification — flag."
-    }
-  },
-  "notation": {
-    "format": "[pipe diameter]mm [pipe material], [insulation thickness]mm [insulation material], [facing type]",
-    "examples": [
-      "54mm copper, 40mm phenolic, foil faced",
-      "42mm copper, 25mm Armaflex Class O, self-adhesive",
-      "DN100 steel, 50mm mineral wool, foil faced with aluminium cladding",
-      "22mm MLCP, 25mm Armaflex, plain (concealed)",
-      "DN150 steel, 60mm rock wool, canvas faced for painting"
-    ],
-    "extraction_rules": [
-      "ALWAYS note all four elements: pipe diameter + insulation thickness + insulation material + facing type.",
-      "If insulation TYPE is not stated, DO NOT ASSUME — flag as \"insulation type not specified\".",
-      "If insulation THICKNESS is not stated but material is, cross-reference BS 5422 thickness tables above and note as \"assumed per BS 5422 Table [X] — verify\".",
-      "If FACING is not stated, note as \"facing not specified\" — flag for spec check.",
-      "Different insulation specifications = SEPARATE LINE ITEMS (e.g. LTHW 25mm MW and LTHW 40mm MW are two separate items).",
-      "Measure in linear metres (m) by pipe size and insulation specification.",
-      "Each unique combination of pipe size + insulation thickness + material + facing = one line item."
-    ],
-    "line_item_rule": "A line item should read: \"[Qty] m of [insulation thickness]mm [material] [facing] insulation to [pipe diameter]mm [pipe material] [service type] pipework\". Example: \"150m of 25mm phenolic foil-faced insulation to 22mm copper LTHW pipework\"."
-  },
-  "valve_fitting_insulation": {
-    "unit": "nr",
-    "rule": "Valves and fittings require more insulation material than straight pipe due to their irregular shape. Count as nr items with a multiplier on the linear pipe insulation rate.",
-    "types": {
-      "valve": {
-        "name": "Valve Insulation",
-        "multiplier": 1.5,
-        "description": "Allow 1.5× the linear pipe section rate per valve.",
-        "method": "Pre-formed valve box (factory-made) or site-fabricated from sheet insulation.",
-        "count_rule": "Count every insulated valve as 1nr. Note pipe size and insulation spec. Rate at 1.5× the per-metre insulation rate for that pipe size.",
-        "note": "Not all valves are insulated — isolation valves that need frequent access may be left uninsulated with removable insulation jacket. Check spec."
-      },
-      "flange": {
-        "name": "Flange Insulation",
-        "multiplier": 2,
-        "description": "Allow 2× the linear pipe section rate per flange pair.",
-        "method": "Pre-formed flange box or removable flange insulation jacket.",
-        "count_rule": "Count every insulated flange pair as 1nr. Note pipe size. Rate at 2× the per-metre rate.",
-        "note": "Flanges are bulky — more material and labour to insulate than valves."
-      },
-      "valve_box": {
-        "name": "Pre-Formed Valve Insulation Box",
-        "description": "Factory-made insulation enclosure shaped to fit standard valve body. Hinged or removable for maintenance access.",
-        "count_rule": "Count as nr if specified. State pipe size and valve type.",
-        "note": "Pre-formed boxes are neater and provide better insulation performance than site-fabricated. More expensive. Check spec for preference."
-      },
-      "strainer_box": {
-        "name": "Strainer Insulation Box",
-        "description": "Removable insulation box for Y-strainer or basket strainer. Must be removable for strainer cleaning.",
-        "count_rule": "Count as nr. State pipe size.",
-        "note": "Strainer boxes MUST be removable for maintenance access. Always removable type."
-      },
-      "removable_jacket": {
-        "name": "Removable Insulation Jacket / Mattress",
-        "description": "Reusable insulation jacket with Velcro or toggle fastening. For equipment, valves, and fittings that need regular maintenance access.",
+        "temperature_range": "-40°C to +300°C (rock wool up to 700°C for specialist grades)",
         "applications": [
-          "Large valves where insulation removal is frequent",
-          "Pump casings",
-          "Heat exchanger covers",
-          "Equipment that needs regular inspection"
+          "LTHW heating pipework (primary application)",
+          "MTHW and HTHW pipework",
+          "Steam pipework",
+          "Boiler flue insulation",
+          "Plant room pipework",
+          "General thermal insulation to hot services"
         ],
-        "count_rule": "Count as nr. State size/equipment. Measured by manufacturer from site survey.",
-        "note": "Removable jackets are significantly more expensive than permanent insulation. Only specified for items needing regular access."
+        "facing_types": {
+          "plain": "Unfaced — requires separate finishing (cladding, tape). Cheapest.",
+          "foil_faced": "Aluminium foil laminate — provides vapour resistance and clean finish. Standard for most M&E.",
+          "canvas_faced": "Woven glass tissue — for painting or where aesthetic finish needed.",
+          "wire_netting": "Galvanised wire netting over plain — external pipework, high-vibration areas.",
+          "aluminium_cladding": "Separate aluminium sheet cladding — external pipework, plant rooms, visible areas. Measured separately."
+        },
+        "form": {
+          "preformed_sections": "Pre-formed half-round sections — snap around pipe. Standard for pipe insulation.",
+          "mat_roll": "Flexible mat/roll — for wrapping around vessels, large-bore pipes, irregular shapes.",
+          "slab": "Rigid slab — for flat surfaces, tank walls, equipment."
+        },
+        "fire_rating": "Non-combustible (Euroclass A1 for unfaced rock wool). Excellent fire performance.",
+        "cost_note": "Most cost-effective insulation for hot services. Thicker sections needed compared to phenolic for same performance."
+      },
+      "phenolic_foam": {
+        "name": "Phenolic Foam",
+        "standard": "BS EN 14314",
+        "brand_examples": "Kingspan Kooltherm, Knauf PipeSection",
+        "temperature_range": "-200°C to +120°C",
+        "applications": [
+          "LTHW heating pipework",
+          "DHWS hot water pipework",
+          "CWS cold water pipework",
+          "Chilled water pipework (with vapour barrier facing)",
+          "Refrigeration pipework (low temperature)",
+          "Space-constrained installations (thinnest section)"
+        ],
+        "facing_types": {
+          "foil_faced": "Aluminium foil — standard. Provides vapour barrier and clean finish.",
+          "tissue_faced": "Glass tissue — for areas requiring painting.",
+          "note": "Foil facing provides adequate vapour resistance for most hot-service applications. For cold/chilled services, check if additional vapour sealing at joints is required."
+        },
+        "form": "Pre-formed half-round sections. Available in 1m lengths standard.",
+        "fire_rating": "Euroclass B-s1,d0 (limited combustibility). Good fire performance but not A1.",
+        "advantage": "THINNEST insulation for equivalent thermal performance. Ideal where space is limited (ceiling voids, risers, congested plant rooms).",
+        "cost_note": "More expensive per metre than mineral wool. Justified by space saving and thinner profile. Approximately 1.5-2× mineral wool cost."
+      },
+      "elastomeric_foam": {
+        "name": "Elastomeric Foam (Flexible Rubber)",
+        "standard": "BS EN 14313",
+        "brand_examples": "Armacell Armaflex, K-Flex, Kaiflex",
+        "temperature_range": "-50°C to +105°C (standard grades). Up to +150°C for high-temp grades.",
+        "applications": [
+          "Chilled water pipework (PRIMARY application)",
+          "Cold water pipework (condensation prevention)",
+          "Refrigerant pipework (VRF/split systems — ALWAYS insulated)",
+          "Condensate pipework",
+          "Domestic cold water (L8 compliance — prevent warming above 20°C)",
+          "Air conditioning pipework"
+        ],
+        "vapour_barrier": {
+          "inherent": true,
+          "description": "Closed-cell structure provides INHERENT vapour barrier — no separate vapour barrier needed.",
+          "note": "This is the KEY advantage for cold services — prevents condensation forming on cold pipe surface. Mineral wool does NOT have inherent vapour barrier."
+        },
+        "facing_types": {
+          "plain": "Self-sealing — plain black rubber. Standard for concealed pipework.",
+          "self_adhesive": "Self-adhesive longitudinal seam — faster installation.",
+          "uv_resistant": "UV-resistant outer skin — for exposed external applications.",
+          "coloured": "Coloured finish available (grey, white) — for exposed visible areas."
+        },
+        "form": {
+          "tube": "Pre-slit tube sections — opens and wraps around pipe. Standard for pipe insulation.",
+          "sheet": "Flat sheet — for wrapping valves, fittings, irregular shapes, equipment.",
+          "roll": "Continuous roll — for large-bore pipes and vessels."
+        },
+        "fire_rating": {
+          "standard": "Euroclass B-s3,d0 or C-s3,d0 depending on grade.",
+          "enhanced": "Armaflex Ultima — Euroclass B-s1,d0. Enhanced fire grade for plenums and escape routes.",
+          "note": "Standard elastomeric may not meet fire requirements in plenums, escape routes, or high-risk areas. Check spec for fire class requirement."
+        },
+        "installation_notes": [
+          "All joints MUST be glued with manufacturer adhesive — gaps allow condensation.",
+          "Do NOT compress elastomeric insulation against supports — reduces performance and creates cold bridges.",
+          "Vapour-sealed support inserts required at pipe clips/brackets on cold services.",
+          "Self-adhesive grades reduce installation time but are more expensive."
+        ],
+        "cost_note": "More expensive than mineral wool per metre. Essential for cold services due to integral vapour barrier. Approximately 2-3× mineral wool cost."
+      },
+      "calcium_silicate": {
+        "name": "Calcium Silicate",
+        "standard": "BS EN 14306",
+        "brand_examples": "Promat, Skamol",
+        "temperature_range": "Up to +650°C (specialist grades to 1000°C)",
+        "applications": [
+          "High temperature steam pipework",
+          "HTHW pipework",
+          "Exhaust and flue insulation",
+          "Industrial process pipework",
+          "High-temperature equipment"
+        ],
+        "form": "Rigid pre-formed half-round sections and flat slabs. Heavy — requires robust support.",
+        "facing": "Typically finished with aluminium cladding (measured separately) or canvas and paint.",
+        "fire_rating": "Non-combustible (Euroclass A1). Excellent fire performance.",
+        "cost_note": "Significantly more expensive than mineral wool. Only used for high-temperature applications where mineral wool is insufficient.",
+        "flag_if": "Calcium silicate specified — check if operating temperature actually requires it. Often over-specified where mineral wool would suffice."
+      },
+      "pir": {
+        "name": "PIR (Polyisocyanurate)",
+        "standard": "BS EN 14315",
+        "brand_examples": "Various — similar performance to phenolic",
+        "temperature_range": "-70°C to +120°C",
+        "applications": [
+          "General pipework insulation",
+          "HVAC systems",
+          "Similar applications to phenolic"
+        ],
+        "form": "Pre-formed sections.",
+        "fire_rating": "Euroclass B or C depending on grade and facing.",
+        "note": "Similar to phenolic in performance. Less common in UK M&E than phenolic (Kingspan Kooltherm dominates). Check spec for which is specified.",
+        "cost_note": "Similar cost to phenolic. Material choice often driven by spec preference."
       }
     },
-    "implicit_items": [
-      "If pipe insulation is specified, valve and fitting insulation is ALWAYS required unless spec explicitly excludes it.",
-      "If no valve insulation is mentioned in spec, include it as \"Implicit\" source with a note that it is standard practice.",
-      "Fittings (elbows, tees) in straight pipe runs are typically included in the linear metre rate — only count separately if pre-formed fitting covers are specified.",
-      "Valve insulation on cold/chilled services is CRITICAL — uninsulated valves are cold bridges that cause condensation and dripping."
-    ]
-  },
-  "waste_and_accessories": {
-    "waste_factor": {
-      "pipe_sections": "15% — for offcuts, fitting covers, joint overlaps.",
-      "sheet_material": "12% — for wrapping valves, vessels, irregular shapes.",
-      "note": "Cross-reference KB-C02 for detailed waste factor tables."
+    "thickness_tables": {
+      "source": "BS 5422 / Part L Building Regulations / TIMSA HVAC Guide",
+      "rule": "These are MINIMUM thicknesses for compliance. Specification may require MORE than minimum. Always check spec first — these tables are the FALLBACK when spec is silent.",
+      "lthw_heating": {
+        "system": "LTHW Heating (75/65°C or 82/71°C)",
+        "material_default": "Mineral wool or phenolic foam",
+        "table": [
+          {
+            "pipe_od_mm": 15,
+            "insulation_mm": 25,
+            "notes": "BS 5422 Table 7 minimum"
+          },
+          {
+            "pipe_od_mm": 22,
+            "insulation_mm": 25,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 28,
+            "insulation_mm": 30,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 35,
+            "insulation_mm": 30,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 42,
+            "insulation_mm": 40,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 54,
+            "insulation_mm": 40,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 67,
+            "insulation_mm": 40,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 76,
+            "insulation_mm": 40,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 89,
+            "insulation_mm": 50,
+            "notes": "DN80 steel"
+          },
+          {
+            "pipe_od_mm": 108,
+            "insulation_mm": 50,
+            "notes": "DN100 copper or steel"
+          },
+          {
+            "pipe_od_mm": 114,
+            "insulation_mm": 50,
+            "notes": "DN100 steel"
+          },
+          {
+            "pipe_od_mm": 139,
+            "insulation_mm": 60,
+            "notes": "DN125 steel"
+          },
+          {
+            "pipe_od_mm": 168,
+            "insulation_mm": 60,
+            "notes": "DN150 steel"
+          },
+          {
+            "pipe_od_mm": 219,
+            "insulation_mm": 75,
+            "notes": "DN200 steel"
+          },
+          {
+            "pipe_od_mm": 273,
+            "insulation_mm": 75,
+            "notes": "DN250 steel"
+          },
+          {
+            "pipe_od_mm": 324,
+            "insulation_mm": 75,
+            "notes": "DN300 steel"
+          }
+        ],
+        "general_rule": "For pipes >54mm: approximately pipe diameter ÷ 2 as minimum insulation thickness. Always verify against BS 5422 table.",
+        "note": "Phenolic foam thicknesses may be thinner than mineral wool for same performance due to lower thermal conductivity. Check manufacturer data."
+      },
+      "dhw_hot_water": {
+        "system": "DHWS (Domestic Hot Water Supply, 60°C storage, 55°C distribution)",
+        "material_default": "Mineral wool or phenolic foam",
+        "table": [
+          {
+            "pipe_od_mm": 15,
+            "insulation_mm": 25,
+            "notes": "BS 5422 Table 9"
+          },
+          {
+            "pipe_od_mm": 22,
+            "insulation_mm": 25,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 28,
+            "insulation_mm": 25,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 35,
+            "insulation_mm": 30,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 42,
+            "insulation_mm": 30,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 54,
+            "insulation_mm": 35,
+            "notes": ""
+          }
+        ],
+        "note": "DHW insulation must maintain distribution temperature above 50°C at outlets (L8 ACOP). Dead legs must be minimised. Secondary return must be insulated."
+      },
+      "cws_cold_water": {
+        "system": "CWS (Cold Water Supply — prevent warming above 20°C per L8)",
+        "material_default": "Elastomeric foam (Armaflex) — MUST have vapour barrier",
+        "table": [
+          {
+            "pipe_od_mm": 15,
+            "insulation_mm": 9,
+            "notes": "Minimum for condensation prevention in plant room"
+          },
+          {
+            "pipe_od_mm": 22,
+            "insulation_mm": 9,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 28,
+            "insulation_mm": 13,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 35,
+            "insulation_mm": 13,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 42,
+            "insulation_mm": 13,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 54,
+            "insulation_mm": 19,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 67,
+            "insulation_mm": 19,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 76,
+            "insulation_mm": 19,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 89,
+            "insulation_mm": 19,
+            "notes": "Check TIMSA for larger sizes"
+          },
+          {
+            "pipe_od_mm": 108,
+            "insulation_mm": 25,
+            "notes": ""
+          }
+        ],
+        "l8_note": "L8 ACOP requires cold water to be maintained below 20°C. In warm plant rooms or ceiling voids, thicker insulation may be needed. TIMSA guide recommends checking ambient temperature assumptions.",
+        "vapour_barrier": "ESSENTIAL for cold water insulation. Elastomeric foam provides integral VB. If mineral wool is used for cold water (not recommended), a separate vapour barrier is mandatory.",
+        "flag_if": "Cold water insulation specified as mineral wool without vapour barrier — flag as potential condensation risk."
+      },
+      "chilled_water": {
+        "system": "Chilled Water (typically 6°C flow / 12°C return)",
+        "material_default": "Elastomeric foam (Armaflex) — MANDATORY closed-cell with integral VB",
+        "table": [
+          {
+            "pipe_od_mm": 15,
+            "insulation_mm": 25,
+            "notes": "Higher thickness due to greater temperature differential"
+          },
+          {
+            "pipe_od_mm": 22,
+            "insulation_mm": 25,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 28,
+            "insulation_mm": 25,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 35,
+            "insulation_mm": 25,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 42,
+            "insulation_mm": 32,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 54,
+            "insulation_mm": 32,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 76,
+            "insulation_mm": 32,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 89,
+            "insulation_mm": 40,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 114,
+            "insulation_mm": 40,
+            "notes": ""
+          },
+          {
+            "pipe_od_mm": 168,
+            "insulation_mm": 50,
+            "notes": "Check TIMSA for larger"
+          }
+        ],
+        "vapour_barrier": "CRITICAL. Chilled water operates below ambient dew point — condensation is guaranteed without proper vapour-sealed insulation. All joints must be glued and sealed.",
+        "support_inserts": "Vapour-sealed pipe support inserts MANDATORY at every bracket/clip. Standard pipe clips crush elastomeric insulation and create cold bridges → condensation → dripping → ceiling damage.",
+        "flag_if": [
+          "Chilled water insulation not specified as elastomeric/closed-cell — flag.",
+          "No mention of vapour barrier — flag.",
+          "No mention of support inserts — flag."
+        ]
+      },
+      "refrigerant": {
+        "system": "Refrigerant Pipework (VRF/split systems)",
+        "material_default": "Elastomeric foam (Armaflex)",
+        "rule": "BOTH liquid and suction lines MUST be insulated. Suction line is cold — condensation risk. Liquid line carries warm refrigerant but still needs insulation for efficiency.",
+        "typical_thickness": "13-19mm for most VRF/split system refrigerant pipes.",
+        "flag_if": "Refrigerant pipework shown without insulation specification — flag. Both lines need insulation.",
+        "cross_ref": "See KB-M03 for VRF/VRV system details."
+      },
+      "condensate": {
+        "system": "Condensate Drain Pipework",
+        "material_default": "Elastomeric foam (prevents condensation on cold condensate pipe)",
+        "typical_thickness": "9-13mm",
+        "note": "Condensate from AHUs, FCUs, and DX units is cold. Uninsulated condensate pipes will drip. Often missed in specs — flag if not addressed."
+      },
+      "unheated_spaces": {
+        "rule": "ALL pipework in unheated spaces (car parks, loading bays, external, exposed risers) requires insulation per Part L. Even CWS and waste pipes may need frost protection insulation.",
+        "frost_protection": "Trace heating + insulation may be required for pipework at risk of freezing (external, unheated car parks). Cross-reference spec for trace heating requirements.",
+        "flag_if": "Pipework shown in unheated space without insulation specification — flag."
+      }
     },
-    "accessories": {
-      "adhesive": "Manufacturer adhesive for elastomeric joints. Allow 1 tin per ~30-40m of pipe insulation.",
-      "tape": "Foil tape for sealing joints on foil-faced insulation. Self-amalgamating tape for outer protection.",
-      "pins_and_clips": "Insulation support pins (for mineral wool on ducts/vessels). Stainless steel pins with speed washers.",
-      "banding": "Stainless steel or aluminium banding for securing insulation and cladding. Allow 2 bands per metre of cladding.",
-      "vapour_seal_tape": "Vapour barrier tape for sealing joints on cold-service insulation. CRITICAL for chilled water systems.",
-      "support_inserts": "Pre-formed support inserts for pipe brackets on insulated cold pipes. One per bracket. Essential to prevent cold bridging.",
-      "note": "Accessories are often included in the insulation rate per metre. Check pricing method. If accessories are priced separately, count them."
-    }
-  },
-  "flag_triggers": [
-    "Insulation material not specified — flag. Do not assume material type.",
-    "Insulation thickness not specified — flag. Note BS 5422 default and label as \"assumed\".",
-    "Cold water insulation specified as mineral wool without vapour barrier — flag condensation risk.",
-    "Chilled water system without closed-cell (elastomeric) insulation — flag as non-compliant with best practice.",
-    "Chilled water insulation without support inserts mentioned — flag cold bridging risk.",
-    "Refrigerant pipework without insulation — flag. Both lines must be insulated.",
-    "Condensate pipework without insulation — flag. Will cause dripping.",
-    "Pipework in unheated space without insulation — flag frost risk.",
-    "Fire rating of insulation not stated for areas requiring fire performance (escape routes, plenums) — flag.",
-    "Insulation to existing pipework specified — flag. May need removal of old insulation first (asbestos risk if pre-2000 building).",
-    "Aluminium cladding specified — count as separate item (m² or m). Not included in basic insulation rate."
-  ]
+    "notation": {
+      "format": "[pipe diameter]mm [pipe material], [insulation thickness]mm [insulation material], [facing type]",
+      "examples": [
+        "54mm copper, 40mm phenolic, foil faced",
+        "42mm copper, 25mm Armaflex Class O, self-adhesive",
+        "DN100 steel, 50mm mineral wool, foil faced with aluminium cladding",
+        "22mm MLCP, 25mm Armaflex, plain (concealed)",
+        "DN150 steel, 60mm rock wool, canvas faced for painting"
+      ],
+      "extraction_rules": [
+        "ALWAYS note all four elements: pipe diameter + insulation thickness + insulation material + facing type.",
+        "If insulation TYPE is not stated, DO NOT ASSUME — flag as \"insulation type not specified\".",
+        "If insulation THICKNESS is not stated but material is, cross-reference BS 5422 thickness tables above and note as \"assumed per BS 5422 Table [X] — verify\".",
+        "If FACING is not stated, note as \"facing not specified\" — flag for spec check.",
+        "Different insulation specifications = SEPARATE LINE ITEMS (e.g. LTHW 25mm MW and LTHW 40mm MW are two separate items).",
+        "Measure in linear metres (m) by pipe size and insulation specification.",
+        "Each unique combination of pipe size + insulation thickness + material + facing = one line item."
+      ],
+      "line_item_rule": "A line item should read: \"[Qty] m of [insulation thickness]mm [material] [facing] insulation to [pipe diameter]mm [pipe material] [service type] pipework\". Example: \"150m of 25mm phenolic foil-faced insulation to 22mm copper LTHW pipework\"."
+    },
+    "valve_fitting_insulation": {
+      "unit": "nr",
+      "rule": "Valves and fittings require more insulation material than straight pipe due to their irregular shape. Count as nr items with a multiplier on the linear pipe insulation rate.",
+      "types": {
+        "valve": {
+          "name": "Valve Insulation",
+          "multiplier": 1.5,
+          "description": "Allow 1.5× the linear pipe section rate per valve.",
+          "method": "Pre-formed valve box (factory-made) or site-fabricated from sheet insulation.",
+          "count_rule": "Count every insulated valve as 1nr. Note pipe size and insulation spec. Rate at 1.5× the per-metre insulation rate for that pipe size.",
+          "note": "Not all valves are insulated — isolation valves that need frequent access may be left uninsulated with removable insulation jacket. Check spec."
+        },
+        "flange": {
+          "name": "Flange Insulation",
+          "multiplier": 2,
+          "description": "Allow 2× the linear pipe section rate per flange pair.",
+          "method": "Pre-formed flange box or removable flange insulation jacket.",
+          "count_rule": "Count every insulated flange pair as 1nr. Note pipe size. Rate at 2× the per-metre rate.",
+          "note": "Flanges are bulky — more material and labour to insulate than valves."
+        },
+        "valve_box": {
+          "name": "Pre-Formed Valve Insulation Box",
+          "description": "Factory-made insulation enclosure shaped to fit standard valve body. Hinged or removable for maintenance access.",
+          "count_rule": "Count as nr if specified. State pipe size and valve type.",
+          "note": "Pre-formed boxes are neater and provide better insulation performance than site-fabricated. More expensive. Check spec for preference."
+        },
+        "strainer_box": {
+          "name": "Strainer Insulation Box",
+          "description": "Removable insulation box for Y-strainer or basket strainer. Must be removable for strainer cleaning.",
+          "count_rule": "Count as nr. State pipe size.",
+          "note": "Strainer boxes MUST be removable for maintenance access. Always removable type."
+        },
+        "removable_jacket": {
+          "name": "Removable Insulation Jacket / Mattress",
+          "description": "Reusable insulation jacket with Velcro or toggle fastening. For equipment, valves, and fittings that need regular maintenance access.",
+          "applications": [
+            "Large valves where insulation removal is frequent",
+            "Pump casings",
+            "Heat exchanger covers",
+            "Equipment that needs regular inspection"
+          ],
+          "count_rule": "Count as nr. State size/equipment. Measured by manufacturer from site survey.",
+          "note": "Removable jackets are significantly more expensive than permanent insulation. Only specified for items needing regular access."
+        }
+      },
+      "implicit_items": [
+        "If pipe insulation is specified, valve and fitting insulation is ALWAYS required unless spec explicitly excludes it.",
+        "If no valve insulation is mentioned in spec, include it as \"Implicit\" source with a note that it is standard practice.",
+        "Fittings (elbows, tees) in straight pipe runs are typically included in the linear metre rate — only count separately if pre-formed fitting covers are specified.",
+        "Valve insulation on cold/chilled services is CRITICAL — uninsulated valves are cold bridges that cause condensation and dripping."
+      ]
+    },
+    "waste_and_accessories": {
+      "waste_factor": {
+        "pipe_sections": "15% — for offcuts, fitting covers, joint overlaps.",
+        "sheet_material": "12% — for wrapping valves, vessels, irregular shapes.",
+        "note": "Cross-reference KB-C02 for detailed waste factor tables."
+      },
+      "accessories": {
+        "adhesive": "Manufacturer adhesive for elastomeric joints. Allow 1 tin per ~30-40m of pipe insulation.",
+        "tape": "Foil tape for sealing joints on foil-faced insulation. Self-amalgamating tape for outer protection.",
+        "pins_and_clips": "Insulation support pins (for mineral wool on ducts/vessels). Stainless steel pins with speed washers.",
+        "banding": "Stainless steel or aluminium banding for securing insulation and cladding. Allow 2 bands per metre of cladding.",
+        "vapour_seal_tape": "Vapour barrier tape for sealing joints on cold-service insulation. CRITICAL for chilled water systems.",
+        "support_inserts": "Pre-formed support inserts for pipe brackets on insulated cold pipes. One per bracket. Essential to prevent cold bridging.",
+        "note": "Accessories are often included in the insulation rate per metre. Check pricing method. If accessories are priced separately, count them."
+      }
+    },
+    "flag_triggers": [
+      "Insulation material not specified — flag. Do not assume material type.",
+      "Insulation thickness not specified — flag. Note BS 5422 default and label as \"assumed\".",
+      "Cold water insulation specified as mineral wool without vapour barrier — flag condensation risk.",
+      "Chilled water system without closed-cell (elastomeric) insulation — flag as non-compliant with best practice.",
+      "Chilled water insulation without support inserts mentioned — flag cold bridging risk.",
+      "Refrigerant pipework without insulation — flag. Both lines must be insulated.",
+      "Condensate pipework without insulation — flag. Will cause dripping.",
+      "Pipework in unheated space without insulation — flag frost risk.",
+      "Fire rating of insulation not stated for areas requiring fire performance (escape routes, plenums) — flag.",
+      "Insulation to existing pipework specified — flag. May need removal of old insulation first (asbestos risk if pre-2000 building).",
+      "Aluminium cladding specified — count as separate item (m² or m). Not included in basic insulation rate."
+    ]
+  }
 }
