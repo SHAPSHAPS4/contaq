@@ -99,7 +99,12 @@ router.post('/save-quote', (req, res) => {
     const filePath = path.join(quotesDir, ref + '.json');
     const quote = { quote_ref: ref, project_ref, created: new Date().toISOString(), priced_items, summary };
     fs.writeFileSync(filePath, JSON.stringify(quote, null, 2));
-    res.json({ success: true, quote_ref: ref, file: filePath });
+
+    // Auto-version on every save
+    const { saveVersion } = require('../services/quote-versioning');
+    const version = saveVersion(ref, quote, req.body.change_note || 'Save from pricing panel');
+
+    res.json({ success: true, quote_ref: ref, file: filePath, version: version.version_ref, version_number: version.version_number });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
