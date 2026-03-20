@@ -104,6 +104,7 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/pricing', require('./routes/pricing'));
 app.use('/api/validate', require('./routes/validation'));
 app.use('/api/invoices', require('./routes/invoices'));
+app.use('/api/similarity', require('./routes/similarity'));
 app.use('/api/register', require('./routes/drawing-register'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
