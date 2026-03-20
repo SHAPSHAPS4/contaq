@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contraq — AI-Powered M&amp;E Estimating for Subcontractors</title>
+  <meta name="description" content="Upload drawings, get quantities, price and quote — all in one platform. Built for specialist M&E subcontractors.">
+  <link rel="stylesheet" href="public/contraq-styles.css">
+  <style>
+    /* ── Landing Page Overrides ─────────────────────────────────── */
+    body {
+      font-size: 16px;
+      background: var(--c-off-white);
+      overflow-x: hidden;
+    }
+
+    /* Reset app-shell styles that bleed from the design system */
+    .sidebar-v2, .topnav-v2, .main-content-v2 { display: none; }
+
+    /* ── Sticky Nav ─────────────────────────────────────────────── */
+    .lp-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(44,93,158,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: background 0.3s;
+    }
+    .lp-nav-logo {
+      font-size: 20px; font-weight: 700; color: #fff;
+      letter-spacing: -0.4px; text-decoration: none;
+    }
+    .lp-nav-logo em {
+      font-style: normal; color: var(--c-action); font-weight: 400;
+    }
+    .lp-nav-links { display: flex; align-items: center; gap: 28px; }
+    .lp-nav-links a {
+      color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500;
+      text-decoration: none; transition: color 0.15s;
+    }
+    .lp-nav-links a:hover { color: #fff; }
+    .lp-nav-links .btn-login {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+      padding: 7px 20px; border-radius: var(--radius-md); color: #fff;
+      font-weight: 600; font-size: 13px; transition: all 0.15s;
+    }
+    .lp-nav-links .btn-login:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── Section Wrapper ────────────────────────────────────────── */
+    .lp-section {
+      padding: 100px 40px;
+    }
+    .lp-container {
+      max-width: 1140px; margin: 0 auto;
+    }
+    .lp-section-label {
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1.2px; color: var(--c-action); margin-bottom: 12px;
+    }
+    .lp-section-heading {
+      font-size: 38px; font-weight: 700; color: var(--c-charcoal);
+      line-height: 1.2; letter-spacing: -0.8px; margin-bottom: 16px;
+    }
+    .lp-section-sub {
+      font-size: 17px; color: var(--c-gray-muted); line-height: 1.65;
+      max-width: 600px;
+    }
+
+    /* ── 1. HERO ────────────────────────────────────────────────── */
+    .lp-hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; background: var(--c-primary); padding: 120px 40px 80px;
+      position: relative; overflow: hidden;
+    }
+    .lp-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 20%, rgba(74,127,191,0.35) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 80%, rgba(30,63,110,0.5) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .lp-hero-inner { position: relative; z-index: 1; max-width: 780px; }
+    .lp-hero h1 {
+      font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: #fff;
+      line-height: 1.12; letter-spacing: -1.2px; margin-bottom: 20px;
+    }
+    .lp-hero-sub {
+      font-size: clamp(16px, 2vw, 20px); color: rgba(255,255,255,0.8);
+      line-height: 1.65; margin-bottom: 36px; max-width: 620px; margin-left: auto; margin-right: auto;
+    }
+    .lp-hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .lp-hero-ctas .btn-cta-primary {
+      background: var(--c-action); color: #fff; border: none;
+      padding: 15px 36px; border-radius: var(--radius-md);
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s ease; text-decoration: none;
+    }
+    .lp-hero-ctas .btn-cta-primary:hover { background: var(--c-action-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,90,40,0.35); }
+    .lp-hero-ctas .btn-cta-outline {
+      background: transparent; color: #fff;
+      border: 2px solid rgba(255,255,255,0.5);
+      padding: 14px 36px; border-radius: var(--radius-md);
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease; text-decoration: none;
+    }
+    .lp-hero-ctas .btn-cta-outline:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
+    .lp-hero-trust {
+      margin-top: 28px; font-size: 13px; color: rgba(255,255,255,0.45);
+      letter-spacing: 0.2px;
+    }
+
+    /* ── 2. SOCIAL PROOF BAR ────────────────────────────────────── */
+    .lp-proof-bar {
+      background: #fff; padding: 28px 40px;
+      border-bottom: 1px solid var(--c-slate-light);
+    }
+    .lp-proof-bar .lp-container {
+      display: flex; justify-content: center; align-items: center;
+      flex-wrap: wrap; gap: 12px 48px;
+    }
+    .lp-proof-item {
+      font-size: 14px; font-weight: 600; color: var(--c-gray-text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .lp-proof-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--c-success);
+      display: inline-block;
+    }
+
+    /* ── 3. ROI SECTION ─────────────────────────────────────────── */
+    .lp-roi { background: var(--c-off-white); }
+    .lp-roi .lp-section-heading { text-align: center; }
+    .lp-roi .lp-section-sub { text-align: center; margin: 0 auto 56px; }
+    .lp-stat-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+    }
+    .lp-stat-card {
+      background: #fff; border: 1px solid var(--c-slate);
+      border-radius: var(--radius-lg); padding: 40px 28px; text-align: center;
+      box-shadow: var(--shadow-sm); transition: all 0.2s;
+    }
+    .lp-stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+    .lp-stat-number {
+      font-size: 54px; font-weight: 800; color: var(--c-action);
+      line-height: 1; margin-bottom: 8px;
+    }
+    .lp-stat-label {
+      font-size: 14px; font-weight: 500; color: var(--c-gray-muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ── 4. FEATURES ────────────────────────────────────────────── */
+    .lp-features { background: #fff; }
+    .lp-feature-block {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+      align-items: center; margin-bottom: 80px;
+    }
+    .lp-feature-block:last-child { margin-bottom: 0; }
+    .lp-feature-block.reverse .lp-feature-text { order: 2; }
+    .lp-feature-block.reverse .lp-feature-img { order: 1; }
+    .lp-feature-text h3 {
+      font-size: 28px; font-weight: 700; color: var(--c-charcoal);
+      line-height: 1.25; margin-bottom: 18px; letter-spacing: -0.4px;
+    }
+    .lp-feature-text ul {
+      list-style: none; padding: 0; margin-bottom: 20px;
+    }
+    .lp-feature-text ul li {
+      padding: 6px 0; font-size: 15px; color: var(--c-gray-text);
+      line-height: 1.6; padding-left: 24px; position: relative;
+    }
+    .lp-feature-text ul li::before {
+      content: '\2713'; position: absolute; left: 0; color: var(--c-success);
+      font-weight: 700;
+    }
+    .lp-feature-link {
+      font-size: 14px; font-weight: 600; color: var(--c-primary);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .lp-feature-link:hover { color: var(--c-action); }
+    .lp-feature-img {
+      background: var(--c-slate-light); border-radius: var(--radius-lg);
+      height: 320px; display: flex; align-items: center; justify-content: center;
+      color: var(--c-gray-muted); font-size: 14px; font-weight: 500;
+      border: 1px solid var(--c-slate);
+    }
+
+    /* ── 5. TRUST ───────────────────────────────────────────────── */
+    .lp-trust {
+      background: var(--c-primary); color: #fff;
+    }
+    .lp-trust .lp-section-heading { color: #fff; text-align: center; }
+    .lp-trust .lp-section-sub { color: rgba(255,255,255,0.7); text-align: center; margin: 0 auto 56px; }
+    .lp-trust-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px;
+    }
+    .lp-trust-card {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-lg); padding: 36px 28px; text-align: center;
+    }
+    .lp-trust-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); margin: 0 auto 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .lp-trust-card h4 {
+      font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px;
+    }
+    .lp-trust-card p {
+      font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.65;
+    }
+
+    /* ── 6. PRICING ─────────────────────────────────────────────── */
+    .lp-pricing { background: var(--c-off-white); }
+    .lp-pricing .lp-section-heading { text-align: center; }
+    .lp-pricing .lp-section-sub { text-align: center; margin: 0 auto 56px; }
+    .lp-pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+      align-items: start;
+    }
+    .lp-price-card {
+      background: #fff; border: 2px solid var(--c-slate);
+      border-radius: var(--radius-xl); padding: 36px 28px; text-align: center;
+      position: relative; transition: all 0.2s;
+    }
+    .lp-price-card:hover { box-shadow: var(--shadow-lg); }
+    .lp-price-card.recommended {
+      border-color: var(--c-action);
+      box-shadow: 0 8px 32px rgba(240,90,40,0.15);
+      transform: scale(1.03);
+    }
+    .lp-price-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--c-action); color: #fff; font-size: 11px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+      padding: 5px 18px; border-radius: 20px;
+    }
+    .lp-price-card h4 {
+      font-size: 20px; font-weight: 700; color: var(--c-charcoal);
+      margin-bottom: 6px;
+    }
+    .lp-price-card .lp-price-desc {
+      font-size: 13px; color: var(--c-gray-muted); margin-bottom: 20px;
+    }
+    .lp-price-amount {
+      font-size: 44px; font-weight: 800; color: var(--c-charcoal);
+      line-height: 1; margin-bottom: 4px;
+    }
+    .lp-price-amount span { font-size: 16px; font-weight: 500; color: var(--c-gray-muted); }
+    .lp-price-period {
+      font-size: 13px; color: var(--c-gray-muted); margin-bottom: 24px;
+    }
+    .lp-price-features {
+      list-style: none; padding: 0; text-align: left; margin-bottom: 28px;
+    }
+    .lp-price-features li {
+      padding: 8px 0; font-size: 14px; color: var(--c-gray-text);
+      border-bottom: 1px solid var(--c-slate-light);
+      padding-left: 24px; position: relative;
+    }
+    .lp-price-features li:last-child { border-bottom: none; }
+    .lp-price-features li::before {
+      content: '\2713'; position: absolute; left: 0;
+      color: var(--c-success); font-weight: 700;
+    }
+    .lp-price-cta {
+      display: block; width: 100%; padding: 13px 0;
+      border-radius: var(--radius-md); font-size: 15px;
+      font-weight: 700; cursor: pointer; text-decoration: none;
+      text-align: center; transition: all 0.15s; border: none;
+    }
+    .lp-price-cta.primary {
+      background: var(--c-action); color: #fff;
+    }
+    .lp-price-cta.primary:hover { background: var(--c-action-dark); }
+    .lp-price-cta.outline {
+      background: transparent; color: var(--c-primary);
+      border: 2px solid var(--c-primary);
+    }
+    .lp-price-cta.outline:hover { background: var(--c-primary-subtle); }
+
+    /* ── 7. FOOTER ──────────────────────────────────────────────── */
+    .lp-footer {
+      background: var(--c-footer); color: rgba(255,255,255,0.6);
+      padding: 72px 40px 36px;
+    }
+    .lp-footer-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px;
+      max-width: 1140px; margin: 0 auto 48px;
+    }
+    .lp-footer-col h5 {
+      font-size: 13px; font-weight: 700; color: #fff;
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 18px;
+    }
+    .lp-footer-col a {
+      display: block; font-size: 14px; color: rgba(255,255,255,0.5);
+      text-decoration: none; padding: 4px 0; transition: color 0.15s;
+    }
+    .lp-footer-col a:hover { color: #fff; }
+    .lp-footer-bottom {
+      max-width: 1140px; margin: 0 auto;
+      padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px; color: rgba(255,255,255,0.35);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .lp-stat-grid,
+      .lp-trust-grid,
+      .lp-pricing-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+      .lp-price-card.recommended { transform: none; }
+      .lp-feature-block,
+      .lp-feature-block.reverse { grid-template-columns: 1fr; gap: 32px; }
+      .lp-feature-block.reverse .lp-feature-text { order: 1; }
+      .lp-feature-block.reverse .lp-feature-img { order: 2; }
+      .lp-footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .lp-section { padding: 64px 20px; }
+      .lp-nav { padding: 0 20px; }
+      .lp-nav-links a:not(.btn-login) { display: none; }
+      .lp-hero { padding: 100px 20px 60px; }
+      .lp-section-heading { font-size: 30px; }
+      .lp-footer-grid { grid-template-columns: 1fr; }
+      .lp-proof-bar .lp-container { flex-direction: column; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav class="lp-nav">
+  <a href="landing.html" class="lp-nav-logo">Contraq<em>.</em></a>
+  <div class="lp-nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="index.html" class="btn-login">Login</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ 1. HERO ═══════════════ -->
+<section class="lp-hero" id="hero">
+  <div class="lp-hero-inner">
+    <h1>AI-Powered M&amp;E Estimating. Takeoffs in 60&nbsp;Seconds.</h1>
+    <p class="lp-hero-sub">Built for specialist M&amp;E subcontractors. Upload drawings, get quantities, price and quote&nbsp;&mdash; all in one platform.</p>
+    <div class="lp-hero-ctas">
+      <a href="#pricing" class="btn-cta-primary">Start Free Trial</a>
+      <a href="#features" class="btn-cta-outline">Watch Demo</a>
+    </div>
+    <p class="lp-hero-trust">No credit card required &middot; Free 14-day trial &middot; Cancel anytime</p>
+  </div>
+</section>
+
+<!-- ═══════════════ 2. SOCIAL PROOF BAR ═══════════════ -->
+<div class="lp-proof-bar">
+  <div class="lp-container">
+    <span class="lp-proof-item"><span class="dot"></span> 14-day free trial</span>
+    <span class="lp-proof-item"><span class="dot"></span> Setup in 5 minutes</span>
+    <span class="lp-proof-item"><span class="dot"></span> Cancel anytime</span>
+    <span class="lp-proof-item"><span class="dot"></span> GDPR compliant</span>
+  </div>
+</div>
+
+<!-- ═══════════════ 3. ROI ═══════════════ -->
+<section class="lp-section lp-roi" id="roi">
+  <div class="lp-container">
+    <p class="lp-section-label" style="text-align:center">Why Contraq</p>
+    <h2 class="lp-section-heading">Stop losing time on takeoffs</h2>
+    <p class="lp-section-sub">Every hour your estimators spend on manual takeoffs is an hour they could be winning new work. Contraq changes the equation.</p>
+    <div class="lp-stat-grid">
+      <div class="lp-stat-card">
+        <div class="lp-stat-number">80%</div>
+        <div class="lp-stat-label">Reduction in takeoff time</div>
+      </div>
+      <div class="lp-stat-card">
+        <div class="lp-stat-number">60 sec</div>
+        <div class="lp-stat-label">Average quote time</div>
+      </div>
+      <div class="lp-stat-card">
+        <div class="lp-stat-number">&pound;4,200</div>
+        <div class="lp-stat-label">Saved per estimator / month</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 4. FEATURES ═══════════════ -->
+<section class="lp-section lp-features" id="features">
+  <div class="lp-container">
+    <p class="lp-section-label">Platform</p>
+    <h2 class="lp-section-heading" style="margin-bottom:56px">Everything you need, nothing you don't</h2>
+
+    <!-- Feature 1 -->
+    <div class="lp-feature-block">
+      <div class="lp-feature-text">
+        <h3>AI Drawing Extraction</h3>
+        <ul>
+          <li>Upload PDFs, DWGs or scanned drawings and let AI identify every fitting, run and connection</li>
+          <li>Automatic symbol recognition trained on M&amp;E schematics &mdash; pipes, ducts, cable trays, radiators</li>
+          <li>Review and adjust quantities before they flow into your quote</li>
+        </ul>
+        <a href="#" class="lp-feature-link">Learn more &rarr;</a>
+      </div>
+      <div class="lp-feature-img">Screenshot placeholder</div>
+    </div>
+
+    <!-- Feature 2 -->
+    <div class="lp-feature-block reverse">
+      <div class="lp-feature-text">
+        <h3>Spec Cross-Reference</h3>
+        <ul>
+          <li>Automatically match extracted quantities against NBS specs and project requirements</li>
+          <li>Flag mismatches, missing items and specification conflicts before you price</li>
+          <li>Keep a full audit trail of every spec decision for contract protection</li>
+        </ul>
+        <a href="#" class="lp-feature-link">Learn more &rarr;</a>
+      </div>
+      <div class="lp-feature-img">Screenshot placeholder</div>
+    </div>
+
+    <!-- Feature 3 -->
+    <div class="lp-feature-block">
+      <div class="lp-feature-text">
+        <h3>Instant Pricing</h3>
+        <ul>
+          <li>Your price book, your rates &mdash; quantities flow straight into a fully costed breakdown</li>
+          <li>Live supplier pricing integration to keep material costs current</li>
+          <li>Margin analysis and what-if scenarios to sharpen your bid</li>
+        </ul>
+        <a href="#" class="lp-feature-link">Learn more &rarr;</a>
+      </div>
+      <div class="lp-feature-img">Screenshot placeholder</div>
+    </div>
+
+    <!-- Feature 4 -->
+    <div class="lp-feature-block reverse">
+      <div class="lp-feature-text">
+        <h3>Quote to Invoice</h3>
+        <ul>
+          <li>Convert accepted quotes into projects, purchase orders and payment applications in one click</li>
+          <li>Track variations, retention and CIS deductions through the full contract lifecycle</li>
+          <li>Generate client-ready documents that match main contractor expectations</li>
+        </ul>
+        <a href="#" class="lp-feature-link">Learn more &rarr;</a>
+      </div>
+      <div class="lp-feature-img">Screenshot placeholder</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ 5. TRUST ═══════════════ -->
+<section class="lp-section lp-trust" id="trust">
+  <div class="lp-container">
+    <p class="lp-section-label" style="color:rgba(255,255,255,0.5); text-align:center">Built to last</p>
+    <h2 class="lp-section-heading">Built to stick around</h2>
+    <p class="lp-section-sub">We know subcontractors get burned by software that over-promises. Contraq is different.</p>
+    <div class="lp-trust-grid">
+      <div class="lp-trust-card">
+        <div class="lp-trust-icon">&#128274;</div>
+        <h4>Your data, your rules</h4>
+        <p>UK-hosted, GDPR compliant, encrypted at rest and in transit. Export everything, any time. No vendor lock-in, ever.</p>
+      </div>
+      <div class="lp-trust-card">
+        <div class="lp-trust-icon">&#129302;</div>
+        <h4>AI that learns your projects</h4>
+        <p>The more you use Contraq, the smarter it gets. It learns your preferred materials, suppliers and pricing patterns to speed up every future quote.</p>
+      </div>
+      <div class="lp-trust-card">
+        <div class="lp-trust-icon">&#128736;</div>
+        <h4>Support that speaks construction</h4>
+        <p>Our team has worked on M&amp;E sites. When you call, you talk to someone who knows what a 15mm compression fitting is.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 6. PRICING ═══════════════ -->
+<section class="lp-section lp-pricing" id="pricing">
+  <div class="lp-container">
+    <p class="lp-section-label" style="text-align:center">Pricing</p>
+    <h2 class="lp-section-heading">Simple pricing, serious ROI</h2>
+    <p class="lp-section-sub">Start free. Upgrade when you're ready. All plans include a 14-day trial.</p>
+
+    <div class="lp-pricing-grid">
+
+      <!-- Starter -->
+      <div class="lp-price-card">
+        <h4>Starter</h4>
+        <p class="lp-price-desc">For sole traders and small teams</p>
+        <div class="lp-price-amount">&pound;49<span>/mo</span></div>
+        <p class="lp-price-period">per user, billed monthly</p>
+        <ul class="lp-price-features">
+          <li>Up to 2 users</li>
+          <li>20 AI extractions / month</li>
+          <li>Basic price book</li>
+          <li>Quote generation</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" class="lp-price-cta outline">Start Free Trial</a>
+      </div>
+
+      <!-- Professional -->
+      <div class="lp-price-card recommended">
+        <span class="lp-price-badge">Recommended</span>
+        <h4>Professional</h4>
+        <p class="lp-price-desc">For growing M&amp;E subcontractors</p>
+        <div class="lp-price-amount">&pound;99<span>/mo</span></div>
+        <p class="lp-price-period">per user, billed monthly</p>
+        <ul class="lp-price-features">
+          <li>Up to 10 users</li>
+          <li>Unlimited AI extractions</li>
+          <li>Spec cross-reference</li>
+          <li>Project tracking &amp; P&amp;L</li>
+          <li>CIS compliance tools</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="lp-price-cta primary">Start Free Trial</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="lp-price-card">
+        <h4>Enterprise</h4>
+        <p class="lp-price-desc">For multi-site operations</p>
+        <div class="lp-price-amount">Custom</div>
+        <p class="lp-price-period">tailored to your business</p>
+        <ul class="lp-price-features">
+          <li>Unlimited users</li>
+          <li>Unlimited AI extractions</li>
+          <li>SSO &amp; advanced security</li>
+          <li>Procore / ERP integration</li>
+          <li>Dedicated account manager</li>
+          <li>Custom onboarding</li>
+        </ul>
+        <a href="#" class="lp-price-cta outline">Book a Demo</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 7. FOOTER ═══════════════ -->
+<footer class="lp-footer" id="footer">
+  <div class="lp-footer-grid">
+    <div class="lp-footer-col">
+      <h5>Product</h5>
+      <a href="#features">AI Takeoffs</a>
+      <a href="#features">Spec Cross-Reference</a>
+      <a href="#features">Instant Pricing</a>
+      <a href="#features">Quote to Invoice</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="lp-footer-col">
+      <h5>Company</h5>
+      <a href="#">About</a>
+      <a href="#">Careers</a>
+      <a href="#">Blog</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="lp-footer-col">
+      <h5>Legal</h5>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Cookie Policy</a>
+      <a href="#">GDPR</a>
+    </div>
+    <div class="lp-footer-col">
+      <h5>Contact</h5>
+      <a href="mailto:hello@contraq.co.uk">hello@contraq.co.uk</a>
+      <a href="#">Support Centre</a>
+      <a href="#">Book a Demo</a>
+    </div>
+  </div>
+  <div class="lp-footer-bottom">
+    <span>&copy; 2026 Contraq &middot; Built for M&amp;E subcontractors</span>
+    <span>London, United Kingdom</span>
+  </div>
+</footer>
+
+</body>
+</html>
