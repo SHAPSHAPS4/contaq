@@ -8,12 +8,12 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --text: #1a1a18;
-  --primary: #185FA5;
-  --green: #3B6D11;
-  --amber: #BA7517;
-  --red: #E24B4A;
-  --border: #e8e6e0;
+  --text: var(--c-charcoal);
+  --primary: var(--c-primary);
+  --green: var(--c-success);
+  --amber: var(--c-warning);
+  --red: var(--c-danger);
+  --border: var(--c-slate);
   --bg: #ffffff;
   --bg-light: #f7f6f3;
   --bg-sidebar: #fafaf8;
@@ -75,7 +75,7 @@ html, body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #888;
+  color: var(--c-gray-muted);
   margin-bottom: 12px;
 }
 
@@ -92,7 +92,7 @@ html, body {
 
 .sidebar-logo span {
   font-weight: 400;
-  color: #888;
+  color: var(--c-gray-muted);
   font-size: 12px;
 }
 
@@ -105,7 +105,7 @@ html, body {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: #666;
+  color: var(--c-gray-text);
   margin-bottom: 4px;
 }
 
@@ -152,7 +152,7 @@ html, body {
   justify-content: center;
   font-size: 11px;
   font-weight: 600;
-  color: #999;
+  color: var(--c-gray-muted);
   flex-shrink: 0;
   transition: all 0.2s;
 }
@@ -218,7 +218,7 @@ html, body {
 }
 
 .file-list-item .file-size {
-  color: #999;
+  color: var(--c-gray-muted);
   font-size: 11px;
   flex-shrink: 0;
 }
@@ -310,7 +310,7 @@ html, body {
 }
 
 .stage-header p {
-  color: #777;
+  color: var(--c-gray-text);
   font-size: 14px;
 }
 
@@ -340,7 +340,7 @@ html, body {
 .drop-zone .dz-icon {
   font-size: 32px;
   margin-bottom: 8px;
-  color: #bbb;
+  color: var(--c-gray-muted);
 }
 
 .drop-zone .dz-title {
@@ -351,7 +351,7 @@ html, body {
 
 .drop-zone .dz-subtitle {
   font-size: 12px;
-  color: #999;
+  color: var(--c-gray-muted);
 }
 
 .drop-zone-files {
@@ -372,7 +372,7 @@ html, body {
 
 .drop-zone-file .file-info { flex: 1; overflow: hidden; }
 .drop-zone-file .file-info .fname { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.drop-zone-file .file-info .fsize { color: #999; font-size: 11px; }
+.drop-zone-file .file-info .fsize { color: var(--c-gray-muted); font-size: 11px; }
 
 .drop-zone-file .remove-btn {
   background: none;
@@ -434,7 +434,7 @@ html, body {
 
 .analysis-card .file-processing {
   font-size: 12px;
-  color: #777;
+  color: var(--c-gray-text);
   margin-bottom: 10px;
 }
 
@@ -458,7 +458,7 @@ html, body {
 
 .analysis-status {
   font-size: 12px;
-  color: #777;
+  color: var(--c-gray-text);
   margin-bottom: 12px;
 }
 
@@ -475,7 +475,7 @@ html, body {
   padding: 3px 0;
 }
 
-.analysis-preview .preview-row .label { color: #777; }
+.analysis-preview .preview-row .label { color: var(--c-gray-text); }
 .analysis-preview .preview-row .value { font-weight: 500; }
 
 /* ── Takeoff table ── */
@@ -500,7 +500,7 @@ html, body {
   text-align: left;
   font-weight: 600;
   font-size: 12px;
-  color: #666;
+  color: var(--c-gray-text);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
@@ -612,7 +612,7 @@ html, body {
 
 .conflict-details { flex: 1; }
 .conflict-details .conflict-title { font-weight: 600; margin-bottom: 2px; }
-.conflict-details .conflict-desc { color: #777; font-size: 12px; }
+.conflict-details .conflict-desc { color: var(--c-gray-text); font-size: 12px; }
 
 /* ── Review toolbar ── */
 .review-toolbar {
@@ -695,7 +695,7 @@ html, body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #888;
+  color: var(--c-gray-muted);
   margin-bottom: 12px;
 }
 
@@ -753,7 +753,7 @@ html, body {
 .donut-center small {
   font-size: 10px;
   font-weight: 400;
-  color: #999;
+  color: var(--c-gray-muted);
 }
 
 .donut-legend { font-size: 12px; }
@@ -816,7 +816,7 @@ html, body {
 
 .flag-item .flag-text { flex: 1; }
 .flag-item .flag-text .flag-title { font-weight: 500; }
-.flag-item .flag-text .flag-desc { color: #999; font-size: 11px; }
+.flag-item .flag-text .flag-desc { color: var(--c-gray-muted); font-size: 11px; }
 
 /* ── Processing log ── */
 .processing-log-toggle {
@@ -824,8 +824,8 @@ html, body {
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: #1a1a18;
-  color: #aaa;
+  background: var(--c-charcoal);
+  color: var(--c-gray-muted);
   border-radius: var(--radius) var(--radius) 0 0;
   font-size: 12px;
   font-family: monospace;
@@ -837,7 +837,7 @@ html, body {
 .processing-log-toggle .chevron.open { transform: rotate(180deg); }
 
 .processing-log {
-  background: #1a1a18;
+  background: var(--c-charcoal);
   color: #88d660;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 12px;
@@ -877,7 +877,7 @@ html, body {
 
 .stat-card .stat-label {
   font-size: 10px;
-  color: #999;
+  color: var(--c-gray-muted);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -899,7 +899,7 @@ html, body {
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: #bbb;
+  color: var(--c-gray-muted);
 }
 
 .empty-state .empty-icon { font-size: 40px; margin-bottom: 8px; }
@@ -925,6 +925,7 @@ html, body {
 
 .error-banner .error-msg { flex: 1; color: var(--red); }
 </style>
+<link rel="stylesheet" href="/public/contraq-styles.css">
 </head>
 <body>
 <div class="app-layout">

@@ -442,18 +442,27 @@ function renderDashHome() {
   }).join('');
   actHtml += '</div></div>';
 
-  var qa = [
+  var isEstimating = (typeof contraqMode !== 'undefined' && contraqMode === 'estimating') || true;
+  if (typeof contraqMode !== 'undefined') { isEstimating = contraqMode === 'estimating'; }
+
+  var qa = isEstimating ? [
     {icon:'\uD83E\uDDE0',label:'AI Quote Builder',action:"openModal('modal-qb-upload')",highlight:true},
     {icon:'\uD83D\uDCD0',label:'Drawing Analyser',action:"openDrawingAnalyser()",highlight2:true},
     {icon:'\uD83D\uDCDC',label:'Spec Reader',action:"openSpecReader()",highlight2:true},
     {icon:'\u2696\uFE0F',label:'Takeoff Consolidator',action:"openTakeoffConsolidator()",highlight2:true},
     {icon:'\uD83D\uDD04',label:'Feedback Loop',action:"openFeedbackLoop()",highlight2:true},
-    {icon:'\uD83E\uDDFE',label:'Raise invoice',action:"prefillInvoice(PROJECTS[0]?PROJECTS[0].id:'')"},
     {icon:'\uD83D\uDCCB',label:'New quote (manual)',action:"openTenderModal(null)"},
-    {icon:'\uD83D\uDCE6',label:'Create PO',action:"openPOModal(null)"},
+    {icon:'\uD83D\uDC65',label:'Add client',action:"openClientModal(null)"},
     {icon:'\uD83C\uDFD7\uFE0F',label:'New project',action:"openTradeModal(null)"},
+  ] : [
+    {icon:'\uD83C\uDFD7\uFE0F',label:'New project',action:"openTradeModal(null)"},
+    {icon:'\uD83E\uDDFE',label:'Raise invoice',action:"prefillInvoice(PROJECTS[0]?PROJECTS[0].id:'')"},
+    {icon:'\uD83D\uDCE6',label:'Create PO',action:"openPOModal(null)"},
     {icon:'\uD83D\uDC65',label:'Add client',action:"openClientModal(null)"},
     {icon:'\uD83D\uDCC8',label:'P&L',action:"dashNav('finance')"},
+    {icon:'\uD83D\uDCCB',label:'New quote (manual)',action:"openTenderModal(null)"},
+    {icon:'\uD83D\uDC77',label:'Add engineer',action:"openEngineerModal(null)"},
+    {icon:'\uD83D\uDCE6',label:'Procurement',action:"dashNav('procurement')"},
   ];
 
   /* ── AI Platform Tools Card ───────────────────────────── */
@@ -497,8 +506,8 @@ function renderDashHome() {
   // Render as one complete grid string
   content.innerHTML += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem">'+actHtml+quickHtml+'</div>';
 
-  // AI Platform tools (full-page tools in new tabs)
-  content.innerHTML += aiToolsHtml;
+  // AI Platform tools (full-page tools in new tabs) — estimating mode only
+  if (isEstimating) { content.innerHTML += aiToolsHtml; }
 
   // Recent invoices + projects
   content.innerHTML += '<div class="card"><div class="card-header"><span class="card-title">Recent invoices</span><button class="btn btn-dark btn-xs" onclick="dashNav(\'invoices\')">View all →</button></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Ref</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="dash-inv-tbody"></tbody></table></div></div>';

@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="css/main.css"/>
+<link rel="stylesheet" href="/public/contraq-styles.css">
 </head>
 
 <body>
@@ -2139,36 +2140,40 @@
         <div class="sb-trial-label">⚡ Free trial</div>
         <div class="sb-trial-text" id="sb-trial-text">5 days remaining</div>
       </div>
+      <div class="mode-switcher" style="padding:12px 12px 8px;display:flex;gap:4px;">
+        <button id="mode-estimating" class="mode-btn active-estimating" onclick="setContraqMode('estimating')">ESTIMATING</button>
+        <button id="mode-contracting" class="mode-btn inactive" onclick="setContraqMode('contracting')">CONTRACTING</button>
+      </div>
       <nav class="sb-nav">
         <div class="sb-section">Overview</div>
-        <div class="sb-item active" onclick="dashNav('home');closeSidebar()" id="sbn-home"><span class="sb-icon">📊</span>Dashboard</div>
-        <button class="sb-ai-btn" onclick="openModal('modal-qb-upload');closeSidebar()" title="Upload a PDF spec or BoQ — AI builds a structured quote in minutes">
+        <div class="sb-item active" onclick="dashNav('home');closeSidebar()" id="sbn-home" data-mode="both"><span class="sb-icon">📊</span>Dashboard</div>
+        <button class="sb-ai-btn" onclick="openModal('modal-qb-upload');closeSidebar()" title="Upload a PDF spec or BoQ — AI builds a structured quote in minutes" data-mode="estimating">
           <span class="sb-ai-icon">🧠</span>
           <span class="sb-ai-label">AI Quote Builder</span>
           <span class="sb-ai-tag">PDF → Quote</span>
         </button>
         <div class="sb-section">Projects</div>
-        <div class="sb-item" onclick="dashNav('tenders');closeSidebar()" id="sbn-tenders"><span class="sb-icon">📋</span>Quote Book<span class="sb-badge" id="sb-badge-tenders">3</span></div>
-        <div class="sb-item" onclick="dashNav('projects');closeSidebar()" id="sbn-projects"><span class="sb-icon">🏗️</span>Projects</div>
-        <div class="sb-item" onclick="dashNav('clients');closeSidebar()" id="sbn-clients"><span class="sb-icon">👥</span>Clients</div>
-        <div class="sb-item" onclick="dashNav('measures');closeSidebar()" id="sbn-measures"><span class="sb-icon">📐</span>Site Measures<span class="sb-badge" id="sb-badge-measures"></span></div>
+        <div class="sb-item" onclick="dashNav('tenders');closeSidebar()" id="sbn-tenders" data-mode="estimating"><span class="sb-icon">📋</span>Quote Book<span class="sb-badge" id="sb-badge-tenders">3</span></div>
+        <div class="sb-item" onclick="dashNav('projects');closeSidebar()" id="sbn-projects" data-mode="contracting"><span class="sb-icon">🏗️</span>Projects</div>
+        <div class="sb-item" onclick="dashNav('clients');closeSidebar()" id="sbn-clients" data-mode="both"><span class="sb-icon">👥</span>Clients</div>
+        <div class="sb-item" onclick="dashNav('measures');closeSidebar()" id="sbn-measures" data-mode="contracting"><span class="sb-icon">📐</span>Site Measures<span class="sb-badge" id="sb-badge-measures"></span></div>
         <div class="sb-section">Operations</div>
-        <div class="sb-item" onclick="dashNav('diary');closeSidebar()" id="sbn-diary"><span class="sb-icon">📅</span>Diary</div>
-        <div class="sb-item" onclick="dashNav('engineers');closeSidebar()" id="sbn-engineers"><span class="sb-icon">👷</span>Engineers<span class="sb-badge" id="sb-badge-engineers"></span></div>
-        <div class="sb-item" onclick="dashNav('eco4');closeSidebar()" id="sbn-eco4" style="position:relative"><span class="sb-icon">🛡️</span>ECO4 / PAS 2030<span class="sb-badge" id="sb-badge-eco4" style="background:rgba(96,165,250,.25);color:#60a5fa;display:none"></span></div>
-        <div class="sb-item" onclick="dashNav('suppliers');closeSidebar()" id="sbn-suppliers"><span class="sb-icon">🏭</span>Suppliers</div>
-        <div class="sb-item" onclick="dashNav('pricebook');closeSidebar()" id="sbn-pricebook"><span class="sb-icon">🏷️</span>Price Book</div>
-        <div class="sb-item" onclick="dashNav('procurement');closeSidebar()" id="sbn-procurement"><span class="sb-icon">📦</span>Procurement</div>
-        <div class="sb-item" onclick="dashNav('reports');closeSidebar()" id="sbn-reports"><span class="sb-icon">📑</span>Reports</div>
+        <div class="sb-item" onclick="dashNav('diary');closeSidebar()" id="sbn-diary" data-mode="contracting"><span class="sb-icon">📅</span>Diary</div>
+        <div class="sb-item" onclick="dashNav('engineers');closeSidebar()" id="sbn-engineers" data-mode="contracting"><span class="sb-icon">👷</span>Engineers<span class="sb-badge" id="sb-badge-engineers"></span></div>
+        <div class="sb-item" onclick="dashNav('eco4');closeSidebar()" id="sbn-eco4" style="position:relative" data-mode="contracting"><span class="sb-icon">🛡️</span>ECO4 / PAS 2030<span class="sb-badge" id="sb-badge-eco4" style="background:rgba(96,165,250,.25);color:#60a5fa;display:none"></span></div>
+        <div class="sb-item" onclick="dashNav('suppliers');closeSidebar()" id="sbn-suppliers" data-mode="both"><span class="sb-icon">🏭</span>Suppliers</div>
+        <div class="sb-item" onclick="dashNav('pricebook');closeSidebar()" id="sbn-pricebook" data-mode="estimating"><span class="sb-icon">🏷️</span>Price Book</div>
+        <div class="sb-item" onclick="dashNav('procurement');closeSidebar()" id="sbn-procurement" data-mode="contracting"><span class="sb-icon">📦</span>Procurement</div>
+        <div class="sb-item" onclick="dashNav('reports');closeSidebar()" id="sbn-reports" data-mode="both"><span class="sb-icon">📑</span>Reports</div>
         <div class="sb-section">Finance</div>
-        <div class="sb-item" onclick="dashNav('invoices');closeSidebar()" id="sbn-invoices"><span class="sb-icon">🧾</span>Invoices<span class="sb-badge" id="sb-badge-invoices">2</span><span class="sb-lock-icon" id="sb-lock-invoices" style="display:none;margin-left:auto;font-size:.55rem;color:var(--off4)">🔒</span></div>
-        <div class="sb-item" onclick="dashNav('finance');closeSidebar()" id="sbn-finance"><span class="sb-icon">📈</span>Profit &amp; Loss<span class="sb-lock-icon" id="sb-lock-finance" style="display:none;margin-left:auto;font-size:.55rem;color:var(--off4)">🔒</span></div>
-        <div class="sb-item" onclick="dashNav('cis');closeSidebar()" id="sbn-cis"><span class="sb-icon">🏛️</span>CIS Returns<span class="sb-badge" id="sb-badge-cis" style="display:none"></span><span class="sb-lock-icon" id="sb-lock-cis" style="display:none;margin-left:auto;font-size:.55rem;color:var(--off4)">🔒</span></div>
+        <div class="sb-item" onclick="dashNav('invoices');closeSidebar()" id="sbn-invoices" data-mode="contracting"><span class="sb-icon">🧾</span>Invoices<span class="sb-badge" id="sb-badge-invoices">2</span><span class="sb-lock-icon" id="sb-lock-invoices" style="display:none;margin-left:auto;font-size:.55rem;color:var(--off4)">🔒</span></div>
+        <div class="sb-item" onclick="dashNav('finance');closeSidebar()" id="sbn-finance" data-mode="contracting"><span class="sb-icon">📈</span>Profit &amp; Loss<span class="sb-lock-icon" id="sb-lock-finance" style="display:none;margin-left:auto;font-size:.55rem;color:var(--off4)">🔒</span></div>
+        <div class="sb-item" onclick="dashNav('cis');closeSidebar()" id="sbn-cis" data-mode="contracting"><span class="sb-icon">🏛️</span>CIS Returns<span class="sb-badge" id="sb-badge-cis" style="display:none"></span><span class="sb-lock-icon" id="sb-lock-cis" style="display:none;margin-left:auto;font-size:.55rem;color:var(--off4)">🔒</span></div>
         <div class="sb-section">Integrations</div>
-        <div class="sb-item" onclick="dashNav('procore');closeSidebar()" id="sbn-procore"><span class="sb-icon">🔗</span>Procore Import<span class="sb-badge" style="background:rgba(96,165,250,.25);color:#60a5fa;font-size:.48rem;">CSV</span></div>
+        <div class="sb-item" onclick="dashNav('procore');closeSidebar()" id="sbn-procore" data-mode="contracting"><span class="sb-icon">🔗</span>Procore Import<span class="sb-badge" style="background:rgba(96,165,250,.25);color:#60a5fa;font-size:.48rem;">CSV</span></div>
         <div class="sb-section">Account</div>
-        <div class="sb-item" onclick="dashNav('settings');closeSidebar()" id="sbn-settings"><span class="sb-icon">⚙️</span>Settings</div>
-        <div class="sb-item sb-admin-only" onclick="adminNavClick()" id="sbn-admin" style="display:none;margin-top:.35rem;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.15);"><span class="sb-icon">🛡️</span>Admin Panel<span class="sb-badge" style="background:rgba(249,115,22,.25);color:var(--orange)">ADMIN</span></div>
+        <div class="sb-item" onclick="dashNav('settings');closeSidebar()" id="sbn-settings" data-mode="both"><span class="sb-icon">⚙️</span>Settings</div>
+        <div class="sb-item sb-admin-only" onclick="adminNavClick()" id="sbn-admin" style="display:none;margin-top:.35rem;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.15);" data-mode="both"><span class="sb-icon">🛡️</span>Admin Panel<span class="sb-badge" style="background:rgba(249,115,22,.25);color:var(--orange)">ADMIN</span></div>
       </nav>
       <div class="sb-user" onclick="dashNav('settings');closeSidebar()">
         <div class="sb-av" id="sb-user-av">JM</div>
@@ -4403,6 +4408,35 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof switchSettings !== 'function') missing.push('switchSettings');
   if (missing.length) console.error('[Contraq] Missing functions:', missing.join(', '));
 });
+</script>
+
+<script>
+/* ═══ CONTRAQ MODE SWITCHER ═══ */
+var contraqMode = localStorage.getItem('contraq_mode') || 'estimating';
+
+function setContraqMode(mode) {
+  contraqMode = mode;
+  localStorage.setItem('contraq_mode', mode);
+  var estBtn = document.getElementById('mode-estimating');
+  var conBtn = document.getElementById('mode-contracting');
+  if (mode === 'estimating') {
+    estBtn.className = 'mode-btn active-estimating';
+    conBtn.className = 'mode-btn inactive';
+  } else {
+    estBtn.className = 'mode-btn inactive';
+    conBtn.className = 'mode-btn active-contracting';
+  }
+  // Show/hide nav items based on mode
+  var estItems = document.querySelectorAll('[data-mode="estimating"]');
+  var conItems = document.querySelectorAll('[data-mode="contracting"]');
+  var bothItems = document.querySelectorAll('[data-mode="both"]');
+  estItems.forEach(function(el) { el.style.display = mode === 'estimating' ? '' : 'none'; });
+  conItems.forEach(function(el) { el.style.display = mode === 'contracting' ? '' : 'none'; });
+  bothItems.forEach(function(el) { el.style.display = ''; });
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', function() { setContraqMode(contraqMode); });
 </script>
 
 </body>

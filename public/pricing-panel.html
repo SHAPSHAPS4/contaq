@@ -8,17 +8,17 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --text: #1a1a18;
-    --primary: #185FA5;
-    --green: #3B6D11;
-    --amber: #BA7517;
-    --red: #E24B4A;
-    --border: #e8e6e0;
+    --text: var(--c-charcoal);
+    --primary: var(--c-primary);
+    --green: var(--c-success);
+    --amber: var(--c-warning);
+    --red: var(--c-danger);
+    --border: var(--c-slate);
     --bg: #ffffff;
     --bg-muted: #f7f6f3;
-    --mechanical: #0F6E56;
-    --electrical: #BA7517;
-    --insulation: #534AB7;
+    --mechanical: var(--c-success);
+    --electrical: var(--c-warning);
+    --insulation: var(--c-primary);
   }
 
   body {
@@ -112,7 +112,7 @@
   .collapsible-header .chevron {
     transition: transform 0.2s;
     font-size: 12px;
-    color: #888;
+    color: var(--c-gray-muted);
   }
   .collapsible.open .collapsible-header { border-bottom-color: var(--border); }
   .collapsible.open .collapsible-header .chevron { transform: rotate(180deg); }
@@ -130,7 +130,7 @@
     font-size: 12px;
     font-weight: 600;
     margin-bottom: 6px;
-    color: #555;
+    color: var(--c-gray-text);
     text-transform: uppercase;
     letter-spacing: 0.3px;
   }
@@ -166,7 +166,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #777;
+    color: var(--c-gray-text);
     margin-bottom: 4px;
   }
   .summary-card .card-value {
@@ -189,7 +189,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #777;
+    color: var(--c-gray-text);
     margin-bottom: 10px;
   }
   .trade-bar {
@@ -261,7 +261,7 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #555;
+    color: var(--c-gray-text);
     border-bottom: 2px solid var(--border);
     white-space: nowrap;
   }
@@ -310,7 +310,7 @@
   .unpriced-item:last-child { border-bottom: none; }
   .unpriced-item .item-desc { flex: 1; }
   .unpriced-item .item-desc strong { font-size: 13px; }
-  .unpriced-item .item-desc span { display: block; font-size: 12px; color: #777; }
+  .unpriced-item .item-desc span { display: block; font-size: 12px; color: var(--c-gray-text); }
   .unpriced-input {
     font-family: inherit;
     font-size: 13px;
@@ -352,7 +352,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #888;
+    color: var(--c-gray-muted);
   }
   .footer-cell .footer-value {
     font-size: 18px;
@@ -369,6 +369,7 @@
     .totals-footer-inner { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
+<link rel="stylesheet" href="/public/contraq-styles.css">
 </head>
 <body>
 
