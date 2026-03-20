@@ -114,6 +114,9 @@ const serverPath = require('node:path');
 app.get('/quote-builder', (_req, res) => {
   res.sendFile(serverPath.join(__dirname, '../public/quote-builder.html'));
 });
+app.get('/landing', (_req, res) => {
+  res.sendFile(serverPath.join(__dirname, '../landing.html'));
+});
 app.get('/admin/kb', (_req, res) => {
   res.sendFile(serverPath.join(__dirname, '../admin/kb-dashboard.html'));
 });
