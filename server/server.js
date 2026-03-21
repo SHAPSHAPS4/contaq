@@ -72,8 +72,8 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error('CORS: origin ' + origin + ' not allowed'));
   },
-  methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400
 }));
 
@@ -92,6 +92,12 @@ app.use('/api/', limiter);
 
 // KB injection — assembles per-endpoint knowledge base and attaches to req.kbPrompt
 app.use('/api/', kbInjectionMiddleware);
+
+/* ── Auth & Data routes (Supabase-backed) ────────────────────────── */
+const authRoutes = require('./routes/auth');
+const dataRoutes = require('./routes/data');
+app.use('/api/auth', authRoutes);
+app.use('/api/data', dataRoutes);
 
 /* ── Modular routes (new structured API + legacy compatibility) ──── */
 app.use('/api/drawings', require('./routes/drawings'));
@@ -197,14 +203,62 @@ async function proxyToAnthropic(req, res, endpointPath) {
 // Expose proxy function to route modules via app.set
 app.set('proxyToAnthropic', proxyToAnthropic);
 
+/* ── Optional auth middleware for AI routes ───────────────────────── */
+const { optionalAuth } = require('./middleware/auth');
+
 /* ── Endpoint: Journal AI Analysis ────────────────────────────────── */
-app.post('/api/journal/analyse', (req, res) => proxyToAnthropic(req, res, '/api/journal/analyse'));
+app.post('/api/journal/analyse', optionalAuth, async (req, res) => {
+  await proxyToAnthropic(req, res, '/api/journal/analyse');
+  // Optionally save to database if authenticated
+  if (req.orgId) {
+    try {
+      const { saveExtraction } = require('./db/queries');
+      await saveExtraction(req.orgId, {
+        stage: 'journal',
+        result_json: {},
+        tokens_used: 0,
+        model: req.body.model || 'claude-sonnet-4-6',
+        created_by: req.user?.id
+      });
+    } catch(e) { console.error('[DB] Failed to save extraction:', e.message); }
+  }
+});
 
 /* ── Endpoint: Quote File Analysis ────────────────────────────────── */
-app.post('/api/quote-files/analyse', (req, res) => proxyToAnthropic(req, res, '/api/quote-files/analyse'));
+app.post('/api/quote-files/analyse', optionalAuth, async (req, res) => {
+  await proxyToAnthropic(req, res, '/api/quote-files/analyse');
+  // Optionally save to database if authenticated
+  if (req.orgId) {
+    try {
+      const { saveExtraction } = require('./db/queries');
+      await saveExtraction(req.orgId, {
+        stage: 'quote-files',
+        result_json: {},
+        tokens_used: 0,
+        model: req.body.model || 'claude-sonnet-4-6',
+        created_by: req.user?.id
+      });
+    } catch(e) { console.error('[DB] Failed to save extraction:', e.message); }
+  }
+});
 
 /* ── Endpoint: Quote Builder Extraction ───────────────────────────── */
-app.post('/api/quotes/extract', (req, res) => proxyToAnthropic(req, res, '/api/quotes/extract'));
+app.post('/api/quotes/extract', optionalAuth, async (req, res) => {
+  await proxyToAnthropic(req, res, '/api/quotes/extract');
+  // Optionally save to database if authenticated
+  if (req.orgId) {
+    try {
+      const { saveExtraction } = require('./db/queries');
+      await saveExtraction(req.orgId, {
+        stage: 'quote',
+        result_json: {},
+        tokens_used: 0,
+        model: req.body.model || 'claude-sonnet-4-6',
+        created_by: req.user?.id
+      });
+    } catch(e) { console.error('[DB] Failed to save extraction:', e.message); }
+  }
+});
 
 // All KB-enriched endpoints handled by modular routes:
 // routes/drawings.js — Drawing extraction (Stage 1)
