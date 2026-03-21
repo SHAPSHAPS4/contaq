@@ -96,7 +96,7 @@ function renderFinance() {
   // Monthly card
   var bestMonth = MONTHLY_PL.reduce(function(a,b){return b.profit>a.profit?b:a;});
   html += '<div class="pl-section-card" onclick="openPLBreakdown(\'monthly\')">'
-    + '<div class="pl-section-card-icon">📅</div>'
+    + '<div class="pl-section-card-icon">' + ICON.calendar + '</div>'
     + '<div class="pl-section-card-title">Monthly P&amp;L Breakdown</div>'
     + '<div class="pl-section-card-sub">Click to view month-by-month revenue, costs and profit</div>'
     + '<div class="pl-section-stats">'
@@ -107,7 +107,7 @@ function renderFinance() {
   // Quarterly card
   var bestQ = QUARTERLY_PL.reduce(function(a,b){return b.margin>a.margin?b:a;});
   html += '<div class="pl-section-card" onclick="openPLBreakdown(\'quarterly\')">'
-    + '<div class="pl-section-card-icon">📊</div>'
+    + '<div class="pl-section-card-icon">' + ICON.chart + '</div>'
     + '<div class="pl-section-card-title">Quarterly P&amp;L Summary</div>'
     + '<div class="pl-section-card-sub">Click to view quarterly rolled-up P&amp;L comparison</div>'
     + '<div class="pl-section-stats">'

@@ -38,7 +38,7 @@ var DEMO_SCREENS_TOP = [
         +'<div class="ds-kpi"><div class="ds-kv" style="color:var(--yellow)">3</div><div class="ds-kl">Chase now</div></div>'
         +'</div>'
         +'<div class="ds-table"><div class="ds-thead"><span>Tender</span><span>Client</span><span>Value</span><span>Status</span></div>'
-        +'<div class="ds-tr hl"><span>Battersea PS — Insulation</span><span>ISG Ltd</span><span>£340k</span><span><span class="ds-badge g">Won 🎉</span></span></div>'
+        +'<div class="ds-tr hl"><span>Battersea PS — Insulation</span><span>ISG Ltd</span><span>£340k</span><span><span class="ds-badge g">Won</span></span></div>'
         +'<div class="ds-tr"><span>Stratford Crossrail</span><span>Skanska</span><span>£218k</span><span><span class="ds-badge b">Submitted</span></span></div>'
         +'<div class="ds-tr"><span>Heathrow T5 — Heat</span><span>BAA Ltd</span><span>£185k</span><span><span class="ds-badge y">Chase</span></span></div>'
         +'<div class="ds-tr"><span>HS2 — Fireproofing</span><span>Balfour</span><span>£620k</span><span><span class="ds-badge r">Expired</span></span></div>'
@@ -295,8 +295,11 @@ function initVisibleProgressBars() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Always show home page first
-  try { nav('home'); } catch(e) {}
+  // Show login page by default (landing page is now separate)
+  try {
+    var h = window.location.hash.replace('#','');
+    if (!h) nav('login');
+  } catch(e) {}
   try {
     // Close modals on backdrop click
     document.querySelectorAll('.modal-backdrop').forEach(function(bd){

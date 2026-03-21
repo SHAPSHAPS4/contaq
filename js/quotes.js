@@ -205,7 +205,7 @@ function renderTenders(filterStatus) {
       + '<button class="qb-upload-btn" onclick="openModal(\'modal-qb-upload\')"><span style="font-size:1rem;">&#128196;</span> Upload Quote Book AI Enabled</button>'
       + '</div></div>'
       + '<div class="empty-state" style="padding:3.5rem 1rem">'
-      + '<div class="empty-icon" style="font-size:3.5rem;opacity:.5">📋</div>'
+      + '<div class="empty-icon" style="opacity:.3;color:var(--off3,#888)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>'
       + '<div class="empty-title" style="font-size:1.1rem;color:var(--white);margin-bottom:.5rem">No quotes yet</div>'
       + '<div class="empty-sub" style="max-width:380px;margin:0 auto;line-height:1.6">Start building your Quote Book — add your first quote or upload an existing spreadsheet.</div>'
       + '<button class="btn btn-primary" style="margin-top:1.25rem" onclick="openTenderModal(null)">Add Your First Quote</button>'
@@ -285,7 +285,7 @@ function renderTenders(filterStatus) {
     + '</div>';
 
   // ROI insight banner
-  html += roiBanner('tenders', '💰',
+  html += roiBanner('tenders', ICON.money,
     'You have £' + fmtNum(openVal) + ' in live pipeline',
     won.length + ' quotes won this year · ' + (100 - winRate) + '% of quotes are not converting — improving win rate by 10% adds £' + fmtNum(Math.round(openVal * 0.1)) + ' to your revenue'
   );
@@ -369,7 +369,7 @@ function renderTenders(filterStatus) {
       +'<td class="mono">'+fmtDate(t.enquiry)+'</td>'
       +'<td class="mono">'+(t.decision?fmtDate(t.decision):'—')+'</td>'
       +'<td style="white-space:nowrap">'
-      +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="openTenderDetailView(\''+t.id+'\')">📄 View</button> '
+      +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="openTenderDetailView(\''+t.id+'\')">'+ICON.file+' View</button> '
       +'<button class="btn btn-dark btn-xs" onclick="openTenderModal(\''+t.id+'\')">Edit</button>'
       +(isWon && !t.linkedProjectId ? ' <button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2)" onclick="quickWonToProject(\''+t.id+'\')">+ Project</button>' : '')
       +'</td></tr>';
@@ -1547,7 +1547,7 @@ function qbShowExtractionResults() {
     /* Assumption audit trail */
     var assumptionsHtml = '';
     if (d.assumptions && d.assumptions.length > 0) {
-      assumptionsHtml = '<a class="assumption-toggle" onclick="event.stopPropagation();toggleAssumptions('+i+')">📋 '+d.assumptions.length+' assumption'+(d.assumptions.length>1?'s':'')+' ▾</a>'
+      assumptionsHtml = '<a class="assumption-toggle" onclick="event.stopPropagation();toggleAssumptions('+i+')">' + ICON.clipboard + ''+d.assumptions.length+' assumption'+(d.assumptions.length>1?'s':'')+' ▾</a>'
         + '<div class="assumption-panel" id="asm-panel-'+i+'">';
       d.assumptions.forEach(function(a){
         assumptionsHtml += '<div style="margin-bottom:.35rem;padding-bottom:.3rem;border-bottom:1px solid rgba(249,115,22,.06)">'
@@ -1801,6 +1801,40 @@ function qbBackToUpload() {
   document.getElementById('qb-results-footer').style.display = 'none';
   document.getElementById('qb-upload-title').textContent = 'AI Quote Builder';
   document.getElementById('qb-modal-inner').style.maxWidth = '560px';
+}
+
+function qbDiscardAndReset() {
+  if (!confirm('Discard all uploaded documents and AI extraction data? This cannot be undone.')) return;
+  // Clear files
+  _qbFiles = [];
+  // Clear extraction data
+  if (typeof AI_EXTRACTION_DATA !== 'undefined') AI_EXTRACTION_DATA = [];
+  // Reset UI back to initial upload state
+  var results = document.getElementById('qb-phase-results');
+  if (results) results.style.display = 'none';
+  var upload = document.getElementById('qb-phase-upload');
+  if (upload) upload.style.display = '';
+  var uploadFooter = document.getElementById('qb-upload-footer');
+  if (uploadFooter) uploadFooter.style.display = '';
+  var resultsFooter = document.getElementById('qb-results-footer');
+  if (resultsFooter) resultsFooter.style.display = 'none';
+  var title = document.getElementById('qb-upload-title');
+  if (title) title.textContent = 'AI Quote Builder';
+  var inner = document.getElementById('qb-modal-inner');
+  if (inner) inner.style.maxWidth = '560px';
+  // Clear the file list display
+  var fileList = document.getElementById('qb-file-list');
+  if (fileList) fileList.innerHTML = '';
+  // Reset the analyse button
+  var analyseBtn = document.getElementById('qb-analyse-btn');
+  if (analyseBtn) { analyseBtn.disabled = true; analyseBtn.style.opacity = '.4'; analyseBtn.style.cursor = 'default'; }
+  // Clear the summary
+  var summary = document.getElementById('qb-file-summary');
+  if (summary) summary.textContent = '';
+  // Reset progress bar if visible
+  var progWrap = document.getElementById('qb-ai-prog-wrap');
+  if (progWrap) progWrap.style.display = 'none';
+  showToast('Quote Builder reset. Ready for a new project.', 'success');
 }
 
 function qbConfirmAndCreateQuote() {

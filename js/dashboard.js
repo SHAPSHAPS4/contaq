@@ -244,7 +244,7 @@ function renderDashHome() {
       .sort(function(a,b){ return (a.enquiry||'').localeCompare(b.enquiry||''); })
       .slice(0,5);
     var _fqHtml = '<div class="card" style="border-left:3px solid var(--orange)">'
-      + '<div class="card-header"><span class="card-title" style="color:var(--orange)">🔥 Quotes to Follow Up</span>'
+      + '<div class="card-header"><span class="card-title" style="color:var(--orange)">' + ICON.fire + ' Quotes to Follow Up</span>'
       + '<span style="font-family:var(--mono);font-size:.7rem;color:var(--off4)">'+_fQuotes.length+' active</span></div>';
     if (_fQuotes.length) {
       _fqHtml += '<div style="display:flex;flex-direction:column;gap:.45rem">';
@@ -269,7 +269,7 @@ function renderDashHome() {
       return false;
     });
     var _fiHtml = '<div class="card" style="border-left:3px solid var(--red)">'
-      + '<div class="card-header"><span class="card-title" style="color:var(--red)">🚨 Overdue Invoices</span>'
+      + '<div class="card-header"><span class="card-title" style="color:var(--red)">' + ICON.alert + ' Overdue Invoices</span>'
       + '<span style="font-family:var(--mono);font-size:.7rem;color:var(--off4)">'+_fInvs.length+' overdue</span></div>';
     if (_fInvs.length) {
       _fiHtml += '<div style="display:flex;flex-direction:column;gap:.45rem">';
@@ -334,7 +334,7 @@ function renderDashHome() {
       var _gsHtml = '<div class="card" style="border:1.5px solid var(--border);margin-bottom:1.2rem">'
         + '<div class="card-header" style="flex-direction:column;align-items:flex-start;gap:.6rem">'
         + '<div style="display:flex;align-items:center;justify-content:space-between;width:100%">'
-        + '<span class="card-title">🚀 Set up your account</span>'
+        + '<span class="card-title">' + ICON.rocket + ' Set up your account</span>'
         + '<span style="font-family:var(--mono);font-size:.72rem;color:var(--off3)">'+_doneCount+'/5 complete</span></div>'
         + '<div style="width:100%;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden">'
         + '<div style="height:100%;width:'+_pct+'%;background:var(--orange);border-radius:3px;transition:width .4s ease"></div></div>'
@@ -390,7 +390,7 @@ function renderDashHome() {
   if (overdueCount) alerts.push('<span style="color:var(--red)">⚠ '+overdueCount+' overdue invoice'+(overdueCount>1?'s':'')+'</span>');
   if (certAlerts) alerts.push('<span style="color:var(--yellow)">⚠ '+certAlerts+' cert'+(certAlerts>1?'s':'')+' expiring soon</span>');
   var pendingPOs = PO_REGISTER.filter(function(p){return p.status==='pending';}).length;
-  if (pendingPOs) alerts.push('<span style="color:var(--off3)">📦 '+pendingPOs+' PO'+(pendingPOs>1?'s':'')+' pending</span>');
+  if (pendingPOs) alerts.push('<span style="color:var(--off3)">' + ICON.package + ' '+pendingPOs+' PO'+(pendingPOs>1?'s':'')+' pending</span>');
   if (alerts.length) {
     content.innerHTML += '<div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.15);border-radius:8px;padding:.65rem 1rem;font-size:.78rem;display:flex;gap:1.4rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">'
       +'<span style="font-weight:600;color:var(--white);font-size:.72rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em">Alerts</span>'
@@ -415,7 +415,7 @@ function renderDashHome() {
   });
   if (unbilledProjects.length) {
     var promptHtml = '<div class="inv-prompt-widget">';
-    promptHtml += '<div class="inv-prompt-header"><span class="inv-prompt-icon">💡</span><span class="inv-prompt-title">Invoice Prompts</span><span class="inv-prompt-sub">'+unbilledProjects.length+' project'+(unbilledProjects.length>1?'s':'')+' with unbilled amounts</span></div>';
+    promptHtml += '<div class="inv-prompt-header"><span class="inv-prompt-icon">' + ICON.bulb + '</span><span class="inv-prompt-title">Invoice Prompts</span><span class="inv-prompt-sub">'+unbilledProjects.length+' project'+(unbilledProjects.length>1?'s':'')+' with unbilled amounts</span></div>';
     unbilledProjects.slice(0,3).forEach(function(p){
       var unbilled = Math.round(p.value * 0.6 - (p.billedToDate||0));
       var lastInv = p.lastInvoiceDate ? fmtDate(p.lastInvoiceDate) : 'Never invoiced';
@@ -466,7 +466,7 @@ function renderDashHome() {
   ];
 
   /* ── AI Platform Tools Card ───────────────────────────── */
-  var API_BASE = 'http://localhost:3001';
+  var API_BASE = CONTRAQ_API_BASE;
   var aiTools = [
     {icon:'\uD83D\uDCC0',label:'Full Quote Pipeline',desc:'Upload drawings + specs, extract, consolidate, price — end-to-end',url:API_BASE+'/quote-builder',accent:'#f97316'},
     {icon:'\uD83D\uDCB0',label:'Pricing Panel',desc:'Price a takeoff with rate libraries, overheads, and CSV export',url:API_BASE+'/pricing',accent:'#3B6D11'},

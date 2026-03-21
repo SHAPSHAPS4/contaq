@@ -3,6 +3,25 @@
    Lines 5553-7874 from contraq-v77
 ═══════════════════════════════════════════ */
 
+/* ── SVG Icon Map — must be defined before data arrays that reference it ── */
+if (typeof ICON === 'undefined') {
+  var ICON = {
+    money:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>',
+    building:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>',
+    clipboard:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
+    package:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+    calendar:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    ruler:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3H3v18h18V3zM3 9h18M3 15h18M9 3v18"/></svg>',
+    receipt:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>',
+    worker:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+    alert:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    file:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    chart:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+    edit:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+    image:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
+  };
+}
+
 /* ══════════════════════════════════════════════════════════════
    DATA
 ══════════════════════════════════════════════════════════════ */
@@ -2192,38 +2211,38 @@ var CALENDAR_EVENTS = [
 
 /* ──── SITE MEASURES ──────────────────────────────────────── */
 var SITE_MEASURES = [
-  {id:'ms1',name:'CW-B2 Pipe Survey — Rev 3',type:'pdf',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-28',rev:'Rev 3',sizekb:2840,notes:'Full B2 plant room pipe survey. Includes all riser shafts.',icon:'📄'},
-  {id:'ms2',name:'CW-B2 Isometric Drawing',type:'dwg',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e1',engineerName:'Dave Harris',date:'2026-02-20',rev:'Rev 1',sizekb:1240,notes:'Issued by Aecom. Reference only — not for construction.',icon:'📐'},
-  {id:'ms3',name:'Wembley Ductwork Takeoff v2',type:'xls',project:'p2',projectName:'Wembley Stadium — Ductwork Lagging',engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-18',rev:'Rev 2',sizekb:488,notes:'Quantities checked by PM. Approved for procurement.',icon:'📊'},
-  {id:'ms4',name:'Euston HVAC Lagging Spec',type:'doc',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-10',rev:'Rev 1',sizekb:1120,notes:'Morgan Sindall spec. Read before mobilisation.',icon:'📝'},
-  {id:'ms5',name:'Euston Platform — Site Photos',type:'img',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e3',engineerName:'Tom Bailey',date:'2026-03-04',rev:'N/A',sizekb:8400,notes:'Pre-start condition survey. 42 photos.',icon:'🖼️'},
-  {id:'ms6',name:"Tottenham Hale Ductwork Survey",type:'pdf',project:'p5',projectName:"Tottenham Hale — Ductwork & Lagging",engineer:'e1',engineerName:'Dave Harris',date:'2026-03-01',rev:'Rev 1',sizekb:1960,notes:'Zones A–D surveyed. E and F to follow.',icon:'📄'},
-  {id:'ms7',name:"Guy's Hospital — Final Measure",type:'xls',project:'p6',projectName:"Guy's Hospital — Services Refurb",engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-20',rev:'Rev 4',sizekb:632,notes:'Final agreed quantities for account settlement.',icon:'📊'},
-  {id:'ms8',name:'Canary Wharf — Drawings Pkg',type:'dwg',project:'p4',projectName:'Canary Wharf — Fire Stopping Works',engineer:'e4',engineerName:'Chris Webb',date:'2026-03-05',rev:'Rev 1',sizekb:3200,notes:'Mace Group issued drawings package. 14 sheets.',icon:'📐'},
-  {id:'ms9',name:'Battersea Trace Heating Layout',type:'pdf',project:'p7',projectName:'Battersea Regen — Trace Heating',engineer:'e2',engineerName:'Mark Pearce',date:'2026-03-06',rev:'Rev 1',sizekb:780,notes:'ISG trace heating route drawing. Self-regulating circuit layout.',icon:'📄'},
+  {id:'ms1',name:'CW-B2 Pipe Survey — Rev 3',type:'pdf',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-28',rev:'Rev 3',sizekb:2840,notes:'Full B2 plant room pipe survey. Includes all riser shafts.',icon:ICON.file},
+  {id:'ms2',name:'CW-B2 Isometric Drawing',type:'dwg',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e1',engineerName:'Dave Harris',date:'2026-02-20',rev:'Rev 1',sizekb:1240,notes:'Issued by Aecom. Reference only — not for construction.',icon:ICON.ruler},
+  {id:'ms3',name:'Wembley Ductwork Takeoff v2',type:'xls',project:'p2',projectName:'Wembley Stadium — Ductwork Lagging',engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-18',rev:'Rev 2',sizekb:488,notes:'Quantities checked by PM. Approved for procurement.',icon:ICON.chart},
+  {id:'ms4',name:'Euston HVAC Lagging Spec',type:'doc',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-10',rev:'Rev 1',sizekb:1120,notes:'Morgan Sindall spec. Read before mobilisation.',icon:ICON.edit},
+  {id:'ms5',name:'Euston Platform — Site Photos',type:'img',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e3',engineerName:'Tom Bailey',date:'2026-03-04',rev:'N/A',sizekb:8400,notes:'Pre-start condition survey. 42 photos.',icon:ICON.image},
+  {id:'ms6',name:"Tottenham Hale Ductwork Survey",type:'pdf',project:'p5',projectName:"Tottenham Hale — Ductwork & Lagging",engineer:'e1',engineerName:'Dave Harris',date:'2026-03-01',rev:'Rev 1',sizekb:1960,notes:'Zones A–D surveyed. E and F to follow.',icon:ICON.file},
+  {id:'ms7',name:"Guy's Hospital — Final Measure",type:'xls',project:'p6',projectName:"Guy's Hospital — Services Refurb",engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-20',rev:'Rev 4',sizekb:632,notes:'Final agreed quantities for account settlement.',icon:ICON.chart},
+  {id:'ms8',name:'Canary Wharf — Drawings Pkg',type:'dwg',project:'p4',projectName:'Canary Wharf — Fire Stopping Works',engineer:'e4',engineerName:'Chris Webb',date:'2026-03-05',rev:'Rev 1',sizekb:3200,notes:'Mace Group issued drawings package. 14 sheets.',icon:ICON.ruler},
+  {id:'ms9',name:'Battersea Trace Heating Layout',type:'pdf',project:'p7',projectName:'Battersea Regen — Trace Heating',engineer:'e2',engineerName:'Mark Pearce',date:'2026-03-06',rev:'Rev 1',sizekb:780,notes:'ISG trace heating route drawing. Self-regulating circuit layout.',icon:ICON.file},
 ];
 
 /* ──── ACTIVITY LOG ───────────────────────────────────────── */
 var ACTIVITY_LOG = [
-  {id:'al1',icon:'💰',iconBg:'rgba(163,230,53,.15)',text:'Invoice INV-2026-0005 sent to Skanska UK — £38,900',time:'Today, 09:14',panel:'invoices'},
-  {id:'al2',icon:'🏗️',iconBg:'rgba(249,115,22,.15)',text:'Project PRJ-045 created from quote QTE-2026-010 (Battersea Trace Heating)',time:'Today, 08:32',panel:'projects'},
-  {id:'al3',icon:'📋',iconBg:'rgba(96,165,250,.15)',text:'Quote QTE-2026-012 submitted to Balfour Beatty — £265,000',time:'Yesterday, 16:55',panel:'tenders'},
-  {id:'al4',icon:'📦',iconBg:'rgba(251,191,36,.15)',text:'PO-INS-002 (Armacell UK) marked as ordered — expected 8 Mar',time:'Yesterday, 14:20',panel:'procurement'},
-  {id:'al5',icon:'⚠️',iconBg:'rgba(248,113,113,.15)',text:'Cert alert: Dave Harris — CSCS Card expires in 2 days',time:'Yesterday, 08:00',panel:'engineers'},
-  {id:'al6',icon:'📐',iconBg:'rgba(249,115,22,.15)',text:"Site measure uploaded: Tottenham Hale Ductwork Survey (Rev 1)",time:'5 Mar, 11:30',panel:'measures'},
-  {id:'al7',icon:'🧾',iconBg:'rgba(248,113,113,.15)',text:'Invoice INV-2026-0006 overdue — Vinci Construction £29,200',time:'4 Mar, 09:00',panel:'invoices'},
-  {id:'al8',icon:'👷',iconBg:'rgba(163,230,53,.15)',text:'Dave Harris & Ryan Walsh assigned to Canary Wharf site visit (4 Mar)',time:'3 Mar, 14:15',panel:'diary'},
+  {id:'al1',icon:ICON.money,iconBg:'rgba(163,230,53,.15)',text:'Invoice INV-2026-0005 sent to Skanska UK — £38,900',time:'Today, 09:14',panel:'invoices'},
+  {id:'al2',icon:ICON.building,iconBg:'rgba(249,115,22,.15)',text:'Project PRJ-045 created from quote QTE-2026-010 (Battersea Trace Heating)',time:'Today, 08:32',panel:'projects'},
+  {id:'al3',icon:ICON.clipboard,iconBg:'rgba(96,165,250,.15)',text:'Quote QTE-2026-012 submitted to Balfour Beatty — £265,000',time:'Yesterday, 16:55',panel:'tenders'},
+  {id:'al4',icon:ICON.package,iconBg:'rgba(251,191,36,.15)',text:'PO-INS-002 (Armacell UK) marked as ordered — expected 8 Mar',time:'Yesterday, 14:20',panel:'procurement'},
+  {id:'al5',icon:ICON.alert,iconBg:'rgba(248,113,113,.15)',text:'Cert alert: Dave Harris — CSCS Card expires in 2 days',time:'Yesterday, 08:00',panel:'engineers'},
+  {id:'al6',icon:ICON.ruler,iconBg:'rgba(249,115,22,.15)',text:"Site measure uploaded: Tottenham Hale Ductwork Survey (Rev 1)",time:'5 Mar, 11:30',panel:'measures'},
+  {id:'al7',icon:ICON.receipt,iconBg:'rgba(248,113,113,.15)',text:'Invoice INV-2026-0006 overdue — Vinci Construction £29,200',time:'4 Mar, 09:00',panel:'invoices'},
+  {id:'al8',icon:ICON.worker,iconBg:'rgba(163,230,53,.15)',text:'Dave Harris & Ryan Walsh assigned to Canary Wharf site visit (4 Mar)',time:'3 Mar, 14:15',panel:'diary'},
 ];
 
 /* ──── NOTIFICATIONS ──────────────────────────────────────── */
 var NOTIFICATIONS = [
-  {id:'n1',icon:'⚠️',text:'CSCS Card for Dave Harris expires in 2 days',time:'Today',unread:true,panel:'engineers'},
-  {id:'n2',icon:'🧾',text:'INV-2026-0006 overdue — Vinci Construction £29,200',time:'Today',unread:true,panel:'invoices'},
-  {id:'n3',icon:'🧾',text:'INV-2026-0007 overdue — Balfour Beatty £44,200',time:'Today',unread:true,panel:'invoices'},
-  {id:'n4',icon:'📅',text:'Site visit at Canary Wharf starts tomorrow 07:30',time:'Today',unread:true,panel:'diary'},
-  {id:'n5',icon:'📋',text:'QTE-2026-005 — Battersea Power Station submission due 28 Mar',time:'Yesterday',unread:false,panel:'tenders'},
-  {id:'n6',icon:'📦',text:'PO-INS-002 expected delivery today (Armacell UK)',time:'5 Mar',unread:false,panel:'procurement'},
-  {id:'n7',icon:'💰',text:'Invoice INV-2026-0003 overdue — Morgan Sindall £64,800',time:'22 Feb',unread:false,panel:'invoices'},
+  {id:'n1',icon:ICON.alert,text:'CSCS Card for Dave Harris expires in 2 days',time:'Today',unread:true,panel:'engineers'},
+  {id:'n2',icon:ICON.receipt,text:'INV-2026-0006 overdue — Vinci Construction £29,200',time:'Today',unread:true,panel:'invoices'},
+  {id:'n3',icon:ICON.receipt,text:'INV-2026-0007 overdue — Balfour Beatty £44,200',time:'Today',unread:true,panel:'invoices'},
+  {id:'n4',icon:ICON.calendar,text:'Site visit at Canary Wharf starts tomorrow 07:30',time:'Today',unread:true,panel:'diary'},
+  {id:'n5',icon:ICON.clipboard,text:'QTE-2026-005 — Battersea Power Station submission due 28 Mar',time:'Yesterday',unread:false,panel:'tenders'},
+  {id:'n6',icon:ICON.package,text:'PO-INS-002 expected delivery today (Armacell UK)',time:'5 Mar',unread:false,panel:'procurement'},
+  {id:'n7',icon:ICON.money,text:'Invoice INV-2026-0003 overdue — Morgan Sindall £64,800',time:'22 Feb',unread:false,panel:'invoices'},
 ];
 
 /* ──── ECO4 / PAS 2030 JOBS ─────────────────────────────── */

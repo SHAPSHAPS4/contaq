@@ -211,7 +211,7 @@ async function journalAIAnalyse() {
       bar.style.width = '0%';
       bar.style.background = '';
       btn.disabled  = false;
-      btn.innerHTML = '🧠 Re-analyse';
+      btn.innerHTML = ICON.brain + ' Re-analyse';
     }, 600);
 
   } catch(err) {
@@ -237,7 +237,7 @@ async function journalAIAnalyse() {
       bar.style.width      = '0%';
       bar.style.background = '';
       btn.disabled  = false;
-      btn.innerHTML = '🧠 AI Analyse Entry';
+      btn.innerHTML = ICON.brain + ' AI Analyse Entry';
     }, 1600);
   }
 }
@@ -261,7 +261,7 @@ function journalRenderAnalysis(d, proj) {
     + '<span style="font-size:.72rem;font-weight:700;padding:.22rem .65rem;border-radius:5px;background:' + riskBg + ';color:' + riskColour + ';border:1px solid ' + riskBorder + ';">'
     + '⬤ ' + (d.riskLevel || '?') + ' Risk</span>'
     + '<span style="font-size:.71rem;font-weight:600;padding:.22rem .65rem;border-radius:5px;background:' + actBg + ';color:' + actColour + ';border:1px solid ' + actBorder + ';">'
-    + (d.recommendedAction === 'Formal Letter' ? '✉ ' : d.recommendedAction === 'Formal Email' ? '📧 ' : '📋 ')
+    + (d.recommendedAction === 'Formal Letter' ? ICON.file + ' ' : d.recommendedAction === 'Formal Email' ? ICON.file + ' ' : ICON.clipboard + ' ')
     + (d.recommendedAction || 'Review') + '</span>';
 
   /* Notification deadline pill */
@@ -292,7 +292,7 @@ function journalRenderAnalysis(d, proj) {
     }
     if (showCost) {
       html += '<div style="background:rgba(163,230,53,.05);border:1px solid rgba(163,230,53,.18);border-radius:6px;padding:.5rem .65rem;">'
-        + '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em;color:#a3e635;margin-bottom:.25rem;">💷 Loss &amp; Expense</div>'
+        + '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em;color:#a3e635;margin-bottom:.25rem;">Loss &amp; Expense</div>'
         + '<div style="font-size:.7rem;color:#c8cdd4;line-height:1.5;">' + d.costRecovery + '</div></div>';
     }
     html += '</div>';
@@ -318,7 +318,7 @@ function journalRenderAnalysis(d, proj) {
       + '<div style="display:flex;gap:.35rem;">'
       + '<button class="btn btn-xs" style="background:rgba(249,115,22,.1);color:#f97316;border:1px solid rgba(249,115,22,.28);font-size:.67rem;" onclick="journalToggleLetter()">'
         + '<span id="journal-letter-toggle-label">Show Letter</span></button>'
-      + '<button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:#a3e635;border:1px solid rgba(163,230,53,.28);font-size:.67rem;" onclick="journalCopyLetter(this)">📋 Copy</button>'
+      + '<button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:#a3e635;border:1px solid rgba(163,230,53,.28);font-size:.67rem;" onclick="journalCopyLetter(this)">Copy</button>'
       + '</div></div>'
 
       /* Collapsible letter body */
@@ -353,7 +353,7 @@ function journalCopyLetter(btnEl) {
   if (!letter) { showToast('No draft letter to copy.', 'error'); return; }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(letter).then(function() {
-      if (btnEl) { btnEl.textContent = '✔ Copied!'; setTimeout(function(){ btnEl.innerHTML = '📋 Copy'; }, 2200); }
+      if (btnEl) { btnEl.textContent = '✔ Copied!'; setTimeout(function(){ btnEl.innerHTML = 'Copy'; }, 2200); }
       showToast('✔ Draft letter copied to clipboard', 'success');
     }).catch(function() { journalCopyFallback(letter, btnEl); });
   } else {
@@ -366,7 +366,7 @@ function journalCopyFallback(text, btnEl) {
   document.body.appendChild(ta); ta.select();
   try {
     document.execCommand('copy');
-    if (btnEl) { btnEl.textContent = '✔ Copied!'; setTimeout(function(){ btnEl.innerHTML = '📋 Copy'; }, 2200); }
+    if (btnEl) { btnEl.textContent = '✔ Copied!'; setTimeout(function(){ btnEl.innerHTML = 'Copy'; }, 2200); }
     showToast('✔ Draft letter copied to clipboard', 'success');
   } catch(e) { showToast('Could not copy — please select and copy manually.', 'error'); }
   document.body.removeChild(ta);

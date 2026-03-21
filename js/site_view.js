@@ -156,7 +156,7 @@ function svOpenMeasure() {
   var iconEl = document.getElementById('sv-m-attach-icon');
   if (zone)   zone.classList.remove('has-file');
   if (nameEl) nameEl.textContent = '';
-  if (iconEl) iconEl.textContent = '📁';
+  if (iconEl) iconEl.innerHTML = ICON.folder;
   var prev = document.getElementById('sv-m-photo-preview');
   if (prev) prev.style.display = 'none';
   var descEl = document.getElementById('sv-m-desc');
@@ -295,7 +295,7 @@ function svPhotoSelected(input, target) {
       var iconEl = document.getElementById('sv-m-attach-icon');
       if (zone)   zone.classList.add('has-file');
       if (nameEl) nameEl.textContent = '✓ ' + file.name;
-      if (iconEl) iconEl.textContent = '📷';
+      if (iconEl) iconEl.innerHTML = ICON.camera;
     }
   };
   reader.readAsDataURL(file);
@@ -315,7 +315,7 @@ function svMeasureFileSelected(input) {
   var iconEl = document.getElementById('sv-m-attach-icon');
   if (zone)   zone.classList.add('has-file');
   if (nameEl) nameEl.textContent = '✓ ' + file.name;
-  if (iconEl) iconEl.textContent = SV.selectedMtype === 'img' ? '📷' : SV.selectedMtype === 'pdf' ? '📄' : '📊';
+  if (iconEl) iconEl.innerHTML = SV.selectedMtype === 'img' ? ICON.camera : SV.selectedMtype === 'pdf' ? ICON.file : ICON.chart;
   // Auto-fill name field
   var nameInput = document.getElementById('sv-m-name');
   if (nameInput && !nameInput.value) nameInput.value = file.name.replace(/\.[^.]+$/, '');
@@ -388,7 +388,7 @@ function svSaveMeasure() {
     rev:         'Rev 1',
     sizekb:      sizekb,
     notes:       desc,
-    icon:        mtype === 'img' ? '🖼️' : mtype === 'pdf' ? '📄' : mtype === 'xls' ? '📊' : '📝',
+    icon:        mtype === 'img' ? ICON.image : mtype === 'pdf' ? ICON.file : mtype === 'xls' ? ICON.chart : ICON.edit,
     source:      'mobile'
   };
 
@@ -400,7 +400,7 @@ function svSaveMeasure() {
   }
 
   svStopVoice();
-  svShowConfirm('📐', 'Measure Uploaded', (name || SV.measureFile.name) + '\nSaved to ' + (proj ? proj.code : projId));
+  svShowConfirm(ICON.ruler, 'Measure Uploaded', (name || SV.measureFile.name) + '\nSaved to ' + (proj ? proj.code : projId));
 }
 
 /* ── Time clock ──────────────────────────────────────────────── */
@@ -477,7 +477,7 @@ function svRenderTimeClock() {
     html += '<div class="sv-eng-name">' + e.name + typeTag + '</div>';
     html += '<div class="sv-eng-role">' + e.trade + '</div>';
     html += '<div class="sv-eng-time ' + (isOn ? 'running' : '') + '">';
-    if (isOn) html += '🟢 On site · ' + clockedStr + (mins > 0 ? ' · ' + timeStr : '');
+    if (isOn) html += ICON.circle_green + ' On site · ' + clockedStr + (mins > 0 ? ' · ' + timeStr : '');
     else if (mins > 0) html += '⚫ Off site · Today: ' + timeStr;
     else html += '⚫ Off site';
     html += '</div></div>';

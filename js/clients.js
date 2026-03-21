@@ -38,7 +38,7 @@ function generateDiaryAlerts() {
     var clientPart = ph.clientName ? ' (' + ph.clientName + ')' : '';
     pushIfNew(
       'ph-alert-'+ph.id,
-      '📌',
+      ICON.pin,
       'Unassigned booking ' + when + ': ' + name.split('—')[0].trim() + clientPart + ' — allocate an engineer?',
       'diary',
       {phId: ph.id}
@@ -53,7 +53,7 @@ function generateDiaryAlerts() {
     var when = days === 0 ? 'TODAY' : days === 1 ? 'tomorrow' : 'in ' + days + ' days';
     pushIfNew(
       'deadline-alert-'+p.id,
-      '🚨',
+      ICON.alert,
       'Deadline ' + when + ': ' + p.name.split('—')[0].trim() + ' (' + p.code + ') — prepare site team',
       'projects',
       {projectId: p.id}
@@ -103,7 +103,7 @@ function renderProjects(filter) {
     document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Projects</h2><p>0 projects</p></div>'
       + '<div style="display:flex;gap:.65rem"><button class="btn btn-primary btn-sm" onclick="openTradeModal(null)">+ New project</button></div></div>'
       + '<div class="empty-state" style="padding:3.5rem 1rem">'
-      + '<div class="empty-icon" style="font-size:3.5rem;opacity:.5">🏗️</div>'
+      + '<div class="empty-icon" style="opacity:.3;color:var(--off3,#888)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>'
       + '<div class="empty-title" style="font-size:1.1rem;color:var(--white);margin-bottom:.5rem">No active projects</div>'
       + '<div class="empty-sub" style="max-width:380px;margin:0 auto;line-height:1.6">Convert a won quote into a project, or create one manually to start tracking costs and progress.</div>'
       + '<button class="btn btn-primary" style="margin-top:1.25rem" onclick="openTradeModal(null)">Create First Project</button>'
@@ -215,8 +215,8 @@ function renderProjects(filter) {
       +'<td class="mono">£'+fmtNum(p.value)+'</td>'
       +'<td class="mono">'+(p.margin?p.margin+'%':'—')+'</td>'
       +'<td>'+badge(p.status)+'</td>'
-      +'<td class="mono" style="color:var(--off3)">'+(msrCount?'<a style="color:var(--orange);cursor:pointer" onclick="dashNav(\'measures\')" title="View measures">'+msrCount+' 📐</a>':'—')+'</td>'
-      +'<td class="mono" style="color:var(--off3)">'+(invCount?'<a style="color:var(--blue);cursor:pointer" onclick="STATE.invFilterProject=\''+p.id+'\';dashNav(\'invoices\')" title="View invoices">'+invCount+' 🧾</a>':'—')+'</td>'
+      +'<td class="mono" style="color:var(--off3)">'+(msrCount?'<a style="color:var(--orange);cursor:pointer" onclick="dashNav(\'measures\')" title="View measures">'+msrCount+' '+ICON.ruler+'</a>':'—')+'</td>'
+      +'<td class="mono" style="color:var(--off3)">'+(invCount?'<a style="color:var(--blue);cursor:pointer" onclick="STATE.invFilterProject=\''+p.id+'\';dashNav(\'invoices\')" title="View invoices">'+invCount+' '+ICON.receipt+'</a>':'—')+'</td>'
       +'<td style="white-space:nowrap"><button class="btn btn-dark btn-xs" onclick="openProjectDetail(\''+p.id+'\')">View</button> <button class="btn btn-dark btn-xs" onclick="openTradeModal(\''+p.id+'\')">Edit</button></td>'
       +'</tr>';
   }).join('');
@@ -490,7 +490,7 @@ function renderProjectDetailTab(projectId, tab) {
     if (events.length) {
       html += '<div class="cl-detail-section-title">Diary events ('+events.length+')</div>';
       events.slice(0,3).forEach(function(ev){
-        html += '<div class="proj-conn-row"><span class="proj-conn-icon">📅</span><span class="proj-conn-label">'+ev.title+'</span><span class="proj-conn-meta">'+fmtDate(ev.date)+' '+ev.time+'</span><a class="proj-conn-action" onclick="closeModal(\'modal-project-detail\');dashNav(\'diary\')">Diary →</a></div>';
+        html += '<div class="proj-conn-row"><span class="proj-conn-icon">'+ICON.calendar+'</span><span class="proj-conn-label">'+ev.title+'</span><span class="proj-conn-meta">'+fmtDate(ev.date)+' '+ev.time+'</span><a class="proj-conn-action" onclick="closeModal(\'modal-project-detail\');dashNav(\'diary\')">Diary →</a></div>';
       });
     }
   }
@@ -517,7 +517,7 @@ function renderProjectDetailTab(projectId, tab) {
       html += '<div style="margin-bottom:.6rem;font-size:.75rem;color:var(--off3)">Engineers assigned via '+events.length+' diary event'+(events.length!==1?'s':'')+' linked to this project:</div>';
       assignedEngs.forEach(function(e){
         var worstCert = worstCertStatus(e.certs||[]);
-        html += '<div class="proj-conn-row"><span class="proj-conn-icon">👷</span><div class="proj-conn-label"><div style="font-weight:600">'+e.name+'</div><div style="font-size:.65rem;color:var(--off4)">'+e.trade+' · '+e.type+'</div></div>'+(worstCert&&worstCert.days<90?'<span style="font-size:.68rem;color:var(--red)">⚠ Cert alert</span>':'')+'<a class="proj-conn-action" onclick="closeModal(\'modal-project-detail\');dashNav(\'engineers\');setTimeout(function(){openEngineerModal(\''+e.id+'\')},120)">Profile →</a></div>';
+        html += '<div class="proj-conn-row"><span class="proj-conn-icon">'+ICON.worker+'</span><div class="proj-conn-label"><div style="font-weight:600">'+e.name+'</div><div style="font-size:.65rem;color:var(--off4)">'+e.trade+' · '+e.type+'</div></div>'+(worstCert&&worstCert.days<90?'<span style="font-size:.68rem;color:var(--red)">⚠ Cert alert</span>':'')+'<a class="proj-conn-action" onclick="closeModal(\'modal-project-detail\');dashNav(\'engineers\');setTimeout(function(){openEngineerModal(\''+e.id+'\')},120)">Profile →</a></div>';
       });
     }
   }

@@ -3,357 +3,1465 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contraq — AI-Powered M&amp;E Estimating for Subcontractors</title>
+  <title>Contraq — AI-Powered M&E Estimating for Subcontractors</title>
   <meta name="description" content="Upload drawings, get quantities, price and quote — all in one platform. Built for specialist M&E subcontractors.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="public/contraq-styles.css">
   <style>
-    /* ── Landing Page Overrides ─────────────────────────────────── */
+    /* ── RESET & BASE ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-size: 16px;
-      background: var(--c-off-white);
-      overflow-x: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 16px; color: #1E1E1E; background: #fff;
+      overflow-x: hidden; -webkit-font-smoothing: antialiased;
     }
-
-    /* Reset app-shell styles that bleed from the design system */
     .sidebar-v2, .topnav-v2, .main-content-v2 { display: none; }
 
-    /* ── Sticky Nav ─────────────────────────────────────────────── */
+    /* ── NAV — transparent glass over dark hero ───────────────── */
     .lp-nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 60px; display: flex; align-items: center; justify-content: space-between;
-      padding: 0 40px;
-      background: rgba(44,93,158,0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      height: 72px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(11,30,62,0.4);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       transition: background 0.3s;
     }
+    .lp-nav.scrolled {
+      background: rgba(11,30,62,0.95);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
     .lp-nav-logo {
-      font-size: 20px; font-weight: 700; color: #fff;
-      letter-spacing: -0.4px; text-decoration: none;
+      font-size: 22px; font-weight: 800; color: #fff;
+      letter-spacing: -0.6px; text-decoration: none;
     }
-    .lp-nav-logo em {
-      font-style: normal; color: var(--c-action); font-weight: 400;
-    }
-    .lp-nav-links { display: flex; align-items: center; gap: 28px; }
+    .lp-nav-logo em { font-style: normal; color: #F05A28; }
+    .lp-nav-links { display: flex; align-items: center; gap: 32px; }
     .lp-nav-links a {
-      color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500;
-      text-decoration: none; transition: color 0.15s;
+      color: rgba(255,255,255,0.75); font-size: 14px; font-weight: 500;
+      text-decoration: none; transition: color 0.15s; letter-spacing: 0.2px;
     }
     .lp-nav-links a:hover { color: #fff; }
     .lp-nav-links .btn-login {
-      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
-      padding: 7px 20px; border-radius: var(--radius-md); color: #fff;
-      font-weight: 600; font-size: 13px; transition: all 0.15s;
+      background: #F05A28; border: none;
+      padding: 10px 28px; border-radius: 10px; color: #fff;
+      font-weight: 700; font-size: 14px; transition: all 0.2s;
+      box-shadow: 0 2px 12px rgba(240,90,40,0.25);
+      letter-spacing: 0.2px;
     }
-    .lp-nav-links .btn-login:hover { background: rgba(255,255,255,0.22); }
+    .lp-nav-links .btn-login:hover {
+      background: #C04418; transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(240,90,40,0.45);
+    }
 
-    /* ── Section Wrapper ────────────────────────────────────────── */
-    .lp-section {
-      padding: 100px 40px;
-    }
-    .lp-container {
-      max-width: 1140px; margin: 0 auto;
-    }
+    /* ── CONTAINERS ────────────────────────────────────────────── */
+    .lp-section { padding: 120px 48px; }
+    .lp-container { max-width: 1200px; margin: 0 auto; }
     .lp-section-label {
-      font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 1.2px; color: var(--c-action); margin-bottom: 12px;
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 2px; color: #F05A28; margin-bottom: 16px;
     }
     .lp-section-heading {
-      font-size: 38px; font-weight: 700; color: var(--c-charcoal);
-      line-height: 1.2; letter-spacing: -0.8px; margin-bottom: 16px;
+      font-size: 44px; font-weight: 800; color: #0B1E3E;
+      line-height: 1.15; letter-spacing: -1px; margin-bottom: 20px;
     }
     .lp-section-sub {
-      font-size: 17px; color: var(--c-gray-muted); line-height: 1.65;
-      max-width: 600px;
+      font-size: 18px; color: #717171; line-height: 1.7; max-width: 580px;
     }
 
-    /* ── 1. HERO ────────────────────────────────────────────────── */
+    /* ── 1. HERO — split layout, deep navy ────────────────────── */
     .lp-hero {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      text-align: center; background: var(--c-primary); padding: 120px 40px 80px;
+      min-height: 100vh; display: flex; align-items: center;
+      background: #0B1E3E; padding: 140px 48px 100px;
       position: relative; overflow: hidden;
     }
     .lp-hero::before {
       content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 30% 20%, rgba(74,127,191,0.35) 0%, transparent 60%),
-                  radial-gradient(ellipse at 70% 80%, rgba(30,63,110,0.5) 0%, transparent 50%);
+      background:
+        radial-gradient(ellipse 60% 80% at 20% 20%, rgba(44,93,158,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 80% 70%, rgba(240,90,40,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 40% at 60% 10%, rgba(44,93,158,0.15) 0%, transparent 50%);
       pointer-events: none;
     }
-    .lp-hero-inner { position: relative; z-index: 1; max-width: 780px; }
+    /* Subtle grid pattern overlay */
+    .lp-hero::after {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .lp-hero-inner {
+      position: relative; z-index: 1; max-width: 1200px; width: 100%;
+      margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .lp-hero-text { max-width: 560px; }
+    .lp-hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(240,90,40,0.12); border: 1px solid rgba(240,90,40,0.25);
+      padding: 6px 16px; border-radius: 20px; margin-bottom: 28px;
+      font-size: 12px; font-weight: 600; color: #FF7A4D;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .lp-hero-badge .pulse-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #F05A28;
+      animation: hero-pulse 2s ease-in-out infinite;
+    }
+    @keyframes hero-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
     .lp-hero h1 {
-      font-size: clamp(36px, 5vw, 56px); font-weight: 800; color: #fff;
-      line-height: 1.12; letter-spacing: -1.2px; margin-bottom: 20px;
+      font-size: clamp(40px, 5vw, 60px); font-weight: 900; color: #fff;
+      line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 24px;
+    }
+    .lp-hero h1 .gradient-text {
+      background: linear-gradient(135deg, #F05A28 0%, #FF7A4D 50%, #F0D060 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .lp-hero-sub {
-      font-size: clamp(16px, 2vw, 20px); color: rgba(255,255,255,0.8);
-      line-height: 1.65; margin-bottom: 36px; max-width: 620px; margin-left: auto; margin-right: auto;
+      font-size: 18px; color: rgba(255,255,255,0.7); line-height: 1.7;
+      margin-bottom: 40px; max-width: 480px;
     }
-    .lp-hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .lp-hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
     .lp-hero-ctas .btn-cta-primary {
-      background: var(--c-action); color: #fff; border: none;
-      padding: 15px 36px; border-radius: var(--radius-md);
-      font-size: 16px; font-weight: 700; cursor: pointer;
+      background: #F05A28; color: #fff; border: none;
+      padding: 18px 44px; border-radius: 12px;
+      font-size: 17px; font-weight: 700; cursor: pointer;
       transition: all 0.2s ease; text-decoration: none;
-    }
-    .lp-hero-ctas .btn-cta-primary:hover { background: var(--c-action-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,90,40,0.35); }
-    .lp-hero-ctas .btn-cta-outline {
-      background: transparent; color: #fff;
-      border: 2px solid rgba(255,255,255,0.5);
-      padding: 14px 36px; border-radius: var(--radius-md);
-      font-size: 16px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s ease; text-decoration: none;
-    }
-    .lp-hero-ctas .btn-cta-outline:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
-    .lp-hero-trust {
-      margin-top: 28px; font-size: 13px; color: rgba(255,255,255,0.45);
+      box-shadow: 0 4px 20px rgba(240,90,40,0.35);
       letter-spacing: 0.2px;
     }
+    .lp-hero-ctas .btn-cta-primary:hover {
+      background: #C04418; transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(240,90,40,0.5);
+    }
+    .lp-hero-ctas .btn-cta-outline {
+      background: rgba(255,255,255,0.06); color: #fff;
+      border: 2px solid rgba(255,255,255,0.25);
+      padding: 17px 44px; border-radius: 12px;
+      font-size: 17px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease; text-decoration: none;
+      backdrop-filter: blur(4px);
+    }
+    .lp-hero-ctas .btn-cta-outline:hover {
+      background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5);
+    }
+    .lp-hero-trust {
+      margin-top: 32px; font-size: 13px; color: rgba(255,255,255,0.4);
+      display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+    }
+    .lp-hero-trust span { display: flex; align-items: center; gap: 6px; }
+    .lp-hero-trust .check {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(46,125,50,0.2); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 9px; color: #4CAF50;
+    }
 
-    /* ── 2. SOCIAL PROOF BAR ────────────────────────────────────── */
+    /* Hero visual — demo screens container */
+    .lp-hero-visual {
+      position: relative; display: flex; justify-content: center;
+    }
+
+    /* Hero background video */
+    .lp-hero-bg-video {
+      position: absolute; inset: 0; z-index: 0; overflow: hidden;
+      pointer-events: none;
+    }
+    .lp-hero-bg-video video {
+      width: 100%; height: 100%; object-fit: cover;
+      opacity: 0.12; filter: saturate(0.6) brightness(0.8);
+    }
+
+    /* Demo screen wrapper — two stacked panes */
+    .lp-demo-wrap {
+      width: 100%; max-width: 520px; border-radius: 16px;
+      background: #0B1E3E; border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+      overflow: hidden; position: relative;
+      display: flex; flex-direction: column;
+    }
+    .lp-demo-pane {
+      position: relative; overflow: hidden;
+    }
+    .lp-demo-pane + .lp-demo-pane {
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .lp-demo-screen {
+      display: flex; flex-direction: column;
+    }
+
+    /* Demo screen topbar */
+    .ds-topbar {
+      background: rgba(18,45,86,0.95); border-bottom: 1px solid rgba(255,255,255,0.06);
+      height: 32px; display: flex; align-items: center; gap: 5px; padding: 0 10px; flex-shrink: 0;
+    }
+    .ds-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .ds-title {
+      font-family: 'Inter', monospace; font-size: 8px; color: rgba(255,255,255,0.25);
+      margin-left: 4px; letter-spacing: 0.5px;
+    }
+
+    /* Demo screen body */
+    .ds-body { flex: 1; display: flex; overflow: hidden; }
+    .ds-sidebar {
+      width: 90px; flex-shrink: 0; background: rgba(18,45,86,0.9);
+      border-right: 1px solid rgba(255,255,255,0.06); padding: 4px;
+      display: flex; flex-direction: column; gap: 1px;
+    }
+    .ds-sb-item {
+      padding: 3px 6px; border-radius: 4px; font-size: 8px;
+      color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 4px;
+      transition: all 0.4s; white-space: nowrap;
+    }
+    .ds-sb-item.on {
+      background: rgba(240,90,40,0.14); color: #F05A28;
+      border: 1px solid rgba(240,90,40,0.2);
+    }
+    .ds-ic { font-size: 9px; }
+    .ds-content {
+      flex: 1; padding: 8px; overflow: hidden;
+      display: flex; flex-direction: column; gap: 5px;
+      background: rgba(11,30,62,0.85);
+    }
+
+    /* Demo screen KPIs */
+    .ds-kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 3px; }
+    .ds-kpi {
+      background: rgba(18,45,86,0.9); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px; padding: 5px 6px;
+    }
+    .ds-kv {
+      font-family: 'Inter', monospace; font-size: 11px; font-weight: 700;
+      line-height: 1; margin-bottom: 2px; color: #fff;
+    }
+    .ds-kl {
+      font-family: 'Inter', monospace; font-size: 6px; color: rgba(255,255,255,0.35);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* Demo screen table */
+    .ds-table {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px; overflow: hidden;
+    }
+    .ds-thead {
+      display: grid; grid-template-columns: 2fr 1.1fr .9fr .85fr;
+      padding: 3px 6px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .ds-thead span {
+      font-family: 'Inter', monospace; font-size: 6px; color: rgba(255,255,255,0.3);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .ds-tr {
+      display: grid; grid-template-columns: 2fr 1.1fr .9fr .85fr;
+      padding: 3px 6px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.4s;
+    }
+    .ds-tr:last-child { border: none; }
+    .ds-tr.hl { background: rgba(240,90,40,0.08); }
+    .ds-tr span {
+      font-size: 8px; color: rgba(255,255,255,0.5); align-self: center;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Demo badges */
+    .ds-badge {
+      display: inline-flex; align-items: center;
+      font-family: 'Inter', monospace; font-size: 6px; font-weight: 700;
+      padding: 1px 4px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .ds-badge.g { background: rgba(46,125,50,0.14); color: #4CAF50; }
+    .ds-badge.o { background: rgba(240,90,40,0.14); color: #F05A28; }
+    .ds-badge.b { background: rgba(30,64,175,0.14); color: #60A5FA; }
+    .ds-badge.y { background: rgba(251,191,36,0.14); color: #F59E0B; }
+    .ds-badge.r { background: rgba(248,113,113,0.14); color: #EF4444; }
+
+    /* Demo chart row */
+    .ds-chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+    .ds-chart {
+      background: rgba(18,45,86,0.9); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px; padding: 6px 7px;
+    }
+    .ds-chart-title {
+      font-family: 'Inter', monospace; font-size: 6px; color: rgba(255,255,255,0.25);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    .ds-bars { display: flex; align-items: flex-end; gap: 2px; height: 36px; }
+    .ds-bar-w { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .ds-bar { width: 100%; border-radius: 2px 2px 0 0; transition: height 1.4s cubic-bezier(.22,1,.36,1); }
+    .ds-bar-l { font-family: 'Inter', monospace; font-size: 5px; color: rgba(255,255,255,0.2); }
+    .ds-activity {
+      background: rgba(18,45,86,0.9); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px; padding: 6px 7px;
+    }
+    .ds-act-title {
+      font-family: 'Inter', monospace; font-size: 6px; color: rgba(255,255,255,0.25);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    .ds-act-item {
+      display: flex; align-items: center; gap: 4px; padding: 2px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .ds-act-item:last-child { border: none; }
+    .ds-act-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+    .ds-act-text { font-size: 7px; color: rgba(255,255,255,0.45); }
+    .ds-act-time { font-family: 'Inter', monospace; font-size: 6px; color: rgba(255,255,255,0.2); margin-left: auto; flex-shrink: 0; }
+    .ds-panel { animation: ds-screen-in 0.55s ease both; }
+    @keyframes ds-screen-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* ── FEATURE CAROUSEL SLIDE STYLES ──────────────────────── */
+    .lp-feature-slide {
+      position: relative; width: 100%; height: 100%;
+      transform-origin: top left;
+    }
+    .lp-slide-chrome {
+      background: #1A3D6E; padding: 8px 12px;
+      display: flex; align-items: center; gap: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px 16px 0 0;
+    }
+    .lp-slide-chrome .cdot { width: 8px; height: 8px; border-radius: 50%; }
+    .lp-slide-chrome .ctitle {
+      font-family: 'Inter', monospace; font-size: 9px;
+      color: rgba(255,255,255,0.35); margin-left: 6px; letter-spacing: 0.3px;
+    }
+    .lp-slide-body {
+      padding: 10px 12px; min-height: 0; overflow: hidden;
+    }
+
+    /* Carousel content design tokens (scoped for light-on-dark) */
+    .lp-feature-img .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin-bottom: 8px; }
+    .lp-feature-img .kpi {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px; padding: 7px 8px; position: relative; overflow: hidden;
+    }
+    .lp-feature-img .kpi::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--kc, #F05A28);
+    }
+    .lp-feature-img .kpi-label {
+      font-family: 'Inter', monospace; font-size: 7px; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; letter-spacing: 0.6px;
+    }
+    .lp-feature-img .kpi-val {
+      font-family: 'Inter', monospace; font-size: 14px; font-weight: 700;
+      margin: 3px 0 2px; color: #fff;
+    }
+    .lp-feature-img .kpi-delta {
+      font-family: 'Inter', monospace; font-size: 7px; color: rgba(255,255,255,0.4);
+    }
+    .lp-feature-img .delta-up { color: #4CAF50; }
+    .lp-feature-img .delta-dn { color: #EF4444; }
+
+    /* Card v2 inside feature blocks */
+    .lp-feature-img .card-v2 {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; overflow: hidden;
+    }
+    .lp-feature-img .card-header {
+      padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .lp-feature-img .card-title {
+      font-family: 'Inter', monospace; font-size: 8px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.4);
+    }
+
+    /* Tables inside feature blocks */
+    .lp-feature-img .tbl { width: 100%; border-collapse: collapse; }
+    .lp-feature-img .tbl th {
+      font-family: 'Inter', monospace; font-size: 7px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.7);
+      padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: left; white-space: nowrap; background: rgba(44,93,158,0.4);
+    }
+    .lp-feature-img .tbl td {
+      font-size: 9px; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.6); vertical-align: middle;
+    }
+    .lp-feature-img .tbl tr:last-child td { border-bottom: none; }
+    .lp-feature-img .tbl td.mono {
+      font-family: 'Inter', monospace; font-size: 8px; color: rgba(255,255,255,0.5);
+    }
+    .lp-feature-img .tbl td.strong { color: #fff; font-weight: 600; }
+
+    /* Badges inside feature blocks */
+    .lp-feature-img .badge {
+      display: inline-flex; align-items: center;
+      font-family: 'Inter', monospace; font-size: 7px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px;
+      padding: 2px 6px; border-radius: 12px;
+    }
+    .lp-feature-img .badge-active, .lp-feature-img .badge-won,
+    .lp-feature-img .badge-paid, .lp-feature-img .badge-success { background: rgba(46,125,50,0.15); color: #4CAF50; }
+    .lp-feature-img .badge-pending, .lp-feature-img .badge-submitted,
+    .lp-feature-img .badge-sent, .lp-feature-img .badge-info { background: rgba(30,64,175,0.15); color: #60A5FA; }
+    .lp-feature-img .badge-open, .lp-feature-img .badge-draft,
+    .lp-feature-img .badge-warning { background: rgba(251,191,36,0.15); color: #F59E0B; }
+    .lp-feature-img .badge-overdue, .lp-feature-img .badge-lost,
+    .lp-feature-img .badge-danger { background: rgba(248,113,113,0.15); color: #EF4444; }
+    .lp-feature-img .badge-action { background: rgba(240,90,40,0.12); color: #F05A28; }
+
+    /* Page header inside feature blocks */
+    .lp-feature-img .page-hdr {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 8px; flex-wrap: wrap; gap: 6px;
+    }
+    .lp-feature-img .page-hdr-left h2 { font-size: 12px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+    .lp-feature-img .page-hdr-left p { font-size: 8px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* Activity items inside feature blocks */
+    .lp-feature-img .activity-item {
+      display: flex; align-items: flex-start; gap: 6px; padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .lp-feature-img .activity-item:last-child { border-bottom: none; }
+    .lp-feature-img .activity-icon {
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; flex-shrink: 0;
+    }
+    .lp-feature-img .activity-body { flex: 1; }
+    .lp-feature-img .activity-text { font-size: 8px; color: rgba(255,255,255,0.7); line-height: 1.3; }
+    .lp-feature-img .activity-time { font-size: 7px; color: rgba(255,255,255,0.3); font-family: 'Inter', monospace; margin-top: 1px; }
+
+    /* Invoice outstanding rows */
+    .lp-feature-img .inv-outstanding-section { margin-bottom: 8px; }
+    .lp-feature-img .inv-outstanding-title {
+      font-family: 'Inter', monospace; font-size: 7px; text-transform: uppercase;
+      letter-spacing: 0.6px; color: rgba(255,255,255,0.35); margin-bottom: 5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .lp-feature-img .inv-outstanding-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .lp-feature-img .inv-outstanding-row {
+      display: flex; align-items: center; gap: 6px; padding: 5px 7px;
+      background: rgba(255,255,255,0.03); border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.06); margin-bottom: 3px;
+    }
+    .lp-feature-img .inv-outstanding-row.overdue { border-color: rgba(248,113,113,0.2); background: rgba(248,113,113,0.04); }
+    .lp-feature-img .inv-outstanding-row.draft { border-color: rgba(251,191,36,0.15); background: rgba(251,191,36,0.03); }
+    .lp-feature-img .inv-out-info { flex: 1; }
+    .lp-feature-img .inv-out-ref { font-family: 'Inter', monospace; font-size: 8px; font-weight: 600; color: #fff; }
+    .lp-feature-img .inv-out-client { font-size: 7px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+    .lp-feature-img .inv-out-days {
+      font-family: 'Inter', monospace; font-size: 7px; padding: 2px 5px; border-radius: 12px;
+    }
+    .lp-feature-img .inv-out-days.overdue { background: rgba(248,113,113,0.15); color: #EF4444; }
+    .lp-feature-img .inv-out-days.pending { background: rgba(30,64,175,0.1); color: #60A5FA; }
+    .lp-feature-img .inv-out-days.draft { background: rgba(251,191,36,0.1); color: #F59E0B; }
+    .lp-feature-img .inv-out-amt { font-family: 'Inter', monospace; font-size: 9px; font-weight: 700; white-space: nowrap; color: #fff; }
+    .lp-feature-img .inv-filter-bar {
+      display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin-bottom: 6px;
+    }
+    .lp-feature-img .inv-filter-select {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.5); font-size: 7px; padding: 2px 6px;
+      border-radius: 4px; outline: none; min-width: 0; appearance: none;
+    }
+
+    /* Diary / scheduler styles in feature blocks */
+    .lp-feature-img .sched-nav {
+      padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+      background: rgba(255,255,255,0.03);
+    }
+    .lp-feature-img .diary-view-btn {
+      padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: rgba(255,255,255,0.4);
+      font-family: 'Inter', monospace; font-size: 7px; text-transform: uppercase;
+      letter-spacing: 0.4px; cursor: default;
+    }
+    .lp-feature-img .diary-view-btn.active {
+      background: rgba(240,90,40,0.15); border-color: rgba(240,90,40,0.4); color: #F05A28;
+    }
+    .lp-feature-img .sched-week-label { font-weight: 700; font-size: 9px; flex: 1; letter-spacing: -0.2px; color: #fff; }
+    .lp-feature-img .sched-legend {
+      padding: 3px 8px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.02); flex-shrink: 0; flex-wrap: wrap;
+    }
+    .lp-feature-img .sched-legend-item {
+      display: flex; align-items: center; gap: 3px;
+      font-family: 'Inter', monospace; font-size: 6px; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .lp-feature-img .sched-legend-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+    .lp-feature-img .sched-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+    .lp-feature-img .sched-table th {
+      background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 3px 3px; text-align: center;
+      font-family: 'Inter', monospace; font-size: 7px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px; color: rgba(255,255,255,0.4); white-space: nowrap;
+    }
+    .lp-feature-img .sched-table th.today-hdr { color: #F05A28; }
+    .lp-feature-img .sched-table th.wknd-hdr { background: rgba(0,0,0,0.06); }
+    .lp-feature-img .sched-table th.eng-hdr { width: 80px; text-align: left; padding-left: 6px; }
+    .lp-feature-img .sched-table td { border: 1px solid rgba(255,255,255,0.04); vertical-align: top; padding: 0; }
+    .lp-feature-img .sched-group-row td { background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.06); padding: 3px 6px; }
+    .lp-feature-img .sched-group-label {
+      font-family: 'Inter', monospace; font-size: 6px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.3);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .lp-feature-img .sched-group-badge {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 1px 4px; font-size: 6px; color: rgba(255,255,255,0.4);
+    }
+    .lp-feature-img .eng-cell {
+      background: rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.06);
+      padding: 3px 6px; width: 80px; vertical-align: middle;
+    }
+    .lp-feature-img .eng-cell-name { font-size: 8px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lp-feature-img .eng-cell-trade {
+      font-family: 'Inter', monospace; font-size: 6px; color: rgba(255,255,255,0.3);
+      margin-top: 1px; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .lp-feature-img .eng-cell-rate { font-family: 'Inter', monospace; font-size: 7px; color: #4CAF50; margin-top: 1px; }
+    .lp-feature-img .day-cell { min-height: 32px; position: relative; vertical-align: top; padding: 2px; }
+    .lp-feature-img .day-cell.wknd-cell { background: rgba(0,0,0,0.03); }
+    .lp-feature-img .day-cell.today-cell { background: rgba(240,90,40,0.04); outline: 1px solid rgba(240,90,40,0.12); outline-offset: -1px; }
+    .lp-feature-img .assignment {
+      border-radius: 3px; padding: 2px 3px; margin-bottom: 1px;
+      border: 1px solid transparent; display: flex; align-items: flex-start; gap: 1px;
+    }
+    .lp-feature-img .assign-body { flex: 1; min-width: 0; }
+    .lp-feature-img .assign-code {
+      font-family: 'Inter', monospace; font-size: 6px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.3px; opacity: 0.8; margin-bottom: 1px;
+    }
+    .lp-feature-img .assign-name { font-size: 7px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lp-feature-img .assign-hours { font-family: 'Inter', monospace; font-size: 6px; opacity: 0.65; margin-top: 1px; }
+    .lp-feature-img .asgn-0 { background: rgba(240,90,40,0.16); border-color: rgba(240,90,40,0.32); color: #F05A28; }
+    .lp-feature-img .asgn-1 { background: rgba(30,64,175,0.16); border-color: rgba(30,64,175,0.32); color: #60A5FA; }
+    .lp-feature-img .asgn-2 { background: rgba(46,125,50,0.16); border-color: rgba(46,125,50,0.32); color: #4CAF50; }
+    .lp-feature-img .asgn-3 { background: rgba(251,191,36,0.16); border-color: rgba(251,191,36,0.32); color: #F59E0B; }
+    .lp-feature-img .asgn-4 { background: rgba(167,139,250,0.16); border-color: rgba(167,139,250,0.32); color: #A78BFA; }
+
+    /* Win rate card */
+    .lp-feature-img .qb-win-rate-card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 10px 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+    }
+    .lp-feature-img .qb-win-label {
+      font-family: 'Inter', monospace; font-size: 7px; text-transform: uppercase;
+      letter-spacing: 0.6px; color: rgba(255,255,255,0.35); margin-bottom: 2px;
+    }
+    .lp-feature-img .qb-win-sub { font-size: 7px; color: rgba(255,255,255,0.4); }
+    .lp-feature-img .qb-pill {
+      font-family: 'Inter', monospace; font-size: 6px; padding: 1px 5px; border-radius: 12px;
+    }
+    .lp-feature-img .qb-pill-won { background: rgba(46,125,50,0.12); color: #4CAF50; border: 1px solid rgba(46,125,50,0.2); }
+    .lp-feature-img .qb-pill-lost { background: rgba(248,113,113,0.1); color: #EF4444; border: 1px solid rgba(248,113,113,0.15); }
+    .lp-feature-img .qb-pill-sub { background: rgba(30,64,175,0.1); color: #60A5FA; border: 1px solid rgba(30,64,175,0.15); }
+    .lp-feature-img .qb-pill-open { background: rgba(251,191,36,0.1); color: #F59E0B; border: 1px solid rgba(251,191,36,0.15); }
+
+    /* Client stat cards */
+    .lp-feature-img .qb-client-stat-card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; padding: 6px 8px;
+    }
+    .lp-feature-img .qb-client-stat-head { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+    .lp-feature-img .qb-client-stat-av {
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .lp-feature-img .qb-client-stat-name { font-size: 8px; font-weight: 600; color: #fff; }
+    .lp-feature-img .qb-client-stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 7px; color: rgba(255,255,255,0.35); margin-bottom: 1px;
+    }
+    .lp-feature-img .qb-client-stat-val { font-family: 'Inter', monospace; font-size: 8px; color: #fff; }
+
+    /* Cert badges */
+    .lp-feature-img .cert-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 1px 5px; border-radius: 12px;
+      font-family: 'Inter', monospace; font-size: 6px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .lp-feature-img .cert-summary { display: flex; flex-wrap: wrap; gap: 2px; }
+
+    .lp-feature-img .lp-feature-slide { width: 100%; }
+
+    /* Floating accent elements */
+    .lp-hero-float {
+      position: absolute; border-radius: 12px; padding: 12px 16px;
+      background: rgba(255,255,255,0.06); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      animation: float 4s ease-in-out infinite;
+      font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600;
+      z-index: 2;
+    }
+    .lp-hero-float.f1 { top: 20%; right: -30px; animation-delay: 0s; }
+    .lp-hero-float.f2 { bottom: 15%; left: -20px; animation-delay: 1.5s; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    /* ── 2. PROOF BAR ─────────────────────────────────────────── */
     .lp-proof-bar {
-      background: #fff; padding: 28px 40px;
-      border-bottom: 1px solid var(--c-slate-light);
+      background: #fff; padding: 24px 48px;
+      border-bottom: 1px solid #E8ECEF;
     }
     .lp-proof-bar .lp-container {
       display: flex; justify-content: center; align-items: center;
       flex-wrap: wrap; gap: 12px 48px;
     }
     .lp-proof-item {
-      font-size: 14px; font-weight: 600; color: var(--c-gray-text);
+      font-size: 14px; font-weight: 600; color: #4A4A4A;
       display: flex; align-items: center; gap: 8px;
     }
     .lp-proof-item .dot {
-      width: 8px; height: 8px; border-radius: 50%; background: var(--c-success);
-      display: inline-block;
+      width: 8px; height: 8px; border-radius: 50%; background: #2E7D32;
     }
 
-    /* ── 3. ROI SECTION ─────────────────────────────────────────── */
-    .lp-roi { background: var(--c-off-white); }
-    .lp-roi .lp-section-heading { text-align: center; }
-    .lp-roi .lp-section-sub { text-align: center; margin: 0 auto 56px; }
+    /* ── 3. ROI — steel navy background ───────────────────────── */
+    .lp-roi {
+      background: #0B1E3E; position: relative; overflow: hidden;
+    }
+    .lp-roi::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(44,93,158,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .lp-roi .lp-section-label { color: #FF7A4D; text-align: center; position: relative; }
+    .lp-roi .lp-section-heading { color: #fff; text-align: center; position: relative; }
+    .lp-roi .lp-section-sub { color: rgba(255,255,255,0.6); text-align: center; margin: 0 auto 64px; position: relative; }
     .lp-stat-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+      position: relative;
     }
     .lp-stat-card {
-      background: #fff; border: 1px solid var(--c-slate);
-      border-radius: var(--radius-lg); padding: 40px 28px; text-align: center;
-      box-shadow: var(--shadow-sm); transition: all 0.2s;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 48px 32px; text-align: center;
+      transition: all 0.3s; backdrop-filter: blur(4px);
     }
-    .lp-stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+    .lp-stat-card:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+      border-color: rgba(240,90,40,0.2);
+    }
     .lp-stat-number {
-      font-size: 54px; font-weight: 800; color: var(--c-action);
-      line-height: 1; margin-bottom: 8px;
+      font-size: 60px; font-weight: 900; line-height: 1; margin-bottom: 12px;
+      background: linear-gradient(135deg, #F05A28, #FF7A4D);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .lp-stat-label {
-      font-size: 14px; font-weight: 500; color: var(--c-gray-muted);
-      text-transform: uppercase; letter-spacing: 0.5px;
+      font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.5);
+      text-transform: uppercase; letter-spacing: 1px;
     }
 
-    /* ── 4. FEATURES ────────────────────────────────────────────── */
+    /* ── 4. FEATURES — white bg, dynamic graphics ─────────────── */
     .lp-features { background: #fff; }
     .lp-feature-block {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
-      align-items: center; margin-bottom: 80px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center; margin-bottom: 100px;
     }
     .lp-feature-block:last-child { margin-bottom: 0; }
     .lp-feature-block.reverse .lp-feature-text { order: 2; }
     .lp-feature-block.reverse .lp-feature-img { order: 1; }
     .lp-feature-text h3 {
-      font-size: 28px; font-weight: 700; color: var(--c-charcoal);
-      line-height: 1.25; margin-bottom: 18px; letter-spacing: -0.4px;
+      font-size: 32px; font-weight: 800; color: #0B1E3E;
+      line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.5px;
     }
-    .lp-feature-text ul {
-      list-style: none; padding: 0; margin-bottom: 20px;
+    .lp-feature-text p.feature-desc {
+      font-size: 16px; color: #717171; line-height: 1.7; margin-bottom: 24px;
     }
+    .lp-feature-text ul { list-style: none; padding: 0; margin-bottom: 24px; }
     .lp-feature-text ul li {
-      padding: 6px 0; font-size: 15px; color: var(--c-gray-text);
-      line-height: 1.6; padding-left: 24px; position: relative;
+      padding: 8px 0; font-size: 15px; color: #4A4A4A;
+      line-height: 1.6; padding-left: 28px; position: relative;
     }
     .lp-feature-text ul li::before {
-      content: '\2713'; position: absolute; left: 0; color: var(--c-success);
-      font-weight: 700;
+      content: ''; position: absolute; left: 0; top: 14px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(46,125,50,0.1);
+      border: 2px solid #2E7D32;
+    }
+    .lp-feature-text ul li::after {
+      content: '\2713'; position: absolute; left: 3px; top: 14px;
+      color: #2E7D32; font-size: 10px; font-weight: 900;
+      line-height: 16px; width: 16px; text-align: center;
     }
     .lp-feature-link {
-      font-size: 14px; font-weight: 600; color: var(--c-primary);
-      text-decoration: none; transition: color 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 15px; font-weight: 700; color: #F05A28;
+      text-decoration: none; transition: all 0.15s;
     }
-    .lp-feature-link:hover { color: var(--c-action); }
+    .lp-feature-link:hover { gap: 10px; }
     .lp-feature-img {
-      background: var(--c-slate-light); border-radius: var(--radius-lg);
-      height: 320px; display: flex; align-items: center; justify-content: center;
-      color: var(--c-gray-muted); font-size: 14px; font-weight: 500;
-      border: 1px solid var(--c-slate);
+      background: linear-gradient(135deg, #0B1E3E, #1A3D6E);
+      border-radius: 16px; height: auto; min-height: 360px;
+      display: flex; align-items: flex-start; justify-content: stretch;
+      position: relative; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(11,30,62,0.25);
+      padding: 0; flex-direction: column;
+    }
+    .lp-feature-img::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 30%, rgba(44,93,158,0.2) 0%, transparent 60%);
+    }
+    .lp-feature-img-label {
+      position: relative; color: rgba(255,255,255,0.4); font-size: 13px;
+      font-weight: 500; text-transform: uppercase; letter-spacing: 1px;
+    }
+    /* Accent bar on alternating features */
+    .lp-feature-block:nth-child(odd) .lp-feature-img {
+      border-left: 4px solid #F05A28;
+    }
+    .lp-feature-block:nth-child(even) .lp-feature-img {
+      border-right: 4px solid #2C5D9E;
     }
 
-    /* ── 5. TRUST ───────────────────────────────────────────────── */
+    /* ── 5. TRUST — navy bg with glass cards ──────────────────── */
     .lp-trust {
-      background: var(--c-primary); color: #fff;
+      background: linear-gradient(180deg, #0B1E3E 0%, #122D56 100%);
+      color: #fff; position: relative; overflow: hidden;
     }
-    .lp-trust .lp-section-heading { color: #fff; text-align: center; }
-    .lp-trust .lp-section-sub { color: rgba(255,255,255,0.7); text-align: center; margin: 0 auto 56px; }
+    .lp-trust::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 50% 50% at 20% 80%, rgba(240,90,40,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 80% 20%, rgba(44,93,158,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .lp-trust .lp-section-label { color: #FF7A4D; text-align: center; position: relative; }
+    .lp-trust .lp-section-heading { color: #fff; text-align: center; position: relative; }
+    .lp-trust .lp-section-sub { color: rgba(255,255,255,0.6); text-align: center; margin: 0 auto 64px; position: relative; }
     .lp-trust-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+      position: relative;
     }
     .lp-trust-card {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--radius-lg); padding: 36px 28px; text-align: center;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 40px 28px; text-align: center;
+      transition: all 0.3s; backdrop-filter: blur(4px);
+    }
+    .lp-trust-card:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.15);
     }
     .lp-trust-icon {
-      width: 52px; height: 52px; border-radius: 50%;
-      background: rgba(255,255,255,0.1); margin: 0 auto 18px;
-      display: flex; align-items: center; justify-content: center;
+      width: 56px; height: 56px; border-radius: 14px;
+      background: rgba(240,90,40,0.1); border: 1px solid rgba(240,90,40,0.15);
+      margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
       font-size: 24px;
     }
-    .lp-trust-card h4 {
-      font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px;
-    }
-    .lp-trust-card p {
-      font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.65;
-    }
+    .lp-trust-card h4 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .lp-trust-card p { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.7; }
 
-    /* ── 6. PRICING ─────────────────────────────────────────────── */
-    .lp-pricing { background: var(--c-off-white); }
+    /* ── 6. PRICING — light bg ────────────────────────────────── */
+    .lp-pricing { background: #F5F7FA; }
     .lp-pricing .lp-section-heading { text-align: center; }
-    .lp-pricing .lp-section-sub { text-align: center; margin: 0 auto 56px; }
+    .lp-pricing .lp-section-sub { text-align: center; margin: 0 auto 64px; }
     .lp-pricing-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
       align-items: start;
     }
     .lp-price-card {
-      background: #fff; border: 2px solid var(--c-slate);
-      border-radius: var(--radius-xl); padding: 36px 28px; text-align: center;
-      position: relative; transition: all 0.2s;
+      background: #fff; border: 1px solid #E8ECEF;
+      border-radius: 20px; padding: 40px 28px; text-align: center;
+      position: relative; transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .lp-price-card:hover { box-shadow: var(--shadow-lg); }
+    .lp-price-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.08); transform: translateY(-4px); }
     .lp-price-card.recommended {
-      border-color: var(--c-action);
-      box-shadow: 0 8px 32px rgba(240,90,40,0.15);
-      transform: scale(1.03);
+      border: 2px solid #F05A28;
+      box-shadow: 0 12px 48px rgba(240,90,40,0.12);
+      transform: scale(1.04);
+      background: #fff;
     }
+    .lp-price-card.recommended:hover { transform: scale(1.04) translateY(-4px); }
     .lp-price-badge {
       position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
-      background: var(--c-action); color: #fff; font-size: 11px;
-      font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
-      padding: 5px 18px; border-radius: 20px;
+      background: linear-gradient(135deg, #F05A28, #FF7A4D); color: #fff;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; padding: 6px 20px; border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(240,90,40,0.3);
     }
-    .lp-price-card h4 {
-      font-size: 20px; font-weight: 700; color: var(--c-charcoal);
-      margin-bottom: 6px;
-    }
-    .lp-price-card .lp-price-desc {
-      font-size: 13px; color: var(--c-gray-muted); margin-bottom: 20px;
-    }
+    .lp-price-card h4 { font-size: 22px; font-weight: 800; color: #0B1E3E; margin-bottom: 6px; }
+    .lp-price-card .lp-price-desc { font-size: 14px; color: #717171; margin-bottom: 24px; }
     .lp-price-amount {
-      font-size: 44px; font-weight: 800; color: var(--c-charcoal);
+      font-size: 52px; font-weight: 900; color: #0B1E3E;
       line-height: 1; margin-bottom: 4px;
     }
-    .lp-price-amount span { font-size: 16px; font-weight: 500; color: var(--c-gray-muted); }
-    .lp-price-period {
-      font-size: 13px; color: var(--c-gray-muted); margin-bottom: 24px;
-    }
-    .lp-price-features {
-      list-style: none; padding: 0; text-align: left; margin-bottom: 28px;
-    }
+    .lp-price-amount span { font-size: 18px; font-weight: 500; color: #717171; }
+    .lp-price-period { font-size: 13px; color: #717171; margin-bottom: 28px; }
+    .lp-price-features { list-style: none; padding: 0; text-align: left; margin-bottom: 32px; }
     .lp-price-features li {
-      padding: 8px 0; font-size: 14px; color: var(--c-gray-text);
-      border-bottom: 1px solid var(--c-slate-light);
-      padding-left: 24px; position: relative;
+      padding: 10px 0; font-size: 14px; color: #4A4A4A;
+      border-bottom: 1px solid #F0F2F5; padding-left: 28px; position: relative;
     }
     .lp-price-features li:last-child { border-bottom: none; }
     .lp-price-features li::before {
       content: '\2713'; position: absolute; left: 0;
-      color: var(--c-success); font-weight: 700;
+      color: #2E7D32; font-weight: 700; font-size: 14px;
     }
     .lp-price-cta {
-      display: block; width: 100%; padding: 13px 0;
-      border-radius: var(--radius-md); font-size: 15px;
+      display: block; width: 100%; padding: 16px 0;
+      border-radius: 12px; font-size: 16px;
       font-weight: 700; cursor: pointer; text-decoration: none;
-      text-align: center; transition: all 0.15s; border: none;
+      text-align: center; transition: all 0.2s; border: none;
+      letter-spacing: 0.2px;
     }
     .lp-price-cta.primary {
-      background: var(--c-action); color: #fff;
+      background: #F05A28; color: #fff;
+      box-shadow: 0 4px 20px rgba(240,90,40,0.3);
     }
-    .lp-price-cta.primary:hover { background: var(--c-action-dark); }
+    .lp-price-cta.primary:hover { background: #C04418; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(240,90,40,0.45); }
     .lp-price-cta.outline {
-      background: transparent; color: var(--c-primary);
-      border: 2px solid var(--c-primary);
+      background: transparent; color: #0B1E3E;
+      border: 2px solid #C8CDD5;
     }
-    .lp-price-cta.outline:hover { background: var(--c-primary-subtle); }
+    .lp-price-cta.outline:hover { background: #0B1E3E; color: #fff; border-color: #0B1E3E; }
 
-    /* ── 7. FOOTER ──────────────────────────────────────────────── */
+    /* ── ROI CALCULATOR — glass cards on navy ───────────────────── */
+    .lp-roi-calc {
+      margin-top: 64px; position: relative;
+    }
+    .lp-roi-calc-title {
+      font-size: 28px; font-weight: 800; color: #fff; text-align: center;
+      margin-bottom: 8px; position: relative;
+    }
+    .lp-roi-calc-sub {
+      font-size: 15px; color: rgba(255,255,255,0.5); text-align: center;
+      margin-bottom: 40px; position: relative;
+    }
+    .lp-roi-sliders {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      margin-bottom: 36px; position: relative;
+    }
+    .lp-roi-slider-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 24px 28px;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .lp-roi-slider-card label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.8);
+      margin-bottom: 14px;
+    }
+    .lp-roi-slider-card label span {
+      font-size: 18px; font-weight: 800; color: #FF7A4D;
+      font-family: 'Inter', monospace;
+    }
+    .lp-roi-slider-card input[type="range"] {
+      width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+      background: rgba(255,255,255,0.12); border-radius: 3px; outline: none;
+      cursor: pointer;
+    }
+    .lp-roi-slider-card input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: #F05A28; border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(240,90,40,0.4); cursor: pointer;
+    }
+    .lp-roi-slider-card input[type="range"]::-moz-range-thumb {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #F05A28; border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(240,90,40,0.4); cursor: pointer;
+    }
+    .lp-roi-outputs {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+      margin-bottom: 28px; position: relative;
+    }
+    .lp-roi-output-card {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 24px 20px; text-align: center;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s;
+    }
+    .lp-roi-output-card:hover {
+      background: rgba(255,255,255,0.1); border-color: rgba(240,90,40,0.25);
+      transform: translateY(-3px);
+    }
+    .lp-roi-output-card .roi-icon {
+      font-size: 28px; margin-bottom: 10px;
+    }
+    .lp-roi-output-card h5 {
+      font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+    }
+    .lp-roi-output-card .roi-range {
+      font-size: 20px; font-weight: 800; color: #fff; line-height: 1.3;
+      font-family: 'Inter', monospace;
+    }
+    .lp-roi-output-card .roi-range .lo { color: rgba(255,255,255,0.6); }
+    .lp-roi-output-card .roi-range .hi { color: #FF7A4D; }
+    .lp-roi-output-card .roi-range .sep { color: rgba(255,255,255,0.3); font-weight: 400; font-size: 14px; }
+    .lp-roi-summary {
+      background: rgba(240,90,40,0.1); border: 1px solid rgba(240,90,40,0.25);
+      border-radius: 14px; padding: 28px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px; margin-bottom: 32px; position: relative;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .lp-roi-summary-text {
+      font-size: 15px; color: rgba(255,255,255,0.7);
+    }
+    .lp-roi-summary-text strong {
+      font-size: 22px; font-weight: 800; color: #fff; display: block;
+      margin-bottom: 4px; font-family: 'Inter', monospace;
+    }
+    .lp-roi-summary-plan {
+      text-align: right;
+    }
+    .lp-roi-summary-plan .plan-label {
+      font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 4px;
+    }
+    .lp-roi-summary-plan .plan-name {
+      font-size: 20px; font-weight: 800; color: #FF7A4D;
+    }
+    .lp-roi-summary-plan .plan-price {
+      font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 2px;
+    }
+    .lp-roi-footnotes {
+      position: relative; margin-bottom: 32px;
+    }
+    .lp-roi-footnotes p {
+      font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.7;
+      margin-bottom: 4px;
+    }
+    .lp-roi-footnotes p sup {
+      color: rgba(255,255,255,0.5); font-weight: 700;
+    }
+    .lp-roi-calc-cta {
+      text-align: center; position: relative;
+    }
+    .lp-roi-calc-cta .btn-cta-primary {
+      background: #F05A28; color: #fff; border: none;
+      padding: 18px 48px; border-radius: 12px;
+      font-size: 17px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s ease; text-decoration: none; display: inline-flex;
+      box-shadow: 0 6px 24px rgba(240,90,40,0.35);
+      letter-spacing: 0.2px;
+    }
+    .lp-roi-calc-cta .btn-cta-primary:hover {
+      background: #C04418; transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(240,90,40,0.5);
+    }
+
+    /* ── ROADMAP — What's Live / What's Next ──────────────────── */
+    .lp-roadmap { background: #F8F9FB; }
+    .lp-roadmap .lp-section-heading { text-align: center; }
+    .lp-roadmap .lp-section-sub { text-align: center; margin: 0 auto 56px; }
+    .lp-roadmap-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+      max-width: 1000px; margin: 0 auto 36px;
+    }
+    .lp-roadmap-col {
+      background: #fff; border: 1px solid #E8ECEF;
+      border-radius: 16px; padding: 36px 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .lp-roadmap-col h4 {
+      font-size: 20px; font-weight: 800; color: #0B1E3E;
+      margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+    }
+    .lp-roadmap-col h4 .status-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .lp-roadmap-col h4 .status-dot.live { background: #2E7D32; box-shadow: 0 0 8px rgba(46,125,50,0.4); }
+    .lp-roadmap-col h4 .status-dot.soon { background: #F59E0B; box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+    .lp-roadmap-col ul {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .lp-roadmap-col ul li {
+      padding: 10px 0; font-size: 15px; color: #4A4A4A;
+      border-bottom: 1px solid #F0F2F5; padding-left: 28px; position: relative;
+      line-height: 1.5;
+    }
+    .lp-roadmap-col ul li:last-child { border-bottom: none; }
+    .lp-roadmap-col ul li::before {
+      content: '\2713'; position: absolute; left: 0;
+      color: #2E7D32; font-weight: 700; font-size: 14px;
+    }
+    .lp-roadmap-col.roadmap-next ul li::before {
+      content: '\2192'; color: #F59E0B;
+    }
+    .lp-roadmap-footer {
+      text-align: center; font-size: 15px; color: #717171; font-weight: 500;
+      font-style: italic;
+    }
+
+    /* ── Pricing: disabled feature style ─────────────────────── */
+    .lp-price-features li.disabled {
+      color: #B0B8C4;
+    }
+    .lp-price-features li.disabled::before {
+      content: '\2717'; color: #B0B8C4;
+    }
+    .lp-price-features li .roadmap-tag {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      background: rgba(245,158,11,0.12); color: #D97706;
+      padding: 2px 6px; border-radius: 4px; margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── CTA BANNER — full width navy ─────────────────────────── */
+    .lp-cta-banner {
+      background: linear-gradient(135deg, #0B1E3E, #1A3D6E);
+      padding: 100px 48px; text-align: center; position: relative; overflow: hidden;
+    }
+    .lp-cta-banner::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(240,90,40,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 40% at 50% 100%, rgba(44,93,158,0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .lp-cta-banner h2 {
+      font-size: 44px; font-weight: 900; color: #fff; letter-spacing: -1px;
+      margin-bottom: 16px; position: relative;
+    }
+    .lp-cta-banner p {
+      font-size: 18px; color: rgba(255,255,255,0.6); margin-bottom: 40px; position: relative;
+      max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.6;
+    }
+    .lp-cta-banner .btn-cta-primary {
+      position: relative;
+      background: #F05A28; color: #fff; border: none;
+      padding: 20px 52px; border-radius: 12px;
+      font-size: 18px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s ease; text-decoration: none;
+      box-shadow: 0 6px 28px rgba(240,90,40,0.4);
+      letter-spacing: 0.3px;
+    }
+    .lp-cta-banner .btn-cta-primary:hover {
+      background: #C04418; transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(240,90,40,0.55);
+    }
+
+    /* ── 7. FOOTER ─────────────────────────────────────────────── */
     .lp-footer {
-      background: var(--c-footer); color: rgba(255,255,255,0.6);
-      padding: 72px 40px 36px;
+      background: #070D18; color: rgba(255,255,255,0.5);
+      padding: 80px 48px 40px;
     }
     .lp-footer-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px;
-      max-width: 1140px; margin: 0 auto 48px;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+      max-width: 1200px; margin: 0 auto 56px;
+    }
+    .lp-footer-brand {
+      font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 16px;
+      letter-spacing: -0.4px;
+    }
+    .lp-footer-brand em { font-style: normal; color: #F05A28; }
+    .lp-footer-brand-desc {
+      font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.7;
+      max-width: 280px;
     }
     .lp-footer-col h5 {
-      font-size: 13px; font-weight: 700; color: #fff;
-      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 18px;
+      font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;
     }
     .lp-footer-col a {
-      display: block; font-size: 14px; color: rgba(255,255,255,0.5);
-      text-decoration: none; padding: 4px 0; transition: color 0.15s;
+      display: block; font-size: 14px; color: rgba(255,255,255,0.4);
+      text-decoration: none; padding: 5px 0; transition: color 0.15s;
     }
     .lp-footer-col a:hover { color: #fff; }
     .lp-footer-bottom {
-      max-width: 1140px; margin: 0 auto;
-      padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.08);
-      font-size: 13px; color: rgba(255,255,255,0.35);
+      max-width: 1200px; margin: 0 auto;
+      padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 13px; color: rgba(255,255,255,0.25);
       display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
     }
 
-    /* ── Responsive ─────────────────────────────────────────────── */
+    /* ── PHOTO STRIP ────────────────────────────────────────── */
+    .lp-photo-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+    .lp-photo-strip-item {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+    }
+    .lp-photo-strip-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.85);
+      transition: all 0.4s ease;
+    }
+    .lp-photo-strip-item:hover img {
+      filter: brightness(1);
+      transform: scale(1.05);
+    }
+
+    /* ── TRUST STRIP — scrolling logos ────────────────────────── */
+    .lp-trust-strip {
+      background: #0B1E3E; padding: 20px 0; overflow: hidden;
+      display: flex; align-items: center; position: relative;
+    }
+    .lp-trust-strip-label {
+      position: relative; z-index: 2; flex-shrink: 0;
+      padding: 0 32px 0 48px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: rgba(255,255,255,0.35);
+      white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .lp-trust-strip-track {
+      flex: 1; overflow: hidden; position: relative;
+      mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    }
+    .lp-trust-strip-inner {
+      display: flex; gap: 0; animation: lp-ticker 25s linear infinite;
+      width: max-content;
+    }
+    .lp-trust-logo {
+      flex-shrink: 0; padding: 0 36px;
+      font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.25); text-transform: uppercase;
+      white-space: nowrap;
+    }
+    @keyframes lp-ticker {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    @media (max-width: 600px) {
+      .lp-trust-strip-label { display: none; }
+    }
+
+    /* ── PAIN POINTS ──────────────────────────────────────────── */
+    .lp-pain {
+      background: #fff; position: relative; overflow: hidden;
+    }
+    .lp-pain .lp-section-label { text-align: center; }
+    .lp-pain .lp-section-heading { text-align: center; }
+    .lp-pain .lp-section-sub {
+      text-align: center; margin: 0 auto 64px; max-width: 640px;
+    }
+    .lp-pain-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      margin-bottom: 72px;
+    }
+    .lp-pain-card {
+      background: #fff; border: 1px solid #E8ECEF; border-radius: 16px;
+      padding: 32px; position: relative; overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .lp-pain-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(11,30,62,0.1);
+      border-color: rgba(240,90,40,0.2);
+    }
+    .lp-pain-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; font-size: 22px;
+      background: rgba(185,28,28,0.06); border: 1px solid rgba(185,28,28,0.1);
+    }
+    .lp-pain-title {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 17px; font-weight: 700; color: #0B1E3E;
+      margin-bottom: 12px; line-height: 1.3; letter-spacing: -0.2px;
+    }
+    .lp-pain-desc {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 14px; color: #717171; line-height: 1.65; margin-bottom: 16px;
+    }
+    .lp-pain-solve {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 13px; font-weight: 600; color: #2E7D32; line-height: 1.5;
+      display: flex; gap: 8px; align-items: flex-start;
+      padding: 10px 12px; border-radius: 8px;
+      background: rgba(46,125,50,0.04); border: 1px solid rgba(46,125,50,0.08);
+    }
+    .lp-pain-solve .checkmark {
+      flex-shrink: 0; margin-top: 1px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(46,125,50,0.1); display: inline-flex;
+      align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 900; line-height: 1;
+    }
+
+    /* ── PAIN STAT BARS ──────────────────────────────────────── */
+    .lp-pain-stats {
+      background: #0B1E3E; border-radius: 20px; padding: 56px 48px;
+      position: relative; overflow: hidden;
+    }
+    .lp-pain-stats::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 50% 60% at 30% 30%, rgba(44,93,158,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 70% 70%, rgba(240,90,40,0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .lp-pain-stats-label {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 2px; color: #FF7A4D; text-align: center;
+      margin-bottom: 12px; position: relative; z-index: 1;
+    }
+    .lp-pain-stats-heading {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 32px; font-weight: 800; color: #fff; text-align: center;
+      letter-spacing: -0.5px; margin-bottom: 48px; position: relative; z-index: 1;
+    }
+    .lp-pain-stat-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      position: relative; z-index: 1;
+    }
+    .lp-pain-stat-row + .lp-pain-stat-row {
+      margin-top: 24px; padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .lp-pain-stat-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 28px; backdrop-filter: blur(8px);
+      transition: all 0.3s;
+    }
+    .lp-pain-stat-card:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-3px);
+    }
+    .lp-pain-stat-num {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 40px; font-weight: 900; line-height: 1; margin-bottom: 10px;
+      letter-spacing: -1px;
+    }
+    .lp-pain-stat-num.green {
+      background: linear-gradient(135deg, #22C55E, #4ADE80);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .lp-pain-stat-num.orange {
+      background: linear-gradient(135deg, #F05A28, #FF7A4D);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .lp-pain-stat-num.red {
+      background: linear-gradient(135deg, #DC2626, #F87171);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .lp-pain-stat-num.amber {
+      background: linear-gradient(135deg, #D97706, #FBBF24);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .lp-pain-stat-num.blue {
+      background: linear-gradient(135deg, #2C5D9E, #60A5FA);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .lp-pain-stat-text {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.55;
+      margin-bottom: 16px;
+    }
+    .lp-pain-stat-track {
+      height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px;
+      overflow: hidden; margin-bottom: 10px;
+    }
+    .lp-pain-stat-fill {
+      height: 100%; border-radius: 2px; width: 0%;
+      transition: width 1.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    .lp-pain-stat-fill.green { background: linear-gradient(90deg, #22C55E, #4ADE80); }
+    .lp-pain-stat-fill.orange { background: linear-gradient(90deg, #F05A28, #FF7A4D); }
+    .lp-pain-stat-fill.red { background: linear-gradient(90deg, #DC2626, #F87171); }
+    .lp-pain-stat-fill.amber { background: linear-gradient(90deg, #D97706, #FBBF24); }
+    .lp-pain-stat-fill.blue { background: linear-gradient(90deg, #2C5D9E, #60A5FA); }
+    .lp-pain-stat-src {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 11px; color: rgba(255,255,255,0.25); font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    .lp-pain-footnote {
+      text-align: center; font-size: 12px; color: rgba(255,255,255,0.25);
+      margin-top: 36px; position: relative; z-index: 1;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    /* ── PHOTO BACKGROUND LAYERS ─────────────────────────────── */
+    .lp-hero-bg-img {
+      position: absolute; right: -5%; top: 0; bottom: 0; width: 55%;
+      background: url('public/images/engineer-tablet-pipes.jpg') center/cover no-repeat;
+      opacity: 0.08; z-index: 0; pointer-events: none;
+      mask-image: linear-gradient(to left, rgba(0,0,0,0.3), transparent 70%);
+      -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.3), transparent 70%);
+    }
+    .lp-roi-bg-img {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 40%;
+      background: url('public/images/estimator-desk.jpg') center/cover no-repeat;
+      opacity: 0.06; z-index: 0; pointer-events: none;
+      mask-image: linear-gradient(to right, rgba(0,0,0,0.3), transparent 80%);
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0.3), transparent 80%);
+    }
+    .lp-cta-bg-img {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 40%;
+      background: url('public/images/professional-hardhat.jpg') center top/cover no-repeat;
+      opacity: 0.1; z-index: 0; pointer-events: none;
+      mask-image: linear-gradient(to right, rgba(0,0,0,0.4), transparent 70%);
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0.4), transparent 70%);
+    }
+    .lp-trust-bg-img {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 35%;
+      background: url('public/images/engineer-portrait.jpg') center top/cover no-repeat;
+      opacity: 0.06; z-index: 0; pointer-events: none;
+      mask-image: linear-gradient(to left, rgba(0,0,0,0.3), transparent 70%);
+      -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.3), transparent 70%);
+    }
+
     @media (max-width: 900px) {
-      .lp-stat-grid,
-      .lp-trust-grid,
-      .lp-pricing-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+      .lp-hero-bg-img, .lp-roi-bg-img, .lp-cta-bg-img, .lp-trust-bg-img { display: none; }
+      .lp-hero-inner { grid-template-columns: 1fr; gap: 48px; text-align: center; }
+      .lp-hero-text { max-width: 100%; }
+      .lp-hero-ctas { justify-content: center; }
+      .lp-hero-trust { justify-content: center; }
+      .lp-hero-float { display: none; }
+      .lp-demo-wrap { max-width: 100%; }
+      .ds-sidebar { display: none; }
+      .ds-kpi-row { grid-template-columns: repeat(2,1fr); }
+      .lp-stat-grid, .lp-trust-grid, .lp-pricing-grid {
+        grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto;
+      }
+      .lp-roi-sliders { grid-template-columns: 1fr; }
+      .lp-roi-outputs { grid-template-columns: 1fr 1fr; }
+      .lp-photo-strip { grid-template-columns: repeat(2, 1fr); }
+      .lp-roi-summary { flex-direction: column; text-align: center; }
+      .lp-roi-summary-plan { text-align: center; }
+      .lp-roadmap-grid { grid-template-columns: 1fr; }
+      .lp-pain-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+      .lp-pain-stat-row { grid-template-columns: 1fr; }
+      .lp-pain-stats { padding: 40px 24px; }
       .lp-price-card.recommended { transform: none; }
-      .lp-feature-block,
-      .lp-feature-block.reverse { grid-template-columns: 1fr; gap: 32px; }
+      .lp-feature-block, .lp-feature-block.reverse {
+        grid-template-columns: 1fr; gap: 32px;
+      }
       .lp-feature-block.reverse .lp-feature-text { order: 1; }
       .lp-feature-block.reverse .lp-feature-img { order: 2; }
       .lp-footer-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 600px) {
-      .lp-section { padding: 64px 20px; }
-      .lp-nav { padding: 0 20px; }
+      .lp-section { padding: 80px 20px; }
+      .lp-nav { padding: 0 20px; height: 64px; }
       .lp-nav-links a:not(.btn-login) { display: none; }
-      .lp-hero { padding: 100px 20px 60px; }
-      .lp-section-heading { font-size: 30px; }
+      .lp-hero { padding: 110px 20px 60px; }
+      .lp-section-heading { font-size: 32px; }
       .lp-footer-grid { grid-template-columns: 1fr; }
       .lp-proof-bar .lp-container { flex-direction: column; gap: 12px; }
+      .lp-pain-stat-num { font-size: 28px; }
+      .lp-cta-banner h2 { font-size: 28px; }
+      .lp-roi-outputs { grid-template-columns: 1fr; }
+      .lp-photo-strip { grid-template-columns: 1fr 1fr; }
+      .lp-photo-strip-item:nth-child(3),
+      .lp-photo-strip-item:nth-child(4) { display: none; }
     }
   </style>
 </head>
 <body>
 
 <!-- ═══════════════ NAV ═══════════════ -->
-<nav class="lp-nav">
+<nav class="lp-nav" id="lp-nav">
   <a href="landing.html" class="lp-nav-logo">Contraq<em>.</em></a>
   <div class="lp-nav-links">
     <a href="#features">Features</a>
     <a href="#pricing">Pricing</a>
-    <a href="index.html" class="btn-login">Login</a>
+    <a href="#trust">Why Us</a>
+    <a href="index.html#login" class="btn-login" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">Sign In</a>
+    <a href="index.html#register" class="btn-login">Get Started &rarr;</a>
   </div>
 </nav>
 
 <!-- ═══════════════ 1. HERO ═══════════════ -->
 <section class="lp-hero" id="hero">
+  <div class="lp-hero-bg-img"></div>
+  <!-- Subtle background video -->
+  <div class="lp-hero-bg-video">
+    <video autoplay loop muted playsinline>
+      <source src="assets/hero-bg.mp4" type="video/mp4">
+    </video>
+  </div>
+
   <div class="lp-hero-inner">
-    <h1>AI-Powered M&amp;E Estimating. Takeoffs in 60&nbsp;Seconds.</h1>
-    <p class="lp-hero-sub">Built for specialist M&amp;E subcontractors. Upload drawings, get quantities, price and quote&nbsp;&mdash; all in one platform.</p>
-    <div class="lp-hero-ctas">
-      <a href="#pricing" class="btn-cta-primary">Start Free Trial</a>
-      <a href="#features" class="btn-cta-outline">Watch Demo</a>
+    <div class="lp-hero-text">
+      <div class="lp-hero-badge"><span class="pulse-dot"></span> AI-Powered Estimating Platform</div>
+      <h1>M&amp;E Takeoffs in <span class="gradient-text">Minutes, Not&nbsp;Days</span></h1>
+      <p class="lp-hero-sub">Upload your drawings, extract quantities with AI, price instantly and send professional quotes while your competitors are still counting fittings. Built for UK M&amp;E subcontractors.</p>
+      <div class="lp-hero-ctas">
+        <a href="index.html#register" class="btn-cta-primary">Start Free Trial &rarr;</a>
+        <a href="#features" class="btn-cta-outline">See How It Works</a>
+      </div>
+      <div class="lp-hero-trust">
+        <span><span class="check">&#10003;</span> No credit card</span>
+        <span><span class="check">&#10003;</span> 14-day free trial</span>
+        <span><span class="check">&#10003;</span> Cancel anytime</span>
+      </div>
     </div>
-    <p class="lp-hero-trust">No credit card required &middot; Free 14-day trial &middot; Cancel anytime</p>
+
+    <div class="lp-hero-visual">
+      <div class="lp-hero-float f1">
+        <span style="color:#4CAF50;">&#10003;</span>&nbsp; 47 items extracted
+      </div>
+      <div class="lp-hero-float f2">
+        <span style="color:#F05A28;">&#9889;</span>&nbsp; Grade A validation
+      </div>
+      <!-- Two stacked animated demo screens -->
+      <div class="lp-demo-wrap">
+        <!-- Top pane -->
+        <div class="lp-demo-pane">
+          <div class="lp-demo-screen">
+            <div class="ds-topbar">
+              <div class="ds-dot" style="background:#EF4444"></div>
+              <div class="ds-dot" style="background:#F59E0B"></div>
+              <div class="ds-dot" style="background:#22C55E"></div>
+              <span class="ds-title" id="lp-demo-top-title">CONTRAQ &#8212; Dashboard</span>
+            </div>
+            <div class="ds-body">
+              <div class="ds-sidebar" id="lp-demo-top-sidebar">
+                <div class="ds-sb-item on"><span class="ds-ic">&#128202;</span>Dashboard</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128203;</span>Tenders</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#127959;</span>Projects</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#129534;</span>Invoices</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128197;</span>Diary</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128119;</span>Engineers</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128230;</span>Procurement</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128200;</span>Finance</div>
+              </div>
+              <div class="ds-content" id="lp-demo-top-content"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Bottom pane -->
+        <div class="lp-demo-pane">
+          <div class="lp-demo-screen">
+            <div class="ds-topbar">
+              <div class="ds-dot" style="background:#EF4444"></div>
+              <div class="ds-dot" style="background:#F59E0B"></div>
+              <div class="ds-dot" style="background:#22C55E"></div>
+              <span class="ds-title" id="lp-demo-bot-title">CONTRAQ &#8212; Invoices</span>
+            </div>
+            <div class="ds-body">
+              <div class="ds-sidebar" id="lp-demo-bot-sidebar">
+                <div class="ds-sb-item"><span class="ds-ic">&#128202;</span>Dashboard</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128203;</span>Tenders</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#127959;</span>Projects</div>
+                <div class="ds-sb-item on"><span class="ds-ic">&#129534;</span>Invoices</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128197;</span>Diary</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128119;</span>Engineers</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128230;</span>Procurement</div>
+                <div class="ds-sb-item"><span class="ds-ic">&#128200;</span>Finance</div>
+              </div>
+              <div class="ds-content" id="lp-demo-bot-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ═══════════════ 2. SOCIAL PROOF BAR ═══════════════ -->
+<!-- ═══════════════ 2. PROOF BAR ═══════════════ -->
 <div class="lp-proof-bar">
   <div class="lp-container">
     <span class="lp-proof-item"><span class="dot"></span> 14-day free trial</span>
@@ -363,26 +1471,265 @@
   </div>
 </div>
 
+<!-- ═══════════════ TRUST STRIP ═══════════════ -->
+<div class="lp-trust-strip">
+  <span class="lp-trust-strip-label">Our users work alongside</span>
+  <div class="lp-trust-strip-track">
+    <div class="lp-trust-strip-inner">
+      <span class="lp-trust-logo">Balfour Beatty</span>
+      <span class="lp-trust-logo">Morgan Sindall</span>
+      <span class="lp-trust-logo">Mace Group</span>
+      <span class="lp-trust-logo">Skanska</span>
+      <span class="lp-trust-logo">Kier Group</span>
+      <span class="lp-trust-logo">Vinci</span>
+      <span class="lp-trust-logo">Multiplex</span>
+      <span class="lp-trust-logo">ISG Ltd</span>
+      <span class="lp-trust-logo">BAM Nuttall</span>
+      <span class="lp-trust-logo">Bouygues</span>
+      <span class="lp-trust-logo">Balfour Beatty</span>
+      <span class="lp-trust-logo">Morgan Sindall</span>
+      <span class="lp-trust-logo">Mace Group</span>
+      <span class="lp-trust-logo">Skanska</span>
+      <span class="lp-trust-logo">Kier Group</span>
+      <span class="lp-trust-logo">Vinci</span>
+      <span class="lp-trust-logo">Multiplex</span>
+      <span class="lp-trust-logo">ISG Ltd</span>
+      <span class="lp-trust-logo">BAM Nuttall</span>
+      <span class="lp-trust-logo">Bouygues</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAIN POINTS ═══════════════ -->
+<section class="lp-section lp-pain" id="pain-points">
+  <div class="lp-container">
+    <p class="lp-section-label">Sound familiar?</p>
+    <h2 class="lp-section-heading">The margin killers every specialist sub knows.</h2>
+    <p class="lp-section-sub">M&amp;E subcontractors typically lose 15&ndash;22% of potential profit to admin gaps, unclaimed VOs and late payment chasing.</p>
+
+    <div class="lp-pain-grid">
+      <div class="lp-pain-card">
+        <div class="lp-pain-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="lp-pain-title">Laggers on the wrong floor &mdash; again</div>
+        <div class="lp-pain-desc">Engineers turn up to the wrong zone, WhatsApp 400 messages deep, half day lost. No written record for delay costs.</div>
+        <div class="lp-pain-solve"><span class="checkmark">&#10003;</span> Contraq Diary assigns to zones, logs restrictions, builds the paper trail.</div>
+      </div>
+
+      <div class="lp-pain-card">
+        <div class="lp-pain-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+        <div class="lp-pain-title">Payment applications going nowhere</div>
+        <div class="lp-pain-desc">ValApp 4 submitted 6 weeks ago, no pay less notice, 5% retention from three jobs unclaimed.</div>
+        <div class="lp-pain-solve"><span class="checkmark">&#10003;</span> Tracks every application, flags missing notices, chases retention dates.</div>
+      </div>
+
+      <div class="lp-pain-card">
+        <div class="lp-pain-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="lp-pain-title">Quotes buried and spec revisions missed</div>
+        <div class="lp-pain-desc">Quote based on NBS Rev B, they issued Rev D, you find out on site and eat the cost.</div>
+        <div class="lp-pain-solve"><span class="checkmark">&#10003;</span> Links quotes to spec revisions, flags superseded drawings, timestamped records.</div>
+      </div>
+
+      <div class="lp-pain-card">
+        <div class="lp-pain-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div class="lp-pain-title">Knauf short-delivered and nobody told you</div>
+        <div class="lp-pain-desc">3 pallets instead of 5, lagger runs out Monday morning, Mace charges you for the delay.</div>
+        <div class="lp-pain-solve"><span class="checkmark">&#10003;</span> PO register logs deliveries against orders, flags shortfalls before they hit site.</div>
+      </div>
+
+      <div class="lp-pain-card">
+        <div class="lp-pain-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="lp-pain-title">VOs going uninvoiced until it's too late</div>
+        <div class="lp-pain-desc">Spec changed from Class O to Class 1 mid-job, no VO raised, 22% margin job finishes at 11%.</div>
+        <div class="lp-pain-solve"><span class="checkmark">&#10003;</span> Journal logs every instruction, one-tap VO drafting before the right to vary expires.</div>
+      </div>
+
+      <div class="lp-pain-card">
+        <div class="lp-pain-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="lp-pain-title">CSCS card expired &mdash; turned away at the gate</div>
+        <div class="lp-pain-desc">Best lagger turned away at 7am, Gold Card expired last Tuesday. Day's production lost.</div>
+        <div class="lp-pain-solve"><span class="checkmark">&#10003;</span> Tracks every cert with 30-day and 7-day expiry warnings across your workforce.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ PHOTO STRIP — real people, real sites ═══════════════ -->
+<div class="lp-photo-strip">
+  <div class="lp-photo-strip-item">
+    <img src="public/images/engineer-plantroom.jpg" alt="M&E engineer inspecting pipework with tablet" loading="lazy">
+  </div>
+  <div class="lp-photo-strip-item">
+    <img src="public/images/engineers-tablet-site.jpg" alt="Engineers reviewing project data on site" loading="lazy">
+  </div>
+  <div class="lp-photo-strip-item">
+    <img src="public/images/estimator-desk.jpg" alt="Estimator working with drawings and spreadsheets" loading="lazy">
+  </div>
+  <div class="lp-photo-strip-item">
+    <img src="public/images/workers-cabletray.jpg" alt="M&E installation — cable tray and ductwork" loading="lazy">
+  </div>
+</div>
+
+<!-- ═══════════════ INDUSTRY STATS ═══════════════ -->
+<section class="lp-section" style="background:#0B1E3E;padding:80px 48px;position:relative;overflow:hidden;">
+  <div class="lp-container">
+    <div class="lp-pain-stats" id="lp-pain-stats" style="border-radius:0;padding:0;background:transparent;">
+      <div class="lp-pain-stats-label">Industry Data</div>
+      <div class="lp-pain-stats-heading">The numbers don't lie</div>
+      <div class="lp-pain-stat-row">
+        <div class="lp-pain-stat-card">
+          <div class="lp-pain-stat-num green" data-target="10" data-suffix="+">0</div>
+          <div class="lp-pain-stat-text">hrs/week lost to manual payment admin</div>
+          <div class="lp-pain-stat-track"><div class="lp-pain-stat-fill green" data-fill="72"></div></div>
+          <div class="lp-pain-stat-src">Payapps QS Survey, 2024</div>
+        </div>
+        <div class="lp-pain-stat-card">
+          <div class="lp-pain-stat-num orange" data-target="77" data-suffix="%">0</div>
+          <div class="lp-pain-stat-text">of subcontract projects hit by late payment</div>
+          <div class="lp-pain-stat-track"><div class="lp-pain-stat-fill orange" data-fill="77"></div></div>
+          <div class="lp-pain-stat-src">Aston University / Huddersfield, ASCE 2022</div>
+        </div>
+        <div class="lp-pain-stat-card">
+          <div class="lp-pain-stat-num red" data-target="1" data-prefix="" data-display="1 in 2">0</div>
+          <div class="lp-pain-stat-text">subs underpaid on over half their contracts</div>
+          <div class="lp-pain-stat-track"><div class="lp-pain-stat-fill red" data-fill="50"></div></div>
+          <div class="lp-pain-stat-src">Construction News Payment Survey, Dec 2023</div>
+        </div>
+      </div>
+      <div class="lp-pain-stat-row">
+        <div class="lp-pain-stat-card">
+          <div class="lp-pain-stat-num red" data-target="4032" data-separator="," data-display="4,032">0</div>
+          <div class="lp-pain-stat-text">UK construction firms went insolvent in 2024 &mdash; cash flow #1 cause</div>
+          <div class="lp-pain-stat-track"><div class="lp-pain-stat-fill red" data-fill="85"></div></div>
+          <div class="lp-pain-stat-src">The Insolvency Service, Jan 2025</div>
+        </div>
+        <div class="lp-pain-stat-card">
+          <div class="lp-pain-stat-num amber" data-target="8" data-suffix=" wks">0</div>
+          <div class="lp-pain-stat-text">to notify compensation event under NEC &mdash; miss it, claim is gone</div>
+          <div class="lp-pain-stat-track"><div class="lp-pain-stat-fill amber" data-fill="40"></div></div>
+          <div class="lp-pain-stat-src">NEC4 Clause 61.3</div>
+        </div>
+        <div class="lp-pain-stat-card">
+          <div class="lp-pain-stat-num blue" data-target="30" data-suffix=" days">0</div>
+          <div class="lp-pain-stat-text">average payment by Tier-1 contractors &mdash; 7 years of reform</div>
+          <div class="lp-pain-stat-track"><div class="lp-pain-stat-fill blue" data-fill="55"></div></div>
+          <div class="lp-pain-stat-src">Build UK Payment Performance, 2025</div>
+        </div>
+      </div>
+      <p class="lp-pain-footnote">Industry statistics sourced from Aston University (2022), Construction News (2023), Payapps (2024), The Insolvency Service (2025), Build UK (2025), and NEC4 contract terms.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════ 3. ROI ═══════════════ -->
 <section class="lp-section lp-roi" id="roi">
+  <div class="lp-roi-bg-img"></div>
   <div class="lp-container">
-    <p class="lp-section-label" style="text-align:center">Why Contraq</p>
+    <p class="lp-section-label">Why Contraq</p>
     <h2 class="lp-section-heading">Stop losing time on takeoffs</h2>
-    <p class="lp-section-sub">Every hour your estimators spend on manual takeoffs is an hour they could be winning new work. Contraq changes the equation.</p>
+    <p class="lp-section-sub">Every hour your estimators spend on manual takeoffs is an hour they could be winning new work.</p>
     <div class="lp-stat-grid">
       <div class="lp-stat-card">
         <div class="lp-stat-number">80%</div>
         <div class="lp-stat-label">Reduction in takeoff time</div>
       </div>
       <div class="lp-stat-card">
-        <div class="lp-stat-number">60 sec</div>
-        <div class="lp-stat-label">Average quote time</div>
+        <div class="lp-stat-number">60s</div>
+        <div class="lp-stat-label">Average extraction time</div>
       </div>
       <div class="lp-stat-card">
-        <div class="lp-stat-number">&pound;4,200</div>
+        <div class="lp-stat-number">&pound;4.2k</div>
         <div class="lp-stat-label">Saved per estimator / month</div>
       </div>
     </div>
+
+    <!-- ROI Calculator -->
+    <div class="lp-roi-calc" id="roi-calc">
+      <h3 class="lp-roi-calc-title">Calculate your ROI</h3>
+      <p class="lp-roi-calc-sub">Drag the sliders to match your business. See what Contraq could recover.</p>
+
+      <div class="lp-roi-sliders">
+        <div class="lp-roi-slider-card">
+          <label>Engineers <span id="roi-eng-val">6</span></label>
+          <input type="range" id="roi-eng" min="1" max="50" value="6" oninput="roiUpdate()">
+        </div>
+        <div class="lp-roi-slider-card">
+          <label>Active projects / month <span id="roi-proj-val">5</span></label>
+          <input type="range" id="roi-proj" min="1" max="20" value="5" oninput="roiUpdate()">
+        </div>
+        <div class="lp-roi-slider-card">
+          <label>Avg project value <span id="roi-val-val">&pound;120,000</span></label>
+          <input type="range" id="roi-val" min="10000" max="500000" value="120000" step="5000" oninput="roiUpdate()">
+        </div>
+        <div class="lp-roi-slider-card">
+          <label>Annual turnover <span id="roi-turn-val">&pound;1,200,000</span></label>
+          <input type="range" id="roi-turn" min="100000" max="10000000" value="1200000" step="50000" oninput="roiUpdate()">
+        </div>
+      </div>
+
+      <div class="lp-roi-outputs">
+        <div class="lp-roi-output-card">
+          <div class="roi-icon">&#128200;</div>
+          <h5>Monthly VO Recovery</h5>
+          <div class="roi-range">
+            <span class="lo" id="roi-o-vo-lo">&pound;18,000</span>
+            <span class="sep"> &ndash; </span>
+            <span class="hi" id="roi-o-vo-hi">&pound;48,000</span>
+          </div>
+        </div>
+        <div class="lp-roi-output-card">
+          <div class="roi-icon">&#9201;</div>
+          <h5>Admin Hours Saved</h5>
+          <div class="roi-range">
+            <span class="lo" id="roi-o-hrs-lo">12 hrs</span>
+            <span class="sep"> &ndash; </span>
+            <span class="hi" id="roi-o-hrs-hi">22 hrs</span>
+          </div>
+        </div>
+        <div class="lp-roi-output-card">
+          <div class="roi-icon">&#128176;</div>
+          <h5>Annual Retention Recovered</h5>
+          <div class="roi-range">
+            <span class="lo" id="roi-o-ret-lo">&pound;12,000</span>
+            <span class="sep"> &ndash; </span>
+            <span class="hi" id="roi-o-ret-hi">&pound;36,000</span>
+          </div>
+        </div>
+        <div class="lp-roi-output-card">
+          <div class="roi-icon">&#128640;</div>
+          <h5>ROI Multiplier</h5>
+          <div class="roi-range">
+            <span class="lo" id="roi-o-mult-lo">12x</span>
+            <span class="sep"> &ndash; </span>
+            <span class="hi" id="roi-o-mult-hi">34x</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lp-roi-summary">
+        <div class="lp-roi-summary-text">
+          <strong><span id="roi-o-annual-lo">&pound;233,280</span> &ndash; <span id="roi-o-annual-hi">&pound;631,920</span></strong>
+          Estimated annual benefit
+        </div>
+        <div class="lp-roi-summary-plan">
+          <div class="plan-label">Recommended plan</div>
+          <div class="plan-name" id="roi-o-plan">Professional</div>
+          <div class="plan-price" id="roi-o-price">&pound;149/mo</div>
+        </div>
+      </div>
+
+      <div class="lp-roi-footnotes">
+        <p><sup>1</sup> VO recovery: 3&ndash;8% of contract value based on RICS 2022 Variation Management Survey data for M&amp;E subcontractors.</p>
+        <p><sup>2</sup> Admin savings: 25&ndash;45% reduction in weekly admin hours per engineer (McKinsey &amp; Company, &ldquo;The next normal in construction,&rdquo; 2020).</p>
+        <p><sup>3</sup> Retention recovery: 1&ndash;3% of turnover lost to missed retention claims (Build UK, &ldquo;Retention in the Construction Industry,&rdquo; 2022).</p>
+        <p><sup>4</sup> Admin hourly rate &pound;30/hr based on ONS ASHE 2023 median for construction admin roles.</p>
+      </div>
+
+      <div class="lp-roi-calc-cta">
+        <a href="#pricing" class="btn-cta-primary">See Pricing Plans &rarr;</a>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -390,87 +1737,409 @@
 <section class="lp-section lp-features" id="features">
   <div class="lp-container">
     <p class="lp-section-label">Platform</p>
-    <h2 class="lp-section-heading" style="margin-bottom:56px">Everything you need, nothing you don't</h2>
+    <h2 class="lp-section-heading" style="margin-bottom:64px">Everything you need, nothing you don't</h2>
 
-    <!-- Feature 1 -->
     <div class="lp-feature-block">
       <div class="lp-feature-text">
         <h3>AI Drawing Extraction</h3>
+        <p class="feature-desc">Upload M&amp;E drawings and let Claude AI identify every fitting, run and connection automatically.</p>
         <ul>
-          <li>Upload PDFs, DWGs or scanned drawings and let AI identify every fitting, run and connection</li>
-          <li>Automatic symbol recognition trained on M&amp;E schematics &mdash; pipes, ducts, cable trays, radiators</li>
-          <li>Review and adjust quantities before they flow into your quote</li>
+          <li>PDF, DWG and scanned drawing support</li>
+          <li>Trained on M&amp;E schematics &mdash; pipes, ducts, cable trays</li>
+          <li>Review and adjust before quantities flow into your quote</li>
         </ul>
         <a href="#" class="lp-feature-link">Learn more &rarr;</a>
       </div>
-      <div class="lp-feature-img">Screenshot placeholder</div>
+      <!-- Feature 1 Image: AI Drawing Extraction -->
+      <div class="lp-feature-img">
+        <div class="lp-feature-slide">
+          <div class="lp-slide-chrome">
+            <div class="cdot" style="background:#EF4444"></div><div class="cdot" style="background:#F59E0B"></div><div class="cdot" style="background:#22C55E"></div>
+            <span class="ctitle">CONTRAQ &mdash; Dashboard &middot; Mitchell Insulation Ltd</span>
+          </div>
+          <div class="lp-slide-body">
+            <div style="margin-bottom:8px">
+              <div style="font-size:10px;font-weight:700;letter-spacing:-0.2px;color:#fff">Good morning, James.</div>
+              <div style="font-size:7px;color:rgba(255,255,255,.4);margin-top:1px">Business snapshot &mdash; Tuesday 10 March 2026</div>
+            </div>
+            <div class="kpi-grid">
+              <div class="kpi" style="--kc:#4CAF50"><div class="kpi-label">Contract Pipeline</div><div class="kpi-val" style="color:#4CAF50">&pound;1.4M</div><div class="kpi-delta delta-up">&#8593; 12% vs last month</div></div>
+              <div class="kpi" style="--kc:#F05A28"><div class="kpi-label">Active Projects</div><div class="kpi-val" style="color:#F05A28">7</div><div class="kpi-delta">3 pending &middot; 4 open quotes</div></div>
+              <div class="kpi" style="--kc:#60A5FA"><div class="kpi-label">Total Invoiced</div><div class="kpi-val">&pound;304k</div><div class="kpi-delta delta-dn">&#8595; 2 overdue &middot; 1 draft</div></div>
+              <div class="kpi" style="--kc:#F59E0B"><div class="kpi-label">Outstanding</div><div class="kpi-val" style="color:#F59E0B">&pound;93k</div><div class="kpi-delta delta-dn">&#8595; Across 3 invoices</div></div>
+            </div>
+            <div style="background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.12);border-radius:5px;padding:4px 8px;font-size:7px;display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;color:rgba(255,255,255,.5)">
+              <span style="font-weight:600;color:rgba(255,255,255,.6);font-size:7px;font-family:'Inter',monospace;text-transform:uppercase;letter-spacing:.5px">Alerts</span>
+              <span style="color:#EF4444">&#9888; 2 overdue invoices</span>
+              <span style="color:#F59E0B">&#9888; 3 certs expiring</span>
+              <span style="color:rgba(255,255,255,.3)">&#128230; 2 POs pending</span>
+              <span style="margin-left:auto;color:#F05A28;font-size:7px">View all &#8594;</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px;">
+              <div class="card-v2" style="margin-bottom:0">
+                <div class="card-header"><span class="card-title">Recent activity</span></div>
+                <div style="padding:2px 0;">
+                  <div class="activity-item" style="padding:3px 8px;"><div class="activity-icon" style="background:rgba(76,175,80,.15)">&#129534;</div><div class="activity-body"><div class="activity-text">INV-2026-0011 raised &mdash; Morgan Sindall &pound;64,800</div><div class="activity-time">Today, 09:14</div></div></div>
+                  <div class="activity-item" style="padding:3px 8px;"><div class="activity-icon" style="background:rgba(240,90,40,.15)">&#128203;</div><div class="activity-body"><div class="activity-text">New quote submitted &mdash; Battersea PS &pound;340k</div><div class="activity-time">Yesterday, 16:32</div></div></div>
+                  <div class="activity-item" style="padding:3px 8px;border-bottom:none;"><div class="activity-icon" style="background:rgba(96,165,250,.15)">&#128119;</div><div class="activity-body"><div class="activity-text">Dave Harris assigned &mdash; Canary Wharf</div><div class="activity-time">3 Mar, 14:15</div></div></div>
+                </div>
+              </div>
+              <div class="card-v2" style="margin-bottom:0">
+                <div class="card-header"><span class="card-title">Quick actions</span></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px 6px;">
+                  <div style="display:flex;align-items:center;gap:3px;padding:3px 5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:4px;font-size:7px;font-weight:500;color:rgba(255,255,255,.5)"><span>&#129534;</span>Raise invoice</div>
+                  <div style="display:flex;align-items:center;gap:3px;padding:3px 5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:4px;font-size:7px;font-weight:500;color:rgba(255,255,255,.5)"><span>&#128203;</span>New quote</div>
+                  <div style="display:flex;align-items:center;gap:3px;padding:3px 5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:4px;font-size:7px;font-weight:500;color:rgba(255,255,255,.5)"><span>&#128230;</span>Create PO</div>
+                  <div style="display:flex;align-items:center;gap:3px;padding:3px 5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:4px;font-size:7px;font-weight:500;color:rgba(255,255,255,.5)"><span>&#127959;</span>New project</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-v2" style="margin-bottom:0">
+              <div class="card-header"><span class="card-title">Active projects</span><span style="font-family:'Inter',monospace;font-size:7px;color:#F05A28;">View all &#8594;</span></div>
+              <table class="tbl">
+                <thead><tr><th>Code</th><th>Project</th><th>Client</th><th>Value</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">CWF-001</td><td class="strong">Canary Wharf &mdash; Pipe Insulation</td><td>Aecom Ltd</td><td class="mono">&pound;284k</td><td><span class="badge badge-success">Active</span></td></tr>
+                  <tr><td class="mono">EUS-002</td><td class="strong">Euston Station &mdash; HVAC Lagging</td><td>Morgan Sindall</td><td class="mono">&pound;320k</td><td><span class="badge badge-success">Active</span></td></tr>
+                  <tr><td class="mono">WBL-003</td><td class="strong">Wembley &mdash; Ductwork Lagging</td><td>Balfour Beatty</td><td class="mono">&pound;194k</td><td><span class="badge badge-success">Active</span></td></tr>
+                  <tr><td class="mono">CWF-004</td><td class="strong">Canary Wharf &mdash; Fire Stopping</td><td>Mace Group</td><td class="mono">&pound;94k</td><td><span class="badge badge-warning">Pending</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Feature 2 -->
+    <!-- Feature 2: Spec Cross-Reference -> Quote Book slide -->
     <div class="lp-feature-block reverse">
       <div class="lp-feature-text">
         <h3>Spec Cross-Reference</h3>
+        <p class="feature-desc">Automatically match quantities against NBS specs and flag conflicts before you price.</p>
         <ul>
-          <li>Automatically match extracted quantities against NBS specs and project requirements</li>
-          <li>Flag mismatches, missing items and specification conflicts before you price</li>
-          <li>Keep a full audit trail of every spec decision for contract protection</li>
+          <li>Match extracted items to project specifications</li>
+          <li>Flag mismatches and missing items instantly</li>
+          <li>Full audit trail for contract protection</li>
         </ul>
         <a href="#" class="lp-feature-link">Learn more &rarr;</a>
       </div>
-      <div class="lp-feature-img">Screenshot placeholder</div>
+      <div class="lp-feature-img">
+        <div class="lp-feature-slide">
+          <div class="lp-slide-chrome">
+            <div class="cdot" style="background:#EF4444"></div><div class="cdot" style="background:#F59E0B"></div><div class="cdot" style="background:#22C55E"></div>
+            <span class="ctitle">CONTRAQ &mdash; Quote / Estimate Book</span>
+          </div>
+          <div class="lp-slide-body">
+            <div class="page-hdr" style="margin-bottom:8px;">
+              <div class="page-hdr-left"><h2 style="font-size:12px">Quote Book</h2><p>14 quotes &middot; 6 won &middot; 40% win rate</p></div>
+              <div style="padding:2px 6px;background:rgba(240,90,40,.12);border:1px solid rgba(240,90,40,.25);border-radius:4px;font-family:'Inter',monospace;font-size:7px;color:#F05A28;font-weight:700;">&#128196; Upload Quote Book AI</div>
+            </div>
+            <div class="kpi-grid" style="margin-bottom:6px;">
+              <div class="kpi" style="--kc:#60A5FA"><div class="kpi-label">Total Quotes</div><div class="kpi-val" style="color:#60A5FA">14</div><div class="kpi-delta">&pound;1.22M total quoted</div></div>
+              <div class="kpi" style="--kc:#4CAF50"><div class="kpi-label">Won</div><div class="kpi-val" style="color:#4CAF50">6</div><div class="kpi-delta delta-up">&#8593; 40% win rate</div></div>
+              <div class="kpi" style="--kc:#EF4444"><div class="kpi-label">Lost</div><div class="kpi-val" style="color:#EF4444">4</div><div class="kpi-delta delta-dn">&#8595; &pound;340k to competition</div></div>
+              <div class="kpi" style="--kc:#F05A28"><div class="kpi-label">Pipeline</div><div class="kpi-val" style="color:#F05A28">4</div><div class="kpi-delta delta-up">&#8593; &pound;558k in pipeline</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:140px 1fr;gap:5px;margin-bottom:5px;">
+              <div class="qb-win-rate-card">
+                <div style="width:50px;height:50px;border-radius:50%;background:conic-gradient(#4CAF50 0% 40%,rgba(255,255,255,.06) 40% 100%);display:flex;align-items:center;justify-content:center;">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#122D56;display:flex;align-items:center;justify-content:center;font-family:'Inter',monospace;font-size:11px;font-weight:700;color:#4CAF50;">40%</div>
+                </div>
+                <div class="qb-win-label">Win Rate</div>
+                <div style="font-family:'Inter',monospace;font-size:7px;font-weight:700;color:#fff;">6 won of 10 decided</div>
+                <div class="qb-win-sub">4 submitted &middot; 2 pricing</div>
+                <div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin-top:2px;">
+                  <span class="qb-pill qb-pill-won">6 Won</span>
+                  <span class="qb-pill qb-pill-lost">4 Lost</span>
+                  <span class="qb-pill qb-pill-sub">3 Sub</span>
+                  <span class="qb-pill qb-pill-open">1 Open</span>
+                </div>
+              </div>
+              <div class="card-v2" style="margin-bottom:0">
+                <div class="card-header"><span class="card-title">Client quote activity</span></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:5px 6px;">
+                  <div class="qb-client-stat-card">
+                    <div class="qb-client-stat-head"><div class="qb-client-stat-av" style="background:#F05A28">AE</div><span class="qb-client-stat-name">Aecom Ltd</span></div>
+                    <div class="qb-client-stat-row"><span>Quotes</span><span class="qb-client-stat-val">4</span></div>
+                    <div class="qb-client-stat-row"><span>Total value</span><span class="qb-client-stat-val">&pound;480k</span></div>
+                    <div class="qb-client-stat-row"><span>Win rate</span><span class="qb-client-stat-val" style="color:#4CAF50">75%</span></div>
+                  </div>
+                  <div class="qb-client-stat-card">
+                    <div class="qb-client-stat-head"><div class="qb-client-stat-av" style="background:#60A5FA">MS</div><span class="qb-client-stat-name">Morgan Sindall</span></div>
+                    <div class="qb-client-stat-row"><span>Quotes</span><span class="qb-client-stat-val">3</span></div>
+                    <div class="qb-client-stat-row"><span>Total value</span><span class="qb-client-stat-val">&pound;302k</span></div>
+                    <div class="qb-client-stat-row"><span>Win rate</span><span class="qb-client-stat-val" style="color:#4CAF50">67%</span></div>
+                  </div>
+                  <div class="qb-client-stat-card">
+                    <div class="qb-client-stat-head"><div class="qb-client-stat-av" style="background:#4CAF50">MG</div><span class="qb-client-stat-name">Mace Group</span></div>
+                    <div class="qb-client-stat-row"><span>Quotes</span><span class="qb-client-stat-val">3</span></div>
+                    <div class="qb-client-stat-row"><span>Total value</span><span class="qb-client-stat-val">&pound;258k</span></div>
+                    <div class="qb-client-stat-row"><span>Win rate</span><span class="qb-client-stat-val" style="color:#EF4444">33%</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-v2" style="margin-bottom:0">
+              <div class="card-header"><span class="card-title">Quote Register</span>
+                <div style="display:flex;gap:3px">
+                  <div style="padding:2px 5px;background:rgba(240,90,40,.12);border:1px solid rgba(240,90,40,.25);border-radius:4px;font-family:'Inter',monospace;font-size:7px;color:#F05A28;">+ Add Quote</div>
+                </div>
+              </div>
+              <table class="tbl">
+                <thead><tr><th>Quote ref</th><th>Description</th><th>Client</th><th>Value</th><th>Margin</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">QTE-2026-014</td><td class="strong">Battersea PS &mdash; Pipe Insulation Ph.2</td><td>ISG Ltd</td><td class="mono">&pound;340k</td><td class="mono" style="color:#4CAF50">22%</td><td><span class="badge badge-info">Open</span></td></tr>
+                  <tr><td class="mono">QTE-2026-013</td><td class="strong">Stratford Crossrail &mdash; HVAC Lagging</td><td>Skanska</td><td class="mono">&pound;218k</td><td class="mono" style="color:#4CAF50">19%</td><td><span class="badge badge-action">Submitted</span></td></tr>
+                  <tr><td class="mono">QTE-2026-011</td><td class="strong">Canary Wharf Ph.2 &mdash; Mechanical Svcs</td><td>Aecom Ltd</td><td class="mono">&pound;284k</td><td class="mono" style="color:#4CAF50">24%</td><td><span class="badge badge-success">Won &#10003;</span></td></tr>
+                  <tr><td class="mono">QTE-2026-010</td><td class="strong">Nine Elms District Heating</td><td>Mace Group</td><td class="mono">&pound;185k</td><td class="mono" style="color:rgba(255,255,255,.4)">18%</td><td><span class="badge badge-danger">Lost</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Feature 3 -->
+    <!-- Feature 3: Instant Pricing -> Invoice/CIS slide -->
     <div class="lp-feature-block">
       <div class="lp-feature-text">
         <h3>Instant Pricing</h3>
+        <p class="feature-desc">Your price book, your rates. Quantities flow straight into a fully costed breakdown.</p>
         <ul>
-          <li>Your price book, your rates &mdash; quantities flow straight into a fully costed breakdown</li>
-          <li>Live supplier pricing integration to keep material costs current</li>
-          <li>Margin analysis and what-if scenarios to sharpen your bid</li>
+          <li>ECA 2026 rate libraries built in</li>
+          <li>Overhead, profit and contingency calculations</li>
+          <li>Margin analysis and what-if scenarios</li>
         </ul>
         <a href="#" class="lp-feature-link">Learn more &rarr;</a>
       </div>
-      <div class="lp-feature-img">Screenshot placeholder</div>
+      <div class="lp-feature-img">
+        <div class="lp-feature-slide">
+          <div class="lp-slide-chrome">
+            <div class="cdot" style="background:#EF4444"></div><div class="cdot" style="background:#F59E0B"></div><div class="cdot" style="background:#22C55E"></div>
+            <span class="ctitle">CONTRAQ &mdash; Invoice Register &amp; CIS</span>
+          </div>
+          <div class="lp-slide-body">
+            <div class="kpi-grid" style="margin-bottom:8px;">
+              <div class="kpi" style="--kc:#4CAF50"><div class="kpi-label">Collected YTD</div><div class="kpi-val" style="color:#4CAF50">&pound;186k</div><div class="kpi-delta delta-up">&#8593; 8 paid invoices</div></div>
+              <div class="kpi" style="--kc:#60A5FA"><div class="kpi-label">Outstanding</div><div class="kpi-val">&pound;93k</div><div class="kpi-delta delta-dn">&#8595; 3 awaiting payment</div></div>
+              <div class="kpi" style="--kc:#EF4444"><div class="kpi-label">Overdue</div><div class="kpi-val" style="color:#EF4444">&pound;64.8k</div><div class="kpi-delta delta-dn">&#8595; 2 invoices overdue</div></div>
+              <div class="kpi" style="--kc:#F05A28"><div class="kpi-label">Total Raised</div><div class="kpi-val">&pound;304k</div><div class="kpi-delta">All time</div></div>
+            </div>
+            <div class="inv-outstanding-section">
+              <div class="inv-outstanding-title">&#9888; Overdue &amp; Awaiting Payment (3)</div>
+              <div class="inv-outstanding-row overdue">
+                <div class="inv-out-info"><div class="inv-out-ref">INV-2026-0003</div><div class="inv-out-client">Morgan Sindall &middot; Euston Station HVAC</div></div>
+                <span class="inv-out-days overdue">18 days overdue</span>
+                <span class="inv-out-amt" style="color:#EF4444">&pound;64,800</span>
+              </div>
+              <div class="inv-outstanding-row">
+                <div class="inv-out-info"><div class="inv-out-ref">INV-2026-0004</div><div class="inv-out-client">Aecom Ltd &middot; Canary Wharf Ph.1</div></div>
+                <span class="inv-out-days pending">Due 14 Mar 2026</span>
+                <span class="inv-out-amt">&pound;52,400</span>
+              </div>
+              <div class="inv-outstanding-row draft">
+                <div class="inv-out-info"><div class="inv-out-ref">INV-2026-0007</div><div class="inv-out-client">Skanska UK &middot; Stratford Crossrail</div></div>
+                <span class="inv-out-days draft">Draft</span>
+                <span class="inv-out-amt" style="color:#F59E0B">&pound;38,900</span>
+              </div>
+            </div>
+            <div class="card-v2" style="margin-bottom:0">
+              <div class="card-header"><span class="card-title">Invoice Log</span><span style="font-family:'Inter',monospace;font-size:7px;color:rgba(255,255,255,.35)">11 of 11 invoices</span></div>
+              <table class="tbl">
+                <thead><tr><th>Invoice</th><th>Client</th><th>Project</th><th>Amount</th><th>Due</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">INV-2026-0003</td><td class="strong">Morgan Sindall</td><td style="font-size:7px;color:rgba(255,255,255,.35)">Euston Station HVAC</td><td class="mono">&pound;64,800</td><td class="mono" style="color:#EF4444">20 Feb 26</td><td><span class="badge badge-danger">Overdue</span></td></tr>
+                  <tr><td class="mono">INV-2026-0004</td><td class="strong">Aecom Ltd</td><td style="font-size:7px;color:rgba(255,255,255,.35)">Canary Wharf Ph.1</td><td class="mono">&pound;52,400</td><td class="mono">14 Mar 26</td><td><span class="badge badge-info">Sent</span></td></tr>
+                  <tr><td class="mono">INV-2026-0005</td><td class="strong">Skanska UK</td><td style="font-size:7px;color:rgba(255,255,255,.35)">Stratford Crossrail</td><td class="mono">&pound;38,900</td><td class="mono">08 Mar 26</td><td><span class="badge badge-info">Sent</span></td></tr>
+                  <tr><td class="mono">INV-2026-0002</td><td class="strong">Aecom Ltd</td><td style="font-size:7px;color:rgba(255,255,255,.35)">Canary Wharf &mdash; Pipe</td><td class="mono">&pound;71,200</td><td class="mono">14 Feb 26</td><td><span class="badge badge-success">Paid &#10003;</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Feature 4 -->
+    <!-- Feature 4: Quote to Invoice -> Team Diary slide -->
     <div class="lp-feature-block reverse">
       <div class="lp-feature-text">
         <h3>Quote to Invoice</h3>
+        <p class="feature-desc">Convert accepted quotes into projects, purchase orders and payment applications in one click.</p>
         <ul>
-          <li>Convert accepted quotes into projects, purchase orders and payment applications in one click</li>
-          <li>Track variations, retention and CIS deductions through the full contract lifecycle</li>
-          <li>Generate client-ready documents that match main contractor expectations</li>
+          <li>Track variations, retention and CIS deductions</li>
+          <li>Full contract lifecycle management</li>
+          <li>Client-ready documents for main contractors</li>
         </ul>
         <a href="#" class="lp-feature-link">Learn more &rarr;</a>
       </div>
-      <div class="lp-feature-img">Screenshot placeholder</div>
+      <div class="lp-feature-img">
+        <div class="lp-feature-slide">
+          <div class="lp-slide-chrome">
+            <div class="cdot" style="background:#EF4444"></div><div class="cdot" style="background:#F59E0B"></div><div class="cdot" style="background:#22C55E"></div>
+            <span class="ctitle">CONTRAQ &mdash; Team Diary &middot; Week view</span>
+          </div>
+          <div class="lp-slide-body" style="padding:0;overflow:hidden;">
+            <div class="sched-nav" style="border-radius:0;">
+              <button class="diary-view-btn active">Week</button>
+              <button class="diary-view-btn">Month</button>
+              <button class="diary-view-btn">6 Mo</button>
+              <div style="width:3px"></div>
+              <div style="width:16px;height:16px;border-radius:3px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.3)">&#8249;</div>
+              <div style="padding:2px 5px;border-radius:3px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);font-family:'Inter',monospace;font-size:7px;color:rgba(255,255,255,.4)">This week</div>
+              <div style="width:16px;height:16px;border-radius:3px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.3)">&#8250;</div>
+              <span class="sched-week-label">9 &ndash; 15 Mar 2026</span>
+              <div style="margin-left:auto;padding:2px 6px;background:rgba(240,90,40,.15);border:1px solid rgba(240,90,40,.3);border-radius:3px;font-family:'Inter',monospace;font-size:7px;color:#F05A28;font-weight:700;">+ Assign</div>
+            </div>
+            <div class="sched-legend">
+              <div class="sched-legend-item"><div class="sched-legend-dot asgn-0" style="border:1px solid rgba(240,90,40,.5)"></div><span>CWF</span></div>
+              <div class="sched-legend-item"><div class="sched-legend-dot asgn-1" style="border:1px solid rgba(30,64,175,.5)"></div><span>EUS</span></div>
+              <div class="sched-legend-item"><div class="sched-legend-dot asgn-2" style="border:1px solid rgba(46,125,50,.5)"></div><span>WBL</span></div>
+              <div class="sched-legend-item"><div class="sched-legend-dot asgn-3" style="border:1px solid rgba(251,191,36,.5)"></div><span>CHB</span></div>
+              <div class="sched-legend-item"><div class="sched-legend-dot asgn-4" style="border:1px solid rgba(167,139,250,.5)"></div><span>BAT</span></div>
+              <div style="margin-left:auto;font-family:'Inter',monospace;font-size:6px;color:rgba(255,255,255,.3)">6 engineers &middot; &pound;4,820 week cost</div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="sched-table">
+                <thead>
+                  <tr>
+                    <th class="eng-hdr">Engineer</th>
+                    <th class="day-hdr">Mon<br><span style="font-size:6px;font-weight:400;color:rgba(255,255,255,.3)">9 Mar</span></th>
+                    <th class="day-hdr today-hdr">Tue<br><span style="font-size:6px;font-weight:400;color:#F05A28">10 Mar</span></th>
+                    <th class="day-hdr">Wed<br><span style="font-size:6px;font-weight:400;color:rgba(255,255,255,.3)">11 Mar</span></th>
+                    <th class="day-hdr">Thu<br><span style="font-size:6px;font-weight:400;color:rgba(255,255,255,.3)">12 Mar</span></th>
+                    <th class="day-hdr">Fri<br><span style="font-size:6px;font-weight:400;color:rgba(255,255,255,.3)">13 Mar</span></th>
+                    <th class="day-hdr wknd-hdr">Sat</th>
+                    <th class="day-hdr wknd-hdr">Sun</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="sched-group-row"><td colspan="8"><div class="sched-group-label">Employed <span class="sched-group-badge">4</span></div></td></tr>
+                  <tr>
+                    <td class="eng-cell"><div class="eng-cell-name">Dave Harris</div><div class="eng-cell-trade">Insulation Fitter</div><div class="eng-cell-rate">&pound;280/day</div></td>
+                    <td class="day-cell"><div class="assignment asgn-0"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell today-cell"><div class="assignment asgn-0"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-0"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-3"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf FS</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-3"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf FS</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell wknd-cell"></td>
+                    <td class="day-cell wknd-cell"></td>
+                  </tr>
+                  <tr>
+                    <td class="eng-cell"><div class="eng-cell-name">Mark Pearce</div><div class="eng-cell-trade">Project Manager</div><div class="eng-cell-rate">&pound;320/day</div></td>
+                    <td class="day-cell"></td>
+                    <td class="day-cell today-cell"><div class="assignment asgn-1"><div class="assign-body"><div class="assign-code">EUS</div><div class="assign-name">Euston Stn</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-1"><div class="assign-body"><div class="assign-code">EUS</div><div class="assign-name">Euston Stn</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-1"><div class="assign-body"><div class="assign-code">EUS</div><div class="assign-name">Euston Stn</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"></td>
+                    <td class="day-cell wknd-cell"></td>
+                    <td class="day-cell wknd-cell"></td>
+                  </tr>
+                  <tr>
+                    <td class="eng-cell"><div class="eng-cell-name">Tom Bailey</div><div class="eng-cell-trade">Insulation Fitter</div><div class="eng-cell-rate">&pound;260/day</div></td>
+                    <td class="day-cell"><div class="assignment asgn-2"><div class="assign-body"><div class="assign-code">WBL</div><div class="assign-name">Wembley</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell today-cell"><div class="assignment asgn-2"><div class="assign-body"><div class="assign-code">WBL</div><div class="assign-name">Wembley</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-2"><div class="assign-body"><div class="assign-code">WBL</div><div class="assign-name">Wembley</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-2"><div class="assign-body"><div class="assign-code">WBL</div><div class="assign-name">Wembley</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-2"><div class="assign-body"><div class="assign-code">WBL</div><div class="assign-name">Wembley</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell wknd-cell"></td>
+                    <td class="day-cell wknd-cell"></td>
+                  </tr>
+                  <tr class="sched-group-row"><td colspan="8"><div class="sched-group-label">Long-term Sub <span class="sched-group-badge">2</span></div></td></tr>
+                  <tr>
+                    <td class="eng-cell"><div class="eng-cell-name">Chris Webb</div><div class="eng-cell-trade">Pipe Insulator</div><div class="eng-cell-rate">&pound;265/day</div></td>
+                    <td class="day-cell"><div class="assignment asgn-4"><div class="assign-body"><div class="assign-code">BAT</div><div class="assign-name">Battersea</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell today-cell"><div class="assignment asgn-4"><div class="assign-body"><div class="assign-code">BAT</div><div class="assign-name">Battersea</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"></td>
+                    <td class="day-cell"><div class="assignment asgn-1"><div class="assign-body"><div class="assign-code">EUS</div><div class="assign-name">Euston Stn</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-1"><div class="assign-body"><div class="assign-code">EUS</div><div class="assign-name">Euston Stn</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell wknd-cell"></td>
+                    <td class="day-cell wknd-cell"></td>
+                  </tr>
+                  <tr>
+                    <td class="eng-cell"><div class="eng-cell-name">Ryan Walsh</div><div class="eng-cell-trade">Ductwork Lagger</div><div class="eng-cell-rate">&pound;255/day</div></td>
+                    <td class="day-cell"><div class="assignment asgn-3"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf FS</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell today-cell"><div class="assignment asgn-3"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf FS</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"><div class="assignment asgn-3"><div class="assign-body"><div class="assign-code">CWF</div><div class="assign-name">Canary Wharf FS</div><div class="assign-hours">8h</div></div></div></td>
+                    <td class="day-cell"></td>
+                    <td class="day-cell"></td>
+                    <td class="day-cell wknd-cell"></td>
+                    <td class="day-cell wknd-cell"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ WHAT'S LIVE / WHAT'S NEXT ═══════════════ -->
+<section class="lp-section lp-roadmap" id="roadmap">
+  <div class="lp-container">
+    <p class="lp-section-label" style="text-align:center">Product Status</p>
+    <h2 class="lp-section-heading">What&rsquo;s live &amp; what&rsquo;s next</h2>
+    <p class="lp-section-sub">Full transparency on where we are and where we&rsquo;re heading.</p>
+
+    <div class="lp-roadmap-grid">
+      <div class="lp-roadmap-col">
+        <h4><span class="status-dot live"></span> Live now</h4>
+        <ul>
+          <li>AI Quote Builder (Claude API)</li>
+          <li>Site Journal with AI EOT analysis</li>
+          <li>Quote Book &amp; tender register</li>
+          <li>Project tracking &amp; costs</li>
+          <li>Engineer scheduler (drag &amp; drop)</li>
+          <li>Certification expiry tracking</li>
+          <li>CIS return preparation</li>
+          <li>Invoice &amp; PO register</li>
+          <li>Document upload &amp; folders</li>
+          <li>Client &amp; supplier registers</li>
+        </ul>
+      </div>
+      <div class="lp-roadmap-col roadmap-next">
+        <h4><span class="status-dot soon"></span> On the roadmap</h4>
+        <ul>
+          <li>Automated email payment reminders</li>
+          <li>Real-time cert expiry notifications</li>
+          <li>HMRC CIS300 electronic filing</li>
+          <li>AI document analysis (drawings, specs)</li>
+          <li>Xero &amp; accounting integration</li>
+          <li>SSO / Active Directory</li>
+          <li>Procore marketplace integration</li>
+          <li>Client portal (external access)</li>
+          <li>Multi-company group view</li>
+          <li>Public API &amp; custom integrations</li>
+        </ul>
+      </div>
     </div>
 
+    <p class="lp-roadmap-footer">Founding members get direct input on roadmap priorities.</p>
   </div>
 </section>
 
 <!-- ═══════════════ 5. TRUST ═══════════════ -->
 <section class="lp-section lp-trust" id="trust">
+  <div class="lp-trust-bg-img"></div>
   <div class="lp-container">
-    <p class="lp-section-label" style="color:rgba(255,255,255,0.5); text-align:center">Built to last</p>
-    <h2 class="lp-section-heading">Built to stick around</h2>
-    <p class="lp-section-sub">We know subcontractors get burned by software that over-promises. Contraq is different.</p>
+    <p class="lp-section-label">Built to last</p>
+    <h2 class="lp-section-heading">Why subcontractors trust Contraq</h2>
+    <p class="lp-section-sub">We know M&amp;E firms get burned by software that over-promises. Contraq is different.</p>
     <div class="lp-trust-grid">
       <div class="lp-trust-card">
         <div class="lp-trust-icon">&#128274;</div>
         <h4>Your data, your rules</h4>
-        <p>UK-hosted, GDPR compliant, encrypted at rest and in transit. Export everything, any time. No vendor lock-in, ever.</p>
+        <p>UK-hosted, GDPR compliant, encrypted at rest and in transit. Export everything, any time. No vendor lock-in.</p>
       </div>
       <div class="lp-trust-card">
         <div class="lp-trust-icon">&#129302;</div>
         <h4>AI that learns your projects</h4>
-        <p>The more you use Contraq, the smarter it gets. It learns your preferred materials, suppliers and pricing patterns to speed up every future quote.</p>
+        <p>The more you use Contraq, the smarter it gets. It learns your materials, suppliers and pricing patterns.</p>
       </div>
       <div class="lp-trust-card">
         <div class="lp-trust-icon">&#128736;</div>
-        <h4>Support that speaks construction</h4>
+        <h4>Support that speaks M&amp;E</h4>
         <p>Our team has worked on M&amp;E sites. When you call, you talk to someone who knows what a 15mm compression fitting is.</p>
       </div>
     </div>
@@ -485,99 +2154,429 @@
     <p class="lp-section-sub">Start free. Upgrade when you're ready. All plans include a 14-day trial.</p>
 
     <div class="lp-pricing-grid">
-
-      <!-- Starter -->
       <div class="lp-price-card">
         <h4>Starter</h4>
         <p class="lp-price-desc">For sole traders and small teams</p>
         <div class="lp-price-amount">&pound;49<span>/mo</span></div>
-        <p class="lp-price-period">per user, billed monthly</p>
+        <p class="lp-price-period">billed monthly</p>
         <ul class="lp-price-features">
           <li>Up to 2 users</li>
-          <li>20 AI extractions / month</li>
-          <li>Basic price book</li>
-          <li>Quote generation</li>
-          <li>Email support</li>
+          <li>5 active projects</li>
+          <li>3 AI quotes / month</li>
+          <li>Quote Book</li>
+          <li>Site Journal</li>
+          <li>Engineer scheduler</li>
+          <li>Cert tracking</li>
+          <li class="disabled">CIS compliance</li>
+          <li class="disabled">Finance (Invoice / PO / P&amp;L)</li>
+          <li class="disabled">Procore integration</li>
         </ul>
-        <a href="#" class="lp-price-cta outline">Start Free Trial</a>
+        <a href="index.html#register?plan=starter" class="lp-price-cta outline">Start Free Trial &rarr;</a>
       </div>
 
-      <!-- Professional -->
       <div class="lp-price-card recommended">
-        <span class="lp-price-badge">Recommended</span>
+        <span class="lp-price-badge">Most Popular</span>
         <h4>Professional</h4>
         <p class="lp-price-desc">For growing M&amp;E subcontractors</p>
-        <div class="lp-price-amount">&pound;99<span>/mo</span></div>
-        <p class="lp-price-period">per user, billed monthly</p>
+        <div class="lp-price-amount">&pound;149<span>/mo</span></div>
+        <p class="lp-price-period">billed monthly</p>
         <ul class="lp-price-features">
-          <li>Up to 10 users</li>
-          <li>Unlimited AI extractions</li>
-          <li>Spec cross-reference</li>
-          <li>Project tracking &amp; P&amp;L</li>
-          <li>CIS compliance tools</li>
+          <li>Up to 5 users</li>
+          <li>20 active projects</li>
+          <li>Unlimited AI quotes</li>
+          <li>Everything in Starter</li>
+          <li>CIS compliance</li>
+          <li>Invoice / PO / P&amp;L</li>
+          <li>Xero export <span class="roadmap-tag">Roadmap</span></li>
+          <li>25 GB storage</li>
           <li>Priority support</li>
         </ul>
-        <a href="#" class="lp-price-cta primary">Start Free Trial</a>
+        <a href="index.html#register?plan=professional" class="lp-price-cta primary">Start Free Trial &rarr;</a>
       </div>
 
-      <!-- Enterprise -->
       <div class="lp-price-card">
-        <h4>Enterprise</h4>
-        <p class="lp-price-desc">For multi-site operations</p>
-        <div class="lp-price-amount">Custom</div>
-        <p class="lp-price-period">tailored to your business</p>
+        <h4>Business</h4>
+        <p class="lp-price-desc">For established multi-site operations</p>
+        <div class="lp-price-amount">&pound;349<span>/mo</span></div>
+        <p class="lp-price-period">billed monthly</p>
         <ul class="lp-price-features">
           <li>Unlimited users</li>
-          <li>Unlimited AI extractions</li>
-          <li>SSO &amp; advanced security</li>
-          <li>Procore / ERP integration</li>
+          <li>Everything in Professional</li>
           <li>Dedicated account manager</li>
           <li>Custom onboarding</li>
+          <li>Advanced reporting</li>
+          <li>API access <span class="roadmap-tag">Roadmap</span></li>
+          <li>SSO / Active Directory <span class="roadmap-tag">Roadmap</span></li>
+          <li>Procore integration <span class="roadmap-tag">Roadmap</span></li>
+          <li>SLA 99.9% uptime</li>
+          <li>Multi-company view <span class="roadmap-tag">Roadmap</span></li>
+          <li>Phone support</li>
         </ul>
-        <a href="#" class="lp-price-cta outline">Book a Demo</a>
+        <a href="index.html#register?plan=business" class="lp-price-cta outline">Start Free Trial &rarr;</a>
       </div>
-
     </div>
   </div>
 </section>
+
+<!-- ═══════════════ CTA BANNER ═══════════════ -->
+<div class="lp-cta-banner">
+  <div class="lp-cta-bg-img"></div>
+  <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#FF7A4D;margin-bottom:20px;position:relative;">Built for M&amp;E subcontractors. Nobody else.</div>
+  <h2>Ready to win more quotes?</h2>
+  <p>Join the M&amp;E subcontractors already saving hours every week with AI-powered estimating. From takeoff to invoice &mdash; one platform.</p>
+  <a href="index.html#register" class="btn-cta-primary" style="display:inline-flex;">Start Your Free Trial &rarr;</a>
+  <div style="margin-top:20px;font-size:13px;color:rgba(255,255,255,0.4);position:relative;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+    <span>&#10003; No credit card required</span>
+    <span>&#10003; 14-day free trial</span>
+    <span>&#10003; Cancel anytime</span>
+  </div>
+  <div style="margin-top:24px;display:flex;align-items:center;justify-content:center;gap:-8px;position:relative;">
+    <img src="public/images/engineer-portrait.jpg" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.2);">
+    <img src="public/images/professional-hardhat.jpg" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.2);margin-left:-12px;">
+    <img src="public/images/engineer-tablet-pipes.jpg" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.2);margin-left:-12px;">
+    <span style="font-size:13px;color:rgba(255,255,255,0.5);margin-left:12px;">Trusted by M&amp;E professionals across the UK</span>
+  </div>
+</div>
 
 <!-- ═══════════════ 7. FOOTER ═══════════════ -->
 <footer class="lp-footer" id="footer">
   <div class="lp-footer-grid">
     <div class="lp-footer-col">
+      <div class="lp-footer-brand">Contraq<em>.</em></div>
+      <p class="lp-footer-brand-desc">AI-powered M&amp;E estimating platform built for UK specialist subcontractors. From takeoff to invoice.</p>
+    </div>
+    <div class="lp-footer-col">
       <h5>Product</h5>
       <a href="#features">AI Takeoffs</a>
       <a href="#features">Spec Cross-Reference</a>
       <a href="#features">Instant Pricing</a>
-      <a href="#features">Quote to Invoice</a>
       <a href="#pricing">Pricing</a>
     </div>
     <div class="lp-footer-col">
       <h5>Company</h5>
       <a href="#">About</a>
-      <a href="#">Careers</a>
       <a href="#">Blog</a>
+      <a href="#">Careers</a>
       <a href="#">Contact</a>
     </div>
     <div class="lp-footer-col">
       <h5>Legal</h5>
       <a href="#">Privacy Policy</a>
       <a href="#">Terms of Service</a>
-      <a href="#">Cookie Policy</a>
       <a href="#">GDPR</a>
-    </div>
-    <div class="lp-footer-col">
-      <h5>Contact</h5>
-      <a href="mailto:hello@contraq.co.uk">hello@contraq.co.uk</a>
-      <a href="#">Support Centre</a>
-      <a href="#">Book a Demo</a>
     </div>
   </div>
   <div class="lp-footer-bottom">
-    <span>&copy; 2026 Contraq &middot; Built for M&amp;E subcontractors</span>
+    <span>&copy; 2026 Contraq. Built for M&amp;E subcontractors.</span>
     <span>London, United Kingdom</span>
   </div>
 </footer>
+
+<script>
+  // Nav scroll effect
+  const lpNav = document.getElementById('lp-nav');
+  window.addEventListener('scroll', () => {
+    lpNav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // ═══ Demo screen cycling ═══
+  var LP_DEMO_TOP = [
+    {
+      title: 'CONTRAQ \u2014 Dashboard', active: 0,
+      html: function(){
+        return '<div class="ds-panel ds-kpi-row">'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#4CAF50">\u00A31.4M</div><div class="ds-kl">Pipeline</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F05A28">7</div><div class="ds-kl">Active Jobs</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv">\u00A3304k</div><div class="ds-kl">Invoiced MTD</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F59E0B">\u00A393k</div><div class="ds-kl">Outstanding</div></div>'
+          +'</div>'
+          +'<div class="ds-table"><div class="ds-thead"><span>Project</span><span>Client</span><span>Value</span><span>Status</span></div>'
+          +'<div class="ds-tr hl"><span>Canary Wharf \u2014 Insulation</span><span>Aecom</span><span>\u00A3284k</span><span><span class="ds-badge g">Active</span></span></div>'
+          +'<div class="ds-tr"><span>Wembley \u2014 Ductwork</span><span>Balfour</span><span>\u00A3194k</span><span><span class="ds-badge o">On site</span></span></div>'
+          +'<div class="ds-tr"><span>Euston HVAC Upgrade</span><span>Morgan</span><span>\u00A3320k</span><span><span class="ds-badge b">Tendered</span></span></div>'
+          +'<div class="ds-tr"><span>Canary Wharf Fire Stop</span><span>Mace</span><span>\u00A394k</span><span><span class="ds-badge y">Draft</span></span></div>'
+          +'</div>'
+          +'<div class="ds-chart-row">'
+          +'<div class="ds-chart"><div class="ds-chart-title">Revenue by month</div><div class="ds-bars" id="lp-dbars-t1"></div></div>'
+          +'<div class="ds-activity"><div class="ds-act-title">Recent activity</div>'
+          +'<div class="ds-act-item"><div class="ds-act-dot" style="background:#4CAF50"></div><span class="ds-act-text">INV-0047 paid \u2014 \u00A324,400</span><span class="ds-act-time">2m</span></div>'
+          +'<div class="ds-act-item"><div class="ds-act-dot" style="background:#F05A28"></div><span class="ds-act-text">Tender T-019 won</span><span class="ds-act-time">1h</span></div>'
+          +'<div class="ds-act-item"><div class="ds-act-dot" style="background:#60A5FA"></div><span class="ds-act-text">PO-INS-004 delivered</span><span class="ds-act-time">3h</span></div>'
+          +'</div></div>';
+      }
+    },
+    {
+      title: 'CONTRAQ \u2014 Tenders', active: 1,
+      html: function(){
+        return '<div class="ds-panel ds-kpi-row">'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#4CAF50">62%</div><div class="ds-kl">Win rate</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F05A28">5</div><div class="ds-kl">Open</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv">\u00A31.9M</div><div class="ds-kl">Pipeline</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F59E0B">3</div><div class="ds-kl">Chase now</div></div>'
+          +'</div>'
+          +'<div class="ds-table"><div class="ds-thead"><span>Tender</span><span>Client</span><span>Value</span><span>Status</span></div>'
+          +'<div class="ds-tr hl"><span>Battersea PS \u2014 Insul</span><span>ISG Ltd</span><span>\u00A3340k</span><span><span class="ds-badge g">Won</span></span></div>'
+          +'<div class="ds-tr"><span>Stratford Crossrail</span><span>Skanska</span><span>\u00A3218k</span><span><span class="ds-badge b">Submitted</span></span></div>'
+          +'<div class="ds-tr"><span>Heathrow T5 \u2014 Heat</span><span>BAA Ltd</span><span>\u00A3185k</span><span><span class="ds-badge y">Chase</span></span></div>'
+          +'<div class="ds-tr"><span>HS2 \u2014 Fireproofing</span><span>Balfour</span><span>\u00A3620k</span><span><span class="ds-badge r">Expired</span></span></div>'
+          +'</div>';
+      }
+    },
+    {
+      title: 'CONTRAQ \u2014 Projects', active: 2,
+      html: function(){
+        return '<div class="ds-panel ds-kpi-row">'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F05A28">7</div><div class="ds-kl">Active</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#4CAF50">\u00A32.1M</div><div class="ds-kl">Contract value</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv">22%</div><div class="ds-kl">Avg margin</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F59E0B">2</div><div class="ds-kl">At risk</div></div>'
+          +'</div>'
+          +'<div class="ds-table"><div class="ds-thead"><span>Project</span><span>Value</span><span>Margin</span><span>Status</span></div>'
+          +'<div class="ds-tr hl"><span>Canary Wharf \u2014 Insul</span><span>\u00A3284k</span><span style="color:#4CAF50">24%</span><span><span class="ds-badge g">On track</span></span></div>'
+          +'<div class="ds-tr"><span>Wembley \u2014 Ductwork</span><span>\u00A3194k</span><span style="color:#F59E0B">18%</span><span><span class="ds-badge y">At risk</span></span></div>'
+          +'<div class="ds-tr"><span>Euston HVAC</span><span>\u00A3320k</span><span style="color:#4CAF50">26%</span><span><span class="ds-badge g">On track</span></span></div>'
+          +'<div class="ds-tr"><span>Canary Wharf FS</span><span>\u00A394k</span><span style="color:#4CAF50">21%</span><span><span class="ds-badge b">Starting</span></span></div>'
+          +'</div>';
+      }
+    }
+  ];
+
+  var LP_DEMO_BOT = [
+    {
+      title: 'CONTRAQ \u2014 Invoices', active: 3,
+      html: function(){
+        return '<div class="ds-panel ds-kpi-row">'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#4CAF50">\u00A3189k</div><div class="ds-kl">Paid MTD</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#EF4444">\u00A343k</div><div class="ds-kl">Overdue</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv">\u00A362k</div><div class="ds-kl">Pending</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F05A28">\u00A328k</div><div class="ds-kl">Retention</div></div>'
+          +'</div>'
+          +'<div class="ds-table"><div class="ds-thead"><span>Invoice</span><span>Client</span><span>Amount</span><span>Status</span></div>'
+          +'<div class="ds-tr hl"><span>INV-0047 \u2014 Canary Wharf</span><span>Aecom</span><span>\u00A324,400</span><span><span class="ds-badge g">Paid \u2713</span></span></div>'
+          +'<div class="ds-tr"><span>INV-0046 \u2014 Wembley</span><span>Balfour</span><span>\u00A318,200</span><span><span class="ds-badge r">32d late</span></span></div>'
+          +'<div class="ds-tr"><span>INV-0045 \u2014 Euston</span><span>Morgan</span><span>\u00A346,200</span><span><span class="ds-badge b">Sent</span></span></div>'
+          +'<div class="ds-tr"><span>INV-0044 \u2014 Heathrow</span><span>BAA Ltd</span><span>\u00A332,800</span><span><span class="ds-badge y">Due soon</span></span></div>'
+          +'</div>';
+      }
+    },
+    {
+      title: 'CONTRAQ \u2014 Engineers', active: 5,
+      html: function(){
+        return '<div class="ds-panel ds-kpi-row">'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#4CAF50">8</div><div class="ds-kl">Active</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F05A28">3</div><div class="ds-kl">On site</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F59E0B">2</div><div class="ds-kl">Cert expiring</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv">100%</div><div class="ds-kl">Compliant</div></div>'
+          +'</div>'
+          +'<div class="ds-table"><div class="ds-thead"><span>Engineer</span><span>Trade</span><span>Site</span><span>Certs</span></div>'
+          +'<div class="ds-tr hl"><span>James Mitchell</span><span>Insulation</span><span>Canary Wharf</span><span><span class="ds-badge g">\u2713 Valid</span></span></div>'
+          +'<div class="ds-tr"><span>Sarah Webb</span><span>Ductwork</span><span>Wembley</span><span><span class="ds-badge g">\u2713 Valid</span></span></div>'
+          +'<div class="ds-tr"><span>Tom Barnes</span><span>Fireproofing</span><span>Off site</span><span><span class="ds-badge y">\u26A0 45d</span></span></div>'
+          +'<div class="ds-tr"><span>Raj Patel</span><span>M&E</span><span>Euston</span><span><span class="ds-badge g">\u2713 Valid</span></span></div>'
+          +'</div>';
+      }
+    },
+    {
+      title: 'CONTRAQ \u2014 Finance', active: 7,
+      html: function(){
+        return '<div class="ds-panel ds-kpi-row">'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#4CAF50">\u00A31.2M</div><div class="ds-kl">Revenue YTD</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#4CAF50">22.4%</div><div class="ds-kl">Margin</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv">\u00A3268k</div><div class="ds-kl">Gross profit</div></div>'
+          +'<div class="ds-kpi"><div class="ds-kv" style="color:#F05A28">+\u00A338k</div><div class="ds-kl">vs last yr</div></div>'
+          +'</div>'
+          +'<div class="ds-chart-row">'
+          +'<div class="ds-chart"><div class="ds-chart-title">Monthly revenue</div><div class="ds-bars" id="lp-dbars-b1"></div></div>'
+          +'<div class="ds-activity"><div class="ds-act-title">P&L summary</div>'
+          +'<div class="ds-act-item"><div class="ds-act-dot" style="background:#4CAF50"></div><span class="ds-act-text">Labour: \u00A3420k \u2014 on budget</span><span class="ds-act-time">\u2713</span></div>'
+          +'<div class="ds-act-item"><div class="ds-act-dot" style="background:#F05A28"></div><span class="ds-act-text">Materials: \u00A3310k \u2014 +4%</span><span class="ds-act-time">\u26A0</span></div>'
+          +'<div class="ds-act-item"><div class="ds-act-dot" style="background:#60A5FA"></div><span class="ds-act-text">Subs: \u00A3204k \u2014 on budget</span><span class="ds-act-time">\u2713</span></div>'
+          +'</div></div>';
+      }
+    }
+  ];
+
+  var _lpTopIdx = 0, _lpBotIdx = 0;
+
+  function lpAnimateBars(containerId, values) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    var colours = ['#F05A28','rgba(240,90,40,.6)','rgba(240,90,40,.4)','rgba(76,175,80,.7)','#4CAF50','rgba(76,175,80,.5)','rgba(240,90,40,.8)','rgba(96,165,250,.6)','#F05A28','#4CAF50','rgba(240,90,40,.7)','rgba(76,175,80,.8)'];
+    var maxH = 30; var maxVal = Math.max.apply(null, values);
+    var months = ['O','N','D','J','F','M','A','M','J','J','A','S'];
+    container.innerHTML = values.map(function(v,i){
+      var h = Math.round((v/maxVal)*maxH);
+      return '<div class="ds-bar-w"><div class="ds-bar" style="height:0;background:'+colours[i%colours.length]+';transition:height 1.4s cubic-bezier(.22,1,.36,1) '+(i*0.055)+'s" data-h="'+h+'"></div><span class="ds-bar-l">'+(months[i]||'')+'</span></div>';
+    }).join('');
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      container.querySelectorAll('.ds-bar').forEach(function(b){ b.style.height = b.dataset.h + 'px'; });
+    });});
+  }
+
+  function lpRenderPane(paneId, sidebarId, titleId, screens, idx) {
+    var screen = screens[idx];
+    if (!screen) return;
+    var contentEl = document.getElementById(paneId);
+    var titleEl = document.getElementById(titleId);
+    var items = document.querySelectorAll('#' + sidebarId + ' .ds-sb-item');
+    if (!contentEl) return;
+    if (titleEl) titleEl.textContent = screen.title;
+    items.forEach(function(el, i){ el.classList.toggle('on', i === screen.active); });
+    contentEl.innerHTML = screen.html();
+    setTimeout(function(){
+      lpAnimateBars('lp-dbars-t1', [65,80,55,90,72,88,95,78,84,100,92,96]);
+      lpAnimateBars('lp-dbars-b1', [70,85,60,95,80,92,88,76,90,100,88,94]);
+    }, 80);
+  }
+
+  function lpStartDemoCycle() {
+    lpRenderPane('lp-demo-top-content','lp-demo-top-sidebar','lp-demo-top-title', LP_DEMO_TOP, 0);
+    lpRenderPane('lp-demo-bot-content','lp-demo-bot-sidebar','lp-demo-bot-title', LP_DEMO_BOT, 0);
+    setInterval(function(){
+      _lpTopIdx = (_lpTopIdx + 1) % LP_DEMO_TOP.length;
+      lpRenderPane('lp-demo-top-content','lp-demo-top-sidebar','lp-demo-top-title', LP_DEMO_TOP, _lpTopIdx);
+    }, 5000);
+    setTimeout(function(){
+      setInterval(function(){
+        _lpBotIdx = (_lpBotIdx + 1) % LP_DEMO_BOT.length;
+        lpRenderPane('lp-demo-bot-content','lp-demo-bot-sidebar','lp-demo-bot-title', LP_DEMO_BOT, _lpBotIdx);
+      }, 5000);
+    }, 2500);
+  }
+
+  // Start demo cycle on load
+  lpStartDemoCycle();
+</script>
+
+<script>
+  function roiFmt(n) {
+    if (n >= 1000000) return '\u00A3' + (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    return '\u00A3' + Math.round(n).toLocaleString('en-GB');
+  }
+
+  function roiUpdate() {
+    var eng = parseInt(document.getElementById('roi-eng').value);
+    var proj = parseInt(document.getElementById('roi-proj').value);
+    var val = parseInt(document.getElementById('roi-val').value);
+    var turn = parseInt(document.getElementById('roi-turn').value);
+
+    // Display slider values
+    document.getElementById('roi-eng-val').textContent = eng;
+    document.getElementById('roi-proj-val').textContent = proj;
+    document.getElementById('roi-val-val').textContent = roiFmt(val);
+    document.getElementById('roi-turn-val').textContent = roiFmt(turn);
+
+    // VO recovery: project_value x projects x (3% conservative to 8% optimistic)
+    var voLo = val * proj * 0.03;
+    var voHi = val * proj * 0.08;
+
+    // Admin hours saved: engineers x 8hrs x (25% to 45%)
+    var hrsLo = eng * 8 * 0.25;
+    var hrsHi = eng * 8 * 0.45;
+
+    // Retention: turnover x (1% to 3%)
+    var retLo = turn * 0.01;
+    var retHi = turn * 0.03;
+
+    // Annual benefit: sum of monthly VO x 12 + admin_hrs x £30 x 12 + retention
+    var annualLo = (voLo * 12) + (hrsLo * 30 * 12) + retLo;
+    var annualHi = (voHi * 12) + (hrsHi * 30 * 12) + retHi;
+
+    // Plan costs
+    var planCosts = { Starter: 49, Professional: 149, Business: 349 };
+
+    // Recommended plan
+    var planName, planCost;
+    if (eng <= 2) { planName = 'Starter'; planCost = 49; }
+    else if (eng >= 10) { planName = 'Business'; planCost = 349; }
+    else { planName = 'Professional'; planCost = 149; }
+
+    // ROI multiplier
+    var roiLo = annualLo / (planCost * 12);
+    var roiHi = annualHi / (planCost * 12);
+
+    // Update outputs
+    document.getElementById('roi-o-vo-lo').textContent = roiFmt(voLo);
+    document.getElementById('roi-o-vo-hi').textContent = roiFmt(voHi);
+    document.getElementById('roi-o-hrs-lo').textContent = Math.round(hrsLo) + ' hrs';
+    document.getElementById('roi-o-hrs-hi').textContent = Math.round(hrsHi) + ' hrs';
+    document.getElementById('roi-o-ret-lo').textContent = roiFmt(retLo);
+    document.getElementById('roi-o-ret-hi').textContent = roiFmt(retHi);
+    document.getElementById('roi-o-mult-lo').textContent = Math.round(roiLo) + 'x';
+    document.getElementById('roi-o-mult-hi').textContent = Math.round(roiHi) + 'x';
+    document.getElementById('roi-o-annual-lo').textContent = roiFmt(annualLo);
+    document.getElementById('roi-o-annual-hi').textContent = roiFmt(annualHi);
+    document.getElementById('roi-o-plan').textContent = planName;
+    document.getElementById('roi-o-price').textContent = '\u00A3' + planCost + '/mo';
+  }
+
+  // Initialize calculator on load
+  roiUpdate();
+</script>
+
+<script>
+/* ── Pain-point stat bar animations ─────────────────────── */
+(function() {
+  var statsEl = document.getElementById('lp-pain-stats');
+  if (!statsEl) return;
+  var animated = false;
+
+  function animateCountUp(el) {
+    var display = el.getAttribute('data-display');
+    if (display) {
+      // Special display value like "1 in 2" or "4,032"
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      var duration = 1400;
+      var start = performance.now();
+      function tick(now) {
+        var progress = Math.min((now - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.round(eased * target);
+        if (display === '1 in 2') {
+          el.textContent = progress < 1 ? current : '1 in 2';
+        } else {
+          el.textContent = progress < 1 ? current.toLocaleString() : display;
+        }
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      return;
+    }
+    var target = parseInt(el.getAttribute('data-target'), 10);
+    var suffix = el.getAttribute('data-suffix') || '';
+    var duration = 1400;
+    var start = performance.now();
+    function tick(now) {
+      var progress = Math.min((now - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.round(eased * target);
+      el.textContent = current + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !animated) {
+        animated = true;
+        // Animate fills
+        var fills = statsEl.querySelectorAll('.lp-pain-stat-fill');
+        fills.forEach(function(fill) {
+          var w = fill.getAttribute('data-fill');
+          setTimeout(function() { fill.style.width = w + '%'; }, 100);
+        });
+        // Animate numbers
+        var nums = statsEl.querySelectorAll('.lp-pain-stat-num');
+        nums.forEach(function(num) { animateCountUp(num); });
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.2 });
+
+  observer.observe(statsEl);
+})();
+</script>
 
 </body>
 </html>

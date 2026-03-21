@@ -628,7 +628,7 @@ function openTenderDetailView(tenderId) {
       + '<strong>AI-Generated Estimate — Requires Human Verification</strong>'
       + '<div class="ai-disc-body">Quantities, dimensions, and specifications below are AI-generated estimates based on drawing analysis and industry reference data. They are not a substitute for professional quantity surveying. All values must be independently verified before use in commercial tenders. '
       + '<a href="#" onclick="event.preventDefault();showTermsOfService()" style="color:var(--orange)">Terms of Service →</a></div>'
-      + '<div class="ai-kb-version">📚 Knowledge Base v'+(meta.kbVersion||KB_VERSION)+' · '+(meta.kbVersionDate||KB_VERSION_DATE)+' · '+(meta.kbSources||KB_VERSION_SOURCES)+' sources'
+      + '<div class="ai-kb-version">Knowledge Base v'+(meta.kbVersion||KB_VERSION)+' · '+(meta.kbVersionDate||KB_VERSION_DATE)+' · '+(meta.kbSources||KB_VERSION_SOURCES)+' sources'
       + (meta.exportGateConfirmedAt ? ' · ✓ Review gate confirmed '+new Date(meta.exportGateConfirmedAt).toLocaleString('en-GB') : '')
       + '</div></div>';
 
@@ -706,7 +706,7 @@ function openTenderDetailView(tenderId) {
       // Assumptions count indicator
       var tdAsmHtml = '';
       if (li.assumptions && li.assumptions.length > 0) {
-        tdAsmHtml = '<span style="font-family:var(--mono);font-size:.48rem;padding:.1rem .3rem;border-radius:3px;background:rgba(249,115,22,.08);color:var(--orange);border:1px solid rgba(249,115,22,.15);margin-left:.25rem">📋 '+li.assumptions.length+' assumption'+(li.assumptions.length>1?'s':'')+'</span>';
+        tdAsmHtml = '<span style="font-family:var(--mono);font-size:.48rem;padding:.1rem .3rem;border-radius:3px;background:rgba(249,115,22,.08);color:var(--orange);border:1px solid rgba(249,115,22,.15);margin-left:.25rem">'+li.assumptions.length+' assumption'+(li.assumptions.length>1?'s':'')+'</span>';
       }
 
       // Historical rate dot

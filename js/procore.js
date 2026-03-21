@@ -172,7 +172,7 @@ function renderProcoreImport() {
       + ' ondragover="event.preventDefault();this.classList.add(\'drag-over\')"'
       + ' ondragleave="this.classList.remove(\'drag-over\')"'
       + ' onclick="document.getElementById(\'pci-file-input\').click()">'
-      + '<div style="font-size:2.5rem;opacity:.7">📂</div>'
+      + '<div style="opacity:.5">' + iconSvg('folderOpen', 32) + '</div>'
       + '<div class="pci-drop-title">Drop your Procore CSV export here</div>'
       + '<div class="pci-drop-sub">or click to browse · Project exports from <strong style="color:var(--off2)">Procore → Reporting → CSV</strong></div>'
       + '<div class="pci-drop-btn">SELECT CSV FILE</div>'
@@ -197,7 +197,7 @@ function renderProcoreImport() {
 
     // File info bar
     html += '<div class="pci-file-bar">'
-      + '<span style="font-size:.9rem">📄</span>'
+      + '<span>' + ICON.file + '</span>'
       + '<span class="pci-file-name">' + _pci.fileName + '</span>'
       + '<span class="pci-file-meta">' + _pci.rows.length + ' project' + (_pci.rows.length !== 1 ? 's' : '') + ' · ' + _pci.headers.length + ' columns</span>'
       + '<span class="pci-badge ' + (allReqMapped ? 'pci-badge-ok' : 'pci-badge-warn') + '">'

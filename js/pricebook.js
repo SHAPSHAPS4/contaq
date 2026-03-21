@@ -42,7 +42,7 @@ function renderPriceBook() {
     + '<div style="display:flex;align-items:center;gap:.65rem;">'
     + '<button class="pb-reset-link" onclick="pbResetDemoData()">&#8635; Reset demo</button>'
     + '<button class="pb-upload-btn" onclick="openModal(\'modal-pb-upload\')">'
-    + '<span style="font-size:1rem;">📊</span> Upload Supplier Price Book AI Enabled</button>'
+    + '<span>' + ICON.chart + '</span> Upload Supplier Price Book AI Enabled</button>'
     + '</div></div>';
 
   /* ── KPI row ── */
@@ -106,7 +106,7 @@ function renderPriceBook() {
       + '</div>';
     PB_UPLOADED_BOOKS.forEach(function(book) {
       var ext = (book.name.split('.').pop()||'').toLowerCase();
-      var icon = ext === 'pdf' ? '📄' : '📊';
+      var icon = ext === 'pdf' ? ICON.file : ICON.chart;
       html += '<div class="pb-book-item" style="margin-bottom:.4rem;">'
         + '<span class="pb-book-icon">'+icon+'</span>'
         + '<span class="pb-book-name">'+book.name+'</span>'
@@ -140,7 +140,7 @@ function pbHandleDrop(event) {
 
 function pbShowFileChosen(file) {
   var ext = (file.name.split('.').pop()||'').toLowerCase();
-  document.getElementById('pb-file-icon').textContent = ext === 'pdf' ? '📄' : '📊';
+  document.getElementById('pb-file-icon').innerHTML = ext === 'pdf' ? ICON.file : ICON.chart;
   document.getElementById('pb-file-name').textContent = file.name;
   document.getElementById('pb-file-size').textContent = (file.size/1024).toFixed(1)+' KB';
   document.getElementById('pb-file-chosen').classList.add('active');
@@ -271,7 +271,7 @@ function clHandleDrop(event) {
 
 function clShowFileChosen(file) {
   var ext = (file.name.split('.').pop()||'').toLowerCase();
-  document.getElementById('cl-file-icon').textContent = ext === 'pdf' ? '📄' : '📊';
+  document.getElementById('cl-file-icon').innerHTML = ext === 'pdf' ? ICON.file : ICON.chart;
   document.getElementById('cl-file-name').textContent = file.name;
   document.getElementById('cl-file-size').textContent = (file.size/1024).toFixed(1)+' KB';
   document.getElementById('cl-file-chosen').classList.add('active');

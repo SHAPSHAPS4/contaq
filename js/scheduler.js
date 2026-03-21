@@ -234,7 +234,7 @@ function renderDiaryWeek() {
     var isSurvey = grp.survey;
     h += '<tr class="sched-group-row'+(isSurvey?' survey-group-row':'')+'"><td colspan="8">'
       +'<div class="sched-group-label'+(isSurvey?' survey-group-label':'')+'">'+grp.label
-      +(isSurvey?' <span style="font-family:var(--mono);font-size:.55rem;color:#2dd4bf;margin-left:.4rem;">🔍 Survey Teams</span>':'')
+      +(isSurvey?' <span style="font-family:var(--mono);font-size:.55rem;color:#2dd4bf;margin-left:.4rem;">' + ICON.search + ' Survey Teams</span>':'')
       +'<span class="sched-group-badge">'+grp.engs.length+'</span></div>'
       +'</td></tr>';
 
@@ -267,7 +267,7 @@ function renderDiaryWeek() {
           h += '<div class="placeholder-block" id="ph-block-'+ph.id+'"'
             +' onclick="event.stopPropagation();openPhModal(\''+ph.date+'\',\''+ph.id+'\')"'
             +' title="'+fullName+clientTxt+' — click to edit / remove">'
-            +'<span style="font-size:.75rem;">📌</span>'
+            +'<span>' + ICON.pin + '</span>'
             +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;">'
             +  '<strong style="color:var(--orange);">'+label+'</strong>'
             +  '<span style="color:var(--off3);font-size:.58rem;margin-left:.25rem;">Unassigned</span>'
@@ -409,7 +409,7 @@ function renderDiaryMonth() {
       if (!pj) return;
       var shortName = pj.name.split('—')[0].trim();
       h += '<div class="month-mini-block" style="background:rgba(45,212,191,.12);color:#2dd4bf;border:1px solid rgba(45,212,191,.3);">'
-        +'<span style="margin-right:.2rem;">🔍</span>'
+        +'<span style="margin-right:.2rem;">' + ICON.search + '</span>'
         +'<span style="font-weight:700;margin-right:.25rem;">'+pj.code+'</span>'
         +'<span style="overflow:hidden;text-overflow:ellipsis;">'+shortName+'</span>'
         +'</div>';
@@ -419,7 +419,7 @@ function renderDiaryMonth() {
     phs.slice(0,1).forEach(function(ph){
       var pj = PROJECTS.find(function(p){return p.id===ph.projectId;});
       h += '<div class="month-mini-block" style="background:rgba(249,115,22,.1);color:var(--orange);border:1px dashed rgba(249,115,22,.35);cursor:pointer;"'
-        +' onclick="event.stopPropagation();openPhModal(\''+ph.date+'\',\''+ph.id+'\')" title="Edit booking">📌 '+(pj?pj.code:'TBC')
+        +' onclick="event.stopPropagation();openPhModal(\''+ph.date+'\',\''+ph.id+'\')" title="Edit booking">' + ICON.pin + ' '+(pj?pj.code:'TBC')
         +' <span style=\"font-size:.5rem;opacity:.7\">Unassigned</span></div>';
     });
     if (phs.length > 1) {
@@ -549,8 +549,8 @@ function openPhModal(date, editPhId) {
   var dateVal = date || '';
   document.getElementById('ph-date').value = dateVal;
   document.getElementById('ph-date-display').textContent = dateVal ? fmtDate(dateVal) : '(select from calendar)';
-  document.getElementById('ph-modal-title').textContent = editPhId ? '📌 Edit Booking' : '📌 Book Project (Unassigned)';
-  document.getElementById('ph-save-btn').textContent = editPhId ? '💾 Save changes' : '📌 Add to diary';
+  document.getElementById('ph-modal-title').textContent = editPhId ? 'Edit Booking' : 'Book Project (Unassigned)';
+  document.getElementById('ph-save-btn').textContent = editPhId ? 'Save changes' : 'Add to diary';
   document.getElementById('ph-delete-btn').style.display = editPhId ? 'inline-flex' : 'none';
   document.getElementById('ph-delete-btn').dataset.phid = editPhId || '';
 
@@ -638,7 +638,7 @@ function savePlaceholder() {
     };
     SCHED_STATE.placeholders.push(ph);
     closeModal('modal-ph-book');
-    showToast('📌 Unassigned booking added: ' + (pj ? pj.name.split('—')[0].trim() : '') + ' on ' + fmtDate(date) + ' — you\'ll be reminded 2 days before.', 'success');
+    showToast('Unassigned booking added: ' + (pj ? pj.name.split('—')[0].trim() : '') + ' on ' + fmtDate(date) + ' — you\'ll be reminded 2 days before.', 'success');
   }
   renderDiary();
 }
@@ -951,7 +951,7 @@ function renderEngineers() {
     document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Engineers</h2><p>0 engineers</p></div>'
       + '<div style="display:flex;gap:.65rem"><button class="btn btn-primary btn-sm" onclick="openEngineerModal(null)">+ Add engineer</button></div></div>'
       + '<div class="empty-state" style="padding:3.5rem 1rem">'
-      + '<div class="empty-icon" style="font-size:3.5rem;opacity:.5">👷</div>'
+      + '<div class="empty-icon" style="opacity:.3;color:var(--off3,#888)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>'
       + '<div class="empty-title" style="font-size:1.1rem;color:var(--white);margin-bottom:.5rem">Add your team</div>'
       + '<div class="empty-sub" style="max-width:380px;margin:0 auto;line-height:1.6">Add engineers and operatives to track certifications, schedule work, and stay compliant.</div>'
       + '<button class="btn btn-primary" style="margin-top:1.25rem" onclick="openEngineerModal(null)">Add First Engineer</button>'
@@ -987,7 +987,7 @@ function renderEngineers() {
     if (e.active === false) return false;
     return (e.certs||[]).some(function(c){ var d=new Date(c.expiry); return d <= _roi60d; });
   }).length;
-  html += roiBanner('engineers', '🛡',
+  html += roiBanner('engineers', ICON.shield,
     _roiExpCount + ' certification' + (_roiExpCount !== 1 ? 's' : '') + ' expire within 60 days',
     'Expired certs can invalidate site access and trigger contract penalty clauses — act now to stay compliant'
   );
@@ -998,7 +998,7 @@ function renderEngineers() {
   });
   if (engsWithIssues.length) {
     html += '<div style="background:rgba(248,113,113,.08);border:1.5px solid rgba(248,113,113,.25);border-radius:var(--radius2);padding:.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem">'
-      + '<span style="font-size:1.1rem">🚨</span>'
+      + '<span>' + ICON.alert + '</span>'
       + '<div style="flex:1"><span style="font-size:.82rem;font-weight:700;color:var(--red)">'+ engsWithIssues.length +' engineer'+(engsWithIssues.length>1?'s':'')+' have certifications expiring or expired</span>'
       + '<div style="font-size:.72rem;color:var(--off3);margin-top:.1rem">'+engsWithIssues.map(function(e){return e.name;}).join(', ')+'</div></div>'
       + '<button class="btn btn-sm" style="background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.25);flex-shrink:0" onclick="checkRenewalAlert(\''+engsWithIssues[0].id+'\')">View alert →</button>'

@@ -15,7 +15,7 @@ function renderInvoices() {
   if (INVOICES.length === 0) {
     document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Invoices</h2><p>0 invoices</p></div></div>'
       + '<div class="empty-state" style="padding:3.5rem 1rem">'
-      + '<div class="empty-icon" style="font-size:3.5rem;opacity:.5">🧾</div>'
+      + '<div class="empty-icon" style="opacity:.3;color:var(--off3,#888)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>'
       + '<div class="empty-title" style="font-size:1.1rem;color:var(--white);margin-bottom:.5rem">No invoices raised</div>'
       + '<div class="empty-sub" style="max-width:380px;margin:0 auto;line-height:1.6">Raise your first invoice directly from a project. Get paid faster with automated payment reminders.</div>'
       + '<button class="btn btn-primary" style="margin-top:1.25rem" onclick="prefillInvoice(null)">Raise an Invoice</button>'
@@ -63,7 +63,7 @@ function renderInvoices() {
       }).join('');
     }
     if (draftList.length) {
-      html += '<div class="inv-outstanding-title" style="margin-top:.8rem">📝 Draft Invoices ('+draftList.length+') — not yet sent</div>';
+      html += '<div class="inv-outstanding-title" style="margin-top:.8rem">' + ICON.edit + ' Draft Invoices ('+draftList.length+') — not yet sent</div>';
       html += draftList.map(function(inv){
         return '<div class="inv-outstanding-row draft">'
           + '<div class="inv-out-info"><div class="inv-out-ref">'+inv.ref+'</div><div class="inv-out-client">'+inv.clientName+' · '+inv.projectName+'</div></div>'

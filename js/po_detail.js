@@ -37,7 +37,7 @@ function renderClients() {
     + '<div style="display:flex;align-items:center;gap:.65rem;">'
     + '<button class="cl-reset-link" onclick="clResetDemoData()">&#8635; Reset demo</button>'
     + '<button class="cl-upload-btn" onclick="openModal(\'modal-cl-upload\')">'
-    + '<span style="font-size:1rem;">📊</span> Upload Client Records AI Enabled</button>'
+    + '<span>' + ICON.chart + '</span> Upload Client Records AI Enabled</button>'
     + '<button class="btn btn-primary btn-sm" onclick="openClientModal(null)">+ Add client</button>'
     + '</div></div>';
 

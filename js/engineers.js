@@ -248,12 +248,12 @@ function deleteSupplier() {
 function renderReports() {
   var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">';
   var reports = [
-    {icon:'📊',title:'P&L Summary',desc:'Gross profit by project and period',color:'var(--orange)'},
-    {icon:'🧾',title:'Invoice Ageing',desc:'Outstanding invoices grouped by age',color:'var(--lime)'},
-    {icon:'📋',title:'Tender Analysis',desc:'Win rate, margin and pipeline by sector',color:'var(--blue)'},
-    {icon:'📦',title:'Materials Usage',desc:'PO spend by project and supplier',color:'var(--yellow)'},
-    {icon:'👷',title:'Labour Schedule',desc:'Hours and cost by engineer and project',color:'#a855f7'},
-    {icon:'📁',title:'Client Report',desc:'Revenue and margin per client',color:'#34d399'},
+    {icon:ICON.chart,title:'P&L Summary',desc:'Gross profit by project and period',color:'var(--orange)'},
+    {icon:ICON.receipt,title:'Invoice Ageing',desc:'Outstanding invoices grouped by age',color:'var(--lime)'},
+    {icon:ICON.clipboard,title:'Tender Analysis',desc:'Win rate, margin and pipeline by sector',color:'var(--blue)'},
+    {icon:ICON.package,title:'Materials Usage',desc:'PO spend by project and supplier',color:'var(--yellow)'},
+    {icon:ICON.worker,title:'Labour Schedule',desc:'Hours and cost by engineer and project',color:'#a855f7'},
+    {icon:ICON.folder,title:'Client Report',desc:'Revenue and margin per client',color:'#34d399'},
   ];
   html += reports.map(function(r){
     return '<div class="card" style="cursor:pointer;transition:transform .15s" onmouseenter="this.style.transform=\'translateY(-3px)\'" onmouseleave="this.style.transform=\'\'" onclick="generateReport(\''+r.title+'\')">'
@@ -738,7 +738,7 @@ function saveInvoice() {
     // Update project billedToDate
     if (proj) { proj.billedToDate = (proj.billedToDate||0) + amt; proj.lastInvoiceDate = data.date; }
     // Log activity
-    ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:'💰',iconBg:'rgba(163,230,53,.15)',text:'Invoice '+data.ref+' raised for '+(client?client.name:'client')+' — £'+fmtNum(amt),time:'Just now',panel:'invoices'});
+    ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:ICON.money,iconBg:'rgba(163,230,53,.15)',text:'Invoice '+data.ref+' raised for '+(client?client.name:'client')+' — £'+fmtNum(amt),time:'Just now',panel:'invoices'});
     showToast('Invoice raised — £'+fmtNum(amt)+'.','success');
   }
   closeModal('modal-invoice');

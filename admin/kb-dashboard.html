@@ -8,39 +8,39 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--c-off-white);color:var(--c-charcoal);font-size:14px}
 .layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
-.sidebar{background:#fff;border-right:1px solid var(--c-slate);padding:0;position:relative}
-.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--c-slate);font-weight:600;font-size:15px;letter-spacing:-0.3px}
-.sidebar-logo span{color:var(--c-primary)}
-.nav-section{padding:16px 12px 8px;font-size:11px;color:var(--c-gray-muted);text-transform:uppercase;letter-spacing:.6px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;margin:2px 8px;cursor:pointer;font-size:13px;color:var(--c-gray-text);transition:background .12s}
-.nav-item:hover{background:var(--c-off-white)}
-.nav-item.active{background:#E6F1FB;color:var(--c-primary);font-weight:500}
+.sidebar{background:var(--c-primary);border-right:1px solid var(--c-primary-dark);padding:0;position:relative;color:var(--c-white)}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.1);font-weight:700;font-size:18px;letter-spacing:-0.3px;color:var(--c-white)}
+.sidebar-logo span{color:var(--c-primary-light);font-weight:400;font-size:12px}
+.nav-section{padding:16px 12px 8px;font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.75);font-weight:500;transition:all .12s;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:var(--c-white)}
+.nav-item.active{background:rgba(255,255,255,0.15);color:var(--c-white);border-left:3px solid var(--c-action);font-weight:600}
 .nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sidebar-footer{padding:20px 16px;position:absolute;bottom:0;width:220px;border-top:1px solid var(--c-slate)}
+.sidebar-footer{padding:20px 16px;position:absolute;bottom:0;width:220px;border-top:1px solid rgba(255,255,255,0.1)}
 .main{padding:28px 32px;overflow-y:auto}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .page-title{font-size:20px;font-weight:600;letter-spacing:-0.4px}
 .page-meta{font-size:12px;color:var(--c-gray-muted);margin-top:3px}
-.btn{padding:7px 16px;border-radius:8px;border:1px solid #d8d6d0;background:#fff;color:var(--c-gray-text);font-size:13px;cursor:pointer;font-weight:500;transition:background .12s}
+.btn{padding:7px 16px;border-radius:var(--radius-md);border:1px solid var(--c-slate);background:var(--c-white);color:var(--c-gray-text);font-size:13px;cursor:pointer;font-weight:500;transition:all .15s}
 .btn:hover{background:var(--c-off-white)}
 .btn-primary{background:var(--c-primary);color:#fff;border-color:var(--c-primary)}
 .btn-primary:hover{background:var(--c-primary-dark)}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
-.metric{background:#fff;border:1px solid var(--c-slate);border-radius:10px;padding:16px}
+.metric{background:var(--c-primary-subtle);border:none;border-radius:var(--radius-md);padding:16px 20px;border-left:3px solid var(--c-primary)}
 .metric-label{font-size:11px;color:var(--c-gray-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
 .metric-value{font-size:28px;font-weight:600;letter-spacing:-1px;line-height:1}
 .metric-sub{font-size:11px;color:var(--c-gray-muted);margin-top:4px}
-.card{background:#fff;border:1px solid var(--c-slate);border-radius:12px;padding:20px;margin-bottom:16px}
+.card{background:var(--c-white);border:1px solid var(--c-slate);border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow-sm);margin-bottom:16px}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .card-title{font-size:14px;font-weight:600}
-.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
-.badge-blue{background:#E6F1FB;color:var(--c-primary)}
-.badge-amber{background:#FAEEDA;color:var(--c-warning)}
-.badge-red{background:#FCEBEB;color:var(--c-danger)}
-.badge-green{background:#EAF3DE;color:var(--c-success)}
-.badge-gray{background:var(--c-off-white);color:#5F5E5A}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;text-transform:uppercase;display:inline-flex;align-items:center;gap:4px}
+.badge-blue{background:var(--c-info-bg);color:var(--c-info)}
+.badge-amber{background:var(--c-warning-bg);color:var(--c-warning)}
+.badge-red{background:var(--c-danger-bg);color:var(--c-danger)}
+.badge-green{background:var(--c-success-bg);color:var(--c-success)}
+.badge-gray{background:var(--c-slate-light);color:var(--c-gray-muted)}
 .section-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
-.chip{padding:9px 10px;border:1px solid var(--c-slate);border-radius:8px;cursor:pointer;transition:border-color .12s}
+.chip{padding:9px 10px;border:1px solid var(--c-slate);border-radius:var(--radius-md);cursor:pointer;transition:all .15s}
 .chip:hover{border-color:var(--c-primary)}
 .chip-id{font-size:11px;font-weight:600;margin-bottom:2px}
 .chip-name{font-size:10px;color:var(--c-gray-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -48,53 +48,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .status-ok{background:var(--c-success)}
 .status-err{background:var(--c-danger)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.rule-row{padding:12px 0;border-bottom:1px solid #f0ede8;display:flex;gap:12px;align-items:flex-start}
+.rule-row{padding:12px 0;border-bottom:1px solid var(--c-slate-light);display:flex;gap:12px;align-items:flex-start}
 .rule-row:last-child{border-bottom:none}
-.rule-id-badge{font-size:10px;font-weight:600;color:var(--c-primary);background:#E6F1FB;padding:2px 8px;border-radius:20px;white-space:nowrap;margin-top:1px;flex-shrink:0}
+.rule-id-badge{font-size:10px;font-weight:600;color:var(--c-info);background:var(--c-info-bg);padding:3px 10px;border-radius:20px;white-space:nowrap;margin-top:1px;flex-shrink:0}
 .rule-body{flex:1;min-width:0}
 .rule-trigger{font-size:11px;color:var(--c-gray-muted);margin-bottom:3px}
 .rule-action{font-size:13px;color:var(--c-charcoal);line-height:1.4}
 .rule-footer{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
 .rule-date{font-size:10px;color:#bbb}
-.btn-xs{font-size:11px;padding:3px 9px;border:1px solid var(--c-slate);border-radius:6px;background:#fff;cursor:pointer;color:var(--c-gray-text);transition:background .12s}
+.btn-xs{font-size:11px;padding:4px 10px;border:1px solid var(--c-slate);border-radius:var(--radius-sm);background:var(--c-white);cursor:pointer;color:var(--c-gray-text);transition:all .15s}
 .btn-xs:hover{background:var(--c-off-white)}
-.btn-xs-danger{color:var(--c-danger);border-color:#F09595}
-.btn-xs-danger:hover{background:#FCEBEB}
+.btn-xs-danger{color:var(--c-danger);border-color:var(--c-danger)}
+.btn-xs-danger:hover{background:var(--c-danger-bg)}
 .filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-.pill{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--c-slate);background:#fff;color:var(--c-gray-text);cursor:pointer;transition:all .12s}
-.pill.active{background:#E6F1FB;color:var(--c-primary);border-color:#B5D4F4}
-.search{font-size:12px;padding:5px 12px;border:1px solid var(--c-slate);border-radius:20px;outline:none;background:#fff;color:var(--c-charcoal);min-width:180px}
+.pill{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--c-slate);background:var(--c-white);color:var(--c-gray-text);cursor:pointer;transition:all .12s}
+.pill.active{background:var(--c-primary-subtle);color:var(--c-primary);border-color:var(--c-primary-light)}
+.search{font-size:12px;padding:5px 12px;border:1px solid var(--c-slate);border-radius:20px;outline:none;background:var(--c-slate-light);color:var(--c-charcoal);min-width:180px;transition:border-color .15s}
 .search:focus{border-color:var(--c-primary)}
-.form-panel{background:var(--c-off-white);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.form-panel{background:var(--c-off-white);border-radius:var(--radius-md);padding:16px;margin-top:12px;display:none}
 .form-panel.open{display:block}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.form-input{width:100%;font-size:13px;padding:8px 12px;border:1px solid #d8d6d0;border-radius:8px;background:#fff;color:var(--c-charcoal);outline:none;font-family:inherit}
+.form-input{width:100%;font-size:13px;padding:9px 14px;border:1px solid var(--c-slate);border-radius:var(--radius-md);background:var(--c-slate-light);color:var(--c-charcoal);outline:none;font-family:inherit;transition:border-color .15s}
 .form-input:focus{border-color:var(--c-primary)}
-.form-textarea{width:100%;font-size:13px;padding:8px 12px;border:1px solid #d8d6d0;border-radius:8px;background:#fff;color:var(--c-charcoal);outline:none;font-family:inherit;min-height:70px;resize:vertical}
+.form-textarea{width:100%;font-size:13px;padding:9px 14px;border:1px solid var(--c-slate);border-radius:var(--radius-md);background:var(--c-slate-light);color:var(--c-charcoal);outline:none;font-family:inherit;min-height:70px;resize:vertical;transition:border-color .15s}
 .form-textarea:focus{border-color:var(--c-primary)}
 .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-.pat-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0ede8}
+.pat-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--c-slate-light)}
 .pat-row:last-child{border-bottom:none}
 .pat-label{min-width:100px;flex-shrink:0}
 .pat-id{font-size:11px;font-weight:600}
 .pat-count{font-size:10px;color:var(--c-gray-muted)}
-.bar-wrap{flex:1;height:5px;background:#f0ede8;border-radius:3px;overflow:hidden}
+.bar-wrap{flex:1;height:5px;background:var(--c-slate-light);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;background:var(--c-warning);transition:width .3s}
 .bar-fill.critical{background:var(--c-danger)}
-.err-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0ede8}
+.err-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--c-slate-light)}
 .err-row:last-child{border-bottom:none}
 .err-label{font-size:12px;color:var(--c-gray-text);min-width:150px;text-transform:capitalize}
-.err-bar-wrap{flex:1;height:5px;background:#f0ede8;border-radius:3px;overflow:hidden}
+.err-bar-wrap{flex:1;height:5px;background:var(--c-slate-light);border-radius:3px;overflow:hidden}
 .err-bar{height:100%;border-radius:3px;background:var(--c-gray-muted);opacity:.7}
 .err-count{font-size:12px;font-weight:500;min-width:24px;text-align:right}
 .err-pct{font-size:11px;color:var(--c-gray-muted);min-width:30px;text-align:right}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;margin:16px}
+.modal{background:var(--c-white);border-radius:var(--radius-lg);padding:28px;max-width:480px;width:100%;margin:16px;border:1px solid var(--c-slate)}
 .modal h3{font-size:16px;font-weight:600;margin-bottom:8px}
 .modal p{font-size:13px;color:var(--c-gray-text);margin-bottom:16px;line-height:1.5}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--c-charcoal);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:999}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--c-charcoal);color:var(--c-white);padding:10px 18px;border-radius:var(--radius-md);font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:999}
 .toast.show{opacity:1}
 .empty{font-size:13px;color:var(--c-gray-muted);padding:20px;text-align:center}
 </style>
@@ -105,22 +105,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="layout">
 
   <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-logo">Contraq <span>KB</span> admin</div>
-    <div class="nav-section">Knowledge base</div>
-    <div class="nav-item active"><span class="nav-dot" style="background:#185FA5"></span>Dashboard</div>
-    <div class="nav-item"><span class="nav-dot" style="background:#3B6D11"></span>Section browser</div>
-    <div class="nav-item"><span class="nav-dot" style="background:#BA7517"></span>Learned rules</div>
-    <div class="nav-item"><span class="nav-dot" style="background:#E24B4A"></span>Pattern errors</div>
-    <div class="nav-section">System</div>
-    <div class="nav-item"><span class="nav-dot" style="background:#888"></span>API endpoints</div>
-    <div class="nav-item"><span class="nav-dot" style="background:#888"></span>Token budgets</div>
-    <div class="nav-item"><span class="nav-dot" style="background:#888"></span>Export / import</div>
+  <div class="sidebar sidebar-v2">
+    <div class="sidebar-logo sidebar-v2-logo">Contraq <span>KB admin</span></div>
+    <div class="nav-section nav-section-v2">Knowledge base</div>
+    <div class="nav-item nav-item-v2 active"><span class="nav-dot" style="background:var(--c-primary-light)"></span>Dashboard</div>
+    <div class="nav-item nav-item-v2"><span class="nav-dot" style="background:var(--c-success)"></span>Section browser</div>
+    <div class="nav-item nav-item-v2"><span class="nav-dot" style="background:var(--c-warning)"></span>Learned rules</div>
+    <div class="nav-item nav-item-v2"><span class="nav-dot" style="background:var(--c-danger)"></span>Pattern errors</div>
+    <div class="nav-section nav-section-v2">System</div>
+    <div class="nav-item nav-item-v2"><span class="nav-dot" style="background:rgba(255,255,255,0.4)"></span>API endpoints</div>
+    <div class="nav-item nav-item-v2"><span class="nav-dot" style="background:rgba(255,255,255,0.4)"></span>Token budgets</div>
+    <div class="nav-item nav-item-v2"><span class="nav-dot" style="background:rgba(255,255,255,0.4)"></span>Export / import</div>
     <div class="sidebar-footer">
-      <div style="font-size:11px;color:#aaa;margin-bottom:6px">KB v6.0 &nbsp;·&nbsp; <span id="sb-date"></span></div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px">KB v6.0 &nbsp;·&nbsp; <span id="sb-date"></span></div>
       <div style="display:flex;align-items:center;gap:6px">
         <span class="status-dot status-ok"></span>
-        <span style="font-size:11px;color:#3B6D11">All 22 sections loaded</span>
+        <span style="font-size:11px;color:var(--c-success)">All 22 sections loaded</span>
       </div>
     </div>
   </div>
@@ -132,35 +132,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="page-title">KB admin dashboard</div>
         <div class="page-meta">
           Last feedback session: <span id="last-session"></span>
-          &nbsp;·&nbsp; API status: <span style="color:#3B6D11;font-weight:500">live</span>
+          &nbsp;·&nbsp; API status: <span style="color:var(--c-success);font-weight:500">live</span>
         </div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn" onclick="exportKB()">Export KB-L01 + L02</button>
-        <button class="btn btn-primary" onclick="toggleAddRule()">+ Add learned rule</button>
+        <button class="btn btn-secondary" onclick="exportKB()">Export KB-L01 + L02</button>
+        <button class="btn btn-primary btn-action" onclick="toggleAddRule()">+ Add learned rule</button>
       </div>
     </div>
 
     <!-- Metrics -->
-    <div class="metrics">
-      <div class="metric">
+    <div class="metrics metrics-grid">
+      <div class="metric card-metric">
         <div class="metric-label">Learned rules</div>
-        <div class="metric-value" id="m-rules" style="color:#185FA5">7</div>
+        <div class="metric-value metric-number" id="m-rules" style="color:var(--c-primary)">7</div>
         <div class="metric-sub">KB-L01 active</div>
       </div>
-      <div class="metric">
+      <div class="metric card-metric">
         <div class="metric-label">Pattern errors</div>
-        <div class="metric-value" id="m-patterns" style="color:#BA7517">3</div>
+        <div class="metric-value metric-number" id="m-patterns" style="color:var(--c-warning)">3</div>
         <div class="metric-sub">KB-L02 registered</div>
       </div>
-      <div class="metric">
+      <div class="metric card-metric">
         <div class="metric-label">Sections loaded</div>
-        <div class="metric-value" id="m-sections" style="color:#3B6D11">22</div>
+        <div class="metric-value metric-number" id="m-sections" style="color:var(--c-success)">22</div>
         <div class="metric-sub">of 22 total</div>
       </div>
-      <div class="metric">
+      <div class="metric card-metric">
         <div class="metric-label">Feedback sessions</div>
-        <div class="metric-value" id="m-sessions" style="color:#534AB7">14</div>
+        <div class="metric-value metric-number" id="m-sessions" style="color:var(--c-info)">14</div>
         <div class="metric-sub">total processed</div>
       </div>
     </div>
@@ -169,7 +169,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="card">
       <div class="card-header">
         <span class="card-title">KB sections status</span>
-        <span class="badge badge-green" id="sections-badge">22 / 22 loaded</span>
+        <span class="badge badge-v2 badge-green" id="sections-badge">22 / 22 loaded</span>
       </div>
       <div class="section-grid" id="section-grid"></div>
     </div>
@@ -177,8 +177,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- Learned Rules -->
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Learned rules &nbsp;<span class="badge badge-blue" id="rule-badge">7</span></span>
-        <input class="search" type="text" placeholder="Search rules..." oninput="filterRules(this.value)">
+        <span class="card-title">Learned rules &nbsp;<span class="badge badge-v2 badge-blue" id="rule-badge">7</span></span>
+        <input class="search input-v2" type="text" placeholder="Search rules..." oninput="filterRules(this.value)">
       </div>
       <div class="filter-bar">
         <button class="pill active" onclick="setFilter('all',this)">All</button>
@@ -191,18 +191,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="rules-list"></div>
       <div class="form-panel" id="add-form">
         <div class="form-grid">
-          <input class="form-input" id="f-trigger" type="text" placeholder="Trigger condition">
-          <input class="form-input" id="f-type" type="text" placeholder="Error type (e.g. SPECIFICATION_ERROR)">
+          <input class="form-input input-v2" id="f-trigger" type="text" placeholder="Trigger condition">
+          <input class="form-input input-v2" id="f-type" type="text" placeholder="Error type (e.g. SPECIFICATION_ERROR)">
         </div>
         <div style="margin-bottom:10px">
-          <textarea class="form-textarea" id="f-action" style="width:100%" placeholder="Action — what the AI must do differently..."></textarea>
+          <textarea class="form-textarea input-v2 textarea-v2" id="f-action" style="width:100%" placeholder="Action — what the AI must do differently..."></textarea>
         </div>
         <div style="margin-bottom:10px">
-          <input class="form-input" id="f-reason" type="text" style="width:100%" placeholder="Reason — why this matters for accuracy">
+          <input class="form-input input-v2" id="f-reason" type="text" style="width:100%" placeholder="Reason — why this matters for accuracy">
         </div>
         <div class="form-actions">
-          <button class="btn" onclick="toggleAddRule()">Cancel</button>
-          <button class="btn btn-primary" onclick="saveRule()">Save rule</button>
+          <button class="btn btn-ghost" onclick="toggleAddRule()">Cancel</button>
+          <button class="btn btn-primary btn-action" onclick="saveRule()">Save rule</button>
         </div>
       </div>
     </div>
@@ -212,14 +212,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="card" style="margin-bottom:0">
         <div class="card-header">
           <span class="card-title">Pattern error registry</span>
-          <span class="badge badge-amber" id="pat-badge">3 active</span>
+          <span class="badge badge-v2 badge-amber" id="pat-badge">3 active</span>
         </div>
         <div id="pattern-list"></div>
       </div>
       <div class="card" style="margin-bottom:0">
         <div class="card-header">
           <span class="card-title">Error breakdown</span>
-          <span class="badge badge-gray">14 sessions</span>
+          <span class="badge badge-v2 badge-gray">14 sessions</span>
         </div>
         <div id="error-breakdown"></div>
       </div>
@@ -235,8 +235,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <p>This rule will be flagged for promotion to a permanent KB section. Add any notes for the KB editor below — these will appear in the next KB build review.</p>
     <textarea class="form-textarea" id="promote-notes" style="width:100%;min-height:100px" placeholder="Optional notes for the KB editor..."></textarea>
     <div class="modal-actions">
-      <button class="btn" onclick="closePromote()">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmPromote()">Confirm promotion</button>
+      <button class="btn btn-ghost" onclick="closePromote()">Cancel</button>
+      <button class="btn btn-primary btn-action" onclick="confirmPromote()">Confirm promotion</button>
     </div>
   </div>
 </div>
@@ -247,28 +247,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 // ── Data ──────────────────────────────────────────────────────────────
 
 const KB_SECTIONS = [
-  {id:'KB-C01',name:'Drawing standards',g:'Core',c:'#185FA5',ok:true},
-  {id:'KB-C02',name:'Estimating principles',g:'Core',c:'#185FA5',ok:true},
-  {id:'KB-C03',name:'UK standards',g:'Core',c:'#185FA5',ok:true},
-  {id:'KB-C04',name:'Document hierarchy',g:'Core',c:'#185FA5',ok:true},
-  {id:'KB-M01',name:'Pipe materials',g:'Mechanical',c:'#0F6E56',ok:true},
-  {id:'KB-M02',name:'Fittings & valves',g:'Mechanical',c:'#0F6E56',ok:true},
-  {id:'KB-M03',name:'HVAC & ductwork',g:'Mechanical',c:'#0F6E56',ok:true},
-  {id:'KB-M04',name:'Plant & equipment',g:'Mechanical',c:'#0F6E56',ok:true},
-  {id:'KB-M05',name:'Systems & services',g:'Mechanical',c:'#0F6E56',ok:true},
-  {id:'KB-E01',name:'Cable types',g:'Electrical',c:'#BA7517',ok:true},
-  {id:'KB-E02',name:'Cable containment',g:'Electrical',c:'#BA7517',ok:true},
-  {id:'KB-E03',name:'Distribution',g:'Electrical',c:'#BA7517',ok:true},
-  {id:'KB-E04',name:'Lighting & power',g:'Electrical',c:'#BA7517',ok:true},
-  {id:'KB-E05',name:'Specialist systems',g:'Electrical',c:'#BA7517',ok:true},
-  {id:'KB-I01',name:'Pipe insulation',g:'Insulation',c:'#534AB7',ok:true},
-  {id:'KB-I02',name:'Duct insulation',g:'Insulation',c:'#534AB7',ok:true},
-  {id:'KB-I03',name:'Equipment insulation',g:'Insulation',c:'#534AB7',ok:true},
-  {id:'KB-I04',name:'Fire & specialist',g:'Insulation',c:'#534AB7',ok:true},
-  {id:'KB-X01',name:'Extraction logic',g:'Rules',c:'#993C1D',ok:true},
-  {id:'KB-X02',name:'Confidence scoring',g:'Rules',c:'#993C1D',ok:true},
-  {id:'KB-X03',name:'Conflict resolution',g:'Rules',c:'#993C1D',ok:true},
-  {id:'KB-X04',name:'Hallucination prevention',g:'Rules',c:'#993C1D',ok:true},
+  {id:'KB-C01',name:'Drawing standards',g:'Core',c:'var(--c-primary)',ok:true},
+  {id:'KB-C02',name:'Estimating principles',g:'Core',c:'var(--c-primary)',ok:true},
+  {id:'KB-C03',name:'UK standards',g:'Core',c:'var(--c-primary)',ok:true},
+  {id:'KB-C04',name:'Document hierarchy',g:'Core',c:'var(--c-primary)',ok:true},
+  {id:'KB-M01',name:'Pipe materials',g:'Mechanical',c:'var(--c-success)',ok:true},
+  {id:'KB-M02',name:'Fittings & valves',g:'Mechanical',c:'var(--c-success)',ok:true},
+  {id:'KB-M03',name:'HVAC & ductwork',g:'Mechanical',c:'var(--c-success)',ok:true},
+  {id:'KB-M04',name:'Plant & equipment',g:'Mechanical',c:'var(--c-success)',ok:true},
+  {id:'KB-M05',name:'Systems & services',g:'Mechanical',c:'var(--c-success)',ok:true},
+  {id:'KB-E01',name:'Cable types',g:'Electrical',c:'var(--c-warning)',ok:true},
+  {id:'KB-E02',name:'Cable containment',g:'Electrical',c:'var(--c-warning)',ok:true},
+  {id:'KB-E03',name:'Distribution',g:'Electrical',c:'var(--c-warning)',ok:true},
+  {id:'KB-E04',name:'Lighting & power',g:'Electrical',c:'var(--c-warning)',ok:true},
+  {id:'KB-E05',name:'Specialist systems',g:'Electrical',c:'var(--c-warning)',ok:true},
+  {id:'KB-I01',name:'Pipe insulation',g:'Insulation',c:'var(--c-action)',ok:true},
+  {id:'KB-I02',name:'Duct insulation',g:'Insulation',c:'var(--c-action)',ok:true},
+  {id:'KB-I03',name:'Equipment insulation',g:'Insulation',c:'var(--c-action)',ok:true},
+  {id:'KB-I04',name:'Fire & specialist',g:'Insulation',c:'var(--c-action)',ok:true},
+  {id:'KB-X01',name:'Extraction logic',g:'Rules',c:'var(--c-danger)',ok:true},
+  {id:'KB-X02',name:'Confidence scoring',g:'Rules',c:'var(--c-danger)',ok:true},
+  {id:'KB-X03',name:'Conflict resolution',g:'Rules',c:'var(--c-danger)',ok:true},
+  {id:'KB-X04',name:'Hallucination prevention',g:'Rules',c:'var(--c-danger)',ok:true},
 ];
 
 // Replace with fetch('http://localhost:3001/api/kb/rules') in production

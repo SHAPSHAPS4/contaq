@@ -35,8 +35,8 @@ function initFoundingMember() {
   /* Badge urgency copy based on spots remaining */
   var badge = document.getElementById('fm-badge-live');
   if (badge) {
-    if (left <= 3)       badge.textContent = '🔴 Almost full — ' + left + ' spot' + (left !== 1 ? 's' : '') + ' left';
-    else if (left <= 7)  badge.textContent = '🟠 Filling fast — ' + left + ' spots left';
+    if (left <= 3)       badge.textContent = 'Almost full — ' + left + ' spot' + (left !== 1 ? 's' : '') + ' left';
+    else if (left <= 7)  badge.textContent = 'Filling fast — ' + left + ' spots left';
     else                 badge.textContent = 'Live · Spots filling now';
   }
 

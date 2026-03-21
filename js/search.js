@@ -13,35 +13,35 @@ function globalSearch(q) {
 
   PROJECTS.forEach(function(p){
     if ((p.name+p.code+p.clientName).toLowerCase().includes(q))
-      results.push({icon:'🏗️',text:p.name,meta:p.code+' · '+p.clientName,panel:'projects',action:"openProjectDetail('"+p.id+"')"});
+      results.push({icon:ICON.building,text:p.name,meta:p.code+' · '+p.clientName,panel:'projects',action:"openProjectDetail('"+p.id+"')"});
   });
   INVOICES.forEach(function(i){
     if ((i.ref+i.clientName+i.projectName).toLowerCase().includes(q))
-      results.push({icon:'🧾',text:i.ref+' — £'+fmtNum(i.amount),meta:i.clientName+' · '+i.status,panel:'invoices',action:"openInvoiceModal('"+i.id+"')"});
+      results.push({icon:ICON.receipt,text:i.ref+' — £'+fmtNum(i.amount),meta:i.clientName+' · '+i.status,panel:'invoices',action:"openInvoiceModal('"+i.id+"')"});
   });
   TENDERS.forEach(function(t){
     if ((t.name+t.ref+t.clientName).toLowerCase().includes(q))
-      results.push({icon:'📋',text:t.name,meta:t.ref+' · '+t.clientName,panel:'tenders',action:"openTenderModal('"+t.id+"')"});
+      results.push({icon:ICON.clipboard,text:t.name,meta:t.ref+' · '+t.clientName,panel:'tenders',action:"openTenderModal('"+t.id+"')"});
   });
   CLIENTS.forEach(function(c){
     if ((c.name+c.sector+c.contact).toLowerCase().includes(q))
-      results.push({icon:'👥',text:c.name,meta:c.sector+' · '+c.contact,panel:'clients',action:"openClientDetail('"+c.id+"')"});
+      results.push({icon:ICON.users,text:c.name,meta:c.sector+' · '+c.contact,panel:'clients',action:"openClientDetail('"+c.id+"')"});
   });
   SITE_MEASURES.forEach(function(m){
     if ((m.name+m.projectName).toLowerCase().includes(q))
-      results.push({icon:'📐',text:m.name,meta:m.projectName+' · '+m.rev,panel:'measures',action:"openMeasureModal('"+m.id+"')"});
+      results.push({icon:ICON.ruler,text:m.name,meta:m.projectName+' · '+m.rev,panel:'measures',action:"openMeasureModal('"+m.id+"')"});
   });
   ENGINEERS.forEach(function(e){
     if ((e.name+e.trade).toLowerCase().includes(q))
-      results.push({icon:'👷',text:e.name,meta:e.trade+' · '+e.type,panel:'engineers',action:"openEngineerModal('"+e.id+"')"});
+      results.push({icon:ICON.worker,text:e.name,meta:e.trade+' · '+e.type,panel:'engineers',action:"openEngineerModal('"+e.id+"')"});
   });
   SUPPLIERS.forEach(function(s){
     if ((s.name+s.category).toLowerCase().includes(q))
-      results.push({icon:'🏭',text:s.name,meta:s.category,panel:'suppliers',action:"openSupplierModal('"+s.id+"')"});
+      results.push({icon:ICON.factory,text:s.name,meta:s.category,panel:'suppliers',action:"openSupplierModal('"+s.id+"')"});
   });
   PO_REGISTER.forEach(function(po){
     if ((po.id+po.supplier+po.desc).toLowerCase().includes(q))
-      results.push({icon:'📦',text:po.id+' — '+po.supplier,meta:po.desc,panel:'procurement',action:"openPOModal('"+po.id+"')"});
+      results.push({icon:ICON.package,text:po.id+' — '+po.supplier,meta:po.desc,panel:'procurement',action:"openPOModal('"+po.id+"')"});
   });
 
   if (!results.length) {
@@ -81,6 +81,7 @@ function buildNotifPanel() {
   var panel = document.getElementById('notif-panel');
   var dot   = document.getElementById('notif-dot');
   if (!panel) return;
+  if (typeof NOTIFICATIONS === 'undefined' || !NOTIFICATIONS) return;
   var unread = NOTIFICATIONS.filter(function(n){return n.unread;}).length;
   if (dot) dot.style.display = unread ? 'block' : 'none';
 

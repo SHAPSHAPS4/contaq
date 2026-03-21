@@ -14,11 +14,11 @@
     --amber: var(--c-warning);
     --red: var(--c-danger);
     --border: var(--c-slate);
-    --bg: #ffffff;
-    --bg-muted: #f7f6f3;
+    --bg: var(--c-white);
+    --bg-muted: var(--c-off-white);
     --mechanical: var(--c-success);
     --electrical: var(--c-warning);
-    --insulation: var(--c-primary);
+    --insulation: var(--c-action);
   }
 
   body {
@@ -78,12 +78,12 @@
   }
   .btn:hover { background: var(--bg-muted); }
   .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-  .btn-primary:hover { background: #14508c; }
+  .btn-primary:hover { background: var(--c-primary-dark); }
   .btn-green { background: var(--green); color: #fff; border-color: var(--green); }
-  .btn-green:hover { background: #2e5a0d; }
+  .btn-green:hover { background: var(--c-success); filter: brightness(0.85); }
   .btn-sm { padding: 4px 10px; font-size: 12px; }
   .btn-amber { background: var(--amber); color: #fff; border-color: var(--amber); }
-  .btn-amber:hover { background: #9e6413; }
+  .btn-amber:hover { background: var(--c-warning); filter: brightness(0.85); }
   .btn-red { background: var(--red); color: #fff; border-color: var(--red); }
 
   .spacer { flex: 1; }
@@ -202,7 +202,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--c-white);
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
@@ -270,21 +270,23 @@
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
-  tbody tr:hover { background: #fafaf8; }
-  tbody tr.editing { background: #eef4fb; }
+  tbody tr:hover { background: var(--c-primary-subtle); }
+  tbody tr.editing { background: var(--c-primary-subtle); }
 
   .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.2px;
   }
-  .badge-priced { background: #e8f5e1; color: var(--green); }
-  .badge-unpriced { background: #fef3e0; color: var(--amber); }
-  .badge-override { background: #e1ecf7; color: var(--primary); }
+  .badge-priced { background: var(--c-success-bg); color: var(--c-success); }
+  .badge-unpriced { background: var(--c-warning-bg); color: var(--c-warning); }
+  .badge-override { background: var(--c-primary-subtle); color: var(--c-primary); }
 
   .actions-cell { display: flex; gap: 4px; }
 
@@ -328,10 +330,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--bg);
-    border-top: 2px solid var(--border);
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    background: var(--c-primary);
+    border-top: 2px solid var(--c-primary-dark);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.12);
     z-index: 100;
+    color: var(--c-white);
   }
   .totals-footer-inner {
     max-width: 1440px;
@@ -344,7 +347,7 @@
   .footer-cell {
     text-align: center;
     padding: 4px 8px;
-    border-right: 1px solid var(--border);
+    border-right: 1px solid rgba(255,255,255,0.15);
   }
   .footer-cell:last-child { border-right: none; }
   .footer-cell .footer-label {
@@ -352,14 +355,15 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: var(--c-gray-muted);
+    color: rgba(255,255,255,0.7);
   }
   .footer-cell .footer-value {
     font-size: 18px;
     font-weight: 700;
+    color: var(--c-white);
   }
   .footer-grand .footer-value {
-    color: var(--primary);
+    color: var(--c-white);
     font-size: 22px;
   }
 
@@ -378,11 +382,11 @@
   <!-- ═══ HEADER ROW ═══ -->
   <div class="header-row">
     <div class="project-ref">Project ABC-123</div>
-    <input type="text" id="quoteRef" placeholder="QT-YYYYMMDD-001">
+    <input type="text" id="quoteRef" class="input-v2" placeholder="QT-YYYYMMDD-001">
     <div class="spacer"></div>
-    <button class="btn" onclick="recalculate()">Recalculate</button>
-    <button class="btn btn-primary" onclick="saveQuote()">Save Quote</button>
-    <button class="btn" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-ghost" onclick="recalculate()">Recalculate</button>
+    <button class="btn btn-primary btn-action" onclick="saveQuote()">Save Quote</button>
+    <button class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
   </div>
 
   <!-- ═══ OVERHEAD CONTROLS ═══ -->
@@ -423,22 +427,22 @@
   </div>
 
   <!-- ═══ SUMMARY CARDS ═══ -->
-  <div class="summary-cards">
-    <div class="summary-card card-grand">
-      <div class="card-label">Grand Total</div>
-      <div class="card-value" id="card-grand">&pound;0.00</div>
+  <div class="summary-cards metrics-grid">
+    <div class="summary-card card-metric card-grand">
+      <div class="card-label metric-label">Grand Total</div>
+      <div class="card-value metric-number" id="card-grand">&pound;0.00</div>
     </div>
-    <div class="summary-card">
-      <div class="card-label">Material Total</div>
-      <div class="card-value" id="card-material">&pound;0.00</div>
+    <div class="summary-card card-metric">
+      <div class="card-label metric-label">Material Total</div>
+      <div class="card-value metric-number" id="card-material">&pound;0.00</div>
     </div>
-    <div class="summary-card">
-      <div class="card-label">Labour Total</div>
-      <div class="card-value" id="card-labour">&pound;0.00</div>
+    <div class="summary-card card-metric">
+      <div class="card-label metric-label">Labour Total</div>
+      <div class="card-value metric-number" id="card-labour">&pound;0.00</div>
     </div>
-    <div class="summary-card" id="card-unpriced-wrap">
-      <div class="card-label">Unpriced Items</div>
-      <div class="card-value" id="card-unpriced">0</div>
+    <div class="summary-card card-metric" id="card-unpriced-wrap">
+      <div class="card-label metric-label">Unpriced Items</div>
+      <div class="card-value metric-number" id="card-unpriced">0</div>
     </div>
   </div>
 
@@ -472,7 +476,7 @@
 
   <!-- ═══ PRICED ITEMS TABLE ═══ -->
   <div class="table-wrap">
-    <table>
+    <table class="table-v2">
       <thead>
         <tr>
           <th>Trade</th>

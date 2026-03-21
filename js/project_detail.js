@@ -23,11 +23,11 @@ function poCatPill(code) {
    SITE MEASURES (v7)
 ══════════════════════════════════════════════════════════════ */
 var MEASURE_TYPE_MAP = {
-  pdf:{icon:'📄',label:'PDF',cls:'mc-type-pdf',emoji:'📄'},
-  dwg:{icon:'📐',label:'DWG',cls:'mc-type-dwg',emoji:'📐'},
-  xls:{icon:'📊',label:'XLS',cls:'mc-type-xls',emoji:'📊'},
-  img:{icon:'🖼️',label:'IMG',cls:'mc-type-img',emoji:'🖼️'},
-  doc:{icon:'📝',label:'DOC',cls:'mc-type-doc',emoji:'📝'},
+  pdf:{icon:ICON.file,label:'PDF',cls:'mc-type-pdf',emoji:ICON.file},
+  dwg:{icon:ICON.ruler,label:'DWG',cls:'mc-type-dwg',emoji:ICON.ruler},
+  xls:{icon:ICON.chart,label:'XLS',cls:'mc-type-xls',emoji:ICON.chart},
+  img:{icon:ICON.image,label:'IMG',cls:'mc-type-img',emoji:ICON.image},
+  doc:{icon:ICON.edit,label:'DOC',cls:'mc-type-doc',emoji:ICON.edit},
 };
 
 function fmtFileSize(kb) {
@@ -192,7 +192,7 @@ function saveMeasure() {
     showToast('Measure updated.','success');
   } else {
     data.id='ms'+Date.now(); SITE_MEASURES.push(data);
-    ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:'📐',iconBg:'rgba(249,115,22,.15)',text:'Site measure uploaded: '+name+(proj?' — '+proj.code:''),time:'Just now',panel:'measures'});
+    ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:ICON.ruler,iconBg:'rgba(249,115,22,.15)',text:'Site measure uploaded: '+name+(proj?' — '+proj.code:''),time:'Just now',panel:'measures'});
     showToast('Measure saved — '+name,'success');
   }
   closeModal('modal-measure');

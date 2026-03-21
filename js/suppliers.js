@@ -273,7 +273,7 @@ function quickWonToProject(tenderId) {
   var idx = TENDERS.findIndex(function(x){return x.id===tenderId;});
   if (idx>=0) TENDERS[idx].linkedProjectId = newProj.id;
   // Add to activity log
-  ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:'🏗️',iconBg:'rgba(249,115,22,.15)',text:'Project '+nextCode+' created from quote '+t.ref,time:'Just now',panel:'projects'});
+  ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:ICON.building,iconBg:'rgba(249,115,22,.15)',text:'Project '+nextCode+' created from quote '+t.ref,time:'Just now',panel:'projects'});
   showToast('✓ Project '+nextCode+' created — navigating to Projects tab.','success');
   // Navigate to Projects tab and open detail
   dashNav('projects');

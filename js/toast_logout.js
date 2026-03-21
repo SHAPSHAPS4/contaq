@@ -19,7 +19,6 @@ function showToast(msg, type) {
 ══════════════════════════════════════════════════════════════ */
 function doLogout() {
   STATE.loggedIn=false; STATE.user=null;
-  nav('home');
-  showToast('Signed out.','success');
+  window.location.href = 'landing.html';
 }
 

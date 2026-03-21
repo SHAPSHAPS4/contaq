@@ -36,36 +36,36 @@ function resetDemo() {
   STATE.viewClientId=null; STATE.viewProjectId=null; STATE.editMeasureId=null; STATE.measuresView='grid';
   // Restore site measures
   SITE_MEASURES.length=0;
-  [{id:'ms1',name:'CW-B2 Pipe Survey — Rev 3',type:'pdf',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-28',rev:'Rev 3',sizekb:2840,notes:'Full B2 plant room pipe survey.',icon:'📄'},
-   {id:'ms2',name:'CW-B2 Isometric Drawing',type:'dwg',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e1',engineerName:'Dave Harris',date:'2026-02-20',rev:'Rev 1',sizekb:1240,notes:'Issued by Aecom.',icon:'📐'},
-   {id:'ms3',name:'Wembley Ductwork Takeoff v2',type:'xls',project:'p2',projectName:'Wembley Stadium — Ductwork Lagging',engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-18',rev:'Rev 2',sizekb:488,notes:'Quantities approved for procurement.',icon:'📊'},
-   {id:'ms4',name:'Euston HVAC Lagging Spec',type:'doc',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-10',rev:'Rev 1',sizekb:1120,notes:'Morgan Sindall spec.',icon:'📝'},
-   {id:'ms5',name:'Euston Platform — Site Photos',type:'img',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e3',engineerName:'Tom Bailey',date:'2026-03-04',rev:'N/A',sizekb:8400,notes:'Pre-start condition survey. 42 photos.',icon:'🖼️'},
-   {id:'ms6',name:"Tottenham Hale Ductwork Survey",type:'pdf',project:'p5',projectName:"Tottenham Hale — Ductwork & Lagging",engineer:'e1',engineerName:'Dave Harris',date:'2026-03-01',rev:'Rev 1',sizekb:1960,notes:'Zones A–D surveyed.',icon:'📄'},
-   {id:'ms7',name:"Guy's Hospital — Final Measure",type:'xls',project:'p6',projectName:"Guy's Hospital — Services Refurb",engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-20',rev:'Rev 4',sizekb:632,notes:'Final agreed quantities.',icon:'📊'},
-   {id:'ms8',name:'Canary Wharf — Drawings Pkg',type:'dwg',project:'p4',projectName:'Canary Wharf — Fire Stopping Works',engineer:'e4',engineerName:'Chris Webb',date:'2026-03-05',rev:'Rev 1',sizekb:3200,notes:'Mace Group drawings. 14 sheets.',icon:'📐'},
-   {id:'ms9',name:'Battersea Trace Heating Layout',type:'pdf',project:'p7',projectName:'Battersea Regen — Trace Heating',engineer:'e2',engineerName:'Mark Pearce',date:'2026-03-06',rev:'Rev 1',sizekb:780,notes:'ISG trace heating route drawing.',icon:'📄'},
+  [{id:'ms1',name:'CW-B2 Pipe Survey — Rev 3',type:'pdf',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-28',rev:'Rev 3',sizekb:2840,notes:'Full B2 plant room pipe survey.',icon:ICON.file},
+   {id:'ms2',name:'CW-B2 Isometric Drawing',type:'dwg',project:'p1',projectName:'Canary Wharf — Pipe Insulation Ph.2',engineer:'e1',engineerName:'Dave Harris',date:'2026-02-20',rev:'Rev 1',sizekb:1240,notes:'Issued by Aecom.',icon:ICON.ruler},
+   {id:'ms3',name:'Wembley Ductwork Takeoff v2',type:'xls',project:'p2',projectName:'Wembley Stadium — Ductwork Lagging',engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-18',rev:'Rev 2',sizekb:488,notes:'Quantities approved for procurement.',icon:ICON.chart},
+   {id:'ms4',name:'Euston HVAC Lagging Spec',type:'doc',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e2',engineerName:'Mark Pearce',date:'2026-02-10',rev:'Rev 1',sizekb:1120,notes:'Morgan Sindall spec.',icon:ICON.edit},
+   {id:'ms5',name:'Euston Platform — Site Photos',type:'img',project:'p3',projectName:'Euston Station — HVAC Insulation',engineer:'e3',engineerName:'Tom Bailey',date:'2026-03-04',rev:'N/A',sizekb:8400,notes:'Pre-start condition survey. 42 photos.',icon:ICON.image},
+   {id:'ms6',name:"Tottenham Hale Ductwork Survey",type:'pdf',project:'p5',projectName:"Tottenham Hale — Ductwork & Lagging",engineer:'e1',engineerName:'Dave Harris',date:'2026-03-01',rev:'Rev 1',sizekb:1960,notes:'Zones A–D surveyed.',icon:ICON.file},
+   {id:'ms7',name:"Guy's Hospital — Final Measure",type:'xls',project:'p6',projectName:"Guy's Hospital — Services Refurb",engineer:'e2',engineerName:'Mark Pearce',date:'2026-01-20',rev:'Rev 4',sizekb:632,notes:'Final agreed quantities.',icon:ICON.chart},
+   {id:'ms8',name:'Canary Wharf — Drawings Pkg',type:'dwg',project:'p4',projectName:'Canary Wharf — Fire Stopping Works',engineer:'e4',engineerName:'Chris Webb',date:'2026-03-05',rev:'Rev 1',sizekb:3200,notes:'Mace Group drawings. 14 sheets.',icon:ICON.ruler},
+   {id:'ms9',name:'Battersea Trace Heating Layout',type:'pdf',project:'p7',projectName:'Battersea Regen — Trace Heating',engineer:'e2',engineerName:'Mark Pearce',date:'2026-03-06',rev:'Rev 1',sizekb:780,notes:'ISG trace heating route drawing.',icon:ICON.file},
   ].forEach(function(m){SITE_MEASURES.push(m);});
   // Restore activity log
   ACTIVITY_LOG.length=0;
-  [{id:'al1',icon:'💰',iconBg:'rgba(163,230,53,.15)',text:'Invoice INV-2026-0005 sent to Skanska UK — £38,900',time:'Today, 09:14',panel:'invoices'},
-   {id:'al2',icon:'🏗️',iconBg:'rgba(249,115,22,.15)',text:'Project PRJ-045 created from quote QTE-2026-010',time:'Today, 08:32',panel:'projects'},
-   {id:'al3',icon:'📋',iconBg:'rgba(96,165,250,.15)',text:'Quote QTE-2026-012 submitted to Balfour Beatty — £265,000',time:'Yesterday, 16:55',panel:'tenders'},
-   {id:'al4',icon:'📦',iconBg:'rgba(251,191,36,.15)',text:'PO-INS-002 (Armacell UK) marked as ordered',time:'Yesterday, 14:20',panel:'procurement'},
-   {id:'al5',icon:'⚠️',iconBg:'rgba(248,113,113,.15)',text:'Cert alert: Dave Harris — CSCS Card expires in 2 days',time:'Yesterday, 08:00',panel:'engineers'},
-   {id:'al6',icon:'📐',iconBg:'rgba(249,115,22,.15)',text:"Site measure uploaded: Tottenham Hale Ductwork Survey",time:'5 Mar, 11:30',panel:'measures'},
-   {id:'al7',icon:'🧾',iconBg:'rgba(248,113,113,.15)',text:'Invoice INV-2026-0006 overdue — Vinci Construction £29,200',time:'4 Mar, 09:00',panel:'invoices'},
-   {id:'al8',icon:'👷',iconBg:'rgba(163,230,53,.15)',text:'Dave Harris & Ryan Walsh assigned to Canary Wharf site visit',time:'3 Mar, 14:15',panel:'diary'},
+  [{id:'al1',icon:ICON.money,iconBg:'rgba(163,230,53,.15)',text:'Invoice INV-2026-0005 sent to Skanska UK — £38,900',time:'Today, 09:14',panel:'invoices'},
+   {id:'al2',icon:ICON.building,iconBg:'rgba(249,115,22,.15)',text:'Project PRJ-045 created from quote QTE-2026-010',time:'Today, 08:32',panel:'projects'},
+   {id:'al3',icon:ICON.clipboard,iconBg:'rgba(96,165,250,.15)',text:'Quote QTE-2026-012 submitted to Balfour Beatty — £265,000',time:'Yesterday, 16:55',panel:'tenders'},
+   {id:'al4',icon:ICON.package,iconBg:'rgba(251,191,36,.15)',text:'PO-INS-002 (Armacell UK) marked as ordered',time:'Yesterday, 14:20',panel:'procurement'},
+   {id:'al5',icon:ICON.alert,iconBg:'rgba(248,113,113,.15)',text:'Cert alert: Dave Harris — CSCS Card expires in 2 days',time:'Yesterday, 08:00',panel:'engineers'},
+   {id:'al6',icon:ICON.ruler,iconBg:'rgba(249,115,22,.15)',text:"Site measure uploaded: Tottenham Hale Ductwork Survey",time:'5 Mar, 11:30',panel:'measures'},
+   {id:'al7',icon:ICON.receipt,iconBg:'rgba(248,113,113,.15)',text:'Invoice INV-2026-0006 overdue — Vinci Construction £29,200',time:'4 Mar, 09:00',panel:'invoices'},
+   {id:'al8',icon:ICON.worker,iconBg:'rgba(163,230,53,.15)',text:'Dave Harris & Ryan Walsh assigned to Canary Wharf site visit',time:'3 Mar, 14:15',panel:'diary'},
   ].forEach(function(a){ACTIVITY_LOG.push(a);});
   // Restore notifications
   NOTIFICATIONS.length=0;
-  [{id:'n1',icon:'⚠️',text:'CSCS Card for Dave Harris expires in 2 days',time:'Today',unread:true,panel:'engineers'},
-   {id:'n2',icon:'🧾',text:'INV-2026-0006 overdue — Vinci Construction £29,200',time:'Today',unread:true,panel:'invoices'},
-   {id:'n3',icon:'🧾',text:'INV-2026-0007 overdue — Balfour Beatty £44,200',time:'Today',unread:true,panel:'invoices'},
-   {id:'n4',icon:'📅',text:'Site visit at Canary Wharf starts tomorrow 07:30',time:'Today',unread:true,panel:'diary'},
-   {id:'n5',icon:'📋',text:'QTE-2026-005 — submission due 28 Mar',time:'Yesterday',unread:false,panel:'tenders'},
-   {id:'n6',icon:'📦',text:'PO-INS-002 expected delivery today (Armacell UK)',time:'5 Mar',unread:false,panel:'procurement'},
-   {id:'n7',icon:'💰',text:'Invoice INV-2026-0003 overdue — Morgan Sindall £64,800',time:'22 Feb',unread:false,panel:'invoices'},
+  [{id:'n1',icon:ICON.alert,text:'CSCS Card for Dave Harris expires in 2 days',time:'Today',unread:true,panel:'engineers'},
+   {id:'n2',icon:ICON.receipt,text:'INV-2026-0006 overdue — Vinci Construction £29,200',time:'Today',unread:true,panel:'invoices'},
+   {id:'n3',icon:ICON.receipt,text:'INV-2026-0007 overdue — Balfour Beatty £44,200',time:'Today',unread:true,panel:'invoices'},
+   {id:'n4',icon:ICON.calendar,text:'Site visit at Canary Wharf starts tomorrow 07:30',time:'Today',unread:true,panel:'diary'},
+   {id:'n5',icon:ICON.clipboard,text:'QTE-2026-005 — submission due 28 Mar',time:'Yesterday',unread:false,panel:'tenders'},
+   {id:'n6',icon:ICON.package,text:'PO-INS-002 expected delivery today (Armacell UK)',time:'5 Mar',unread:false,panel:'procurement'},
+   {id:'n7',icon:ICON.money,text:'Invoice INV-2026-0003 overdue — Morgan Sindall £64,800',time:'22 Feb',unread:false,panel:'invoices'},
   ].forEach(function(n){NOTIFICATIONS.push(n);});
   // Restore calendar events
   CALENDAR_EVENTS.length=0;
@@ -98,7 +98,7 @@ function resetDemo() {
    {id:'s5',name:'Thermaflex',category:'Pipe Insulation',contact:'Jan Bos',email:'j.bos@thermaflex.com',phone:'+31 180 63 55 00',account:'TFX-0034',rating:4,status:'active',payTerms:45,spendYTD:12200,spendTotal:41800,website:'thermaflex.com',notes:'Flexible pre-insulated pipe.'},
    {id:'s6',name:'SIG Distribution',category:'Fixings & Accessories',contact:'Pete Morris',email:'p.morris@sigplc.com',phone:'0114 285 6300',account:'SIG-1204',rating:3,status:'inactive',payTerms:30,spendYTD:0,spendTotal:28900,website:'sigplc.com',notes:'Account on hold.'},
   ].forEach(function(s){SUPPLIERS.push(s);});
-  nav('home');
+  nav('login');
   showToast('Demo reset. Welcome back!','success');
 }
 

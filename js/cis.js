@@ -105,7 +105,7 @@ function buildCISCountdownWidget() {
   var demoPmts = CIS_PAYMENTS.filter(function(p){ return p.taxMonth === demoTM; });
   var totalDed = demoPmts.reduce(function(s,p){ return s + p.grossLabour * p.cisRate; }, 0);
   var html = '<div class="cis-alert-widget" style="cursor:pointer" onclick="dashNav(\'cis\')">';
-  html += '<div class="cis-alert-icon">🏛️</div>';
+  html += '<div class="cis-alert-icon">' + ICON.courthouse + '</div>';
   html += '<div class="cis-alert-body">';
   html += '<div class="cis-alert-title">CIS Monthly Return</div>';
   html += '<div class="cis-alert-main">CIS return due in <strong style="color:'+color+'">'+days+' day'+(days!==1?'s':'')+'</strong></div>';

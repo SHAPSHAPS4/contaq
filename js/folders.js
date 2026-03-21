@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════ */
 
 var QF_EXT_ICONS = {
-  'xlsx':'📊','xls':'📊','pdf':'📄','docx':'📝','doc':'📝'
+  'xlsx':ICON.chart,'xls':ICON.chart,'pdf':ICON.file,'docx':ICON.edit,'doc':ICON.edit
 };
 
 function qfGetExt(filename) {
@@ -12,7 +12,7 @@ function qfGetExt(filename) {
 }
 
 function qfExtIcon(filename) {
-  return QF_EXT_ICONS[qfGetExt(filename)] || '📎';
+  return QF_EXT_ICONS[qfGetExt(filename)] || ICON.paperclip;
 }
 
 function qfExtColor(filename) {
@@ -29,12 +29,12 @@ function qfExtColor(filename) {
 
 var FOLDER_DEFS = {
   // Quote / Project shared folders
-  drawings:      {label:'Drawings',      icon:'📐', color:'#60a5fa', accepts:['.pdf','.dwg','.dxf']},
-  specs:         {label:'Specifications',icon:'📋', color:'#a3e635', accepts:['.pdf','.docx','.doc']},
-  documents:     {label:'Documents',     icon:'📁', color:'#fbbf24', accepts:['.pdf','.xlsx','.xls','.docx','.doc','.eml','.msg']},
+  drawings:      {label:'Drawings',      icon:ICON.ruler, color:'#60a5fa', accepts:['.pdf','.dwg','.dxf']},
+  specs:         {label:'Specifications',icon:ICON.clipboard, color:'#a3e635', accepts:['.pdf','.docx','.doc']},
+  documents:     {label:'Documents',     icon:ICON.folder, color:'#fbbf24', accepts:['.pdf','.xlsx','.xls','.docx','.doc','.eml','.msg']},
   // Project-only folders
-  purchaseOrder: {label:'Purchase Order',icon:'🧾', color:'#f97316', accepts:['.pdf','.docx','.doc','.xlsx']},
-  voQuote:       {label:'VO Quote',      icon:'📊', color:'#c084fc', accepts:['.pdf','.xlsx','.xls','.docx']}
+  purchaseOrder: {label:'Purchase Order',icon:ICON.receipt, color:'#f97316', accepts:['.pdf','.docx','.doc','.xlsx']},
+  voQuote:       {label:'VO Quote',      icon:ICON.chart, color:'#c084fc', accepts:['.pdf','.xlsx','.xls','.docx']}
 };
 
 var FOLDER_AI_KEYWORDS = {
@@ -97,10 +97,10 @@ function renderFolderSection(source, entityId, folderKey, items, isProjectOnly) 
         + 'onmouseleave="this.style.opacity=\'' + op + '\';this.style.background=\'\'">';
       // File column
       var ext = (f.filename||'').split('.').pop().toLowerCase();
-      var ic = ext==='pdf'?'📄':ext==='xlsx'||ext==='xls'?'📊':ext==='docx'||ext==='doc'?'📝':'📎';
+      var ic = ext==='pdf'?ICON.file:ext==='xlsx'||ext==='xls'?ICON.chart:ext==='docx'||ext==='doc'?ICON.edit:ICON.paperclip;
       var ec = ext==='pdf'?'#f87171':ext==='xlsx'||ext==='xls'?'#a3e635':ext==='docx'||ext==='doc'?'#60a5fa':'#94a3b8';
       h += '<td style="padding:.48rem .75rem;"><div style="display:flex;align-items:center;gap:.4rem;">';
-      h += '<span>' + ic + '</span>';
+      h += '<span style="color:'+ec+'">' + ic + '</span>';
       h += '<span style="color:' + (isTop?'var(--white)':'var(--off2)') + ';word-break:break-all;">' + f.filename + '</span>';
       h += '</div></td>';
       if (showNotes) {
@@ -160,7 +160,7 @@ function renderFoldersUI(source, entityId, folders, quoteFiles) {
 function openFolderUpload(source, entityId, folderKey) {
   STATE.folderUploadCtx = {source:source, entityId:entityId, folderKey:folderKey};
   STATE._folderPendingFiles = [];
-  var def = FOLDER_DEFS[folderKey] || {label:folderKey, icon:'📎', color:'#f97316'};
+  var def = FOLDER_DEFS[folderKey] || {label:folderKey, icon:ICON.paperclip, color:'#f97316'};
   document.getElementById('fu-title').textContent = 'Upload to ' + def.label + ' — AI Enabled';
   document.getElementById('fu-subtitle').textContent = 'Accepted: ' + (def.accepts||['.pdf','.docx','.xlsx']).join('  ');
   document.getElementById('fu-drop-zone').style.background = '';
@@ -180,11 +180,11 @@ function fuFilesSelected(files) {
   ul.innerHTML = '';
   Array.from(files).forEach(function(f) {
     var ext = (f.name.split('.').pop()||'').toLowerCase();
-    var ic = ext==='pdf'?'📄':ext==='xlsx'||ext==='xls'?'📊':ext==='docx'||ext==='doc'?'📝':'📎';
+    var ic = ext==='pdf'?ICON.file:ext==='xlsx'||ext==='xls'?ICON.chart:ext==='docx'||ext==='doc'?ICON.edit:ICON.paperclip;
     var ec = ext==='pdf'?'#f87171':ext==='xlsx'||ext==='xls'?'#a3e635':ext==='docx'||ext==='doc'?'#60a5fa':'#94a3b8';
     var d = document.createElement('div');
     d.style.cssText = 'display:flex;align-items:center;gap:.55rem;padding:.5rem .75rem;background:var(--bg4);border-radius:6px;margin-bottom:.35rem;';
-    d.innerHTML = '<span>' + ic + '</span>'
+    d.innerHTML = '<span style="color:'+ec+'">' + ic + '</span>'
       + '<span style="font-size:.76rem;color:var(--white);flex:1;">' + f.name + '</span>'
       + '<span style="font-family:var(--mono);font-size:.58rem;background:' + ec + '1a;color:' + ec + ';border:1px solid ' + ec + '44;border-radius:3px;padding:.05rem .35rem;">' + ext.toUpperCase() + '</span>';
     ul.appendChild(d);
@@ -316,7 +316,7 @@ function renderQuoteFilesSection(tenderId, files, isProject) {
   h += '</div>';
   if (!isProject && tenderId) {
     h += '<button class="btn btn-sm" style="background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.3);font-size:.72rem;display:flex;align-items:center;gap:.35rem;" onclick="openQuoteFileUpload(\'' + tenderId + '\')">';
-    h += '<span style="font-size:.85rem;">📊</span> <span style="font-size:.85rem;">📄</span> <span style="font-size:.85rem;">📝</span>&ensp;Upload Quote File AI Enabled';
+    h += '<span style="display:inline-flex;gap:.2rem;">' + ICON.chart + ICON.file + ICON.edit + '</span>&ensp;Upload Quote File AI Enabled';
     h += '</button>';
   }
   h += '</div>';
@@ -324,7 +324,7 @@ function renderQuoteFilesSection(tenderId, files, isProject) {
   if (!sorted.length) {
     if (!isProject) {
       h += '<div style="border:1.5px dashed rgba(249,115,22,.2);border-radius:8px;padding:1.25rem;text-align:center;cursor:pointer;" onclick="openQuoteFileUpload(\'' + tenderId + '\')">';
-      h += '<div style="font-size:1.5rem;margin-bottom:.4rem;">📊 📄 📝</div>';
+      h += '<div style="margin-bottom:.4rem;display:flex;gap:.3rem;justify-content:center;opacity:.5">' + ICON.chart + ICON.file + ICON.edit + '</div>';
       h += '<div style="font-size:.78rem;color:var(--off3);">No quote files uploaded yet.</div>';
       h += '<div style="font-size:.72rem;color:var(--off4);margin-top:.2rem;">Click <strong style="color:var(--orange);">Upload Quote File AI Enabled</strong> to add and organise revisions.</div>';
       h += '</div>';
@@ -410,11 +410,11 @@ function qfFilesSelected(files) {
     var ext = (f.name.split('.').pop()||'').toLowerCase();
     var allowed = ['xlsx','xls','pdf','docx','doc'];
     if (allowed.indexOf(ext) < 0) return;
-    var ic = QF_EXT_ICONS[ext] || '📎';
+    var ic = QF_EXT_ICONS[ext] || ICON.paperclip;
     var ec = qfExtColor(f.name);
     var li = document.createElement('div');
     li.style.cssText = 'display:flex;align-items:center;gap:.55rem;padding:.5rem .75rem;background:var(--bg4);border-radius:6px;margin-bottom:.35rem;';
-    li.innerHTML = '<span style="font-size:1.05rem">' + ic + '</span>'
+    li.innerHTML = '<span style="color:'+ec+'">' + ic + '</span>'
       + '<span style="font-size:.76rem;color:var(--white);flex:1;">' + f.name + '</span>'
       + '<span style="font-family:var(--mono);font-size:.58rem;background:' + ec + '1a;color:' + ec + ';border:1px solid ' + ec + '44;border-radius:3px;padding:.05rem .35rem;">' + ext.toUpperCase() + '</span>';
     ul.appendChild(li);
