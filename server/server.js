@@ -68,8 +68,10 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:8000')
 
 app.use(cors({
   origin: function (origin, cb) {
-    // Allow requests with no origin (curl, Postman, same-origin)
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    // Allow requests with no origin (curl, Postman, same-origin in production)
+    if (!origin) return cb(null, true);
+    // Allow configured origins + any Railway/Vercel deployment URLs
+    if (allowedOrigins.includes(origin) || origin.endsWith('.railway.app') || origin.endsWith('.up.railway.app')) return cb(null, true);
     cb(new Error('CORS: origin ' + origin + ' not allowed'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -284,6 +286,15 @@ app.use((err, _req, res, _next) => {
     return res.status(403).json({ error: { type: 'cors', message: err.message } });
   }
   res.status(500).json({ error: { type: 'server_error', message: 'Internal server error' } });
+});
+
+/* ── Serve static frontend (production — Railway serves both API + frontend) ── */
+const path = require('path');
+app.use(express.static(path.join(__dirname, '..')));
+// SPA fallback — serve index.html for non-API routes
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 /* ── Start ────────────────────────────────────────────────────────── */

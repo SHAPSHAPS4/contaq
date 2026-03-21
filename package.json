@@ -1,0 +1,13 @@
+{
+  "name": "contraq",
+  "version": "1.0.0",
+  "description": "AI-powered M&E estimating platform for UK subcontractors",
+  "private": true,
+  "scripts": {
+    "start": "cd server && node server.js",
+    "dev": "cd server && node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

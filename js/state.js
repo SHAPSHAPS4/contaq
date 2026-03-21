@@ -68,7 +68,11 @@ var STATE = {
 };
 
 /* ── Backend API proxy base URL ───────────────────────────────── */
-var CONTRAQ_API_BASE = 'http://localhost:3001';
+// In production (Railway), API is on the same origin — use empty string
+// In local dev, API runs on port 3001
+var CONTRAQ_API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:3001'
+  : '';
 
 /* ── Load persisted settings from localStorage ─────────────── */
 try {
