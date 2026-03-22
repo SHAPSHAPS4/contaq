@@ -33,12 +33,13 @@ if (!ANTHROPIC_API_KEY) {
 
 /* ── Middleware ────────────────────────────────────────────────────── */
 
-// Security headers — allow inline scripts/styles for the frontend SPA
+// Security headers — allow inline scripts/styles/onclick handlers for the frontend
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       imgSrc: ["'self'", "data:", "blob:"],
