@@ -294,7 +294,27 @@ app.get('/api/knowledge-base', (_req, res) => {
   res.json(kbIndex.getMetadata());
 });
 
-/* ── 404 catch-all ────────────────────────────────────────────────── */
+/* ── Serve static frontend (production — Railway serves both API + frontend) ── */
+const path = require('path');
+const fs = require('fs');
+let FRONTEND_ROOT = path.join(__dirname, '..');
+if (!fs.existsSync(path.join(FRONTEND_ROOT, 'index.html'))) {
+  FRONTEND_ROOT = process.cwd();
+}
+if (!fs.existsSync(path.join(FRONTEND_ROOT, 'index.html'))) {
+  FRONTEND_ROOT = path.join(process.cwd(), '..');
+}
+console.log('[Static] Serving frontend from:', FRONTEND_ROOT);
+
+app.use(express.static(FRONTEND_ROOT));
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  const indexPath = path.join(FRONTEND_ROOT, 'index.html');
+  if (fs.existsSync(indexPath)) return res.sendFile(indexPath);
+  next();
+});
+
+/* ── 404 catch-all (API routes only — static files handled above) ── */
 app.use((_req, res) => {
   res.status(404).json({ error: { type: 'not_found', message: 'Endpoint not found' } });
 });
@@ -306,30 +326,6 @@ app.use((err, _req, res, _next) => {
     return res.status(403).json({ error: { type: 'cors', message: err.message } });
   }
   res.status(500).json({ error: { type: 'server_error', message: 'Internal server error' } });
-});
-
-/* ── Serve static frontend (production — Railway serves both API + frontend) ── */
-const path = require('path');
-const fs = require('fs');
-// Determine frontend root — try parent of server dir, then cwd
-let FRONTEND_ROOT = path.join(__dirname, '..');
-if (!fs.existsSync(path.join(FRONTEND_ROOT, 'index.html'))) {
-  FRONTEND_ROOT = process.cwd();
-}
-if (!fs.existsSync(path.join(FRONTEND_ROOT, 'index.html'))) {
-  FRONTEND_ROOT = path.join(process.cwd(), '..');
-}
-console.log('[Static] Serving frontend from:', FRONTEND_ROOT);
-console.log('[Static] index.html exists:', fs.existsSync(path.join(FRONTEND_ROOT, 'index.html')));
-console.log('[Static] landing.html exists:', fs.existsSync(path.join(FRONTEND_ROOT, 'landing.html')));
-
-app.use(express.static(FRONTEND_ROOT));
-// SPA fallback — serve index.html for non-API routes
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) return next();
-  const indexPath = path.join(FRONTEND_ROOT, 'index.html');
-  if (fs.existsSync(indexPath)) return res.sendFile(indexPath);
-  res.status(404).send('Frontend not found. Check deployment.');
 });
 
 /* ── Start ────────────────────────────────────────────────────────── */
