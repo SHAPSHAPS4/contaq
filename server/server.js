@@ -136,6 +136,26 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', worker: process.pid });
 });
 
+// Debug: check file system paths (remove after deployment is confirmed)
+app.get('/api/debug/paths', (_req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const dirs = {
+    __dirname,
+    cwd: process.cwd(),
+    parent: path.join(__dirname, '..'),
+    cwdParent: path.join(process.cwd(), '..'),
+  };
+  const checks = {};
+  for (const [name, dir] of Object.entries(dirs)) {
+    try {
+      const files = fs.readdirSync(dir).slice(0, 20);
+      checks[name] = { path: dir, files, hasIndex: files.includes('index.html'), hasLanding: files.includes('landing.html') };
+    } catch(e) { checks[name] = { path: dir, error: e.message }; }
+  }
+  res.json(checks);
+});
+
 /* ── Shared proxy logic ───────────────────────────────────────────── */
 
 // Allowed models — prevent abuse via arbitrary model switching
