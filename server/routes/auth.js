@@ -18,8 +18,8 @@ router.get('/debug', async (req, res) => {
 });
 
 // ─── SIGNUP — creates org + user + Supabase auth account ────
-router.post('/signup', async (req, res) => {
-  try {
+router.post('/signup', function(req, res) {
+  (async function() { try {
     const { email, password, name, companyName, trade, plan } = req.body;
 
     if (!email || !password || !name || !companyName) {
@@ -83,6 +83,7 @@ router.post('/signup', async (req, res) => {
     console.error('[Signup] Full error:', err);
     res.status(500).json({ error: 'Failed to create account: ' + (err.message || String(err)) });
   }
+  })().catch(function(e) { console.error('[Signup] Uncaught:', e); res.status(500).json({ error: 'Signup failed: ' + e.message }); });
 });
 
 // ─── LOGIN — authenticates and returns session token ────────
