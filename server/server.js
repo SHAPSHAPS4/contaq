@@ -33,8 +33,22 @@ if (!ANTHROPIC_API_KEY) {
 
 /* ── Middleware ────────────────────────────────────────────────────── */
 
-// Security headers
-app.use(helmet());
+// Security headers — allow inline scripts/styles for the frontend SPA
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'", "https://*.supabase.co", "https://api.anthropic.com"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'", "data:", "blob:"],
+    }
+  }
+}));
 
 // Gzip compression
 app.use(compression());
