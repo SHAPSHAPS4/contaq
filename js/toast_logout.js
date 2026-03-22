@@ -18,7 +18,9 @@ function showToast(msg, type) {
    LOGOUT / RESET
 ══════════════════════════════════════════════════════════════ */
 function doLogout() {
-  STATE.loggedIn=false; STATE.user=null;
+  STATE.loggedIn = false;
+  STATE.user = null;
+  if (typeof clearSession === 'function') clearSession();
   window.location.href = 'landing.html';
 }
 

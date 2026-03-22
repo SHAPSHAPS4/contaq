@@ -295,11 +295,20 @@ function initVisibleProgressBars() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Show login page by default (landing page is now separate)
+  // Try to restore saved session first
   try {
-    var h = window.location.hash.replace('#','');
-    if (!h) nav('login');
-  } catch(e) {}
+    if (typeof tryRestoreSession === 'function' && tryRestoreSession()) {
+      // Session restored — go to dashboard
+      var h = window.location.hash.replace('#','');
+      if (!h || h === 'login' || h === 'register') {
+        nav('dashboard');
+      }
+    } else {
+      // No saved session — show login or handle hash route
+      var h = window.location.hash.replace('#','');
+      if (!h) nav('login');
+    }
+  } catch(e) { try { nav('login'); } catch(e2) {} }
   try {
     // Close modals on backdrop click
     document.querySelectorAll('.modal-backdrop').forEach(function(bd){
