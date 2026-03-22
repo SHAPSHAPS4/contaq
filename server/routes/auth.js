@@ -9,6 +9,14 @@ const { supabaseAdmin } = require('../db/supabase');
 const { createOrganization, createUser, getUserByAuthId, getUsersByOrg } = require('../db/queries');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
+// ─── DEBUG — test signup path (remove later)
+router.get('/debug', async (req, res) => {
+  try {
+    const sb = supabaseAdmin ? 'connected' : 'null';
+    res.json({ supabase: sb, env_url: !!process.env.SUPABASE_URL, env_key: !!process.env.SUPABASE_SERVICE_ROLE_KEY, env_anon: !!process.env.SUPABASE_ANON_KEY });
+  } catch(e) { res.json({ error: e.message }); }
+});
+
 // ─── SIGNUP — creates org + user + Supabase auth account ────
 router.post('/signup', async (req, res) => {
   try {
@@ -72,8 +80,8 @@ router.post('/signup', async (req, res) => {
     });
 
   } catch (err) {
-    console.error('[Signup]', err.message);
-    res.status(500).json({ error: 'Failed to create account: ' + err.message });
+    console.error('[Signup] Full error:', err);
+    res.status(500).json({ error: 'Failed to create account: ' + (err.message || String(err)) });
   }
 });
 
