@@ -46,13 +46,23 @@ async function createUser({ orgId, authId, email, name, role }) {
 }
 
 async function getUserByAuthId(authId) {
-  const { data, error } = await supabaseAdmin
+  // Get user
+  const { data: user, error: userErr } = await supabaseAdmin
     .from('users')
-    .select('*, organizations(*)')
+    .select('*')
     .eq('auth_id', authId)
-    .single();
-  if (error) throw error;
-  return data;
+    .maybeSingle();
+  if (userErr) throw userErr;
+  if (!user) return null;
+  // Get org separately (avoids join issues)
+  const { data: org, error: orgErr } = await supabaseAdmin
+    .from('organizations')
+    .select('*')
+    .eq('id', user.org_id)
+    .maybeSingle();
+  if (orgErr) throw orgErr;
+  user.organizations = org;
+  return user;
 }
 
 async function getUsersByOrg(orgId) {
