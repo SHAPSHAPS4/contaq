@@ -6,30 +6,8 @@
  * across CPU cores via the Node.js cluster module.
  */
 
-const cluster = require('node:cluster');
-const os = require('node:os');
-
-/* ── Cluster: fork one worker per CPU core ────────────────────────── */
-if (cluster.isPrimary) {
-  // Initialise KB in primary process (validates files, creates learning dir)
-  require('dotenv').config();
-  const { initKB } = require('./kb/init');
-  initKB();
-
-  const numWorkers = Math.max(2, os.cpus().length);
-  console.log(`[Contraq API] Primary process ${process.pid} — forking ${numWorkers} workers`);
-
-  for (let i = 0; i < numWorkers; i++) cluster.fork();
-
-  cluster.on('exit', (worker, code) => {
-    console.warn(`[Contraq API] Worker ${worker.process.pid} exited (code ${code}) — restarting`);
-    cluster.fork();
-  });
-
-  return; // primary does nothing else
-}
-
-/* ── Worker process ───────────────────────────────────────────────── */
+/* ── Single process mode (production-safe, memory-efficient) ──────── */
+// Clustering disabled — Railway/Render handle scaling via replicas instead
 require('dotenv').config();
 
 const express = require('express');
