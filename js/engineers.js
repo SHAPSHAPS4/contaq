@@ -584,10 +584,39 @@ function saveTrade() {
     var idx = PROJECTS.findIndex(function(p){return p.id===STATE.editTradeId;});
     if (idx>=0) { data.id=STATE.editTradeId; data.code=PROJECTS[idx].code; Object.assign(PROJECTS[idx],data); }
     showToast('Project updated.','success');
+    // Persist to API for real users
+    if (ContraqAPI.isRealUser()) {
+      ContraqAPI.saveProject({
+        id: data.id,
+        reference: data.code,
+        name: data.name,
+        client_id: data.client,
+        status: data.status,
+        value: data.value,
+        start_date: data.start,
+        end_date: data.end,
+        trade: data.trade || '',
+        notes: data.notes
+      }).catch(function(e) { console.error('[Projects] Save error:', e); });
+    }
   } else {
     data.id = 'p'+Date.now(); data.code='PRJ-'+(PROJECTS.length+46).toString().padStart(3,'0');
     PROJECTS.push(data);
     showToast('Project created.','success');
+    // Persist to API for real users
+    if (ContraqAPI.isRealUser()) {
+      ContraqAPI.saveProject({
+        reference: data.code,
+        name: data.name,
+        client_id: data.client,
+        status: data.status,
+        value: data.value,
+        start_date: data.start,
+        end_date: data.end,
+        trade: data.trade || '',
+        notes: data.notes
+      }).catch(function(e) { console.error('[Projects] Save error:', e); });
+    }
   }
   closeModal('modal-trade');
   dashNav('projects');
@@ -652,10 +681,35 @@ function saveClient() {
     var idx = CLIENTS.findIndex(function(c){return c.id===STATE.editClientId;});
     if (idx>=0) { data.id=STATE.editClientId; data.color=CLIENTS[idx].color||colors[0]; Object.assign(CLIENTS[idx],data); }
     showToast('Client updated.','success');
+    // Persist to API for real users
+    if (ContraqAPI.isRealUser()) {
+      ContraqAPI.saveClient({
+        id: data.id,
+        name: data.name,
+        contact: data.contact,
+        email: data.email,
+        phone: data.phone,
+        category: data.sector,
+        pay_terms: data.creditTerms,
+        notes: data.notes
+      }).catch(function(e) { console.error('[Clients] Save error:', e); });
+    }
   } else {
     data.id='cl-'+Date.now(); data.color=colors[CLIENTS.length%colors.length]; data.since=new Date().getFullYear().toString();
     CLIENTS.push(data);
     showToast('Client added.','success');
+    // Persist to API for real users
+    if (ContraqAPI.isRealUser()) {
+      ContraqAPI.saveClient({
+        name: data.name,
+        contact: data.contact,
+        email: data.email,
+        phone: data.phone,
+        category: data.sector,
+        pay_terms: data.creditTerms,
+        notes: data.notes
+      }).catch(function(e) { console.error('[Clients] Save error:', e); });
+    }
   }
   closeModal('modal-client');
   dashNav('clients');
@@ -733,6 +787,22 @@ function saveInvoice() {
     var idx=INVOICES.findIndex(function(i){return i.id===STATE.editInvId;});
     if (idx>=0){data.id=STATE.editInvId; Object.assign(INVOICES[idx],data);}
     showToast('Invoice updated.','success');
+    // Persist to API for real users
+    if (ContraqAPI.isRealUser()) {
+      ContraqAPI.saveInvoice({
+        id: data.id,
+        reference: data.ref,
+        project_id: data.project,
+        client_id: data.client,
+        status: data.status,
+        net_amount: data.amount,
+        vat_amount: Math.round(data.amount * 0.20),
+        gross_amount: Math.round(data.amount * 1.20),
+        issue_date: data.date,
+        due_date: data.due,
+        notes: data.desc
+      }).catch(function(e) { console.error('[Invoices] Save error:', e); });
+    }
   } else {
     data.id='inv-'+Date.now(); INVOICES.push(data);
     // Update project billedToDate
@@ -740,6 +810,21 @@ function saveInvoice() {
     // Log activity
     ACTIVITY_LOG.unshift({id:'al-'+Date.now(),icon:ICON.money,iconBg:'rgba(163,230,53,.15)',text:'Invoice '+data.ref+' raised for '+(client?client.name:'client')+' — £'+fmtNum(amt),time:'Just now',panel:'invoices'});
     showToast('Invoice raised — £'+fmtNum(amt)+'.','success');
+    // Persist to API for real users
+    if (ContraqAPI.isRealUser()) {
+      ContraqAPI.saveInvoice({
+        reference: data.ref,
+        project_id: data.project,
+        client_id: data.client,
+        status: data.status,
+        net_amount: data.amount,
+        vat_amount: Math.round(data.amount * 0.20),
+        gross_amount: Math.round(data.amount * 1.20),
+        issue_date: data.date,
+        due_date: data.due,
+        notes: data.desc
+      }).catch(function(e) { console.error('[Invoices] Save error:', e); });
+    }
   }
   closeModal('modal-invoice');
   dashNav('invoices');

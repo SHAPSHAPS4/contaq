@@ -132,6 +132,8 @@ function savePO() {
     // Show PO created confirmation + email prompt
     setTimeout(function(){ openPOCreatedModal(poId); }, 180);
   }
+  // Note: No dedicated PO API endpoint yet — POs saved to local array only.
+  // When a savePurchaseOrder API method is added, wire it here.
 }
 
 function deletePO() {

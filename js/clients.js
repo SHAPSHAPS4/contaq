@@ -98,6 +98,36 @@ function filterTendersBy(q) {
    PROJECTS
 ══════════════════════════════════════════════════════════════ */
 function renderProjects(filter) {
+  /* ── Fetch from API for real users, then re-render ── */
+  if (ContraqAPI.isRealUser() && !STATE._projectsApiLoaded) {
+    ContraqAPI.getProjects().then(function(projects) {
+      // Map API fields into the format the renderer expects
+      PROJECTS.length = 0; // Clear existing
+      projects.forEach(function(p) {
+        var client = CLIENTS.find(function(c){ return c.id === p.client_id; });
+        PROJECTS.push({
+          id: p.id,
+          code: p.reference || p.code || '',
+          name: p.name,
+          client: p.client_id,
+          clientName: p.clients ? p.clients.name : (client ? client.name : ''),
+          status: p.status,
+          value: Number(p.value) || 0,
+          start: p.start_date,
+          end: p.end_date,
+          trade: p.trade || '',
+          notes: p.notes || '',
+          margin: Number(p.margin) || 20,
+          costs: p.costs || null,
+          billedToDate: Number(p.billed_to_date) || 0
+        });
+      });
+      STATE._projectsApiLoaded = true;
+      renderProjects(filter);
+    }).catch(function(e) { console.error('[Projects] API load error:', e); });
+    return;
+  }
+
   /* ── Empty state ── */
   if (PROJECTS.length === 0) {
     document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Projects</h2><p>0 projects</p></div>'

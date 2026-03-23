@@ -33,6 +33,35 @@ function calcClientStats(clientId) {
 }
 
 function renderClients() {
+  /* ── Fetch from API for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._clientsApiLoaded) {
+    ContraqAPI.getClients().then(function(clients) {
+      CLIENTS.length = 0;
+      var colors = ['#4ade80','#38bdf8','#f59e0b','#a78bfa','#f87171','#34d399','#e879f9','#22d3ee'];
+      clients.forEach(function(c, i) {
+        var initials = (c.name||'').split(' ').filter(Boolean).map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+        CLIENTS.push({
+          id: c.id,
+          name: c.name,
+          initials: initials,
+          sector: c.category || 'Construction',
+          contact: c.contact || '',
+          email: c.email || '',
+          phone: c.phone || '',
+          creditTerms: Number(c.pay_terms) || 30,
+          address: c.address || '',
+          notes: c.notes || '',
+          color: colors[i % colors.length],
+          since: c.created_at ? new Date(c.created_at).getFullYear().toString() : new Date().getFullYear().toString(),
+          retentionPct: 0
+        });
+      });
+      STATE._clientsApiLoaded = true;
+      renderClients();
+    }).catch(function(e) { console.error('[Clients] API load error:', e); });
+    return;
+  }
+
   var html = '<div class="page-hdr"><div class="page-hdr-left"><h2>Client Register</h2><p>'+CLIENTS.length+' clients</p></div>'
     + '<div style="display:flex;align-items:center;gap:.65rem;">'
     + '<button class="cl-reset-link" onclick="clResetDemoData()">&#8635; Reset demo</button>'

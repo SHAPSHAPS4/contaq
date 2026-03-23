@@ -11,6 +11,33 @@
    INVOICES
 ══════════════════════════════════════════════════════════════ */
 function renderInvoices() {
+  /* ── Fetch from API for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._invoicesApiLoaded) {
+    ContraqAPI.getInvoices().then(function(invoices) {
+      INVOICES.length = 0;
+      invoices.forEach(function(inv) {
+        var client = CLIENTS.find(function(c){ return c.id === inv.client_id; });
+        var proj = PROJECTS.find(function(p){ return p.id === inv.project_id; });
+        INVOICES.push({
+          id: inv.id,
+          ref: inv.reference || '',
+          client: inv.client_id,
+          clientName: inv.clients ? inv.clients.name : (client ? client.name : ''),
+          project: inv.project_id,
+          projectName: inv.projects ? inv.projects.name : (proj ? proj.name : ''),
+          amount: Number(inv.net_amount) || 0,
+          date: inv.issue_date || '',
+          due: inv.due_date || '',
+          desc: inv.notes || '',
+          status: inv.status || 'sent'
+        });
+      });
+      STATE._invoicesApiLoaded = true;
+      renderInvoices();
+    }).catch(function(e) { console.error('[Invoices] API load error:', e); });
+    return;
+  }
+
   /* ── Empty state ── */
   if (INVOICES.length === 0) {
     document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Invoices</h2><p>0 invoices</p></div></div>'
@@ -143,6 +170,13 @@ function sendDraft(invId) {
   var idx = INVOICES.findIndex(function(i){return i.id===invId;});
   if (idx>=0) INVOICES[idx].status = 'sent';
   showToast(inv.ref+' marked as sent.','success');
+  // Persist status change to API for real users
+  if (ContraqAPI.isRealUser()) {
+    ContraqAPI.saveInvoice({
+      id: inv.id,
+      status: 'sent'
+    }).catch(function(e) { console.error('[Invoices] Status update error:', e); });
+  }
   renderInvoices();
 }
 
