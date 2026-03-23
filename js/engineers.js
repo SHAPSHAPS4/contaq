@@ -17,6 +17,36 @@ function catPill(cat) {
 }
 
 function renderSuppliers() {
+  /* ── API: load suppliers from database for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._suppliersApiLoaded) {
+    ContraqAPI.getSuppliers().then(function(suppliers) {
+      if (suppliers && suppliers.length) {
+        SUPPLIERS.length = 0;
+        suppliers.forEach(function(s) {
+          SUPPLIERS.push({
+            id: s.id,
+            name: s.name,
+            contact: s.contact,
+            email: s.email,
+            phone: s.phone,
+            category: s.category,
+            account: s.account_ref || s.account || '',
+            payTerms: s.pay_terms || s.payTerms || 30,
+            status: s.status || 'active',
+            rating: s.rating || 4,
+            notes: s.notes || '',
+            website: s.website || '',
+            spendYTD: s.spend_ytd || s.spendYTD || 0,
+            spendTotal: s.spend_total || s.spendTotal || 0
+          });
+        });
+      }
+      STATE._suppliersApiLoaded = true;
+      renderSuppliers();
+    }).catch(function(e) { console.error('[Suppliers] API error:', e); STATE._suppliersApiLoaded = true; renderSuppliers(); });
+    return;
+  }
+
   var active = SUPPLIERS.filter(function(s){return s.status==='active';});
   var totalSpendYTD = SUPPLIERS.reduce(function(sum,s){return sum+(s.spendYTD||0);},0);
   var totalSpendAll = SUPPLIERS.reduce(function(sum,s){return sum+(s.spendTotal||0);},0);
@@ -225,6 +255,14 @@ function saveSupplier() {
     data.id = 's'+Date.now();
     SUPPLIERS.push(data);
     showToast('Supplier added.','success');
+  }
+  /* ── API: persist supplier to database ── */
+  if (ContraqAPI.isRealUser()) {
+    fetch(CONTRAQ_API_BASE + '/api/data/suppliers', {
+      method: 'POST',
+      headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: data.id, name: data.name, contact: data.contact, email: data.email, phone: data.phone, category: data.category, account_ref: data.account, pay_terms: data.payTerms, status: data.status, rating: data.rating, notes: data.notes })
+    }).catch(function(e) { console.error('[Supplier] Save error:', e); });
   }
   closeModal('modal-supplier');
   dashNav('suppliers');

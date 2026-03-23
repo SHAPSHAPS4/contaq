@@ -231,7 +231,18 @@ function renderProcurement(filter) {
 
 function markPODelivered(poId) {
   var idx = PO_REGISTER.findIndex(function(p){return p.id===poId;});
-  if (idx>=0) { PO_REGISTER[idx].status='delivered'; showToast(poId+' marked as delivered.','success'); dashNav('procurement'); }
+  if (idx>=0) {
+    PO_REGISTER[idx].status='delivered';
+    /* ── API: update PO status ── */
+    if (ContraqAPI.isRealUser()) {
+      fetch(CONTRAQ_API_BASE + '/api/data/purchase-orders', {
+        method: 'POST',
+        headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reference: poId, status: 'delivered' })
+      }).catch(function(e) { console.error('[PO] Status update error:', e); });
+    }
+    showToast(poId+' marked as delivered.','success'); dashNav('procurement');
+  }
 }
 
 

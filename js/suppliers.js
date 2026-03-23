@@ -132,8 +132,14 @@ function savePO() {
     // Show PO created confirmation + email prompt
     setTimeout(function(){ openPOCreatedModal(poId); }, 180);
   }
-  // Note: No dedicated PO API endpoint yet — POs saved to local array only.
-  // When a savePurchaseOrder API method is added, wire it here.
+  /* ── API: persist PO to database ── */
+  if (ContraqAPI.isRealUser()) {
+    fetch(CONTRAQ_API_BASE + '/api/data/purchase-orders', {
+      method: 'POST',
+      headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reference: po.id, project_id: po.project, supplier_id: po.supplierId, supplier_name: po.supplier, category_code: po.catCode, description: po.desc, qty: po.qty, unit_cost: po.unitCost, total_value: po.totalValue, status: po.status, date_ordered: po.date, date_expected: po.expected, notes: po.notes })
+    }).catch(function(e) { console.error('[PO] Save error:', e); });
+  }
 }
 
 function deletePO() {

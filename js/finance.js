@@ -30,6 +30,32 @@ function calcPLTotals() {
 }
 
 function renderFinance() {
+  /* ── API: ensure invoices are loaded from database for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._invoicesApiLoaded) {
+    ContraqAPI.getInvoices().then(function(invoices) {
+      if (invoices && invoices.length) {
+        INVOICES.length = 0;
+        invoices.forEach(function(inv) {
+          INVOICES.push({
+            id: inv.id,
+            ref: inv.ref || inv.reference,
+            projectId: inv.project_id || inv.projectId,
+            projectName: inv.project_name || inv.projectName || '',
+            clientName: inv.client_name || inv.clientName || '',
+            amount: inv.amount || 0,
+            status: inv.status || 'draft',
+            date: inv.date || inv.invoice_date || '',
+            dueDate: inv.due_date || inv.dueDate || '',
+            paidDate: inv.paid_date || inv.paidDate || ''
+          });
+        });
+      }
+      STATE._invoicesApiLoaded = true;
+      renderFinance();
+    }).catch(function(e) { console.error('[Finance] Invoices API error:', e); STATE._invoicesApiLoaded = true; renderFinance(); });
+    return;
+  }
+
   var pl = calcPLTotals();
   var ytdRevenue   = MONTHLY_PL.reduce(function(s,m){return s+m.revenue;},0);
   var ytdCosts     = MONTHLY_PL.reduce(function(s,m){return s+m.costs;},0);

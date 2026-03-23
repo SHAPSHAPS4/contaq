@@ -121,6 +121,36 @@ function buildCISCountdownWidget() {
 
 /* ── CIS Returns Panel ──────────────────────────────────────── */
 function renderCISReturns() {
+  /* ── API: load CIS payments from database for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._cisApiLoaded) {
+    fetch(CONTRAQ_API_BASE + '/api/data/cis-payments', {
+      headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' }
+    }).then(function(resp) { return resp.json(); }).then(function(payments) {
+      if (payments && payments.length) {
+        CIS_PAYMENTS.length = 0;
+        payments.forEach(function(p) {
+          CIS_PAYMENTS.push({
+            id: p.id,
+            subId: p.sub_id || p.subId,
+            subName: p.sub_name || p.subName,
+            utr: p.utr,
+            cisStatus: p.cis_status || p.cisStatus || 'standard',
+            project: p.project_id || p.project,
+            projectName: p.project_name || p.projectName,
+            invoiceRef: p.invoice_ref || p.invoiceRef,
+            date: p.date || p.payment_date,
+            grossLabour: p.gross_labour || p.grossLabour || 0,
+            cisRate: p.cis_rate || p.cisRate || 0.20,
+            taxMonth: p.tax_month || p.taxMonth
+          });
+        });
+      }
+      STATE._cisApiLoaded = true;
+      renderCISReturns();
+    }).catch(function(e) { console.error('[CIS] API error:', e); STATE._cisApiLoaded = true; renderCISReturns(); });
+    return;
+  }
+
   // Group payments by tax month
   var byMonth = {};
   CIS_PAYMENTS.forEach(function(p) {

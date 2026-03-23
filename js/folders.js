@@ -276,6 +276,20 @@ function fuApplyUpload() {
     insights.push(msg);
   });
 
+  /* ── API: persist folder file metadata to database ── */
+  if (ContraqAPI.isRealUser()) {
+    (STATE._folderPendingFiles||[]).forEach(function(f) {
+      var rev = fuGuessRevision(f.name);
+      var sizeKb = Math.round(f.size/1024);
+      var sizeStr = sizeKb > 1024 ? (sizeKb/1024).toFixed(1)+' MB' : sizeKb+' KB';
+      fetch(CONTRAQ_API_BASE + '/api/data/documents', {
+        method: 'POST',
+        headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: f.name, revision: rev, size: sizeStr, folder_key: ctx.folderKey, entity_type: ctx.source, entity_id: ctx.entityId, date: new Date().toISOString().split('T')[0] })
+      }).catch(function(e) { console.error('[Folders] Save error:', e); });
+    });
+  }
+
   document.getElementById('fu-progress-wrap').style.display = 'none';
   document.getElementById('fu-ai-result').innerHTML = insights.map(function(i){
     return '<div style="display:flex;gap:.4rem;"><span style="color:var(--lime);">✓</span><span style="font-size:.74rem;line-height:1.6;">'+i+'</span></div>';

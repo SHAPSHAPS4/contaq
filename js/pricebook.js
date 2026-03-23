@@ -23,6 +23,30 @@ function qbResetDemoData() {
 ══════════════════════════════════════════════════════════════ */
 
 function renderPriceBook() {
+  /* ── API: load pricebook from database for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._pricebookApiLoaded) {
+    ContraqAPI.getPricebook().then(function(items) {
+      if (items && items.length) {
+        MATERIALS_PRICE_BOOK.length = 0;
+        items.forEach(function(m) {
+          MATERIALS_PRICE_BOOK.push({
+            id: m.id,
+            name: m.name,
+            unit: m.unit,
+            qtyPerPack: m.qty_per_pack || m.qtyPerPack || null,
+            supplierPrice: m.supplier_price || m.supplierPrice || 0,
+            category: m.category,
+            supplier: m.supplier,
+            updated: m.updated || m.updated_at || ''
+          });
+        });
+      }
+      STATE._pricebookApiLoaded = true;
+      renderPriceBook();
+    }).catch(function(e) { console.error('[Pricebook] API error:', e); STATE._pricebookApiLoaded = true; renderPriceBook(); });
+    return;
+  }
+
   var total   = MATERIALS_PRICE_BOOK.length;
   var cats    = {};
   MATERIALS_PRICE_BOOK.forEach(function(m){ cats[m.category] = (cats[m.category]||0)+1; });
@@ -211,6 +235,17 @@ function pbApplyImportedData() {
   var now = new Date();
   var dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   PB_UPLOADED_BOOKS.unshift({name:fname, size:fsize, imported:dateStr, count:imported.length});
+
+  /* ── API: persist imported pricebook items ── */
+  if (ContraqAPI.isRealUser()) {
+    imported.forEach(function(m) {
+      fetch(CONTRAQ_API_BASE + '/api/data/pricebook', {
+        method: 'POST',
+        headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: m.name, unit: m.unit, qty_per_pack: m.qtyPerPack, supplier_price: m.supplierPrice, category: m.category, supplier: m.supplier, updated: m.updated })
+      }).catch(function(e) { console.error('[Pricebook] Save error:', e); });
+    });
+  }
 
   closeModal('modal-pb-upload');
   pbResetUploadModal();

@@ -50,6 +50,19 @@ function getSelfAuditPrompt() {
 
 /* ── Open the modal ───────────────────────────────────────────── */
 function openFeedbackLoop() {
+  /* ── API: load learned rules from database on first open ── */
+  if (ContraqAPI.isRealUser() && !STATE._learnedRulesApiLoaded) {
+    ContraqAPI.getLearnedRules().then(function(rules) {
+      if (rules && rules.length) {
+        rules.forEach(function(r) {
+          var exists = LEARNED_RULES.some(function(lr) { return lr.rule_id === r.rule_id; });
+          if (!exists) LEARNED_RULES.push({ rule_id: r.rule_id, trigger: r.trigger, action: r.action, reason: r.reason });
+        });
+      }
+      STATE._learnedRulesApiLoaded = true;
+    }).catch(function(e) { console.error('[FeedbackLoop] Load rules error:', e); STATE._learnedRulesApiLoaded = true; });
+  }
+
   _fbResult = null;
   document.getElementById('fb-phase-input').style.display = '';
   document.getElementById('fb-phase-progress').style.display = 'none';
@@ -181,7 +194,13 @@ function fbSubmitFeedback() {
     if (_fbResult.learned_rules && Array.isArray(_fbResult.learned_rules)) {
       _fbResult.learned_rules.forEach(function(rule) {
         var exists = LEARNED_RULES.some(function(r) { return r.rule_id === rule.rule_id; });
-        if (!exists) LEARNED_RULES.push(rule);
+        if (!exists) {
+          LEARNED_RULES.push(rule);
+          /* ── API: persist learned rule to database ── */
+          if (ContraqAPI.isRealUser()) {
+            ContraqAPI.saveLearnedRule({ rule_id: rule.rule_id, trigger: rule.trigger, action: rule.action, reason: rule.reason }).catch(function(e) { console.error('[FeedbackLoop] Save rule error:', e); });
+          }
+        }
       });
     }
 

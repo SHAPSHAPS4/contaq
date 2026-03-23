@@ -117,6 +117,17 @@ function docApplyUpload() {
     var tend = TENDERS.find(function(t){return t.id===ctx.id;});
     if (tend) { if (!tend.attachments) tend.attachments=[]; tend.attachments = newAtts.concat(tend.attachments); }
   }
+  /* ── API: persist document metadata to database ── */
+  if (ContraqAPI.isRealUser()) {
+    newAtts.forEach(function(att) {
+      fetch(CONTRAQ_API_BASE + '/api/data/documents', {
+        method: 'POST',
+        headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: att.id, filename: att.filename, type: att.type, revision: att.revision, date: att.date, size: att.size, entity_type: ctx.type, entity_id: ctx.id })
+      }).catch(function(e) { console.error('[Documents] Save error:', e); });
+    });
+  }
+
   closeModal("modal-doc-upload");
   showToast("✔ Documents uploaded and organised — " + newAtts.length + " item" + (newAtts.length!==1?"s":"") + " added.", "success");
   if (ctx.type === "project") { renderProjectDetailTab(ctx.id, "attachments"); }

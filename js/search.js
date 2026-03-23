@@ -82,6 +82,20 @@ function buildNotifPanel() {
   var dot   = document.getElementById('notif-dot');
   if (!panel) return;
   if (typeof NOTIFICATIONS === 'undefined' || !NOTIFICATIONS) return;
+  /* ── API: load activity from database for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._activityApiLoaded) {
+    ContraqAPI.getActivity(30).then(function(activity) {
+      if (activity && activity.length) {
+        activity.forEach(function(a) {
+          var exists = ACTIVITY_LOG.some(function(al) { return al.id === a.id; });
+          if (!exists) {
+            ACTIVITY_LOG.push({ id: a.id, icon: a.icon || '', iconBg: a.icon_bg || a.iconBg || '', text: a.text, time: a.time || a.created_at || '', panel: a.panel || '' });
+          }
+        });
+      }
+      STATE._activityApiLoaded = true;
+    }).catch(function(e) { console.error('[Activity] API error:', e); STATE._activityApiLoaded = true; });
+  }
   var unread = NOTIFICATIONS.filter(function(n){return n.unread;}).length;
   if (dot) dot.style.display = unread ? 'block' : 'none';
 
