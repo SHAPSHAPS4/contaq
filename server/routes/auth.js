@@ -110,7 +110,8 @@ router.post('/login', async (req, res) => {
     const { data, error } = await loginClient.auth.signInWithPassword({ email, password });
 
     if (error) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      console.error('[Login] Supabase auth error:', error.message, 'status:', error.status);
+      return res.status(401).json({ error: 'Invalid email or password', detail: error.message });
     }
 
     // Get user profile with org (using admin client which bypasses RLS)
