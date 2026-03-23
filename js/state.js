@@ -3,6 +3,11 @@
    Lines 7875-8005 from contraq-v77
 ═══════════════════════════════════════════ */
 
+/* ── Launch Mode: only show wedge features (AI Quote Builder + Quote Book + Clients + Projects) ── */
+var LAUNCH_MODE = true; // Set to false to unlock all features
+var LAUNCH_UNLOCKED = ['home', 'tenders', 'clients', 'projects', 'settings', 'admin'];
+var LAUNCH_LOCKED_PANELS = ['measures', 'diary', 'engineers', 'eco4', 'suppliers', 'pricebook', 'procurement', 'reports', 'invoices', 'finance', 'cis', 'procore'];
+
 var STATE = {
   loggedIn: false,
   user: null,

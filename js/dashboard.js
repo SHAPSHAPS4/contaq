@@ -39,6 +39,34 @@ function initDashboard() {
     var lock = document.getElementById('sb-lock-'+id);
     if (lock) lock.style.display = isStarter ? '' : 'none';
   });
+  // Launch mode: grey out locked sidebar items + add "Soon" badge
+  if (typeof LAUNCH_MODE !== 'undefined' && LAUNCH_MODE) {
+    // Hide mode switcher — not needed when features are limited
+    var modeSwitcher = document.querySelector('.mode-switcher');
+    if (modeSwitcher) modeSwitcher.style.display = 'none';
+    // Show ALL sidebar items (override mode visibility) so users see the full roadmap
+    document.querySelectorAll('.sb-item[data-mode]').forEach(function(el) {
+      el.style.display = '';
+    });
+    // Grey out and badge locked panels
+    LAUNCH_LOCKED_PANELS.forEach(function(panelId) {
+      var el = document.getElementById('sbn-' + panelId);
+      if (el) {
+        el.style.opacity = '0.35';
+        el.style.cursor = 'default';
+        el.onclick = function() { showToast('Coming soon! This feature is on our roadmap.', 'default'); };
+        // Add "Soon" badge
+        if (!el.querySelector('.launch-soon-badge')) {
+          var badge = document.createElement('span');
+          badge.className = 'launch-soon-badge';
+          badge.textContent = 'SOON';
+          badge.style.cssText = 'margin-left:auto;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 6px;border-radius:10px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.35);flex-shrink:0;';
+          el.appendChild(badge);
+        }
+      }
+    });
+  }
+
   dashNav(STATE.currentPanel||'home');
 }
 
@@ -53,6 +81,12 @@ function adminNavClick() {
 }
 
 function dashNav(panel) {
+  // Launch mode gate — only wedge features accessible
+  if (typeof LAUNCH_MODE !== 'undefined' && LAUNCH_MODE && LAUNCH_LOCKED_PANELS.indexOf(panel) >= 0) {
+    showToast('Coming soon! This feature is on our roadmap.', 'default');
+    return;
+  }
+
   // Soft gates for Starter plan
   var gatedPanels = { cis: 'cis', finance: 'finance', invoices: 'finance', procurement: 'finance', procore: 'procore' };
   if (gatedPanels[panel]) {
