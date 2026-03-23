@@ -417,6 +417,17 @@ function saveJournalEntry() {
     showToast('\u2714 Journal entry added to ' + proj.code + '.', 'success');
   }
 
+  /* ── Persist to API for real users ── */
+  if (ContraqAPI.isRealUser()) {
+    ContraqAPI.saveJournalEntry({
+      project_id: STATE.journalProjectId,
+      type: type,
+      title: title,
+      content: desc,
+      date: date
+    }).catch(function(e) { console.error('[Journal] Save error:', e); });
+  }
+
   closeModal('modal-journal-entry');
 
   // Re-render whichever view is active
@@ -444,6 +455,30 @@ function deleteJournalEntry(projectId, entryId) {
 
 /* ── Render journal as full timeline (Projects tab) ────────── */
 function renderJournalTab(projectId, entries) {
+  /* ── API fetch for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE['_journalApiLoaded_' + projectId]) {
+    ContraqAPI.getJournal({ projectId: projectId }).then(function(apiEntries) {
+      var proj = PROJECTS.find(function(p) { return p.id === projectId; });
+      if (proj) {
+        proj.journal = apiEntries.map(function(e) {
+          return {
+            id: e.id,
+            date: e.date || e.entry_date,
+            type: e.type || e.entry_type,
+            title: e.title,
+            description: e.content || e.description,
+            author: e.author || '',
+            edited: false
+          };
+        });
+      }
+      STATE['_journalApiLoaded_' + projectId] = true;
+      renderProjectDetailTab(projectId, 'journal');
+    }).catch(function(e) { console.error('[Journal] API error:', e); });
+    // Return loading placeholder while fetching
+    return '<div style="text-align:center;padding:2rem;color:var(--off4);font-size:.82rem;">Loading journal entries…</div>';
+  }
+
   var sorted = (entries || []).slice().sort(function(a,b){
     return b.date > a.date ? 1 : b.date < a.date ? -1 : 0;
   });

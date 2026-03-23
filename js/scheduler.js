@@ -136,6 +136,25 @@ function calcWeekCosts(dates) {
 
 /* ── Main render ─────────────────────────────────────────────── */
 function renderDiary() {
+  /* ── API fetch for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._scheduleApiLoaded) {
+    ContraqAPI.getSchedule().then(function(events) {
+      SCHED_STATE.assignments.length = 0;
+      events.forEach(function(ev) {
+        SCHED_STATE.assignments.push({
+          id: ev.id,
+          engId: ev.engineer_id || ev.engId,
+          projectId: ev.project_id || ev.projectId,
+          date: ev.start_date || ev.date,
+          hours: ev.hours || 8
+        });
+      });
+      STATE._scheduleApiLoaded = true;
+      renderDiary();
+    }).catch(function(e) { console.error('[Schedule] API error:', e); });
+    return;
+  }
+
   injectDiaryDemoData();
   generateDiaryAlerts();
   var v = SCHED_STATE.diaryView || 'week';
@@ -795,6 +814,21 @@ function saveAssignModal() {
     SCHED_STATE.assignments.push({id:'sa'+nextN, engId:eid, projectId:pid, date:date, hours:hours});
     showToast('Assignment added.','success');
   }
+
+  /* ── Persist to API for real users ── */
+  if (ContraqAPI.isRealUser()) {
+    fetch(CONTRAQ_API_BASE + '/api/data/schedule', {
+      method: 'POST',
+      headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        engineer_id: eid,
+        project_id: pid,
+        start_date: date,
+        hours: hours
+      })
+    }).catch(function(e) { console.error('[Schedule] Save error:', e); });
+  }
+
   closeModal('modal-assign');
   renderDiary();
 }
@@ -946,6 +980,36 @@ function checkRenewalAlert(engId) {
    ENGINEERS
 ══════════════════════════════════════════════════════════════ */
 function renderEngineers() {
+  /* ── API fetch for real users ── */
+  if (ContraqAPI.isRealUser() && !STATE._engineersApiLoaded) {
+    ContraqAPI.getEngineers().then(function(engineers) {
+      ENGINEERS.length = 0;
+      engineers.forEach(function(e) {
+        ENGINEERS.push({
+          id: e.id,
+          name: e.name,
+          email: e.email,
+          phone: e.phone,
+          trade: e.trade,
+          type: e.role || e.type || 'employed',
+          rate: e.day_rate || e.rate || 0,
+          active: e.status !== 'inactive',
+          notes: e.notes,
+          cisStatus: e.cis_status || 'employed',
+          utr: e.utr || '',
+          hmrcVerRef: e.hmrc_ver_ref || '',
+          hmrcVerDate: e.hmrc_ver_date || '',
+          certs: (e.certifications || []).map(function(c) {
+            return { name: c.type, body: c.card_number, expiry: c.expiry_date, status: c.status };
+          })
+        });
+      });
+      STATE._engineersApiLoaded = true;
+      renderEngineers();
+    }).catch(function(e) { console.error('[Engineers] API error:', e); });
+    return;
+  }
+
   /* ── Empty state ── */
   if (ENGINEERS.length === 0) {
     document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Engineers</h2><p>0 engineers</p></div>'
@@ -1117,6 +1181,21 @@ function saveEngineer() {
     ENGINEERS.push(data);
     showToast('Engineer added.','success');
   }
+
+  /* ── Persist to API for real users ── */
+  if (ContraqAPI.isRealUser()) {
+    ContraqAPI.saveEngineer({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      role: data.type,
+      trade: data.trade,
+      day_rate: data.rate,
+      status: data.active ? 'active' : 'inactive',
+      notes: data.notes
+    }).catch(function(e) { console.error('[Engineers] Save error:', e); });
+  }
+
   closeModal('modal-engineer');
   dashNav('engineers');
 }
