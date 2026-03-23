@@ -8,6 +8,55 @@ var LAUNCH_MODE = true; // Set to false to unlock all features
 var LAUNCH_UNLOCKED = ['home', 'tenders', 'clients', 'projects', 'settings', 'admin'];
 var LAUNCH_LOCKED_PANELS = ['measures', 'diary', 'engineers', 'eco4', 'suppliers', 'pricebook', 'procurement', 'reports', 'invoices', 'finance', 'cis', 'procore'];
 
+/* ── Trade-to-Category Mapping — controls which extraction categories are relevant per trade ── */
+var TRADE_CATEGORIES = {
+  insulation: {
+    include: ['pipe insulation', 'duct insulation', 'equipment insulation', 'fire stopping', 'acoustic insulation', 'thermal insulation', 'lagging', 'cladding', 'trace heating insulation', 'tank insulation', 'vessel insulation'],
+    exclude: ['cable containment', 'cable tray', 'lighting', 'distribution boards', 'switchgear', 'power outlets', 'data cabling', 'fire alarm', 'BMS', 'controls'],
+    autoSelect: ['insulation', 'lagging', 'fire stop', 'thermal', 'acoustic']
+  },
+  pipework: {
+    include: ['pipework', 'valves', 'fittings', 'flanges', 'supports', 'hangers', 'expansion', 'pump', 'vessel', 'tank', 'boiler', 'heat exchanger', 'calorifier', 'pressurisation'],
+    exclude: ['cable', 'lighting', 'distribution', 'switchgear', 'fire alarm', 'ductwork', 'grilles', 'dampers'],
+    autoSelect: ['pipework', 'pipe', 'valve', 'fitting', 'pump', 'vessel', 'tank', 'boiler', 'LTHW', 'CHW', 'CWS', 'HWS', 'condensate']
+  },
+  mechanical: {
+    include: ['pipework', 'valves', 'fittings', 'ductwork', 'grilles', 'dampers', 'plant', 'pump', 'AHU', 'fan', 'boiler', 'heat pump', 'chiller'],
+    exclude: ['cable', 'lighting', 'distribution', 'switchgear', 'fire alarm', 'data cabling'],
+    autoSelect: ['pipework', 'pipe', 'valve', 'fitting', 'duct', 'grille', 'damper', 'pump', 'plant', 'mechanical', 'HVAC']
+  },
+  electrical: {
+    include: ['cables', 'cable containment', 'cable tray', 'trunking', 'conduit', 'distribution', 'switchgear', 'lighting', 'power', 'sockets', 'fire alarm', 'data', 'BMS', 'controls'],
+    exclude: ['pipework', 'valves', 'fittings', 'ductwork', 'insulation', 'lagging', 'grilles', 'dampers'],
+    autoSelect: ['cable', 'electrical', 'lighting', 'power', 'distribution', 'containment', 'tray', 'trunking', 'conduit', 'socket', 'switch']
+  },
+  plumbing: {
+    include: ['pipework', 'sanitary', 'WC', 'basin', 'shower', 'bath', 'drainage', 'soil', 'waste', 'hot water', 'cold water', 'TMV', 'cistern'],
+    exclude: ['cable', 'lighting', 'ductwork', 'insulation', 'fire alarm', 'distribution boards'],
+    autoSelect: ['plumbing', 'sanitary', 'water', 'drain', 'soil', 'waste', 'WC', 'basin', 'shower', 'CWS', 'HWS', 'DHW']
+  },
+  ductwork: {
+    include: ['ductwork', 'grilles', 'diffusers', 'dampers', 'AHU', 'fan coil', 'VAV', 'silencers', 'flex connections', 'access doors', 'fire dampers'],
+    exclude: ['cable', 'lighting', 'pipework', 'valves', 'insulation', 'sanitary'],
+    autoSelect: ['duct', 'grille', 'diffuser', 'damper', 'AHU', 'fan', 'VAV', 'HVAC', 'ventilation', 'extract', 'supply air']
+  },
+  fire: {
+    include: ['fire stopping', 'fire dampers', 'fire alarm', 'detection', 'sprinklers', 'fire-rated', 'intumescent', 'fire collars', 'smoke detection'],
+    exclude: ['general pipework', 'general cable', 'lighting', 'power', 'sanitary', 'ductwork'],
+    autoSelect: ['fire', 'intumescent', 'sprinkler', 'detection', 'alarm', 'smoke', 'damper']
+  },
+  hvac: {
+    include: ['ductwork', 'pipework', 'grilles', 'dampers', 'AHU', 'fan coil', 'chiller', 'boiler', 'heat pump', 'VRF', 'split system', 'controls', 'BMS'],
+    exclude: ['cable containment', 'lighting', 'power', 'sanitary', 'fire alarm'],
+    autoSelect: ['HVAC', 'duct', 'pipe', 'grille', 'damper', 'AHU', 'fan', 'chiller', 'boiler', 'heat pump', 'VRF', 'BMS']
+  },
+  multi: {
+    include: [],
+    exclude: [],
+    autoSelect: []  // selects all — no filter
+  }
+};
+
 var STATE = {
   loggedIn: false,
   user: null,

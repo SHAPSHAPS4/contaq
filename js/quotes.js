@@ -1203,12 +1203,35 @@ function qbStartAnalysis() {
         + '<button onclick="qbScopeSelectAll(false)" style="font-size:11px;font-weight:600;color:#717171;background:none;border:none;cursor:pointer;">Clear All</button>'
         + '</div></div>';
 
+      // Determine which categories to auto-select based on user's trade
+      var userTrade = STATE.tradePrimary || (STATE.user && STATE.user.trade) || 'multi';
+      var tradeConfig = (typeof TRADE_CATEGORIES !== 'undefined' && TRADE_CATEGORIES[userTrade]) ? TRADE_CATEGORIES[userTrade] : null;
+      var autoSelectPatterns = tradeConfig ? tradeConfig.autoSelect : [];
+      var hasTradeFilter = autoSelectPatterns.length > 0;
+
+      if (hasTradeFilter) {
+        var tradeDisplayMap = { insulation:'Insulation', pipework:'Pipework', mechanical:'Mechanical', electrical:'Electrical', plumbing:'Plumbing', ductwork:'Ductwork', fire:'Fire Protection', hvac:'HVAC', multi:'Multi-trade' };
+        pickerHtml += '<div style="background:rgba(44,93,158,0.06);border:1px solid rgba(44,93,158,0.12);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#2C5D9E;">'
+          + '<strong>' + (tradeDisplayMap[userTrade] || userTrade) + ' contractor</strong> \u2014 categories relevant to your trade are pre-selected. Adjust as needed.'
+          + '</div>';
+      }
+
       categories.forEach(function(cat, i) {
         var trade = cat.trade || 'general';
         var tradeColors = { mechanical:'#2E7D32', electrical:'#B45309', insulation:'#7C3AED', plumbing:'#1E40AF', fire:'#B91C1C', controls:'#717171', general:'#717171' };
         var color = tradeColors[trade] || '#717171';
-        pickerHtml += '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background 0.1s;margin-bottom:4px;" onmouseover="this.style.background=\'#F8F9FB\'" onmouseout="this.style.background=\'transparent\'">'
-          + '<input type="checkbox" class="qb-scope-cb" value="' + i + '" checked style="width:16px;height:16px;accent-color:#F05A28;flex-shrink:0;">'
+
+        // Auto-select based on trade: check if category name matches any autoSelect pattern
+        var catName = (cat.category || cat.name || '').toLowerCase();
+        var isSelected = !hasTradeFilter; // if no trade filter, select all
+        if (hasTradeFilter) {
+          isSelected = autoSelectPatterns.some(function(pattern) {
+            return catName.indexOf(pattern.toLowerCase()) >= 0;
+          });
+        }
+
+        pickerHtml += '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background 0.1s;margin-bottom:4px;' + (!isSelected ? 'opacity:0.6;' : '') + '" onmouseover="this.style.background=\'#F8F9FB\'" onmouseout="this.style.background=\'transparent\'">'
+          + '<input type="checkbox" class="qb-scope-cb" value="' + i + '"' + (isSelected ? ' checked' : '') + ' style="width:16px;height:16px;accent-color:#F05A28;flex-shrink:0;" onchange="this.parentElement.style.opacity=this.checked?\'1\':\'0.6\'">'
           + '<div style="flex:1;min-width:0;">'
           + '<div style="font-size:13px;font-weight:600;color:#0B1E3E;">' + (cat.category || cat.name || 'Unknown') + '</div>'
           + '<div style="font-size:11px;color:#9CA3AF;">' + (cat.count_estimate || '') + '</div>'
