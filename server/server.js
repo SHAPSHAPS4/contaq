@@ -289,6 +289,13 @@ app.get('/api/knowledge-base', (_req, res) => {
   res.json(kbIndex.getMetadata());
 });
 
+app.get('/api/trade-readiness', (_req, res) => {
+  try {
+    const readiness = require('./kb/trade-readiness.json');
+    res.json(readiness);
+  } catch(e) { res.json({ error: 'Trade readiness data not available' }); }
+});
+
 /* ── Serve static frontend (production — Railway serves both API + frontend) ── */
 const path = require('path');
 const fs = require('fs');

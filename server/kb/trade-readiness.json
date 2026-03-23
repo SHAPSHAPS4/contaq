@@ -1,0 +1,142 @@
+{
+  "version": "1.0",
+  "date": "2026-03-23",
+  "trades": {
+    "insulation": {
+      "name": "Insulation / Lagging",
+      "score": 7,
+      "status": "functional",
+      "kb_sections": ["I01", "I02", "I03", "I04"],
+      "strengths": [
+        "Pipe insulation materials well documented (mineral wool, phenolic, elastomeric)",
+        "BS 5422 thickness specifications referenced",
+        "Duct insulation internal and external methods covered",
+        "Fire-rated insulation types included"
+      ],
+      "gaps": [
+        "Acoustic performance criteria not quantified",
+        "Limited equipment insulation types (no pumps, flanges)",
+        "Condensation prevention formulas not detailed"
+      ]
+    },
+    "mechanical": {
+      "name": "Mechanical / Pipework",
+      "score": 9,
+      "status": "strong",
+      "kb_sections": ["M01", "M02", "M03", "M04"],
+      "strengths": [
+        "8 pipe materials with full specifications and standards",
+        "40+ valve types with drawing symbols and manufacturer refs",
+        "BS 1710 colour coding, DN/NB cross-reference tables",
+        "Waste factors integrated per material type"
+      ],
+      "gaps": [
+        "Control system integration specs sparse",
+        "Vibration isolation specs absent"
+      ]
+    },
+    "electrical": {
+      "name": "Electrical",
+      "score": 8,
+      "status": "good",
+      "kb_sections": ["E01", "E02", "E03", "E04", "E05"],
+      "strengths": [
+        "Cable types well defined (SWA, LSZH, FP200, MICC)",
+        "Containment systems comprehensive (tray, trunking, conduit)",
+        "Distribution board specifications with form of separation",
+        "BS 5839 fire alarm system coverage"
+      ],
+      "gaps": [
+        "Motor protection detail sparse",
+        "HV/LV interface coverage minimal",
+        "Sound system and PA specifications absent"
+      ]
+    },
+    "ductwork": {
+      "name": "Ductwork / HVAC",
+      "score": 6,
+      "status": "minimal",
+      "kb_sections": ["M03", "M04"],
+      "strengths": [
+        "Rectangular ductwork construction detailed (DW/144)",
+        "Pressure classes and airtightness covered",
+        "Joint types and gauge tables provided"
+      ],
+      "gaps": [
+        "Circular and flat-oval ductwork not fully covered",
+        "Ductwork sizing methodology absent",
+        "Acoustic design and silencer specs missing",
+        "Grille and diffuser specifications sparse",
+        "VAV control interface specs minimal"
+      ]
+    },
+    "plumbing": {
+      "name": "Plumbing & Heating",
+      "score": 3,
+      "status": "inadequate",
+      "kb_sections": [],
+      "strengths": [
+        "Water supply pipework covered via M01",
+        "L8 Legionella compliance referenced in standards"
+      ],
+      "gaps": [
+        "NO dedicated plumbing KB section",
+        "Sanitary ware specifications completely absent",
+        "Soil and waste design rules missing",
+        "Drainage standards not covered",
+        "Below-ground drainage absent",
+        "Stack sizing rules missing"
+      ]
+    },
+    "fire": {
+      "name": "Fire Protection",
+      "score": 3,
+      "status": "inadequate",
+      "kb_sections": ["I04", "E05"],
+      "strengths": [
+        "Intumescent collar types documented",
+        "Fire alarm system architecture understood"
+      ],
+      "gaps": [
+        "NO dedicated fire protection KB section",
+        "Fire damper specifications absent",
+        "Sprinkler system design not covered",
+        "Fire-rated ductwork specs missing",
+        "Tested fire-stopping systems library absent",
+        "Detector spacing rules vague"
+      ]
+    },
+    "hvac": {
+      "name": "HVAC",
+      "score": 6,
+      "status": "minimal",
+      "kb_sections": ["M03", "M04"],
+      "strengths": [
+        "Ductwork construction well covered",
+        "Plant equipment types listed",
+        "CIBSE Guide B referenced"
+      ],
+      "gaps": [
+        "System design methodology absent",
+        "AHU selection criteria sparse",
+        "Control system specifications minimal",
+        "Noise criteria absent"
+      ]
+    },
+    "multi": {
+      "name": "Multi-trade M&E",
+      "score": 7,
+      "status": "functional",
+      "kb_sections": ["M01", "M02", "M03", "M04", "E01", "E02", "E03", "E04", "E05", "I01", "I02", "I03", "I04"],
+      "strengths": [
+        "Broad coverage across mechanical, electrical, and insulation",
+        "Core standards and extraction rules apply to all trades",
+        "Conflict resolution and hallucination prevention built in"
+      ],
+      "gaps": [
+        "Plumbing and fire protection coverage weak",
+        "Token budget may dilute trade-specific detail"
+      ]
+    }
+  }
+}
