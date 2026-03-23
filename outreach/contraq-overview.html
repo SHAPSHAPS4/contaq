@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contraq — AI-Powered M&E Estimating</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; color: #1E1E1E; background: #fff; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 28mm 24mm; font-size: 10.5pt; line-height: 1.55; }
+
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #0B1E3E; }
+    .logo { font-size: 22px; font-weight: 800; color: #0B1E3E; }
+    .logo em { font-style: normal; color: #F05A28; }
+    .tagline { font-size: 10px; color: #717171; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+
+    h1 { font-size: 20px; font-weight: 800; color: #0B1E3E; letter-spacing: -0.5px; margin-bottom: 6px; }
+    h2 { font-size: 13px; font-weight: 700; color: #0B1E3E; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px; padding-bottom: 4px; border-bottom: 1px solid #E8ECEF; }
+    .subtitle { font-size: 12px; color: #717171; margin-bottom: 20px; line-height: 1.6; }
+
+    .pain-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .pain-item { background: #FEF0EB; border-radius: 8px; padding: 12px; border-left: 3px solid #F05A28; }
+    .pain-item strong { display: block; font-size: 10px; color: #0B1E3E; margin-bottom: 2px; }
+    .pain-item span { font-size: 9px; color: #717171; line-height: 1.4; }
+
+    .flow { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .flow-step { flex: 1; background: #F5F7FA; border-radius: 8px; padding: 10px; text-align: center; }
+    .flow-step .num { width: 22px; height: 22px; background: #0B1E3E; color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+    .flow-step .label { font-size: 9px; font-weight: 600; color: #0B1E3E; }
+    .flow-arrow { color: #D0D5DD; font-size: 16px; flex-shrink: 0; }
+
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+    .feat { display: flex; align-items: flex-start; gap: 6px; font-size: 10px; color: #4A4A4A; }
+    .feat .check { color: #2E7D32; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+
+    .cta-box { background: #0B1E3E; border-radius: 12px; padding: 20px; color: #fff; text-align: center; margin-top: 16px; }
+    .cta-box h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .cta-box p { font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 12px; }
+    .cta-box .price { font-size: 28px; font-weight: 900; color: #F05A28; }
+    .cta-box .price span { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.5); }
+    .cta-box .url { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 10px; }
+    .cta-box .url strong { color: #FF7A4D; }
+
+    .footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid #E8ECEF; display: flex; justify-content: space-between; font-size: 9px; color: #9CA3AF; }
+
+    @media print { body { padding: 20mm 18mm; } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Contraq<em>.</em></div>
+  <div class="tagline">AI-Powered M&E Estimating Platform</div>
+</div>
+
+<h1>M&E Takeoffs in Minutes, Not Days</h1>
+<p class="subtitle">Upload your drawings, extract quantities with AI, price instantly and send professional quotes while your competitors are still counting fittings. Built for UK M&E subcontractors.</p>
+
+<h2>The Problem</h2>
+<div class="pain-grid">
+  <div class="pain-item">
+    <strong>10+ hrs/week</strong>
+    <span>Lost to manual payment admin and takeoff counting</span>
+  </div>
+  <div class="pain-item">
+    <strong>77% of projects</strong>
+    <span>Hit by late payment from main contractors</span>
+  </div>
+  <div class="pain-item">
+    <strong>15-22% profit</strong>
+    <span>Lost to admin gaps, unclaimed VOs, and late chasing</span>
+  </div>
+</div>
+
+<h2>How It Works</h2>
+<div class="flow">
+  <div class="flow-step"><div class="num">1</div><div class="label">Upload PDF<br>drawings</div></div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><div class="num">2</div><div class="label">AI extracts<br>quantities</div></div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><div class="num">3</div><div class="label">Review &<br>adjust</div></div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><div class="num">4</div><div class="label">Price &<br>quote</div></div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><div class="num">5</div><div class="label">Send to<br>client</div></div>
+</div>
+
+<h2>What You Get</h2>
+<div class="features">
+  <div class="feat"><span class="check">&#10003;</span> AI Quote Builder (PDF to priced quote)</div>
+  <div class="feat"><span class="check">&#10003;</span> Quote Book & tender register</div>
+  <div class="feat"><span class="check">&#10003;</span> Project tracking & management</div>
+  <div class="feat"><span class="check">&#10003;</span> Client register</div>
+  <div class="feat"><span class="check">&#10003;</span> Engineer scheduler & cert tracking</div>
+  <div class="feat"><span class="check">&#10003;</span> Site Journal with AI EOT analysis</div>
+  <div class="feat"><span class="check">&#10003;</span> Invoice & PO register</div>
+  <div class="feat"><span class="check">&#10003;</span> CIS compliance tools</div>
+  <div class="feat"><span class="check">&#10003;</span> Unlimited AI extractions</div>
+  <div class="feat"><span class="check">&#10003;</span> Up to 5 users per team</div>
+  <div class="feat"><span class="check">&#10003;</span> AI learns your corrections over time</div>
+  <div class="feat"><span class="check">&#10003;</span> Priority support & roadmap input</div>
+</div>
+
+<div class="cta-box">
+  <h3>Join the Contraq Beta</h3>
+  <p>Founding member rate. Locked in for life. Free 14-day trial.</p>
+  <div class="price">&pound;99<span>/mo</span></div>
+  <div class="url">Sign up at <strong>contraq.up.railway.app/beta</strong></div>
+</div>
+
+<div class="footer">
+  <span>Contraq &middot; Built for M&E subcontractors &middot; hello@contraq.co.uk</span>
+  <span>UK-hosted &middot; GDPR compliant &middot; 14-day free trial</span>
+</div>
+
+</body>
+</html>
