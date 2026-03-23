@@ -89,11 +89,14 @@ function dashNav(panel) {
     return;
   }
 
-  // Soft gates for Starter plan
-  var gatedPanels = { cis: 'cis', finance: 'finance', invoices: 'finance', procurement: 'finance', procore: 'procore' };
-  if (gatedPanels[panel]) {
-    var gate = checkPlanGate(gatedPanels[panel]);
-    if (!gate.allowed) { showUpgradePrompt(gate); return; }
+  // Plan gates disabled during beta — all features included in beta plan
+  // To re-enable: remove the LAUNCH_MODE check below
+  if (typeof LAUNCH_MODE === 'undefined' || !LAUNCH_MODE) {
+    var gatedPanels = { cis: 'cis', finance: 'finance', invoices: 'finance', procurement: 'finance', procore: 'procore' };
+    if (gatedPanels[panel]) {
+      var gate = checkPlanGate(gatedPanels[panel]);
+      if (!gate.allowed) { showUpgradePrompt(gate); return; }
+    }
   }
 
   STATE.currentPanel = panel;

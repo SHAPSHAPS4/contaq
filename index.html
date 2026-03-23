@@ -306,12 +306,15 @@
       <div class="auth-logo"><div class="logo-sq"></div><span class="nav-brand" style="margin-left:.5rem">CONTR<span>AQ</span></span></div>
       <h1 class="auth-title">Start your free trial</h1>
       <p class="auth-sub">14 days free · No credit card needed</p>
-      <div id="reg-plan-display" style="margin-bottom:1.2rem">
-        <div class="field"><label>Choose your plan</label></div>
+      <div style="background:rgba(46,125,50,0.06);border:1px solid rgba(46,125,50,0.15);border-radius:10px;padding:10px 16px;margin-bottom:1.2rem;font-size:13px;color:#2E7D32;text-align:center;">
+        <strong>Contraq Beta</strong> &middot; &pound;99/mo after trial &middot; Founding member rate locked for life
+      </div>
+      <!-- Hidden plan selectors for backwards compatibility -->
+      <div id="reg-plan-display" style="display:none;">
         <div class="plan-select">
-          <div class="plan-opt" id="po-starter" onclick="selectRegPlan('starter',this)"><div class="pname">Starter</div><div class="pprice">£49/mo</div></div>
-          <div class="plan-opt sel" id="po-professional" onclick="selectRegPlan('professional',this)"><div class="pname">Professional</div><div class="pprice">£149/mo</div></div>
-          <div class="plan-opt" id="po-business" onclick="selectRegPlan('business',this)"><div class="pname">Business</div><div class="pprice">£349/mo</div></div>
+          <div class="plan-opt sel" id="po-starter"></div>
+          <div class="plan-opt" id="po-professional"></div>
+          <div class="plan-opt" id="po-business"></div>
         </div>
       </div>
       <div id="reg-err" class="auth-err"></div>
