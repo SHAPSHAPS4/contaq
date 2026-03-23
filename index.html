@@ -1838,10 +1838,12 @@
 
 <div class="toast-container" id="toasts"></div>
 
-<!-- Feedback Widget -->
+<!-- Help & Feedback Widgets -->
 <div id="feedback-widget" style="position:fixed;bottom:24px;right:24px;z-index:500;display:none;">
-  <button id="feedback-fab" onclick="toggleFeedbackPanel()" style="width:48px;height:48px;border-radius:50%;background:#F05A28;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(240,90,40,0.35);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+    <a href="help.html" target="_blank" style="width:40px;height:40px;border-radius:50%;background:#0B1E3E;color:#fff;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:16px;font-weight:700;transition:all 0.2s;" title="Help Centre">?</a>
+    <button id="feedback-fab" onclick="toggleFeedbackPanel()" style="width:48px;height:48px;border-radius:50%;background:#F05A28;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(240,90,40,0.35);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" title="Give Feedback">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
   </button>
   <div id="feedback-panel" style="display:none;position:absolute;bottom:60px;right:0;width:340px;background:#fff;border:1px solid #E8ECEF;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.12);overflow:hidden;">
     <div style="padding:20px 20px 0;border-bottom:1px solid #F0F2F5;">

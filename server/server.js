@@ -127,28 +127,59 @@ app.get('/pricing', (_req, res) => {
   res.sendFile(serverPath.join(__dirname, '../public/pricing-panel.html'));
 });
 
+// ─── Health check (simple) ─────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', worker: process.pid });
 });
 
-// Debug: check file system paths (remove after deployment is confirmed)
-app.get('/api/debug/paths', (_req, res) => {
-  const fs = require('fs');
-  const path = require('path');
-  const dirs = {
-    __dirname,
-    cwd: process.cwd(),
-    parent: path.join(__dirname, '..'),
-    cwdParent: path.join(process.cwd(), '..'),
+// ─── Status page (detailed — for monitoring) ──────────────────────
+const _serverStartTime = Date.now();
+let _requestCount = 0;
+let _errorCount = 0;
+app.use((_req, _res, next) => { _requestCount++; next(); });
+
+app.get('/api/status', async (_req, res) => {
+  const uptime = Math.round((Date.now() - _serverStartTime) / 1000);
+  const status = {
+    status: 'operational',
+    version: '1.0.0-beta',
+    uptime_seconds: uptime,
+    uptime_human: Math.floor(uptime/3600) + 'h ' + Math.floor((uptime%3600)/60) + 'm',
+    requests_served: _requestCount,
+    errors: _errorCount,
+    services: {
+      api: { status: 'operational' },
+      database: { status: 'checking' },
+      ai: { status: 'operational', provider: 'Anthropic Claude' }
+    },
+    timestamp: new Date().toISOString()
   };
-  const checks = {};
-  for (const [name, dir] of Object.entries(dirs)) {
-    try {
-      const files = fs.readdirSync(dir).slice(0, 20);
-      checks[name] = { path: dir, files, hasIndex: files.includes('index.html'), hasLanding: files.includes('landing.html') };
-    } catch(e) { checks[name] = { path: dir, error: e.message }; }
+
+  // Check database
+  try {
+    const { supabaseAdmin } = require('./db/supabase');
+    if (supabaseAdmin) {
+      const { error } = await supabaseAdmin.from('organizations').select('id').limit(1);
+      status.services.database.status = error ? 'degraded' : 'operational';
+      if (error) status.services.database.error = error.message;
+    } else {
+      status.services.database.status = 'not_configured';
+    }
+  } catch(e) {
+    status.services.database.status = 'down';
+    status.services.database.error = e.message;
   }
-  res.json(checks);
+
+  // Check AI key
+  if (!process.env.ANTHROPIC_API_KEY) {
+    status.services.ai.status = 'not_configured';
+  }
+
+  // Overall status
+  const allOp = Object.values(status.services).every(s => s.status === 'operational');
+  status.status = allOp ? 'operational' : 'degraded';
+
+  res.json(status);
 });
 
 /* ── Shared proxy logic ───────────────────────────────────────────── */
@@ -323,7 +354,8 @@ app.use((_req, res) => {
 
 /* ── Global error handler ─────────────────────────────────────────── */
 app.use((err, _req, res, _next) => {
-  console.error('[Contraq API] Unhandled error:', err.message);
+  _errorCount++;
+  console.error('[Contraq API] Unhandled error:', err.message, err.stack ? err.stack.split('\n')[1] : '');
   if (err.message && err.message.startsWith('CORS:')) {
     return res.status(403).json({ error: { type: 'cors', message: err.message } });
   }

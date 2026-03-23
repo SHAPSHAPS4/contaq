@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contraq Help Centre</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#F5F7FA;color:#1E1E1E;font-size:15px;line-height:1.65}
+    .help-nav{background:#0B1E3E;padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
+    .help-nav a{color:#fff;text-decoration:none;font-size:14px;font-weight:500}
+    .help-nav .logo{font-size:20px;font-weight:800}.help-nav .logo em{font-style:normal;color:#F05A28}
+    .help-hero{background:#0B1E3E;padding:48px 40px 56px;text-align:center;color:#fff}
+    .help-hero h1{font-size:32px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px}
+    .help-hero p{font-size:16px;color:rgba(255,255,255,0.6);max-width:480px;margin:0 auto 24px}
+    .help-search{max-width:480px;margin:0 auto}
+    .help-search input{width:100%;padding:14px 20px;border:none;border-radius:12px;font-family:inherit;font-size:15px;outline:none;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+    .help-body{max-width:800px;margin:-24px auto 0;padding:0 24px 64px;position:relative}
+    .help-cat{background:#fff;border:1px solid #E8ECEF;border-radius:16px;padding:32px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
+    .help-cat h2{font-size:18px;font-weight:700;color:#0B1E3E;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .help-cat h2 .cat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+    .help-article{padding:12px 0;border-bottom:1px solid #F0F2F5;cursor:pointer;transition:all 0.15s}
+    .help-article:last-child{border-bottom:none}
+    .help-article:hover{padding-left:8px}
+    .help-article h3{font-size:15px;font-weight:600;color:#0B1E3E;margin-bottom:2px}
+    .help-article p{font-size:13px;color:#717171}
+    .help-article-body{display:none;padding:12px 0 4px;font-size:14px;color:#4A4A4A;line-height:1.7}
+    .help-article-body.open{display:block}
+    .help-article-body code{background:#F0F2F5;padding:2px 6px;border-radius:4px;font-size:13px;font-family:'JetBrains Mono',monospace}
+    .help-article-body ul{padding-left:20px;margin:8px 0}
+    .help-article-body li{margin-bottom:4px}
+    .help-contact{background:#fff;border:1px solid #E8ECEF;border-radius:16px;padding:32px;text-align:center}
+    .help-contact h2{font-size:18px;font-weight:700;color:#0B1E3E;margin-bottom:8px}
+    .help-contact p{font-size:14px;color:#717171;margin-bottom:20px}
+    .help-contact a{display:inline-flex;padding:12px 28px;background:#F05A28;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;transition:all 0.2s}
+    .help-contact a:hover{background:#C04418;transform:translateY(-1px)}
+    @media(max-width:600px){.help-nav,.help-hero{padding-left:20px;padding-right:20px}.help-body{padding:0 16px 40px}}
+  </style>
+</head>
+<body>
+
+<nav class="help-nav">
+  <a href="landing.html" class="logo">Contraq<em>.</em></a>
+  <a href="index.html#login">Back to Platform &rarr;</a>
+</nav>
+
+<div class="help-hero">
+  <h1>Help Centre</h1>
+  <p>Everything you need to get the most out of Contraq</p>
+  <div class="help-search">
+    <input type="text" id="help-search" placeholder="Search for help..." oninput="filterArticles(this.value)">
+  </div>
+</div>
+
+<div class="help-body">
+
+  <!-- Getting Started -->
+  <div class="help-cat" data-cat="getting-started">
+    <h2><span class="cat-icon" style="background:rgba(240,90,40,0.1);color:#F05A28;">&#9889;</span> Getting Started</h2>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>How do I sign up?</h3>
+      <p>Creating your Contraq account</p>
+      <div class="help-article-body">
+        <ol>
+          <li>Go to the <strong>beta signup page</strong> and fill in your details (name, company, trade, email).</li>
+          <li>We'll review your application within 24 hours.</li>
+          <li>Once approved, you'll receive an email with your login credentials.</li>
+          <li>Sign in at the login page — you're ready to go.</li>
+        </ol>
+        <p>Your account includes a <strong>14-day free trial</strong> with full platform access. No credit card required.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>First steps after logging in</h3>
+      <p>What to do when you first see the dashboard</p>
+      <div class="help-article-body">
+        <ol>
+          <li><strong>Click "AI Quote Builder"</strong> in the sidebar — the orange button.</li>
+          <li><strong>Upload a PDF drawing</strong> — any M&E drawing you've got handy.</li>
+          <li><strong>Click "Analyse Documents"</strong> — AI will extract quantities in 2-5 minutes.</li>
+          <li><strong>Review the extraction</strong> — accept, flag, or reject each item.</li>
+          <li><strong>Click "Confirm & Create Quote"</strong> — your first quote is done.</li>
+        </ol>
+        <p>That's the core loop. Everything else builds on it.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Inviting team members</h3>
+      <p>Adding colleagues to your Contraq account</p>
+      <div class="help-article-body">
+        <p>Admin users can invite team members. Contact us at <strong>hello@contraq.co.uk</strong> with the email addresses you'd like to add. During beta, we'll set them up manually.</p>
+        <p>Self-serve team management is coming soon.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Quote Builder -->
+  <div class="help-cat" data-cat="ai-quote-builder">
+    <h2><span class="cat-icon" style="background:rgba(44,93,158,0.1);color:#2C5D9E;">&#9889;</span> AI Quote Builder</h2>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Uploading your first drawing</h3>
+      <p>Supported file types and best practices</p>
+      <div class="help-article-body">
+        <p><strong>Supported formats:</strong> PDF (best results), DWG, scanned drawings.</p>
+        <p><strong>For best results:</strong></p>
+        <ul>
+          <li>Use clear, legible PDFs — not photos of drawings</li>
+          <li>Include the drawing schedule/legend if available</li>
+          <li>GA (General Arrangement) drawings give the best extraction</li>
+          <li>Max file size: 50MB per document</li>
+        </ul>
+        <p>You can upload multiple drawings at once — the AI will process them together.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Understanding confidence scores</h3>
+      <p>What High, Medium, and Low confidence mean</p>
+      <div class="help-article-body">
+        <p>Every extracted item has a confidence level:</p>
+        <ul>
+          <li><strong style="color:#2E7D32;">High</strong> — Extracted directly from drawing annotations or matched against the specification. Standard review recommended.</li>
+          <li><strong style="color:#B45309;">Medium</strong> — Partially estimated. Some values inferred from industry defaults (BSRIA/BS standards). Check flagged parameters against the project spec.</li>
+          <li><strong style="color:#B91C1C;">Low</strong> — AI estimate requiring verification. Values inferred from industry defaults. Open the source document and verify before including in a tender.</li>
+        </ul>
+        <p>Always review Medium and Low items carefully. The AI flags what it's unsure about.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Reviewing and correcting extractions</h3>
+      <p>How to accept, flag, or reject items</p>
+      <div class="help-article-body">
+        <p>After extraction, review each item:</p>
+        <ul>
+          <li><strong>&#10003; Accept</strong> — item is correct, include in quote</li>
+          <li><strong>&#9873; Flag</strong> — include but mark for further review in Quote Book</li>
+          <li><strong>&times; Reject</strong> — remove from quote (hallucinated or out of scope)</li>
+        </ul>
+        <p><strong>Important:</strong> Every correction you make teaches the AI. Rejected items become learned rules that prevent the same mistake next time. The more you correct, the smarter it gets for your specific projects.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Creating a quote from extraction</h3>
+      <p>Turning AI-extracted items into a formal quote</p>
+      <div class="help-article-body">
+        <ol>
+          <li>Review all items (accept/flag/reject)</li>
+          <li>Click <strong>"Confirm & Create Quote"</strong></li>
+          <li>The quote appears in your <strong>Quote Book</strong></li>
+          <li>From there you can assign it to a client, edit line items, and track its status</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Managing Your Work -->
+  <div class="help-cat" data-cat="managing-work">
+    <h2><span class="cat-icon" style="background:rgba(46,125,50,0.1);color:#2E7D32;">&#9881;</span> Managing Your Work</h2>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Quote Book overview</h3>
+      <p>Tracking your quotes and tenders</p>
+      <div class="help-article-body">
+        <p>The Quote Book shows all your quotes in one place. Each quote has a status: <strong>Draft</strong>, <strong>Submitted</strong>, <strong>Won</strong>, <strong>Lost</strong>, or <strong>Expired</strong>.</p>
+        <p>Click any quote to see its line items, attached drawings, and history.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Projects and clients</h3>
+      <p>Organising your work</p>
+      <div class="help-article-body">
+        <p>When a quote is won, create a <strong>Project</strong> from it. Projects track the full lifecycle: from accepted quote through to final account.</p>
+        <p><strong>Clients</strong> are the main contractors or developers you work for. Link quotes and projects to clients to see your full relationship history.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account & Billing -->
+  <div class="help-cat" data-cat="account">
+    <h2><span class="cat-icon" style="background:rgba(124,58,237,0.1);color:#7C3AED;">&#128100;</span> Account & Billing</h2>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Beta pricing and founding member rate</h3>
+      <p>What does the beta cost?</p>
+      <div class="help-article-body">
+        <p>During beta: <strong>&pound;99/month</strong> after your 14-day free trial. This is the founding member rate — it's locked in for life. When we raise prices after beta, your account stays at &pound;99.</p>
+        <p>Cancel anytime from your account settings. No contracts, no penalties.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Data and privacy</h3>
+      <p>Where your data is stored and how it's protected</p>
+      <div class="help-article-body">
+        <ul>
+          <li><strong>UK/EU hosted</strong> — your data stays in EU data centres</li>
+          <li><strong>Encrypted</strong> — TLS 1.3 in transit, AES-256 at rest</li>
+          <li><strong>GDPR compliant</strong> — full data export available anytime</li>
+          <li><strong>No data sharing</strong> — your drawings, quotes, and project data are never shared with other users or used to train AI models</li>
+          <li><strong>Backups</strong> — automated daily backups with 30-day retention</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="help-cat" data-cat="faq">
+    <h2><span class="cat-icon" style="background:rgba(240,90,40,0.1);color:#F05A28;">&#63;</span> FAQ</h2>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Which trades does the AI support?</h3>
+      <p>Mechanical, electrical, insulation, and more</p>
+      <div class="help-article-body">
+        <p>The AI knowledge base currently covers:</p>
+        <ul>
+          <li><strong>Mechanical/Pipework</strong> — 9/10 coverage (pipes, fittings, valves, HVAC)</li>
+          <li><strong>Electrical</strong> — 8/10 (cables, containment, distribution, lighting)</li>
+          <li><strong>Insulation</strong> — 7/10 (pipe, duct, equipment, fire-rated)</li>
+          <li><strong>HVAC/Ductwork</strong> — 6/10 (ductwork, plant equipment)</li>
+        </ul>
+        <p>Plumbing and Fire Protection coverage is being expanded.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>Can I export my data?</h3>
+      <p>Getting data out of Contraq</p>
+      <div class="help-article-body">
+        <p>Yes. You can export quotes and project data. Full CSV/PDF export is on the roadmap. In the meantime, contact us and we'll export your data within 24 hours.</p>
+      </div>
+    </div>
+
+    <div class="help-article" onclick="toggleArticle(this)">
+      <h3>How accurate is the AI?</h3>
+      <p>What to expect from AI extractions</p>
+      <div class="help-article-body">
+        <p>Accuracy depends on drawing quality and trade complexity. On clear GA drawings:</p>
+        <ul>
+          <li>High confidence items: typically <strong>85-95%</strong> accurate</li>
+          <li>Medium confidence: <strong>60-80%</strong> — always verify</li>
+          <li>Low confidence: treat as <strong>estimates only</strong></li>
+        </ul>
+        <p>The AI gets better over time as your team corrects extractions. After 10+ corrections, accuracy typically improves by 10-15%.</p>
+        <p><strong>Never submit a tender based solely on AI extraction without human review.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="help-contact">
+    <h2>Still need help?</h2>
+    <p>Our team has worked on M&E sites. We speak your language.</p>
+    <a href="mailto:hello@contraq.co.uk">Email us at hello@contraq.co.uk</a>
+    <p style="margin-top:12px;font-size:12px;color:#9CA3AF;">We aim to respond within 24 hours (4 hours for critical issues)</p>
+  </div>
+
+</div>
+
+<script>
+function toggleArticle(el) {
+  var body = el.querySelector('.help-article-body');
+  if (body) body.classList.toggle('open');
+}
+function filterArticles(q) {
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('.help-article').forEach(function(a) {
+    var text = a.textContent.toLowerCase();
+    a.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('.help-cat').forEach(function(c) {
+    var visible = c.querySelectorAll('.help-article[style=""], .help-article:not([style])').length;
+    c.style.display = (!q || visible > 0) ? '' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>
