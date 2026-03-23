@@ -1133,8 +1133,156 @@ function qbStartAnalysis() {
     if (hasBoq) docTypes.push('BoQ');
     docCount.textContent = _qbFiles.length + ' files \u00b7 Identified: ' + docTypes.join(', ');
 
-    /* ── Step 3: Build API message ─────────────────────── */
+    /* ── Step 3: Scope scan — identify categories on drawings ── */
     activateStep(3);
+    docCount.textContent = 'Scanning drawings to identify service categories\u2026';
+
+    // Build a lightweight scan request (only PDFs, ask for categories)
+    var scanBlocks = [];
+    fileData.forEach(function(fd) {
+      if (fd.ext === 'pdf') {
+        scanBlocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fd.base64 } });
+      } else if (/^(png|jpg|jpeg)$/.test(fd.ext)) {
+        scanBlocks.push({ type: 'image', source: { type: 'base64', media_type: fd.ext === 'png' ? 'image/png' : 'image/jpeg', data: fd.base64 } });
+      }
+    });
+    scanBlocks.push({
+      type: 'text',
+      text: 'SCOPE SCAN ONLY — do NOT extract quantities. Identify all M&E service categories visible on these drawings. Return a JSON array of objects: [{"category":"Heating Pipework","trade":"mechanical","count_estimate":"~20 items"},{"category":"Cable Containment","trade":"electrical","count_estimate":"~15 items"},...]. Categories should be specific (e.g. "LTHW Pipework" not just "Pipework"). Include: pipework by system (LTHW, CHW, CWS, HWS, condensate), ductwork, cable containment, electrical distribution, lighting, insulation, valves & fittings, plant/equipment, fire stopping, controls. Only list categories actually visible on the drawings. Be concise.'
+    });
+
+    fetch(CONTRAQ_API_BASE + '/api/quotes/extract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        system: 'You are an M&E drawing analyst. Identify service categories only. Return JSON array. No quantities.',
+        messages: [{ role: 'user', content: scanBlocks }]
+      })
+    })
+    .then(function(resp) { return resp.json(); })
+    .then(function(scanResult) {
+      completeStep(3);
+
+      // Parse categories from AI response
+      var categories = [];
+      try {
+        var scanText = '';
+        if (scanResult.content) {
+          scanResult.content.forEach(function(b) { if (b.type === 'text') scanText += b.text; });
+        } else if (scanResult.choices) {
+          scanText = scanResult.choices[0].message.content;
+        } else if (typeof scanResult === 'string') {
+          scanText = scanResult;
+        }
+        // Extract JSON from response
+        var jsonMatch = scanText.match(/\[[\s\S]*\]/);
+        if (jsonMatch) categories = JSON.parse(jsonMatch[0]);
+      } catch(e) {
+        console.warn('[Scope Scan] Failed to parse categories, proceeding with all:', e);
+      }
+
+      // If scan failed or returned nothing, skip the picker and extract everything
+      if (!categories.length) {
+        docCount.textContent = 'Scope scan complete \u2014 extracting all services\u2026';
+        _qbSelectedScope = null;
+        _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, completeStep, completeAll, docCount, _currentStep);
+        return;
+      }
+
+      // Show scope picker UI
+      docCount.textContent = categories.length + ' service categories found \u2014 select what to extract:';
+      document.getElementById('qb-ai-spinner').style.display = 'none';
+
+      var pickerHtml = '<div id="qb-scope-picker" style="background:#fff;border:1px solid #E8ECEF;border-radius:12px;padding:20px;margin-top:12px;max-height:320px;overflow-y:auto;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+        + '<span style="font-size:14px;font-weight:700;color:#0B1E3E;">Select categories to extract</span>'
+        + '<div style="display:flex;gap:8px;">'
+        + '<button onclick="qbScopeSelectAll(true)" style="font-size:11px;font-weight:600;color:#2C5D9E;background:none;border:none;cursor:pointer;">Select All</button>'
+        + '<button onclick="qbScopeSelectAll(false)" style="font-size:11px;font-weight:600;color:#717171;background:none;border:none;cursor:pointer;">Clear All</button>'
+        + '</div></div>';
+
+      categories.forEach(function(cat, i) {
+        var trade = cat.trade || 'general';
+        var tradeColors = { mechanical:'#2E7D32', electrical:'#B45309', insulation:'#7C3AED', plumbing:'#1E40AF', fire:'#B91C1C', controls:'#717171', general:'#717171' };
+        var color = tradeColors[trade] || '#717171';
+        pickerHtml += '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background 0.1s;margin-bottom:4px;" onmouseover="this.style.background=\'#F8F9FB\'" onmouseout="this.style.background=\'transparent\'">'
+          + '<input type="checkbox" class="qb-scope-cb" value="' + i + '" checked style="width:16px;height:16px;accent-color:#F05A28;flex-shrink:0;">'
+          + '<div style="flex:1;min-width:0;">'
+          + '<div style="font-size:13px;font-weight:600;color:#0B1E3E;">' + (cat.category || cat.name || 'Unknown') + '</div>'
+          + '<div style="font-size:11px;color:#9CA3AF;">' + (cat.count_estimate || '') + '</div>'
+          + '</div>'
+          + '<span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:' + color + ';background:' + color + '15;padding:2px 8px;border-radius:10px;">' + trade + '</span>'
+          + '</label>';
+      });
+
+      pickerHtml += '</div>'
+        + '<button id="qb-scope-continue" onclick="qbScopeContinue()" style="margin-top:12px;width:100%;padding:12px;background:#F05A28;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;">Extract Selected Categories \u2192</button>';
+
+      // Store categories and fileData for continuation
+      window._qbScanCategories = categories;
+      window._qbScanFileData = fileData;
+      window._qbScanFlags = { hasSpec: hasSpec, hasBoq: hasBoq, hasDwg: hasDwg };
+      window._qbScanFns = { activateStep: activateStep, completeStep: completeStep, completeAll: completeAll, docCount: docCount };
+
+      var progEl = document.getElementById('qb-ai-progress');
+      var pickerDiv = document.createElement('div');
+      pickerDiv.id = 'qb-scope-picker-wrap';
+      pickerDiv.innerHTML = pickerHtml;
+      progEl.parentNode.insertBefore(pickerDiv, progEl.nextSibling);
+    })
+    .catch(function(scanErr) {
+      console.warn('[Scope Scan] Failed, proceeding with full extraction:', scanErr);
+      _qbSelectedScope = null;
+      _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, completeStep, completeAll, docCount, _currentStep);
+    });
+
+  }).catch(function(err) {
+    console.error('[QB] File read error:', err);
+    completeAll();
+    docCount.textContent = 'Error reading files: ' + err.message;
+  });
+}
+
+/* ── Scope picker helpers ────────────────────────────────────── */
+var _qbSelectedScope = null;
+
+function qbScopeSelectAll(checked) {
+  document.querySelectorAll('.qb-scope-cb').forEach(function(cb) { cb.checked = checked; });
+}
+
+function qbScopeContinue() {
+  var selected = [];
+  document.querySelectorAll('.qb-scope-cb:checked').forEach(function(cb) {
+    var idx = parseInt(cb.value);
+    if (window._qbScanCategories[idx]) selected.push(window._qbScanCategories[idx].category || window._qbScanCategories[idx].name);
+  });
+
+  if (selected.length === 0) {
+    showToast('Please select at least one category to extract.', 'warn');
+    return;
+  }
+
+  _qbSelectedScope = selected;
+
+  // Remove picker UI
+  var pickerWrap = document.getElementById('qb-scope-picker-wrap');
+  if (pickerWrap) pickerWrap.remove();
+  document.getElementById('qb-ai-spinner').style.display = '';
+
+  var fns = window._qbScanFns;
+  var flags = window._qbScanFlags;
+  fns.docCount.textContent = 'Extracting ' + selected.length + ' categories\u2026';
+
+  _qbContinueExtraction(window._qbScanFileData, flags.hasSpec, flags.hasBoq, flags.hasDwg, fns.activateStep, fns.completeStep, fns.completeAll, fns.docCount, 3);
+}
+
+/* ── Continue extraction after scope selection ─────────────── */
+function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, completeStep, completeAll, docCount, _currentStep) {
+
+    /* ── Step 4: Build API message ─────────────────────── */
+    activateStep(4);
     docCount.textContent = 'Building AI prompt with ' + MATERIALS_PRICE_BOOK.length + ' Price Book items\u2026';
 
     var contentBlocks = [];
@@ -1157,9 +1305,15 @@ function qbStartAnalysis() {
       });
     });
 
+    // Inject scope filter if user selected specific categories
+    var scopeFilter = '';
+    if (_qbSelectedScope && _qbSelectedScope.length > 0) {
+      scopeFilter = '\n\nSCOPE FILTER: The estimator has selected ONLY the following categories for extraction. Do NOT extract items outside these categories:\n- ' + _qbSelectedScope.join('\n- ') + '\nIgnore all other services visible on the drawings. Only extract items that fall within the selected categories above.\n\n';
+    }
+
     contentBlocks.push({
       type: 'text',
-      text: 'Analyse all uploaded documents following the 16-step calibrated protocol:\n'
+      text: scopeFilter + 'Analyse all uploaded documents following the 16-step calibrated protocol:\n'
         + 'STEP 1: SELF-CHECK \u2014 Reassess your ductwork identification techniques. Ask: Am I only counting physical runs? Am I distinguishing new coloured from grey existing? Am I being conservative? Fresh air intake is typically short (~3m). Spiral duct needs centreline confirmation.\n'
         + 'STEP 2: LEGEND FIRST \u2014 Extract the project legend, symbol key, abbreviations from every sheet. This overrides all general standards. Two-pass verification: classify then confirm against legend.\n'
         + 'STEP 3: IDENTIFY NEW ONLY \u2014 Only count bold/coloured services per legend. Ignore grey/faded existing. Process one service type at a time. Count symbols systematically. NEVER count dimension lines, arrows, leaders, centre-lines, text, hatching as duct/pipe. Double-line duct = one duct, centreline only. Default conservative.\n'
@@ -1350,12 +1504,6 @@ function qbStartAnalysis() {
         _qbRunDemoFallback(activateStep, completeAll);
       }, 2000);
     });
-
-  }).catch(function(readErr) {
-    console.error('File read error:', readErr);
-    docCount.textContent = 'File read error \u2014 loading demo data\u2026';
-    _qbRunDemoFallback(activateStep, completeAll);
-  });
 }
 
 /* ── Local Price Book fuzzy matching ─────────────────────── */
