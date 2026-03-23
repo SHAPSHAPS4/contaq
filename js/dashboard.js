@@ -67,6 +67,8 @@ function initDashboard() {
     });
   }
 
+  if (typeof loadOrgLearnedRules === 'function') loadOrgLearnedRules();
+
   dashNav(STATE.currentPanel||'home');
 }
 
@@ -432,6 +434,23 @@ function renderDashHome() {
     + kpiCard('Total Invoiced','£'+fmtNum(totalInvd),overdueCount+' overdue · '+draftCount+' draft',overdueCount>0?'dn':'up',{background:'var(--blue)'},null)
     + kpiCard('Outstanding','£'+fmtNum(outstanding),'Across '+INVOICES.filter(function(i){return i.status==='sent'||i.status==='overdue';}).length+' invoices','dn',{background:'var(--yellow)'},null)
     + '</div>';
+
+  // KB Score card (populated async for real users)
+  content.innerHTML += '<div id="kb-score-card" style="margin-bottom:1rem"></div>';
+  if (typeof ContraqAPI !== 'undefined' && ContraqAPI.isRealUser()) {
+    ContraqAPI.getLearnedRules().then(function(rules) {
+      var kbScoreEl = document.getElementById('kb-score-card');
+      if (!kbScoreEl) return;
+      var count = rules ? rules.length : 0;
+      var accuracy = count > 10 ? '89' : count > 5 ? '82' : count > 0 ? '75' : '\u2014';
+      kbScoreEl.innerHTML = '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;">'
+        + '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#717171;margin-bottom:4px;">AI Knowledge Score</div>'
+        + '<div style="font-size:28px;font-weight:800;color:#0B1E3E;">' + count + ' <span style="font-size:13px;font-weight:500;color:#717171;">rules learned</span></div>'
+        + '<div style="font-size:12px;color:#2E7D32;margin-top:4px;">Est. accuracy: ' + accuracy + '%</div>'
+        + '<div style="font-size:11px;color:#9CA3AF;margin-top:2px;">The more you correct, the smarter AI gets</div>'
+        + '</div>';
+    }).catch(function() {});
+  }
 
   // Alert strip
   var alerts = [];

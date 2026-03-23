@@ -2161,6 +2161,38 @@ function _qbExecuteQuoteCreation(gateTimestamp) {
     }).catch(function(e) { console.error('[API] Failed to save quote:', e); });
   }
 
+  // KB Flywheel: detect corrections and save as learned rules
+  if (typeof ContraqAPI !== 'undefined' && ContraqAPI.isRealUser()) {
+    var corrections = [];
+    AI_EXTRACTION_DATA.forEach(function(item, i) {
+      var state = _qbReviewState[i];
+      if (state === 'rejected') {
+        corrections.push({
+          rule_type: 'extraction',
+          trigger_text: 'Item: ' + (item.description || item.item || item.desc || '') + ' (trade: ' + (item.trade || item.service || 'unknown') + ')',
+          action_text: 'REJECT — estimator removed this item from the extraction',
+          reason: 'Rejected during review. May be hallucinated or out of scope.',
+          source_project: quoteRef
+        });
+      } else if (state === 'flagged') {
+        corrections.push({
+          rule_type: 'extraction',
+          trigger_text: 'Item: ' + (item.description || item.item || item.desc || '') + ' (confidence: ' + (item.level || 'unknown') + ')',
+          action_text: 'FLAG — estimator flagged for review. Verify quantity and specification.',
+          reason: 'Flagged during review. Likely needs quantity or spec correction.',
+          source_project: quoteRef
+        });
+      }
+    });
+    // Save corrections as learned rules
+    corrections.forEach(function(c) {
+      ContraqAPI.saveLearnedRule(c).catch(function(e) { console.error('[KB]', e); });
+    });
+    if (corrections.length > 0) {
+      console.log('[KB Flywheel] Saved ' + corrections.length + ' corrections as learned rules');
+    }
+  }
+
   /* ── Close modal, reset, navigate to Quote Book ── */
   closeModal('modal-qb-upload');
   qbResetUploadModal();

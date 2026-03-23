@@ -21,7 +21,7 @@ var _fbSessionErrors = {
  */
 function getLearnedRulesPrompt() {
   if (!LEARNED_RULES.length && !PATTERN_ERRORS.length) return '';
-  var lines = ['\n## LEARNED RULES FROM ESTIMATOR FEEDBACK (this session)\n'];
+  var lines = ['\n## LEARNED RULES FROM YOUR ORGANISATION\'S ESTIMATOR FEEDBACK\nThese corrections were made by estimators in your team. Apply them to improve accuracy.\n'];
   if (PATTERN_ERRORS.length) {
     lines.push('### PATTERN ERRORS (highest priority)');
     PATTERN_ERRORS.forEach(function(p) {
@@ -371,4 +371,26 @@ function fbExportResults() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('\u2714 Feedback and learned rules exported', 'success');
+}
+
+/* ── Load org learned rules from database on dashboard init ── */
+function loadOrgLearnedRules() {
+  if (typeof ContraqAPI === 'undefined' || !ContraqAPI.isRealUser()) return;
+  ContraqAPI.getLearnedRules().then(function(rules) {
+    if (!rules || !rules.length) return;
+    rules.forEach(function(r) {
+      var exists = LEARNED_RULES.some(function(lr) { return lr.rule_id === r.id; });
+      if (!exists) {
+        LEARNED_RULES.push({
+          rule_id: r.id || r.rule_type + '_' + Date.now(),
+          trigger: r.trigger_text,
+          action: r.action_text,
+          reason: r.reason || 'Learned from estimator correction',
+          error_type: r.rule_type,
+          date: r.created_at
+        });
+      }
+    });
+    console.log('[KB] Loaded ' + rules.length + ' org learned rules');
+  }).catch(function(e) { console.error('[KB] Failed to load rules:', e); });
 }
