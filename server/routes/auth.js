@@ -104,14 +104,16 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Authenticate with Supabase
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+    // Authenticate with a separate Supabase client (don't pollute admin client's auth state)
+    const { createClient } = require('@supabase/supabase-js');
+    const loginClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    const { data, error } = await loginClient.auth.signInWithPassword({ email, password });
 
     if (error) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Get user profile with org
+    // Get user profile with org (using admin client which bypasses RLS)
     const user = await getUserByAuthId(data.user.id);
     if (!user) {
       return res.status(403).json({ error: 'User profile not found. Please contact support.' });
