@@ -1835,6 +1835,102 @@
 
 <div class="toast-container" id="toasts"></div>
 
+<!-- Feedback Widget -->
+<div id="feedback-widget" style="position:fixed;bottom:24px;right:24px;z-index:500;display:none;">
+  <button id="feedback-fab" onclick="toggleFeedbackPanel()" style="width:48px;height:48px;border-radius:50%;background:#F05A28;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(240,90,40,0.35);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  </button>
+  <div id="feedback-panel" style="display:none;position:absolute;bottom:60px;right:0;width:340px;background:#fff;border:1px solid #E8ECEF;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.12);overflow:hidden;">
+    <div style="padding:20px 20px 0;border-bottom:1px solid #F0F2F5;">
+      <div style="font-size:16px;font-weight:700;color:#0B1E3E;margin-bottom:4px;">Give Feedback</div>
+      <div style="font-size:13px;color:#717171;margin-bottom:16px;">Help us improve Contraq</div>
+    </div>
+    <div style="padding:20px;" id="feedback-form">
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;">How would you rate Contraq so far?</div>
+        <div id="feedback-stars" style="display:flex;gap:4px;">
+          <span class="fb-star" onclick="setFeedbackRating(1)" style="font-size:28px;cursor:pointer;color:#D0D5DD;">&#9733;</span>
+          <span class="fb-star" onclick="setFeedbackRating(2)" style="font-size:28px;cursor:pointer;color:#D0D5DD;">&#9733;</span>
+          <span class="fb-star" onclick="setFeedbackRating(3)" style="font-size:28px;cursor:pointer;color:#D0D5DD;">&#9733;</span>
+          <span class="fb-star" onclick="setFeedbackRating(4)" style="font-size:28px;cursor:pointer;color:#D0D5DD;">&#9733;</span>
+          <span class="fb-star" onclick="setFeedbackRating(5)" style="font-size:28px;cursor:pointer;color:#D0D5DD;">&#9733;</span>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">What worked well?</label>
+        <textarea id="fb-worked" style="width:100%;padding:8px 12px;border:1px solid #D0D5DD;border-radius:8px;font-family:Inter,sans-serif;font-size:13px;resize:vertical;min-height:50px;outline:none;" placeholder="The AI extraction was accurate..."></textarea>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">What could be better?</label>
+        <textarea id="fb-didnt" style="width:100%;padding:8px 12px;border:1px solid #D0D5DD;border-radius:8px;font-family:Inter,sans-serif;font-size:13px;resize:vertical;min-height:50px;outline:none;" placeholder="I'd like to see..."></textarea>
+      </div>
+      <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="fb-would-pay" style="width:16px;height:16px;accent-color:#F05A28;">
+        <label for="fb-would-pay" style="font-size:13px;color:#374151;">I would pay for this product</label>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">What would you pay per month?</label>
+        <select id="fb-price" style="width:100%;padding:8px 12px;border:1px solid #D0D5DD;border-radius:8px;font-family:Inter,sans-serif;font-size:13px;outline:none;background:#F8F9FB;">
+          <option value="">Select...</option>
+          <option value="under-50">Under £50</option>
+          <option value="50-100">£50 - £100</option>
+          <option value="100-200">£100 - £200</option>
+          <option value="200-500">£200 - £500</option>
+          <option value="over-500">Over £500</option>
+        </select>
+      </div>
+      <button onclick="submitFeedback()" style="width:100%;padding:12px;background:#F05A28;color:#fff;border:none;border-radius:10px;font-family:Inter,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;">Submit Feedback</button>
+    </div>
+    <div id="feedback-thanks" style="display:none;padding:32px 20px;text-align:center;">
+      <div style="font-size:24px;margin-bottom:8px;">&#10003;</div>
+      <div style="font-size:15px;font-weight:700;color:#0B1E3E;">Thank you!</div>
+      <div style="font-size:13px;color:#717171;margin-top:4px;">Your feedback helps us build a better product.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _fbRating = 0;
+function setFeedbackRating(n) {
+  _fbRating = n;
+  document.querySelectorAll('.fb-star').forEach(function(s, i) {
+    s.style.color = i < n ? '#F05A28' : '#D0D5DD';
+  });
+}
+function toggleFeedbackPanel() {
+  var p = document.getElementById('feedback-panel');
+  p.style.display = p.style.display === 'none' ? '' : 'none';
+}
+function submitFeedback() {
+  if (!_fbRating) { showToast('Please select a star rating.', 'warn'); return; }
+  fetch(CONTRAQ_API_BASE + '/api/beta/feedback', {
+    method: 'POST',
+    headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      rating: _fbRating,
+      whatWorked: document.getElementById('fb-worked').value.trim(),
+      whatDidnt: document.getElementById('fb-didnt').value.trim(),
+      wouldPay: document.getElementById('fb-would-pay').checked,
+      priceRange: document.getElementById('fb-price').value,
+      page: STATE.currentPanel || 'unknown'
+    })
+  }).then(function() {
+    document.getElementById('feedback-form').style.display = 'none';
+    document.getElementById('feedback-thanks').style.display = '';
+    setTimeout(function() { toggleFeedbackPanel(); }, 2000);
+  }).catch(function() { showToast('Failed to send feedback.', 'error'); });
+}
+// Show feedback widget for logged-in users
+document.addEventListener('DOMContentLoaded', function() {
+  var check = setInterval(function() {
+    if (STATE.loggedIn) {
+      document.getElementById('feedback-widget').style.display = '';
+      clearInterval(check);
+    }
+  }, 1000);
+});
+</script>
+
 <!-- Reset FAB -->
 <button class="reset-fab" onclick="resetDemo()">↺ Reset demo</button>
 

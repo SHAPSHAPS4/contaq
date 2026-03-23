@@ -1601,6 +1601,38 @@ function qbShowExtractionResults() {
   }).join('');
 
   qbUpdateReviewProgress();
+
+  // Accuracy rating prompt (shown after extraction for real users)
+  if (typeof ContraqAPI !== 'undefined' && ContraqAPI.isRealUser()) {
+    var ratingBar = document.getElementById('qb-accuracy-bar');
+    if (!ratingBar) {
+      ratingBar = document.createElement('div');
+      ratingBar.id = 'qb-accuracy-bar';
+      ratingBar.style.cssText = 'background:#F8F9FB;border:1px solid #E8ECEF;border-radius:10px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;gap:12px;font-size:13px;color:#374151;';
+      ratingBar.innerHTML = '<span style="font-weight:600;">Was this extraction accurate?</span>'
+        + '<button onclick="rateExtraction(\'yes\')" style="padding:5px 14px;border-radius:8px;border:1px solid #86EFAC;background:#DCFCE7;color:#15803D;font-size:12px;font-weight:600;cursor:pointer;">Yes</button>'
+        + '<button onclick="rateExtraction(\'partially\')" style="padding:5px 14px;border-radius:8px;border:1px solid #FCD34D;background:#FEF3C7;color:#B45309;font-size:12px;font-weight:600;cursor:pointer;">Partially</button>'
+        + '<button onclick="rateExtraction(\'no\')" style="padding:5px 14px;border-radius:8px;border:1px solid #FCA5A5;background:#FEE2E2;color:#B91C1C;font-size:12px;font-weight:600;cursor:pointer;">No</button>';
+      var resultsEl = document.getElementById('qb-phase-results');
+      if (resultsEl) resultsEl.insertBefore(ratingBar, resultsEl.firstChild);
+    }
+    ratingBar.style.display = '';
+  }
+}
+
+function rateExtraction(accuracy) {
+  var bar = document.getElementById('qb-accuracy-bar');
+  if (bar) {
+    bar.innerHTML = '<span style="color:#2E7D32;font-weight:600;">Thanks for the feedback!</span>';
+    setTimeout(function() { bar.style.display = 'none'; }, 2000);
+  }
+  if (typeof ContraqAPI !== 'undefined' && ContraqAPI.isRealUser()) {
+    fetch(CONTRAQ_API_BASE + '/api/beta/rate-extraction', {
+      method: 'POST',
+      headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accuracy: accuracy, correctionsCount: 0 })
+    }).catch(function(e) { console.error('[Rate]', e); });
+  }
 }
 
 function qbReviewAccept(i) {

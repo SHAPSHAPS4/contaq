@@ -91,8 +91,10 @@ app.use('/api/', kbInjectionMiddleware);
 /* ── Auth & Data routes (Supabase-backed) ────────────────────────── */
 const authRoutes = require('./routes/auth');
 const dataRoutes = require('./routes/data');
+const betaRoutes = require('./routes/beta');
 app.use('/api/auth', authRoutes);
 app.use('/api/data', dataRoutes);
+app.use('/api/beta', betaRoutes);
 
 /* ── Modular routes (new structured API + legacy compatibility) ──── */
 app.use('/api/drawings', require('./routes/drawings'));

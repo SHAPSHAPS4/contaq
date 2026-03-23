@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contraq Beta — Join the Early Access Programme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #0B1E3E; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .beta-card { background: #fff; border-radius: 20px; max-width: 520px; width: 100%; padding: 48px 40px; color: #1E1E1E; box-shadow: 0 32px 80px rgba(0,0,0,0.3); }
+    .beta-logo { font-size: 22px; font-weight: 800; color: #0B1E3E; margin-bottom: 8px; }
+    .beta-logo em { font-style: normal; color: #F05A28; }
+    .beta-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(240,90,40,0.08); border: 1px solid rgba(240,90,40,0.2); padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #F05A28; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px; }
+    .beta-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #F05A28; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .beta-title { font-size: 28px; font-weight: 800; color: #0B1E3E; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 12px; }
+    .beta-sub { font-size: 15px; color: #717171; line-height: 1.6; margin-bottom: 32px; }
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .field label .req { color: #F05A28; }
+    .field input, .field select, .field textarea { width: 100%; padding: 11px 14px; border: 1px solid #D0D5DD; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 14px; color: #1E1E1E; background: #F8F9FB; outline: none; transition: border-color 0.15s; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #2C5D9E; box-shadow: 0 0 0 3px rgba(44,93,158,0.1); }
+    .field input::placeholder, .field textarea::placeholder { color: #9CA3AF; }
+    .field select { cursor: pointer; }
+    .field textarea { resize: vertical; min-height: 70px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .beta-btn { width: 100%; padding: 14px; background: #F05A28; color: #fff; border: none; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(240,90,40,0.3); }
+    .beta-btn:hover { background: #C04418; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(240,90,40,0.4); }
+    .beta-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .beta-note { text-align: center; font-size: 12px; color: #9CA3AF; margin-top: 16px; line-height: 1.5; }
+    .beta-err { background: #FEE2E2; border: 1px solid #FCA5A5; color: #B91C1C; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .beta-success { text-align: center; padding: 40px 20px; }
+    .beta-success-icon { width: 64px; height: 64px; background: rgba(46,125,50,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+    .beta-success h2 { font-size: 22px; font-weight: 800; color: #0B1E3E; margin-bottom: 8px; }
+    .beta-success p { font-size: 15px; color: #717171; line-height: 1.6; }
+    .beta-back { display: inline-block; margin-top: 24px; font-size: 13px; color: #2C5D9E; text-decoration: none; font-weight: 600; }
+    .beta-back:hover { text-decoration: underline; }
+    @media (max-width: 600px) { .beta-card { padding: 32px 24px; } .field-row { grid-template-columns: 1fr; } .beta-title { font-size: 24px; } }
+  </style>
+</head>
+<body>
+
+<div class="beta-card">
+  <div id="beta-form-view">
+    <div class="beta-logo">Contraq<em>.</em></div>
+    <div class="beta-badge"><span class="dot"></span> Early Access Programme</div>
+    <h1 class="beta-title">Join the Contraq Beta</h1>
+    <p class="beta-sub">We're inviting M&E subcontractors to test AI-powered takeoffs on real projects. Free access during beta. Limited places.</p>
+
+    <div class="beta-err" id="beta-err"></div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Your name <span class="req">*</span></label>
+        <input type="text" id="beta-name" placeholder="James Mitchell">
+      </div>
+      <div class="field">
+        <label>Company name <span class="req">*</span></label>
+        <input type="text" id="beta-company" placeholder="Mitchell Insulation Ltd">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Email address <span class="req">*</span></label>
+      <input type="email" id="beta-email" placeholder="james@mitchellinsulation.co.uk">
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Primary trade <span class="req">*</span></label>
+        <select id="beta-trade">
+          <option value="">Select trade...</option>
+          <option value="insulation">Insulation / Lagging</option>
+          <option value="ductwork">Ductwork</option>
+          <option value="pipework">Pipework / Mechanical</option>
+          <option value="electrical">Electrical</option>
+          <option value="plumbing">Plumbing & Heating</option>
+          <option value="fire">Fire Protection</option>
+          <option value="hvac">HVAC</option>
+          <option value="multi">Multi-trade M&E</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Team size</label>
+        <select id="beta-size">
+          <option value="">Select...</option>
+          <option value="1-2">1-2 people</option>
+          <option value="3-5">3-5 people</option>
+          <option value="6-10">6-10 people</option>
+          <option value="11-20">11-20 people</option>
+          <option value="20+">20+ people</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>What do you currently use for takeoffs/estimating?</label>
+      <input type="text" id="beta-tools" placeholder="e.g. Excel, pen & paper, Bluebeam, nothing specific">
+    </div>
+
+    <div class="field">
+      <label>Typical project value</label>
+      <select id="beta-project-size">
+        <option value="">Select...</option>
+        <option value="under-50k">Under £50k</option>
+        <option value="50-150k">£50k - £150k</option>
+        <option value="150-500k">£150k - £500k</option>
+        <option value="500k-1m">£500k - £1M</option>
+        <option value="over-1m">Over £1M</option>
+      </select>
+    </div>
+
+    <button class="beta-btn" id="beta-submit" onclick="submitBeta()">Apply for Beta Access</button>
+    <p class="beta-note">We'll review your application within 24 hours.<br>Beta users get free access + direct input on the roadmap.</p>
+    <a href="landing.html" class="beta-back">&larr; Back to Contraq</a>
+  </div>
+
+  <div id="beta-success-view" class="beta-success" style="display:none;">
+    <div class="beta-success-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Application received!</h2>
+    <p>Thanks for applying. We'll review your application and get back to you within 24 hours with your login details.</p>
+    <p style="margin-top:16px;font-size:13px;color:#9CA3AF;">Beta users get free access to the full platform during the testing period, plus direct input on which features we build next.</p>
+    <a href="landing.html" class="beta-back">&larr; Back to Contraq</a>
+  </div>
+</div>
+
+<script>
+var API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3001' : '';
+
+function submitBeta() {
+  var name = document.getElementById('beta-name').value.trim();
+  var company = document.getElementById('beta-company').value.trim();
+  var email = document.getElementById('beta-email').value.trim();
+  var trade = document.getElementById('beta-trade').value;
+  var err = document.getElementById('beta-err');
+  var btn = document.getElementById('beta-submit');
+
+  err.style.display = 'none';
+  if (!name || !company || !email || !trade) {
+    err.textContent = 'Please fill in all required fields.';
+    err.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  fetch(API_BASE + '/api/beta/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: name,
+      company: company,
+      email: email,
+      trade: trade,
+      teamSize: document.getElementById('beta-size').value,
+      currentTools: document.getElementById('beta-tools').value.trim(),
+      projectSize: document.getElementById('beta-project-size').value
+    })
+  })
+  .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+  .then(function(result) {
+    btn.disabled = false;
+    btn.textContent = 'Apply for Beta Access';
+    if (!result.ok) {
+      err.textContent = result.data.error || 'Something went wrong. Please try again.';
+      err.style.display = 'block';
+      return;
+    }
+    document.getElementById('beta-form-view').style.display = 'none';
+    document.getElementById('beta-success-view').style.display = '';
+  })
+  .catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = 'Apply for Beta Access';
+    err.textContent = 'Connection error. Please try again.';
+    err.style.display = 'block';
+  });
+}
+</script>
+
+</body>
+</html>
