@@ -206,6 +206,19 @@ async function journalAIAnalyse() {
     /* ── Render analysis banner ───────────────────────────────── */
     journalRenderAnalysis(d, proj);
 
+    /* ── Save AI analysis for real users ── */
+    if (ContraqAPI.isRealUser()) {
+      ContraqAPI.saveJournalEntry({
+        project_id: STATE.journalProjectId,
+        type: 'ai-analysis',
+        title: 'AI EOT Analysis — ' + (title || 'Untitled'),
+        content: (d.actionSummary || '') + (d.riskRationale ? '\n\nRisk: ' + d.riskRationale : ''),
+        ai_analysis: d,
+        entry_date: date,
+        entry_type: type
+      }).catch(function(e) { console.error('[API] Failed to save journal:', e); });
+    }
+
     setTimeout(function() {
       progressDiv.style.display = 'none';
       bar.style.width = '0%';

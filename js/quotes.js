@@ -1316,6 +1316,18 @@ function qbStartAnalysis() {
         return (_levelOrder[a.level]||1) - (_levelOrder[b.level]||1) || b.conf - a.conf;
       });
 
+      /* ── Save extraction result for real users ── */
+      if (ContraqAPI.isRealUser()) {
+        ContraqAPI.saveExtraction({
+          stage: 'quote',
+          result_json: AI_EXTRACTION_DATA,
+          items_count: AI_EXTRACTION_DATA.length || 0,
+          model: 'claude-sonnet-4-6',
+          source_files: _qbFiles.map(function(f) { return f.name; }),
+          was_truncated: wasTruncated || false
+        }).catch(function(e) { console.error('[API] Failed to save extraction:', e); });
+      }
+
       completeAll();
       var svcCount = AI_EXTRACTION_DATA.filter(function(d){return d.service;}).length;
       docCount.textContent = AI_EXTRACTION_DATA.length + ' items extracted' + (svcCount ? ' from ' + svcCount + ' services' : '') + ' \u00b7 ' + _qbFiles.length + ' document' + (_qbFiles.length>1?'s':'');
@@ -2082,6 +2094,40 @@ function _qbExecuteQuoteCreation(gateTimestamp) {
 
   /* ── Insert at top of TENDERS array ── */
   TENDERS.unshift(newTender);
+
+  /* ── Save to database for real users ── */
+  if (ContraqAPI.isRealUser()) {
+    ContraqAPI.saveQuote({
+      reference: quoteRef,
+      title: projectName || quoteRef,
+      status: 'draft',
+      value: Math.round(grandTotal),
+      client_name: newTender.clientName || '',
+      notes: newTender.notes,
+      ai_metadata: newTender.aiMetadata,
+      line_items_count: lineItems.length,
+      avg_confidence: avgConf,
+      source_files: fileNames
+    }).then(function(savedQuote) {
+      if (savedQuote && savedQuote.id && AI_EXTRACTION_DATA) {
+        ContraqAPI.saveQuoteItems(savedQuote.id, AI_EXTRACTION_DATA.map(function(item) {
+          return {
+            description: item.desc || item.description || '',
+            trade: item.service || '',
+            quantity: item.qty || 0,
+            unit: item.unit || 'nr',
+            rate: item.rate || 0,
+            confidence: item.level || 'high',
+            confidence_pct: item.conf || 0,
+            source_ref: item.src || '',
+            source_page: item.srcPage || 0,
+            flags: item.flags || [],
+            ai_extracted: true
+          };
+        }));
+      }
+    }).catch(function(e) { console.error('[API] Failed to save quote:', e); });
+  }
 
   /* ── Close modal, reset, navigate to Quote Book ── */
   closeModal('modal-qb-upload');

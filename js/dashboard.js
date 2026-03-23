@@ -193,6 +193,20 @@ function markSetupStep(step) {
 }
 
 function renderDashHome() {
+  /* ── Load real data for authenticated users (progressive enhancement) ── */
+  if (ContraqAPI.isRealUser()) {
+    ContraqAPI.getDashboard().then(function(data) {
+      var s = data.stats;
+      var kpis = document.querySelectorAll('.kpi-val');
+      if (kpis.length >= 4 && s) {
+        if (s.pipelineValue !== undefined) kpis[0].textContent = '\u00a3' + fmtNum(s.pipelineValue);
+        if (s.activeProjects !== undefined) kpis[1].textContent = s.activeProjects;
+        if (s.totalInvoices !== undefined) kpis[2].textContent = '\u00a3' + fmtNum(s.totalInvoiced || 0);
+        if (s.overdueInvoices !== undefined) kpis[3].textContent = '\u00a3' + fmtNum(s.outstanding || 0);
+      }
+    }).catch(function(e) { console.error('[Dashboard] API error:', e); });
+  }
+
   var user = STATE.user||DEMO_USER;
   var greeting = getGreeting();
   var totalRev = PROJECTS.filter(function(p){return p.status!=='cancelled';}).reduce(function(s,p){return s+p.value;},0);
