@@ -392,5 +392,5 @@ function loadOrgLearnedRules() {
       }
     });
     console.log('[KB] Loaded ' + rules.length + ' org learned rules');
-  }).catch(function(e) { console.error('[KB] Failed to load rules:', e); });
+  }).catch(function() { /* auth expired — using local rules */ });
 }

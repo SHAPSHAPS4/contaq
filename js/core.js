@@ -12,12 +12,7 @@ function nav(pageId) {
   }
   if (pageId === 'dashboard') {
     initDashboard();
-    setTimeout(function() {
-      var trigger = document.querySelector('.sv-desktop-trigger');
-      if (trigger) trigger.style.display = window.innerWidth < 900 ? 'flex' : 'none';
-    }, 150);
   }
-  if (pageId === 'site' && typeof svInit === 'function') svInit();
 }
 
 function scrollToSection(id) {

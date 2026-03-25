@@ -363,10 +363,38 @@ function renderSettingsSection(user) {
     + '<div class="field"><label>VAT number</label><input id="set-vat" value="'+(user.vat||'')+'" placeholder="GB 123 4567 89" style="font-family:var(--mono)"/></div>'
     + '<div class="field"><label>CIS registered</label><select id="set-cis" style="background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem .65rem;border-radius:var(--radius2);width:100%"><option value="yes"'+(user.cisRegistered!==false?' selected':'')+'>Yes</option><option value="no"'+(user.cisRegistered===false?' selected':'')+'>No</option></select></div>'
     + '<button class="btn btn-primary btn-sm" onclick="saveProfile()">Save changes</button>';
-  if (s==='billing') return '<h3>Billing &amp; Plan</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Manage your subscription and payment method.</p>'
-    + '<div class="billing-card" style="border-color:var(--orange)"><div class="billing-plan-name">CONTRAQ '+planLabels[user.plan||'professional']+'</div><div class="billing-plan-meta">14-day free trial — '+( user.trialDays||5)+' days remaining &nbsp;·&nbsp; No charge until trial ends</div></div>'
-    + '<div class="billing-card" style="margin-top:.75rem"><div style="font-size:.82rem;font-weight:600;margin-bottom:.3rem">Payment method</div><div class="billing-plan-meta">No payment method on file — add one before your trial ends.</div><button class="btn btn-primary btn-sm" style="margin-top:.75rem" onclick="nav(\'stripe\')">Add payment method</button></div>'
-    + '<div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)"><div style="font-size:.8rem;color:var(--off3)">Need a different plan? <a style="color:var(--orange);cursor:pointer" onclick="scrollToSection(\'pricing\');nav(\'home\')">View all plans →</a></div></div>';
+  if (s==='billing') {
+    var trialText = '';
+    if (STATE.demoMode) {
+      trialText = '7-day free trial — 5 days remaining';
+    } else if (user.trialDaysLeft !== undefined && user.trialDaysLeft !== null) {
+      trialText = user.trialExpired
+        ? '<span style="color:var(--red);font-weight:700">Trial expired</span> — upgrade to continue'
+        : '7-day free trial — ' + user.trialDaysLeft + ' day' + (user.trialDaysLeft !== 1 ? 's' : '') + ' remaining';
+    } else {
+      trialText = 'Active subscription';
+    }
+    return '<h3>Billing &amp; Plan</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Manage your subscription and payment method.</p>'
+      + '<div class="billing-card" style="border-color:var(--orange)"><div class="billing-plan-name">CONTRAQ ' + (user.plan === 'beta' ? 'BETA' : planLabels[user.plan||'professional']) + '</div><div class="billing-plan-meta">' + trialText + '</div></div>'
+      + '<div class="billing-card" style="margin-top:1rem;padding:1.5rem;border-color:var(--orange);background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(249,115,22,.02))">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">'
+      + '<div><div style="font-weight:800;font-size:1rem;color:var(--white)">Contraq Beta</div>'
+      + '<div style="font-size:.72rem;color:var(--off3);margin-top:.2rem">Full platform access — locked beta pricing for early adopters</div></div>'
+      + '<div style="text-align:right"><div style="font-family:var(--mono);font-size:1.4rem;font-weight:800;color:var(--orange)">£99<span style="font-size:.65rem;color:var(--off4)">/mo</span></div></div>'
+      + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;font-size:.68rem;color:var(--off3)">'
+      + '<span style="background:var(--bg3);padding:.2rem .5rem;border-radius:4px">AI Quote Builder</span>'
+      + '<span style="background:var(--bg3);padding:.2rem .5rem;border-radius:4px">Unlimited projects</span>'
+      + '<span style="background:var(--bg3);padding:.2rem .5rem;border-radius:4px">Unlimited users</span>'
+      + '<span style="background:var(--bg3);padding:.2rem .5rem;border-radius:4px">CIS compliance</span>'
+      + '<span style="background:var(--bg3);padding:.2rem .5rem;border-radius:4px">Finance &amp; P&amp;L</span>'
+      + '<span style="background:var(--bg3);padding:.2rem .5rem;border-radius:4px">Collective intelligence</span>'
+      + '</div>'
+      + '<button class="btn btn-primary" onclick="contraqUpgrade(\'beta\')" style="width:100%">Upgrade to Beta — £99/mo</button>'
+      + '<div style="font-size:.6rem;color:var(--off4);text-align:center;margin-top:.5rem">This price is locked for beta testers. Cancel anytime.</div>'
+      + '</div>'
+      + '<div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)"><div style="font-size:.78rem;color:var(--off3)">Questions about billing? Email <a href="mailto:hello@contraq.uk" style="color:var(--orange)">hello@contraq.uk</a></div></div>';
+  }
   if (s==='team') {
     var team = [{name:'James Mitchell',role:'Admin',email:user.email,av:'JM',color:'#f97316'},{name:'Mark Pearce',role:'Project Manager',email:'m.pearce@mitchellinsvlation.co.uk',av:'MP',color:'#38bdf8'},{name:'Dave Harris',role:'Site Supervisor',email:'d.harris@mitchellinsulation.co.uk',av:'DH',color:'#4ade80'}];
     return '<h3>Team &amp; Users</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Manage who has access to your CONTRAQ workspace.</p>'

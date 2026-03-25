@@ -739,9 +739,17 @@ function openTenderDetailView(tenderId) {
       + '<div style="font-family:var(--mono);font-weight:700;color:var(--white);font-size:.95rem">\u00A3'+Math.round(liTotal).toLocaleString('en-GB')+'</div>'
       + '</div>';
 
+    // Collective intelligence indicator
+    h += '<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;background:linear-gradient(135deg,rgba(163,230,53,.06),rgba(249,115,22,.06));border:1px solid rgba(163,230,53,.15);border-radius:6px;margin-bottom:.65rem">'
+      + '<span style="font-size:.7rem">&#x1F9E0;</span>'
+      + '<span style="font-size:.62rem;color:var(--off3);line-height:1.4"><strong style="color:var(--lime)">Collective Intelligence</strong> — This estimate is informed by corrections from '
+      + (meta.kbVersion ? '<span style="color:var(--white)">'+KB_VERSION_SOURCES+' industry sources</span>' : 'industry sources')
+      + ' and feedback from contractors across the platform. Every correction improves accuracy for all users in your trade.</span>'
+      + '</div>';
+
     // Export / action buttons
     h += '<div style="display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap">'
-      + '<button class="btn btn-dark btn-xs" onclick="qbExportCSV(\''+t.id+'\')" style="font-size:.65rem">\uD83D\uDCE5 Export line items CSV</button>'
+      + '<button class="btn btn-dark btn-xs" onclick="qbExportSpreadsheet(\''+t.id+'\')" style="font-size:.65rem">\uD83D\uDCE5 Export spreadsheet</button>'
       + '<button class="btn btn-dark btn-xs" onclick="qbCopyLineItems(\''+t.id+'\')" style="font-size:.65rem">\uD83D\uDCCB Copy to clipboard</button>'
       + '<button class="btn btn-primary btn-xs" onclick="qbReQuote(\''+t.id+'\')" style="font-size:.65rem">\uD83D\uDD04 Re-quote with updated rates</button>'
       + '</div>';

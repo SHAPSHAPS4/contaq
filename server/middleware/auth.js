@@ -50,6 +50,22 @@ async function requireAuth(req, res, next) {
     req.orgId = user.org_id;
     req.authUser = authUser;
 
+    // Check trial expiry
+    const org = user.organizations;
+    const paidPlans = ['paid', 'beta', 'professional', 'business'];
+    if (org && org.trial_ends && !paidPlans.includes(org.plan)) {
+      const trialEnd = new Date(org.trial_ends);
+      const now = new Date();
+      if (now > trialEnd) {
+        req.trialExpired = true;
+        req.trialEndsAt = org.trial_ends;
+      } else {
+        req.trialExpired = false;
+        req.trialEndsAt = org.trial_ends;
+        req.trialDaysLeft = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      }
+    }
+
     // Update last login (fire and forget)
     supabaseAdmin
       .from('users')
@@ -77,6 +93,18 @@ function requireRole(...roles) {
   };
 }
 
+// Middleware: block expired trials (use after requireAuth)
+function requireActiveTrial(req, res, next) {
+  if (req.trialExpired) {
+    return res.status(402).json({
+      error: 'trial_expired',
+      message: 'Your 7-day free trial has ended. Upgrade to continue using Contraq.',
+      trial_ends: req.trialEndsAt
+    });
+  }
+  next();
+}
+
 // Middleware: optional auth (attaches user if token present, continues if not)
 async function optionalAuth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -87,4 +115,4 @@ async function optionalAuth(req, res, next) {
   return requireAuth(req, res, next);
 }
 
-module.exports = { requireAuth, requireRole, optionalAuth };
+module.exports = { requireAuth, requireRole, requireActiveTrial, optionalAuth };

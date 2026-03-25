@@ -2343,4 +2343,39 @@ var ECO_JOBS = [
 ];
 var ECO_JOBS_DEMO = JSON.parse(JSON.stringify(ECO_JOBS));
 
+/* ══════════════════════════════════════════════════════════════
+   DEMO DATA ISOLATION
+   clearDemoData() — empties all mock arrays for real orgs
+   restoreDemoData() — refills them for demo mode / logout
+══════════════════════════════════════════════════════════════ */
+
+function clearDemoData() {
+  PROJECTS.length = 0;
+  INVOICES.length = 0;
+  TENDERS.length = 0;
+  CLIENTS.length = 0;
+  ENGINEERS.length = 0;
+  SUPPLIERS.length = 0;
+  CALENDAR_EVENTS.length = 0;
+  SITE_MEASURES.length = 0;
+  ACTIVITY_LOG.length = 0;
+  NOTIFICATIONS.length = 0;
+  ECO_JOBS.length = 0;
+  if (typeof JOURNAL_ENTRIES !== 'undefined') { try { JOURNAL_ENTRIES.length = 0; } catch(e){} }
+  if (typeof PRICEBOOK !== 'undefined') { try { PRICEBOOK.length = 0; } catch(e){} }
+  STATE.demoMode = false;
+}
+
+function restoreDemoData() {
+  // Use resetDemo if available (it restores full demo state)
+  if (typeof resetDemo === 'function') {
+    // Suppress the confirm dialog by temporarily overriding
+    var origConfirm = window.confirm;
+    window.confirm = function() { return true; };
+    try { resetDemo(); } catch(e) {}
+    window.confirm = origConfirm;
+  }
+  STATE.demoMode = true;
+}
+
 /* ──── STATE ──────────────────────────────────────────────── */

@@ -10,6 +10,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { scoreRules, getMaxRulesForEndpoint, tokenise } = require('./rule-scorer');
 
 const KB_VERSION = '7.2';
 const KB_VERSION_DATE = '2026-03-19';
@@ -123,19 +124,24 @@ function loadKBCache() {
 
 /* ══════════════════════════════════════════════════════════════════
    DYNAMIC LEARNING (KB-L01, KB-L02)
+   Supports two modes:
+   - Org-scoped (orgId provided): reads/writes Supabase learned_rules table
+   - File-based (no orgId / demo): reads/writes local JSON files (legacy)
    ══════════════════════════════════════════════════════════════════ */
 
 const L01_PATH = path.join(KB_BASE_PATH, 'learning/L01_learned_rules.json');
 const L02_PATH = path.join(KB_BASE_PATH, 'learning/L02_pattern_errors.json');
 
-function loadDynamicSections() {
+/* ── File-based (legacy / demo fallback) ──────────────────── */
+
+function loadDynamicSectionsFromFiles() {
   const dynamic = {};
   try { dynamic['KB-L01'] = JSON.parse(fs.readFileSync(L01_PATH, 'utf-8')); } catch { dynamic['KB-L01'] = { learned_rules: [], last_updated: null }; }
   try { dynamic['KB-L02'] = JSON.parse(fs.readFileSync(L02_PATH, 'utf-8')); } catch { dynamic['KB-L02'] = { pattern_errors: [], last_updated: null }; }
   return dynamic;
 }
 
-function persistLearnedRules(newRules) {
+function persistLearnedRulesToFiles(newRules) {
   let existing = { learned_rules: [], last_updated: null };
   try { existing = JSON.parse(fs.readFileSync(L01_PATH, 'utf-8')); } catch {}
 
@@ -143,13 +149,18 @@ function persistLearnedRules(newRules) {
   const merged = [...existing.learned_rules];
 
   for (const rule of newRules) {
+    // Ensure example fields are preserved
+    const enriched = { ...rule };
+    if (!enriched.example_before) enriched.example_before = '';
+    if (!enriched.example_after) enriched.example_after = '';
+
     if (!existingIds.has(rule.rule_id)) {
-      merged.push(rule);
-      console.log(`[KB] Persisted new learned rule: ${rule.rule_id}`);
+      merged.push(enriched);
+      console.log(`[KB] Persisted new learned rule (file): ${rule.rule_id}`);
     } else {
       const idx = merged.findIndex(r => r.rule_id === rule.rule_id);
-      merged[idx] = rule;
-      console.log(`[KB] Updated learned rule: ${rule.rule_id}`);
+      merged[idx] = enriched;
+      console.log(`[KB] Updated learned rule (file): ${rule.rule_id}`);
     }
   }
 
@@ -157,11 +168,11 @@ function persistLearnedRules(newRules) {
   const tmp = L01_PATH + '.tmp';
   fs.writeFileSync(tmp, JSON.stringify(updated, null, 2));
   fs.renameSync(tmp, L01_PATH);
-  console.log(`[KB] KB-L01 updated. Total rules: ${merged.length}`);
+  console.log(`[KB] KB-L01 file updated. Total rules: ${merged.length}`);
   return updated;
 }
 
-function persistPatternError(errorType, occurrences, heightenedAction) {
+function persistPatternErrorToFiles(errorType, occurrences, heightenedAction) {
   let existing = { pattern_errors: [], last_updated: null };
   try { existing = JSON.parse(fs.readFileSync(L02_PATH, 'utf-8')); } catch {}
 
@@ -180,7 +191,7 @@ function persistPatternError(errorType, occurrences, heightenedAction) {
       first_detected: new Date().toISOString(),
       last_triggered: new Date().toISOString(),
     });
-    console.log(`[KB] New pattern error registered: ${patternId} — ${errorType}`);
+    console.log(`[KB] New pattern error registered (file): ${patternId} — ${errorType}`);
   }
 
   existing.last_updated = new Date().toISOString();
@@ -190,21 +201,218 @@ function persistPatternError(errorType, occurrences, heightenedAction) {
   return existing;
 }
 
+/* ── Org-scoped (Supabase database) ──────────────────────── */
+
+let _db = null;
+function _getDB() {
+  if (!_db) {
+    try { _db = require('../db/queries'); } catch { _db = null; }
+  }
+  return _db && _db.dbReady() ? _db : null;
+}
+
+async function loadDynamicSectionsForOrg(orgId, trade) {
+  const db = _getDB();
+  if (!db) return loadDynamicSectionsFromFiles();
+
+  try {
+    // Load org-private rules
+    const allRules = await db.getLearnedRules(orgId);
+    const extractionRules = allRules.filter(r => r.rule_type !== 'pattern-error');
+    const patternErrors = allRules.filter(r => r.rule_type === 'pattern-error');
+
+    // Load trade collective rules (if org has opted in and trade is known)
+    let collectiveRules = [];
+    if (trade) {
+      const collectiveEnabled = await db.isCollectiveLearningEnabled(orgId);
+      if (collectiveEnabled) {
+        const rawCollective = await db.getCollectiveRulesForTrade(trade);
+        // Exclude rules originally shared by this org (they already have the org-private version)
+        collectiveRules = rawCollective
+          .filter(r => r.shared_by_org !== orgId && r.rule_type !== 'pattern-error')
+          .map(r => ({
+            rule_id: r.id,
+            error_type: r.rule_type,
+            trigger: r.trigger_text,
+            action: r.action_text,
+            reason: r.reason || '',
+            date: r.shared_at ? r.shared_at.slice(0, 10) : '',
+            example_before: r.example_before || '',
+            example_after: r.example_after || '',
+            occurrences: r.occurrences || 1,
+            context_keywords: r.context_keywords || [],
+            _source: 'trade-collective',
+          }));
+        if (collectiveRules.length > 0) {
+          console.log(`[KB] Loaded ${collectiveRules.length} trade collective rules for ${trade}`);
+        }
+      }
+    }
+
+    return {
+      'KB-L01': {
+        learned_rules: extractionRules.map(r => ({
+          rule_id: r.id,
+          error_type: r.rule_type,
+          trigger: r.trigger_text,
+          action: r.action_text,
+          reason: r.reason || '',
+          date: r.created_at ? r.created_at.slice(0, 10) : '',
+          example_before: r.example_before || '',
+          example_after: r.example_after || '',
+          occurrences: r.occurrences || 1,
+          context_keywords: r.context_keywords || [],
+          _source: 'org',
+        })),
+        last_updated: extractionRules[0]?.updated_at || null,
+      },
+      'KB-L02': {
+        pattern_errors: patternErrors.map(r => ({
+          pattern_id: r.id,
+          error_type: r.trigger_text,
+          occurrences: r.occurrences || 3,
+          heightened_action: r.action_text,
+          first_detected: r.created_at,
+          last_triggered: r.updated_at,
+        })),
+        last_updated: patternErrors[0]?.updated_at || null,
+      },
+      'KB-L03': {
+        collective_rules: collectiveRules,
+        trade: trade,
+        last_updated: collectiveRules[0]?.date || null,
+      },
+    };
+  } catch (err) {
+    console.error('[KB] Failed to load org rules from DB, falling back to files:', err.message);
+    return loadDynamicSectionsFromFiles();
+  }
+}
+
+async function persistLearnedRulesForOrg(orgId, newRules, userId, trade) {
+  const db = _getDB();
+  if (!db) return persistLearnedRulesToFiles(newRules);
+
+  try {
+    let persisted = 0;
+    let sharedToCollective = 0;
+
+    for (const rule of newRules) {
+      const ruleType = rule.error_type || 'extraction';
+
+      // Auto-extract context keywords from rule text for relevance scoring
+      const ruleText = [rule.trigger || '', rule.action || '', rule.reason || ''].join(' ');
+      const keywords = [...new Set(tokenise(ruleText))].slice(0, 30); // cap at 30 keywords
+
+      // Save org-private copy
+      await db.upsertLearnedRule(orgId, rule.rule_id, {
+        rule_type: ruleType,
+        trigger_text: rule.trigger,
+        action_text: rule.action,
+        reason: rule.reason || '',
+        source_project: rule.project_ref || null,
+        created_by: userId || null,
+        example_before: rule.example_before || null,
+        example_after: rule.example_after || null,
+        context_keywords: keywords,
+      });
+      persisted++;
+
+      // Auto-share non-pricing extraction rules to trade collective
+      // Pricing rules are NEVER shared — commercial sensitivity
+      if (trade && ruleType !== 'pricing') {
+        try {
+          await db.autoShareToCollective(orgId, {
+            rule_type: ruleType,
+            trigger_text: rule.trigger,
+            action_text: rule.action,
+            reason: rule.reason || '',
+            example_before: rule.example_before || null,
+            example_after: rule.example_after || null,
+            context_keywords: keywords,
+            created_by: userId || null,
+          }, trade);
+          sharedToCollective++;
+        } catch (shareErr) {
+          // Non-fatal — org rule was saved, collective share is best-effort
+          console.warn(`[KB] Auto-share to collective failed (non-fatal): ${shareErr.message}`);
+        }
+      }
+
+      console.log(`[KB] Persisted learned rule for org ${orgId}: ${rule.rule_id || rule.trigger} (${keywords.length} keywords)${sharedToCollective ? ' + collective' : ''}`);
+    }
+    return { persisted, shared_to_collective: sharedToCollective, org_id: orgId };
+  } catch (err) {
+    console.error('[KB] Failed to persist org rules to DB, falling back to files:', err.message);
+    return persistLearnedRulesToFiles(newRules);
+  }
+}
+
+async function persistPatternErrorForOrg(orgId, errorType, occurrences, heightenedAction, userId) {
+  const db = _getDB();
+  if (!db) return persistPatternErrorToFiles(errorType, occurrences, heightenedAction);
+
+  try {
+    await db.upsertLearnedRule(orgId, null, {
+      rule_type: 'pattern-error',
+      trigger_text: errorType,
+      action_text: heightenedAction,
+      reason: `Auto-detected pattern — ${occurrences} occurrences`,
+      occurrences: occurrences,
+      created_by: userId || null,
+    });
+    console.log(`[KB] Pattern error persisted for org ${orgId}: ${errorType}`);
+    return { org_id: orgId, error_type: errorType };
+  } catch (err) {
+    console.error('[KB] Failed to persist org pattern error to DB, falling back to files:', err.message);
+    return persistPatternErrorToFiles(errorType, occurrences, heightenedAction);
+  }
+}
+
+/* ── Unified interface (routes should call these) ─────────── */
+
+function loadDynamicSections(orgId, trade) {
+  if (orgId && orgId !== 'demo-org-id') {
+    // Returns a promise — callers must await
+    return loadDynamicSectionsForOrg(orgId, trade);
+  }
+  return loadDynamicSectionsFromFiles();
+}
+
+function persistLearnedRules(newRules, orgId, userId, trade) {
+  if (orgId && orgId !== 'demo-org-id') {
+    return persistLearnedRulesForOrg(orgId, newRules, userId, trade);
+  }
+  return persistLearnedRulesToFiles(newRules);
+}
+
+function persistPatternError(errorType, occurrences, heightenedAction, orgId, userId) {
+  if (orgId && orgId !== 'demo-org-id') {
+    return persistPatternErrorForOrg(orgId, errorType, occurrences, heightenedAction, userId);
+  }
+  return persistPatternErrorToFiles(errorType, occurrences, heightenedAction);
+}
+
 /* ══════════════════════════════════════════════════════════════════
    PROMPT ASSEMBLER
    ══════════════════════════════════════════════════════════════════ */
 
-function assembleKBPrompt(endpoint, options = {}) {
+async function assembleKBPrompt(endpoint, options = {}) {
   loadKBCache();
 
-  const { priorityFilter = null } = options;
+  const { priorityFilter = null, orgId = null, trade = null, requestContext = null } = options;
   const sectionIds = ENDPOINT_SECTIONS[endpoint];
   if (!sectionIds) return '';
 
-  const dynamic = loadDynamicSections();
+  // Load dynamic sections — org-scoped if orgId provided, trade-collective if trade known
+  const dynamicResult = loadDynamicSections(orgId, trade);
+  const dynamic = (dynamicResult && typeof dynamicResult.then === 'function')
+    ? await dynamicResult
+    : dynamicResult;
+
   const assembled = [];
 
-  // Static sections
+  // Static sections (shared across all orgs — industry standards)
   for (const sectionId of sectionIds) {
     const config = KB_SECTIONS[sectionId];
     if (!config) continue;
@@ -219,21 +427,49 @@ function assembleKBPrompt(endpoint, options = {}) {
     assembled.push(formatSection(sectionId, content));
   }
 
-  // Dynamic: Learned Rules
-  const learnedRules = dynamic['KB-L01']?.learned_rules || [];
+  // Dynamic: Org-Private Learned Rules (relevance-filtered)
+  const allLearnedRules = dynamic['KB-L01']?.learned_rules || [];
+  let learnedRules = allLearnedRules;
+
+  if (allLearnedRules.length > 0 && requestContext) {
+    const maxRules = getMaxRulesForEndpoint(endpoint);
+    learnedRules = scoreRules(allLearnedRules, requestContext, { maxRules });
+    if (allLearnedRules.length > learnedRules.length) {
+      console.log(`[KB] Rule scorer: ${learnedRules.length}/${allLearnedRules.length} org rules selected for ${endpoint}`);
+    }
+  }
+
   if (learnedRules.length > 0) {
     assembled.push(formatLearnedRules(learnedRules));
   }
 
-  // Dynamic: Pattern Errors
+  // Dynamic: Trade Collective Rules (relevance-filtered, clearly labelled)
+  const collectiveRules = dynamic['KB-L03']?.collective_rules || [];
+  if (collectiveRules.length > 0) {
+    let filteredCollective = collectiveRules;
+    if (requestContext) {
+      // Collective rules get half the slot budget of org rules (org rules take priority)
+      const maxCollective = Math.max(3, Math.floor(getMaxRulesForEndpoint(endpoint) / 2));
+      filteredCollective = scoreRules(collectiveRules, requestContext, { maxRules: maxCollective });
+      if (collectiveRules.length > filteredCollective.length) {
+        console.log(`[KB] Rule scorer: ${filteredCollective.length}/${collectiveRules.length} collective rules selected for ${endpoint}`);
+      }
+    }
+    if (filteredCollective.length > 0) {
+      assembled.push(formatCollectiveRules(filteredCollective, dynamic['KB-L03']?.trade));
+    }
+  }
+
+  // Dynamic: Pattern Errors (org-scoped) — always include all (they're critical)
   const patternErrors = dynamic['KB-L02']?.pattern_errors || [];
   if (patternErrors.length > 0) {
     assembled.push(formatPatternErrors(patternErrors));
   }
 
-  // Self-audit if rules exist
-  if (learnedRules.length > 0) {
-    assembled.push(getSelfAuditPrompt(learnedRules));
+  // Self-audit against all active rules (org + collective)
+  const allActiveRules = [...learnedRules, ...collectiveRules];
+  if (allActiveRules.length > 0) {
+    assembled.push(getSelfAuditPrompt(allActiveRules));
   }
 
   return assembled.join('\n\n');
@@ -252,9 +488,39 @@ function formatSection(sectionId, content) {
 }
 
 function formatLearnedRules(rules) {
-  const lines = rules.map(r => `  ${r.rule_id}: [${r.trigger}] → ${r.action}`);
+  const lines = rules.map(r => {
+    let line = `  ${r.rule_id}: [${r.trigger}] → ${r.action}`;
+    // Include before/after example if available — gives Claude concrete context
+    if (r.example_before && r.example_after) {
+      line += `\n    BEFORE: ${r.example_before}`;
+      line += `\n    AFTER:  ${r.example_after}`;
+    }
+    // Show relevance score if rule was scored (helps with debugging/transparency)
+    if (r._relevanceScore !== undefined && r._relevanceScore < 1.0) {
+      line += `  [relevance: ${(r._relevanceScore * 100).toFixed(0)}%]`;
+    }
+    return line;
+  });
   return `═══ KB-L01: LEARNED RULES (${rules.length} active) ═══
 Applied from previous estimator feedback. Override defaults where they conflict.
+Where a BEFORE/AFTER example is given, use it as a concrete reference for the expected output format and level of detail.
+${lines.join('\n')}`;
+}
+
+function formatCollectiveRules(rules, trade) {
+  const lines = rules.map(r => {
+    let line = `  ${r.rule_id}: [${r.trigger}] → ${r.action}`;
+    if (r.example_before && r.example_after) {
+      line += `\n    BEFORE: ${r.example_before}`;
+      line += `\n    AFTER:  ${r.example_after}`;
+    }
+    return line;
+  });
+  const tradeName = (trade || 'unknown').toUpperCase();
+  return `═══ KB-L03: TRADE COLLECTIVE RULES — ${tradeName} (${rules.length} active) ═══
+These rules were contributed by other ${tradeName} contractors and verified across multiple projects.
+They represent common corrections for this trade. Apply alongside org-specific rules.
+If an org-specific rule (KB-L01) conflicts with a collective rule (KB-L03), the org-specific rule takes priority.
 ${lines.join('\n')}`;
 }
 
@@ -289,16 +555,16 @@ function estimateTokens(text) {
   return Math.ceil(text.length / 4);
 }
 
-function getKBPromptWithBudget(endpoint, tokenBudget) {
-  // Try full assembly
-  const full = assembleKBPrompt(endpoint);
+async function getKBPromptWithBudget(endpoint, tokenBudget, orgId, requestContext, trade) {
+  // Try full assembly (org-scoped + trade-collective if available, relevance-filtered)
+  const full = await assembleKBPrompt(endpoint, { orgId, trade, requestContext });
   if (estimateTokens(full) <= tokenBudget) {
     return { prompt: full, truncated: false };
   }
 
-  // Fallback: critical sections only
+  // Fallback: critical sections only (still use relevance filter on rules)
   console.warn(`[KB] Token budget exceeded for ${endpoint}. Falling back to critical sections only.`);
-  const critical = assembleKBPrompt(endpoint, { priorityFilter: 'critical' });
+  const critical = await assembleKBPrompt(endpoint, { priorityFilter: 'critical', orgId, trade, requestContext });
   return {
     prompt: critical,
     truncated: true,
@@ -310,15 +576,44 @@ function getKBPromptWithBudget(endpoint, tokenBudget) {
    METADATA
    ══════════════════════════════════════════════════════════════════ */
 
-function loadLearning() {
-  const dynamic = loadDynamicSections();
+async function loadLearning(orgId) {
+  const dynamicResult = loadDynamicSections(orgId);
+  const dynamic = (dynamicResult && typeof dynamicResult.then === 'function')
+    ? await dynamicResult
+    : dynamicResult;
   return {
     learnedRules: dynamic['KB-L01']?.learned_rules || [],
     patternErrors: dynamic['KB-L02']?.pattern_errors || []
   };
 }
 
-function saveLearning(rules, patterns) {
+async function saveLearning(rules, patterns, orgId) {
+  if (orgId && orgId !== 'demo-org-id') {
+    const db = _getDB();
+    if (db) {
+      // Clear existing and re-insert for this org
+      await db.clearLearnedRules(orgId);
+      for (const r of rules) {
+        await db.saveLearnedRule(orgId, {
+          rule_type: r.error_type || 'extraction',
+          trigger_text: r.trigger,
+          action_text: r.action,
+          reason: r.reason || '',
+        });
+      }
+      for (const p of patterns) {
+        await db.saveLearnedRule(orgId, {
+          rule_type: 'pattern-error',
+          trigger_text: p.error_type,
+          action_text: p.heightened_action,
+          reason: `${p.occurrences || 3} occurrences`,
+          occurrences: p.occurrences || 3,
+        });
+      }
+      return;
+    }
+  }
+  // File-based fallback
   const tmp1 = L01_PATH + '.tmp';
   const tmp2 = L02_PATH + '.tmp';
   fs.writeFileSync(tmp1, JSON.stringify({ learned_rules: rules, last_updated: new Date().toISOString(), total_rules: rules.length }, null, 2));
@@ -327,7 +622,7 @@ function saveLearning(rules, patterns) {
   fs.renameSync(tmp2, L02_PATH);
 }
 
-function processAndPersistFeedback(aiResponseText) {
+async function processAndPersistFeedback(aiResponseText, orgId, userId, trade) {
   try {
     const cleaned = aiResponseText.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
     const match = cleaned.match(/\{[\s\S]*\}/);
@@ -335,11 +630,11 @@ function processAndPersistFeedback(aiResponseText) {
     const result = JSON.parse(match[0]);
 
     const newRules = result.updated_rules || result.learned_rules || [];
-    if (newRules.length > 0) persistLearnedRules(newRules);
+    if (newRules.length > 0) await persistLearnedRules(newRules, orgId, userId, trade);
 
     const newPatterns = result.pattern_errors || [];
     for (const pe of newPatterns) {
-      persistPatternError(pe.error_type, pe.occurrences || 3, pe.heightened_action || `Triple-check ${pe.error_type} items.`);
+      await persistPatternError(pe.error_type, pe.occurrences || 3, pe.heightened_action || `Triple-check ${pe.error_type} items.`, orgId, userId);
     }
   } catch (err) {
     console.error('[KB] Failed to process feedback:', err.message);
@@ -382,4 +677,7 @@ module.exports = {
   processAndPersistFeedback,
   KB_SECTIONS,
   ENDPOINT_SECTIONS,
+  // Re-export scorer for routes that need direct access
+  scoreRules,
+  extractContext: require('./rule-scorer').extractContext,
 };

@@ -56,10 +56,10 @@ router.post('/export-csv', (req, res) => {
     const { priced_items, summary, project_ref } = req.body;
     if (!priced_items) return res.status(400).json({ error: 'priced_items required' });
     const rows = [
-      ['Project', project_ref || 'Untitled', '', '', '', '', '', '', ''],
-      ['Generated', new Date().toISOString(), '', '', '', '', '', '', ''],
-      [''],
-      ['Trade','Description','Specification','Qty','Unit','Material £','Labour £','Subtotal £','Total inc. OH £','Status','Notes'],
+      ['CONTRAQ — Priced Quote Export'],
+      ['Project:', project_ref || 'Untitled', '', 'Generated:', new Date().toISOString().slice(0,16).replace('T',' ')],
+      [],
+      ['Trade','Description','Specification','Qty','Unit','Material (£)','Labour (£)','Subtotal (£)','Total inc. OH (£)','Status','Notes'],
     ];
     for (const item of priced_items) {
       rows.push([
@@ -70,8 +70,8 @@ router.post('/export-csv', (req, res) => {
         item.pricing_status || '', item.pricing_note || item.notes || '',
       ]);
     }
-    rows.push(['']);
-    rows.push(['SUMMARY']);
+    rows.push([]);
+    rows.push(['SUMMARY', '', '', '', '', 'Material (£)', 'Labour (£)', 'Subtotal (£)']);
     rows.push(['Material subtotal', '', '', '', '', summary.material_subtotal]);
     rows.push(['Labour subtotal', '', '', '', '', '', summary.labour_subtotal]);
     rows.push(['Subtotal', '', '', '', '', '', '', summary.subtotal]);
@@ -80,10 +80,15 @@ router.post('/export-csv', (req, res) => {
     rows.push(['Contingency', '', '', '', '', '', '', summary.contingency_total]);
     rows.push(['GRAND TOTAL', '', '', '', '', '', '', summary.grand_total]);
 
-    const csv = rows.map(r => r.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')).join('\n');
-    res.setHeader('Content-Type', 'text/csv');
+    const csv = rows.map(r => r.map(cell => {
+      if (cell === undefined || cell === null || cell === '') return '';
+      if (typeof cell === 'number') return cell;
+      return '"' + String(cell).replace(/"/g, '""') + '"';
+    }).join(',')).join('\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="quote_${project_ref || 'untitled'}_${new Date().toISOString().slice(0,10)}.csv"`);
-    res.send(csv);
+    // BOM for Excel UTF-8 recognition
+    res.send('\uFEFF' + csv);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

@@ -12,7 +12,15 @@ function initDashboard() {
   if (nm) nm.textContent = user.fname+' '+(user.lname||'');
   if (rl) rl.textContent = (user.role==='admin'?'Admin':'User')+' · '+planLabels[user.plan||'professional'];
   var trial = document.getElementById('sb-trial-text');
-  if (trial) trial.textContent = (user.trialDays||5)+' days remaining';
+  if (trial) {
+    if (STATE.demoMode) {
+      trial.textContent = '5 days remaining';
+    } else if (user.trialDaysLeft !== undefined && user.trialDaysLeft !== null) {
+      trial.textContent = user.trialDaysLeft + ' day' + (user.trialDaysLeft !== 1 ? 's' : '') + ' remaining';
+    } else {
+      trial.textContent = (user.trialDays || 7) + ' days remaining';
+    }
+  }
   // Trade label
   var tradeKey = STATE.tradePrimary || (user.trade) || 'insulation';
   var tradeDisplayMap = {
@@ -243,7 +251,7 @@ function renderDashHome() {
         if (s.totalInvoices !== undefined) kpis[2].textContent = '\u00a3' + fmtNum(s.totalInvoiced || 0);
         if (s.overdueInvoices !== undefined) kpis[3].textContent = '\u00a3' + fmtNum(s.outstanding || 0);
       }
-    }).catch(function(e) { console.error('[Dashboard] API error:', e); });
+    }).catch(function() { /* auth expired — using demo data */ });
   }
 
   var user = STATE.user||DEMO_USER;
@@ -583,6 +591,21 @@ function renderDashHome() {
   content.innerHTML += '<div class="card"><div class="card-header"><span class="card-title">Recent invoices</span><button class="btn btn-dark btn-xs" onclick="dashNav(\'invoices\')">View all →</button></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Ref</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="dash-inv-tbody"></tbody></table></div></div>';
   content.innerHTML += '<div class="card"><div class="card-header"><span class="card-title">Active projects</span><button class="btn btn-dark btn-xs" onclick="dashNav(\'projects\')">View all →</button></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Code</th><th>Project</th><th>Client</th><th>Value</th><th>Status</th><th></th></tr></thead><tbody id="dash-proj-tbody"></tbody></table></div></div>';
 
+  // Empty state for real orgs (no demo data)
+  if (!STATE.demoMode && PROJECTS.length === 0 && INVOICES.length === 0) {
+    content.innerHTML += '<div class="card" style="text-align:center;padding:2rem 1.5rem">'
+      + '<div style="font-size:2rem;margin-bottom:.5rem">&#x1F680;</div>'
+      + '<div style="font-size:1.05rem;font-weight:700;color:var(--white);margin-bottom:.4rem">Welcome to Contraq</div>'
+      + '<div style="font-size:.82rem;color:var(--off3);line-height:1.5;max-width:400px;margin:0 auto .8rem">'
+      + 'Your workspace is ready. Start by creating your first quote using the <strong style="color:var(--orange)">AI Quote Builder</strong> in the sidebar, or add a project manually.'
+      + '</div>'
+      + '<div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap">'
+      + '<button class="btn btn-primary btn-sm" onclick="openModal(\'modal-qb-upload\')">AI Quote Builder</button>'
+      + '<button class="btn btn-dark btn-sm" onclick="dashNav(\'projects\')">Add Project</button>'
+      + '<button class="btn btn-dark btn-sm" onclick="dashNav(\'clients\')">Add Client</button>'
+      + '</div></div>';
+  }
+
   var invTbody = document.getElementById('dash-inv-tbody');
   if (invTbody) invTbody.innerHTML = INVOICES.slice(0,5).map(function(inv){
     return '<tr><td class="mono">'+inv.ref+'</td><td class="strong">'+inv.clientName+'</td><td class="mono">£'+fmtNum(inv.amount)+'</td><td class="mono"'+(inv.status==='overdue'?' style="color:var(--red)"':'')+'>'+fmtDate(inv.due)+'</td><td>'+badge(inv.status)+'</td><td><button class="btn btn-dark btn-xs" onclick="openInvoiceModal(\''+inv.id+'\')">Edit</button></td></tr>';
@@ -598,6 +621,9 @@ function renderDashHome() {
   // Update sidebar badges
   updateSidebarBadges(overdueCount, draftCount);
   buildNotifPanel();
+
+  // Show trial countdown banner for real orgs in last 5 days
+  if (typeof showTrialBanner === 'function') showTrialBanner();
 }
 
 function updateSidebarBadges(overdueCount, draftCount) {

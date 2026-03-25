@@ -21,7 +21,20 @@ var ContraqAPI = (function() {
 
   function handleResponse(resp) {
     return resp.json().then(function(data) {
-      if (!resp.ok) throw new Error(data.error || 'API error');
+      if (!resp.ok) {
+        // 401 = token expired — clear stale session silently, fall back to demo
+        if (resp.status === 401) {
+          try {
+            localStorage.removeItem('contraq_session');
+            CONTRAQ_SESSION = null;
+          } catch(e){}
+        }
+        // 402 = trial expired — show upgrade screen
+        if (resp.status === 402 && data.error === 'trial_expired') {
+          if (typeof showTrialExpiredScreen === 'function') showTrialExpiredScreen();
+        }
+        throw new Error(data.error || 'API error');
+      }
       return data;
     });
   }

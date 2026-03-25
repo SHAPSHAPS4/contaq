@@ -8,6 +8,7 @@ const router = express.Router();
 const { supabaseAdmin } = require('../db/supabase');
 const { createOrganization, createUser, getUserByAuthId, getUsersByOrg } = require('../db/queries');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const emailService = require('../services/email');
 
 // ─── DEBUG — test signup path (remove later)
 router.get('/debug', async (req, res) => {
@@ -120,6 +121,16 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ error: 'User profile not found. Please contact support.' });
     }
 
+    // Calculate trial status
+    const org = user.organizations;
+    let trialDaysLeft = null;
+    let trialExpired = false;
+    if (org.trial_ends) {
+      const msLeft = new Date(org.trial_ends).getTime() - Date.now();
+      trialDaysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
+      trialExpired = msLeft <= 0;
+    }
+
     res.json({
       session: {
         access_token: data.session.access_token,
@@ -127,7 +138,12 @@ router.post('/login', async (req, res) => {
         expires_at: data.session.expires_at
       },
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
-      org: { id: user.organizations.id, name: user.organizations.name, plan: user.organizations.plan, slug: user.organizations.slug }
+      org: {
+        id: org.id, name: org.name, plan: org.plan, slug: org.slug,
+        trial_ends: org.trial_ends,
+        trial_days_left: trialDaysLeft,
+        trial_expired: trialExpired
+      }
     });
 
   } catch (err) {
@@ -218,7 +234,12 @@ router.post('/invite', requireAuth, requireRole('admin'), async (req, res) => {
       role: role || 'user'
     });
 
-    res.json({ user, temporaryPassword: tempPassword });
+    // Send invite email
+    const inviterName = req.user.name || 'Your admin';
+    const orgName = req.user.organizations?.name || 'your organisation';
+    await emailService.teamInviteEmail(email, inviterName, orgName, tempPassword);
+
+    res.json({ user, temporaryPassword: tempPassword, email_sent: emailService.isConfigured() });
 
   } catch (err) {
     console.error('[Invite]', err.message);
@@ -229,12 +250,21 @@ router.post('/invite', requireAuth, requireRole('admin'), async (req, res) => {
 // ─── PASSWORD RESET — send reset email ──────────────────────
 router.post('/reset-password', async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email || !supabaseAdmin) {
+    const { email: resetEmail } = req.body;
+    if (!resetEmail || !supabaseAdmin) {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email);
+    // Generate a Supabase magic link / reset token
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: resetEmail
+    });
+
+    if (!error && data?.properties?.hashed_token) {
+      await emailService.passwordResetEmail(resetEmail, data.properties.hashed_token);
+    }
+
     // Always return success (don't reveal if email exists)
     res.json({ message: 'If an account exists with this email, a reset link has been sent.' });
   } catch (err) {

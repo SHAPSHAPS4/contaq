@@ -118,7 +118,8 @@ var STATE = {
     raiseInvoice: false
   },
   aiQuotesUsedThisMonth: 0,
-  anthropicApiKey: ''
+  anthropicApiKey: '',
+  demoMode: true  // true = demo user (mock data visible), false = real org (clean workspace)
 };
 
 /* ── Backend API proxy base URL ───────────────────────────────── */

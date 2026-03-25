@@ -94,7 +94,7 @@ function buildNotifPanel() {
         });
       }
       STATE._activityApiLoaded = true;
-    }).catch(function(e) { console.error('[Activity] API error:', e); STATE._activityApiLoaded = true; });
+    }).catch(function() { STATE._activityApiLoaded = true; });
   }
   var unread = NOTIFICATIONS.filter(function(n){return n.unread;}).length;
   if (dot) dot.style.display = unread ? 'block' : 'none';

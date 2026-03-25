@@ -20,7 +20,9 @@ function showToast(msg, type) {
 function doLogout() {
   STATE.loggedIn = false;
   STATE.user = null;
+  STATE.demoMode = true;
   if (typeof clearSession === 'function') clearSession();
+  if (typeof restoreDemoData === 'function') restoreDemoData();
   window.location.href = 'landing.html';
 }
 

@@ -13,9 +13,10 @@ CREATE TABLE organizations (
   slug        TEXT UNIQUE NOT NULL,              -- URL-safe identifier e.g. "foxdon-insulation"
   plan        TEXT NOT NULL DEFAULT 'starter',    -- starter, professional, business
   trade       TEXT DEFAULT 'insulation',          -- primary trade
+  collective_learning_enabled BOOLEAN NOT NULL DEFAULT TRUE,  -- opt-in to trade collective rules
   max_users   INT NOT NULL DEFAULT 2,
   max_projects INT NOT NULL DEFAULT 5,
-  trial_ends  TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days'),
+  trial_ends  TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '7 days'),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -320,6 +321,13 @@ CREATE TABLE learned_rules (
   source_project TEXT,
   occurrences INT DEFAULT 1,
   is_promoted BOOLEAN DEFAULT FALSE,               -- promoted to permanent KB
+  example_before TEXT,                             -- AI output before correction
+  example_after TEXT,                              -- estimator-corrected output
+  context_keywords JSONB DEFAULT '[]',             -- MEP domain terms for relevance scoring
+  scope       TEXT NOT NULL DEFAULT 'org',         -- org | trade-collective
+  trade       TEXT,                                -- trade this rule applies to (set when shared)
+  shared_by_org UUID REFERENCES organizations(id) ON DELETE SET NULL,
+  shared_at   TIMESTAMPTZ,
   created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()

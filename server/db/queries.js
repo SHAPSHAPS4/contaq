@@ -357,12 +357,14 @@ async function getActivityLog(orgId, limit = 20) {
 
 // ─── LEARNED RULES ──────────────────────────────────────────
 
-async function getLearnedRules(orgId) {
-  const { data, error } = await supabaseAdmin
+async function getLearnedRules(orgId, { ruleType } = {}) {
+  let query = supabaseAdmin
     .from('learned_rules')
     .select('*')
-    .eq('org_id', orgId)
-    .order('created_at', { ascending: false });
+    .eq('org_id', orgId);
+  if (ruleType) query = query.eq('rule_type', ruleType);
+  query = query.order('created_at', { ascending: false });
+  const { data, error } = await query;
   if (error) throw error;
   return data;
 }
@@ -375,6 +377,221 @@ async function saveLearnedRule(orgId, fields) {
     .single();
   if (error) throw error;
   return data;
+}
+
+async function upsertLearnedRule(orgId, ruleId, fields) {
+  // Check if rule exists for this org with matching trigger
+  const { data: existing } = await supabaseAdmin
+    .from('learned_rules')
+    .select('id, occurrences')
+    .eq('org_id', orgId)
+    .eq('trigger_text', fields.trigger_text)
+    .eq('rule_type', fields.rule_type || 'extraction')
+    .maybeSingle();
+
+  if (existing) {
+    const updateFields = {
+      action_text: fields.action_text,
+      reason: fields.reason,
+      occurrences: (existing.occurrences || 1) + 1,
+      source_project: fields.source_project,
+    };
+    // Update example fields if provided
+    if (fields.example_before) updateFields.example_before = fields.example_before;
+    if (fields.example_after) updateFields.example_after = fields.example_after;
+    if (fields.context_keywords) updateFields.context_keywords = fields.context_keywords;
+
+    const { data, error } = await supabaseAdmin
+      .from('learned_rules')
+      .update(updateFields)
+      .eq('id', existing.id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  return saveLearnedRule(orgId, fields);
+}
+
+async function deleteLearnedRule(orgId, ruleId) {
+  const { error } = await supabaseAdmin
+    .from('learned_rules')
+    .delete()
+    .eq('org_id', orgId)
+    .eq('id', ruleId);
+  if (error) throw error;
+}
+
+async function clearLearnedRules(orgId) {
+  const { error } = await supabaseAdmin
+    .from('learned_rules')
+    .delete()
+    .eq('org_id', orgId);
+  if (error) throw error;
+}
+
+async function promoteLearnedRule(orgId, ruleId) {
+  const { data, error } = await supabaseAdmin
+    .from('learned_rules')
+    .update({ is_promoted: true })
+    .eq('org_id', orgId)
+    .eq('id', ruleId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// ─── TRADE COLLECTIVE RULES ─────────────────────────────────
+
+async function getCollectiveRulesForTrade(trade) {
+  if (!trade) return [];
+  const { data, error } = await supabaseAdmin
+    .from('learned_rules')
+    .select('*')
+    .eq('scope', 'trade-collective')
+    .eq('trade', trade)
+    .order('occurrences', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+async function shareRuleToCollective(orgId, ruleId, trade) {
+  // Verify the rule belongs to this org
+  const { data: rule, error: fetchErr } = await supabaseAdmin
+    .from('learned_rules')
+    .select('*')
+    .eq('org_id', orgId)
+    .eq('id', ruleId)
+    .single();
+  if (fetchErr) throw fetchErr;
+  if (!rule) throw new Error('Rule not found');
+  if (rule.rule_type === 'pricing') throw new Error('Pricing rules cannot be shared — commercial sensitivity');
+
+  // Create a collective copy (separate row, not modifying the original)
+  const { data, error } = await supabaseAdmin
+    .from('learned_rules')
+    .insert({
+      org_id: orgId,  // still tracks origin for RLS, but scope marks it as collective
+      rule_type: rule.rule_type,
+      trigger_text: rule.trigger_text,
+      action_text: rule.action_text,
+      reason: rule.reason,
+      example_before: rule.example_before,
+      example_after: rule.example_after,
+      context_keywords: rule.context_keywords,
+      occurrences: rule.occurrences,
+      source_project: rule.source_project,
+      scope: 'trade-collective',
+      trade: trade,
+      shared_by_org: orgId,
+      shared_at: new Date().toISOString(),
+      created_by: rule.created_by,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function autoShareToCollective(orgId, fields, trade) {
+  // Check if this exact rule already exists in the collective for this trade
+  const { data: existing } = await supabaseAdmin
+    .from('learned_rules')
+    .select('id, occurrences')
+    .eq('scope', 'trade-collective')
+    .eq('trade', trade)
+    .eq('trigger_text', fields.trigger_text)
+    .eq('rule_type', fields.rule_type || 'extraction')
+    .maybeSingle();
+
+  if (existing) {
+    // Increment occurrence count — more orgs hitting the same issue = stronger signal
+    const { data, error } = await supabaseAdmin
+      .from('learned_rules')
+      .update({
+        occurrences: (existing.occurrences || 1) + 1,
+        action_text: fields.action_text,
+        reason: fields.reason,
+        example_before: fields.example_before || undefined,
+        example_after: fields.example_after || undefined,
+        context_keywords: fields.context_keywords || undefined,
+      })
+      .eq('id', existing.id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Create new collective entry
+  const { data, error } = await supabaseAdmin
+    .from('learned_rules')
+    .insert({
+      org_id: orgId,
+      rule_type: fields.rule_type || 'extraction',
+      trigger_text: fields.trigger_text,
+      action_text: fields.action_text,
+      reason: fields.reason || '',
+      example_before: fields.example_before,
+      example_after: fields.example_after,
+      context_keywords: fields.context_keywords,
+      occurrences: 1,
+      scope: 'trade-collective',
+      trade: trade,
+      shared_by_org: orgId,
+      shared_at: new Date().toISOString(),
+      created_by: fields.created_by,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function getCollectiveRuleStats(trade) {
+  if (!trade) return { total: 0, contributing_orgs: 0 };
+  const { data, error } = await supabaseAdmin
+    .from('learned_rules')
+    .select('id, shared_by_org')
+    .eq('scope', 'trade-collective')
+    .eq('trade', trade);
+  if (error) throw error;
+  const orgs = new Set((data || []).map(r => r.shared_by_org).filter(Boolean));
+  return { total: (data || []).length, contributing_orgs: orgs.size };
+}
+
+async function isCollectiveLearningEnabled(orgId) {
+  const { data, error } = await supabaseAdmin
+    .from('organizations')
+    .select('collective_learning_enabled')
+    .eq('id', orgId)
+    .single();
+  if (error) return true; // default to enabled if lookup fails
+  return data?.collective_learning_enabled !== false;
+}
+
+async function setCollectiveLearning(orgId, enabled) {
+  const { data, error } = await supabaseAdmin
+    .from('organizations')
+    .update({ collective_learning_enabled: enabled })
+    .eq('id', orgId)
+    .select('id, collective_learning_enabled')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function getLearnedRuleStats(orgId) {
+  const { data, error } = await supabaseAdmin
+    .from('learned_rules')
+    .select('rule_type, id')
+    .eq('org_id', orgId);
+  if (error) throw error;
+  const byType = {};
+  (data || []).forEach(r => { byType[r.rule_type] = (byType[r.rule_type] || 0) + 1; });
+  return { total: (data || []).length, by_type: byType };
 }
 
 // ─── PRICEBOOK ──────────────────────────────────────────────
@@ -448,7 +665,11 @@ module.exports = {
   // Activity
   logActivity, getActivityLog,
   // Learned Rules
-  getLearnedRules, saveLearnedRule,
+  getLearnedRules, saveLearnedRule, upsertLearnedRule,
+  deleteLearnedRule, clearLearnedRules, promoteLearnedRule, getLearnedRuleStats,
+  // Trade Collective
+  getCollectiveRulesForTrade, shareRuleToCollective, autoShareToCollective,
+  getCollectiveRuleStats, isCollectiveLearningEnabled, setCollectiveLearning,
   // Pricebook
   getPricebookItems,
   // Dashboard

@@ -3,7 +3,7 @@
    Lines 8357-8393 from contraq-v77
 ═══════════════════════════════════════════ */
 
-var planLabels = {starter:'CONTRAQ Starter',professional:'CONTRAQ Professional',business:'CONTRAQ Business'};
+var planLabels = {starter:'CONTRAQ Starter',professional:'CONTRAQ Professional',business:'CONTRAQ Business',beta:'CONTRAQ Beta'};
 var planPrices = {starter:'£49/mo',professional:'£149/mo',business:'£349/mo'};
 
 function initStripe() {
@@ -33,8 +33,40 @@ function submitStripe() {
   if (card.length<16||!exp||cvc.length<3||!name) { showToast('Please complete all card fields.','error'); return; }
   STATE.loggedIn=true;
   if (!STATE.user) STATE.user=Object.assign({},DEMO_USER);
-  showToast('Payment processed! Starting your 14-day trial…','success');
+  showToast('Payment processed! Starting your 7-day trial…','success');
   setTimeout(function(){ nav('dashboard'); }, 1200);
+}
+
+/* ── Real Stripe Checkout (for authenticated orgs) ─────────── */
+function contraqUpgrade(plan) {
+  if (STATE.demoMode) {
+    showToast('Sign up for a real account to upgrade.', 'info');
+    return;
+  }
+
+  if (!ContraqAPI.isRealUser()) {
+    showToast('Please log in to upgrade.', 'error');
+    return;
+  }
+
+  showToast('Redirecting to checkout...', 'info');
+
+  fetch(CONTRAQ_API_BASE + '/api/billing/checkout', {
+    method: 'POST',
+    headers: getAuthHeader(),
+    body: JSON.stringify({ plan: plan || 'beta' })
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      showToast(data.error || 'Billing not available yet. Contact hello@contraq.co.uk', 'error');
+    }
+  })
+  .catch(function() {
+    showToast('Could not connect to billing. Contact hello@contraq.co.uk', 'error');
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════

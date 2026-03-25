@@ -8,6 +8,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.sheetjs.com; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co https://api.anthropic.com; frame-src 'none'; object-src 'none'; media-src 'self' data: blob:;"/>
 <title>CONTRAQ — Contracting. Managed.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
@@ -544,7 +548,7 @@
         <div class="notif-panel" id="notif-panel"></div>
         <button class="btn btn-primary btn-action btn-sm" id="dash-topbar-action" onclick="dashTopAction()">+ New Trade</button>
         <button class="btn btn-dark btn-ghost btn-sm" onclick="doLogout()">Sign out</button>
-        <button class="btn btn-sm btn-ghost sv-desktop-trigger" style="background:var(--c-action-subtle);color:var(--c-action);border:1px solid var(--c-action);font-size:.78rem;" onclick="svActivate()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.2rem"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Site View</button>
+        <!-- Site View button removed — will be re-added in a future release -->
       </div>
       <div class="dash-content" id="dash-content">
         <!-- rendered by JS -->
@@ -1940,245 +1944,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <button class="reset-fab" onclick="resetDemo()">↺ Reset demo</button>
 
 
-<!-- ═══════════════════════════════════════════════════════════
-     MOBILE SITE VIEW  (auto-activates < 768px, or via button)
-═══════════════════════════════════════════════════════════ -->
-<div id="page-site" class="page">
-
-  <!-- Persistent bottom nav (always visible in site view) -->
-  <nav class="sv-bottom-nav" id="sv-bottom-nav">
-    <button class="sv-bnav-btn active" id="svnav-home" onclick="svShowHome()">
-      <span class="sv-bnav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Home
-    </button>
-    <button class="sv-bnav-btn" id="svnav-journal" onclick="svOpenJournal()">
-      <span class="sv-bnav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>Journal
-    </button>
-    <button class="sv-bnav-btn" id="svnav-measure" onclick="svOpenMeasure()">
-      <span class="sv-bnav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3H3v18h18V3zM3 9h18M3 15h18M9 3v18"/></svg></span>Measure
-    </button>
-    <button class="sv-bnav-btn" id="svnav-timeclock" onclick="svOpenTimeClock()">
-      <span class="sv-bnav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>Time
-    </button>
-  </nav>
-
-  <!-- ── HOME SCREEN ── -->
-  <div class="sv-screen active" id="sv-home-screen">
-    <div class="sv-topbar">
-      <div class="sv-logo"></div>
-      <div class="sv-title">CONTR<span>AQ</span> <small id="sv-topbar-sub">Site View</small></div>
-      <button class="sv-back-btn" onclick="svExitToDesktop()" title="Back to full dashboard"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.2rem"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Desktop</button>
-    </div>
-    <div class="sv-home">
-      <div class="sv-offline-banner" id="sv-offline-banner">Offline — entries saved locally and will sync when connected.</div>
-      <div class="sv-greeting">
-        <div class="sv-greeting-date" id="sv-date-label"></div>
-        <div class="sv-greeting-name" id="sv-greeting-name">Good morning</div>
-        <div class="sv-greeting-proj" id="sv-active-proj-label"></div>
-      </div>
-
-      <!-- Summary strip -->
-      <div class="sv-summary-strip" id="sv-summary-strip">
-        <div><div class="sv-sum-val orange" id="sv-sum-onsite">0</div><div class="sv-sum-label">On Site</div></div>
-        <div><div class="sv-sum-val lime" id="sv-sum-journal">0</div><div class="sv-sum-label">Today's Logs</div></div>
-        <div><div class="sv-sum-val" id="sv-sum-measures">0</div><div class="sv-sum-label">Measures</div></div>
-      </div>
-
-      <!-- Main action buttons -->
-      <button class="sv-action-btn primary" onclick="svOpenJournal()">
-        <div class="sv-action-icon og"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="sv-action-text">
-          <div class="sv-action-label">Log Site Event</div>
-          <div class="sv-action-sub">Hold up · Advisory · Variation · Note</div>
-        </div>
-      </button>
-
-      <button class="sv-action-btn lime" onclick="svOpenMeasure()">
-        <div class="sv-action-icon lm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3H3v18h18V3zM3 9h18M3 15h18M9 3v18"/></svg></div>
-        <div class="sv-action-text">
-          <div class="sv-action-label">Upload Measure</div>
-          <div class="sv-action-sub">Drawing · Survey · Photo · Spec</div>
-        </div>
-      </button>
-
-      <button class="sv-action-btn blue" onclick="svOpenTimeClock()">
-        <div class="sv-action-icon bl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="sv-action-text">
-          <div class="sv-action-label">Time Clock</div>
-          <div class="sv-action-sub" id="sv-onsite-count-label">Tap to clock in / out</div>
-        </div>
-      </button>
-    </div>
-  </div>
-
-  <!-- ── JOURNAL SCREEN ── -->
-  <div class="sv-screen" id="sv-journal-screen">
-    <div class="sv-topbar">
-      <button class="sv-back-btn" onclick="svShowHome()">← Back</button>
-      <div class="sv-title" style="text-align:center;"><span>Log Site Event</span></div>
-      <div style="width:80px"></div>
-    </div>
-    <div class="sv-screen-body">
-      <div class="sv-offline-banner" id="sv-j-offline"></div>
-
-      <div class="sv-field">
-        <label class="sv-label">Project *</label>
-        <select class="sv-select" id="sv-j-project"></select>
-      </div>
-
-      <div class="sv-field">
-        <label class="sv-label">Event type *</label>
-        <div class="sv-type-grid">
-          <div class="sv-type-chip" data-type="Hold Up" onclick="svSelectType(this)">Hold Up</div>
-          <div class="sv-type-chip" data-type="Advisory" onclick="svSelectType(this)">Advisory</div>
-          <div class="sv-type-chip" data-type="Programme Change" onclick="svSelectType(this)">Programme</div>
-          <div class="sv-type-chip" data-type="Variation" onclick="svSelectType(this)">Variation</div>
-          <div class="sv-type-chip selected" data-type="General Note" onclick="svSelectType(this)">General Note</div>
-          <div class="sv-type-chip" data-type="Missing Materials" onclick="svSelectType(this)">Materials</div>
-        </div>
-      </div>
-
-      <div class="sv-field">
-        <label class="sv-label">Title / Summary *</label>
-        <input class="sv-input" id="sv-j-title" placeholder="e.g. Access blocked — Zone B" maxlength="120"/>
-      </div>
-
-      <div class="sv-field">
-        <label class="sv-label">Description</label>
-        <div class="sv-media-row">
-          <button class="sv-media-btn" id="sv-j-voice-btn" onclick="svToggleVoice('journal')">
-            <span class="sv-media-btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></span>
-            <span class="sv-media-btn-label" id="sv-j-voice-label">Voice Note</span>
-          </button>
-          <button class="sv-media-btn" id="sv-j-photo-btn" onclick="svTakePhoto('journal')">
-            <span class="sv-media-btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
-            <span class="sv-media-btn-label" id="sv-j-photo-label">Take Photo</span>
-          </button>
-        </div>
-        <div class="sv-voice-status" id="sv-j-voice-status"></div>
-        <textarea class="sv-textarea" id="sv-j-desc" rows="4" placeholder="Describe the issue or update in detail…"></textarea>
-        <input type="file" id="sv-j-photo-input" accept="image/*" capture="environment" style="display:none" onchange="svPhotoSelected(this,'journal')"/>
-        <img id="sv-j-photo-preview" class="sv-photo-preview" alt="Photo preview"/>
-      </div>
-
-      <button class="sv-save-btn" onclick="svSaveJournal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.2rem"><polyline points="20 6 9 17 4 12"/></svg> Save Journal Entry</button>
-      <button class="sv-cancel-btn" onclick="svShowHome()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- ── MEASURE SCREEN ── -->
-  <div class="sv-screen" id="sv-measure-screen">
-    <div class="sv-topbar">
-      <button class="sv-back-btn" onclick="svShowHome()">← Back</button>
-      <div class="sv-title" style="text-align:center;"><span>Upload Measure</span></div>
-      <div style="width:80px"></div>
-    </div>
-    <div class="sv-screen-body">
-
-      <div class="sv-field">
-        <label class="sv-label">Project *</label>
-        <select class="sv-select" id="sv-m-project"></select>
-      </div>
-
-      <div class="sv-field">
-        <label class="sv-label">Measure type *</label>
-        <div class="sv-mtype-grid">
-          <div class="sv-mtype-chip selected" data-mtype="pdf" onclick="svSelectMtype(this)">
-            <span class="sv-mtype-chip-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
-            <span class="sv-mtype-chip-label">Drawing / PDF</span>
-          </div>
-          <div class="sv-mtype-chip" data-mtype="img" onclick="svSelectMtype(this)">
-            <span class="sv-mtype-chip-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
-            <span class="sv-mtype-chip-label">Site Photo</span>
-          </div>
-          <div class="sv-mtype-chip" data-mtype="xls" onclick="svSelectMtype(this)">
-            <span class="sv-mtype-chip-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
-            <span class="sv-mtype-chip-label">Survey / Takeoff</span>
-          </div>
-          <div class="sv-mtype-chip" data-mtype="doc" onclick="svSelectMtype(this)">
-            <span class="sv-mtype-chip-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
-            <span class="sv-mtype-chip-label">Specification</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="sv-field">
-        <label class="sv-label">Attach file or take photo *</label>
-        <div class="sv-attach-zone" id="sv-m-attach-zone" onclick="svTriggerMeasureFile()">
-          <div class="sv-attach-icon" id="sv-m-attach-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
-          <div class="sv-attach-main">Tap to browse or take photo</div>
-          <div class="sv-attach-sub">PDF · DWG · XLS · JPG · PNG</div>
-          <div class="sv-attach-name" id="sv-m-attach-name"></div>
-        </div>
-        <input type="file" id="sv-m-file-input" accept=".pdf,.dwg,.xlsx,.xls,.doc,.docx,image/*" style="display:none" onchange="svMeasureFileSelected(this)"/>
-      </div>
-
-      <div class="sv-field">
-        <label class="sv-label">Document name</label>
-        <input class="sv-input" id="sv-m-name" placeholder="e.g. Zone B Pipe Survey Rev 1"/>
-      </div>
-
-      <div class="sv-field">
-        <label class="sv-label">Description / notes</label>
-        <div class="sv-media-row">
-          <button class="sv-media-btn" id="sv-m-voice-btn" onclick="svToggleVoice('measure')">
-            <span class="sv-media-btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></span>
-            <span class="sv-media-btn-label" id="sv-m-voice-label">Voice Note</span>
-          </button>
-          <button class="sv-media-btn" id="sv-m-cam-btn" onclick="svTakePhoto('measure')">
-            <span class="sv-media-btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
-            <span class="sv-media-btn-label">Take Photo</span>
-          </button>
-        </div>
-        <div class="sv-voice-status" id="sv-m-voice-status"></div>
-        <textarea class="sv-textarea" id="sv-m-desc" rows="3" placeholder="Notes, revisions, zone references…"></textarea>
-        <input type="file" id="sv-m-photo-input" accept="image/*" capture="environment" style="display:none" onchange="svPhotoSelected(this,'measure')"/>
-        <img id="sv-m-photo-preview" class="sv-photo-preview" alt="Photo"/>
-      </div>
-
-      <button class="sv-save-btn" onclick="svSaveMeasure()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.2rem"><polyline points="20 6 9 17 4 12"/></svg> Upload &amp; Save</button>
-      <button class="sv-cancel-btn" onclick="svShowHome()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- ── TIME CLOCK SCREEN ── -->
-  <div class="sv-screen" id="sv-timeclock-screen">
-    <div class="sv-topbar">
-      <button class="sv-back-btn" onclick="svShowHome()">← Back</button>
-      <div class="sv-title" style="text-align:center;"><span>Time Clock</span></div>
-      <div style="width:80px"></div>
-    </div>
-    <div class="sv-screen-body">
-      <div class="sv-clock-date-bar">
-        <div class="sv-clock-day" id="sv-tc-day"></div>
-        <div class="sv-clock-date-big" id="sv-tc-date"></div>
-        <div class="sv-clock-time" id="sv-tc-time"></div>
-      </div>
-
-      <div id="sv-eng-list"></div>
-
-      <div class="sv-clock-totals" id="sv-clock-totals">
-        <div><div class="sv-sum-val orange" id="sv-tc-onsite-count">0</div><div class="sv-sum-label">On Site</div></div>
-        <div><div class="sv-sum-val lime" id="sv-tc-total-hrs">0h 0m</div><div class="sv-sum-label">Total Hours</div></div>
-        <div><div class="sv-sum-val" id="sv-tc-off-count">0</div><div class="sv-sum-label">Off Site</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── CONFIRM SCREEN ── -->
-  <div class="sv-screen" id="sv-confirm-screen">
-    <div class="sv-topbar">
-      <div class="sv-logo"></div>
-      <div class="sv-title">CONTR<span>AQ</span></div>
-    </div>
-    <div class="sv-confirm">
-      <div class="sv-confirm-icon" id="sv-confirm-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-      <div class="sv-confirm-title" id="sv-confirm-title">Saved!</div>
-      <div class="sv-confirm-sub" id="sv-confirm-sub">Entry saved successfully.</div>
-      <button class="sv-save-btn" style="max-width:280px;" onclick="svShowHome()">← Back to Site View</button>
-    </div>
-  </div>
-
-</div><!-- /page-site -->
+<!-- Site View removed — will be re-added in a future release -->
 
 <!-- Materials Summary Modal -->
 <div class="modal-backdrop" id="modal-mat-summary" onclick="if(event.target===this)closeModal('modal-mat-summary')">
@@ -2833,7 +2599,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="js/admin_charts.js"></script>
 <script src="js/reset.js"></script>
 <script src="js/cis.js"></script>
-<script src="js/site_view.js"></script>
+<!-- <script src="js/site_view.js"></script> Site View disabled — re-add later -->
 <script src="js/enterprise.js"></script>
 <script src="js/eco4.js"></script>
 <script src="js/patch_nav.js"></script>

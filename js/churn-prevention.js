@@ -125,13 +125,16 @@
 
   /* ── SIGNAL 5: Trial ending ─────────────────────────────── */
   function checkTrialEnding() {
+    // For real orgs, use the DB-sourced trial data (handled by showTrialBanner in auth.js)
+    // This localStorage fallback is only for demo mode
+    if (typeof STATE !== 'undefined' && !STATE.demoMode) return;
+
     var trialEnd = localStorage.getItem('contraq_trial_end');
     if (!trialEnd) {
-      // Set a default trial end 14 days from first use
       var firstUse = localStorage.getItem('contraq_first_use');
       if (!firstUse) {
         localStorage.setItem('contraq_first_use', new Date().toISOString());
-        trialEnd = new Date(Date.now() + 14 * 86400000).toISOString();
+        trialEnd = new Date(Date.now() + 7 * 86400000).toISOString();
         localStorage.setItem('contraq_trial_end', trialEnd);
       }
     }
@@ -144,14 +147,10 @@
         banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:1000;';
         banner.innerHTML = 'Your trial ends in <strong>' + daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + '</strong> — upgrade now and save 20% '
           + '<button style="background:white;color:var(--c-action,#F05A28);border:none;padding:6px 16px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer;margin-left:12px;" onclick="dashNav(\'settings\')">Upgrade →</button>';
-
-        // Cannot dismiss within 24hrs of expiry
         if (daysLeft > 1) {
           banner.innerHTML += '<button style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;margin-left:8px;font-size:12px;" onclick="this.parentNode.remove()">✕</button>';
         }
-
         document.body.prepend(banner);
-        // Push content down
         document.body.style.paddingTop = '44px';
       }
     }

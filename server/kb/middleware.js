@@ -8,6 +8,7 @@
  */
 
 const { getKBPromptWithBudget } = require('./index');
+const { extractContext } = require('./rule-scorer');
 
 const KB_TOKEN_BUDGETS = {
   '/api/drawings/extract':    6000,
@@ -35,7 +36,7 @@ const TRADE_KB_PRIORITY = {
   multi:       { primary: [], secondary: [] }, // loads all equally
 };
 
-function kbInjectionMiddleware(req, res, next) {
+async function kbInjectionMiddleware(req, res, next) {
   const endpoint = req.path;
   const budget = KB_TOKEN_BUDGETS[endpoint];
 
@@ -54,8 +55,12 @@ function kbInjectionMiddleware(req, res, next) {
       userTrade = req.body.trade;
     }
 
-    // Get standard KB prompt
-    const { prompt, truncated, warningMessage } = getKBPromptWithBudget(endpoint, budget);
+    // Extract request context for rule relevance scoring
+    const orgId = req.orgId || null;
+    const requestContext = extractContext(req);
+
+    // Get KB prompt — org-scoped + trade-collective, relevance-filtered
+    const { prompt, truncated, warningMessage } = await getKBPromptWithBudget(endpoint, budget, orgId, requestContext, userTrade);
 
     // Add trade context header if trade is known
     let tradeHeader = '';
@@ -66,6 +71,13 @@ function kbInjectionMiddleware(req, res, next) {
         + 'Prioritise ' + userTrade + '-specific materials, specifications, and conventions.\n'
         + (priority.primary.length ? 'Primary KB sections for this trade: ' + priority.primary.join(', ') + '\n' : '')
         + 'When uncertain about trade-specific details, flag for human review rather than guessing.\n';
+    }
+
+    // Add org-scoped learning header
+    if (orgId && orgId !== 'demo-org-id') {
+      tradeHeader += '\n## ORGANISATION KNOWLEDGE\n'
+        + 'The learned rules below are specific to this organisation\'s past corrections and feedback.\n'
+        + 'These take priority over general defaults for this user\'s organisation.\n';
     }
 
     req.kbPrompt = tradeHeader + prompt;

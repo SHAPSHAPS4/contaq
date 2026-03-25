@@ -38,7 +38,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://cdn.sheetjs.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
@@ -72,6 +72,10 @@ app.use(cors({
   maxAge: 86400
 }));
 
+// Stripe webhook must receive raw body BEFORE express.json() parses it
+const billingRoutes = require('./routes/billing');
+app.use('/api/billing/webhook', billingRoutes);
+
 // Body parser — 50 MB limit for base64-encoded PDFs / images
 app.use(express.json({ limit: '50mb' }));
 
@@ -88,13 +92,18 @@ app.use('/api/', limiter);
 // KB injection — assembles per-endpoint knowledge base and attaches to req.kbPrompt
 app.use('/api/', kbInjectionMiddleware);
 
-/* ── Auth & Data routes (Supabase-backed) ────────────────────────── */
+/* ── Initialize email service ─────────────────────────────────────── */
+const emailService = require('./services/email');
+emailService.init();
+
+/* ── Auth, Data & Billing routes (Supabase-backed) ───────────────── */
 const authRoutes = require('./routes/auth');
 const dataRoutes = require('./routes/data');
 const betaRoutes = require('./routes/beta');
 app.use('/api/auth', authRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/beta', betaRoutes);
+app.use('/api/billing', billingRoutes);  // checkout, portal, status (JSON body routes)
 
 /* ── Modular routes (new structured API + legacy compatibility) ──── */
 app.use('/api/drawings', require('./routes/drawings'));

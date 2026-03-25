@@ -6,11 +6,12 @@
 
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireActiveTrial } = require('../middleware/auth');
 const db = require('../db/queries');
 
-// All data routes require authentication
+// All data routes require authentication + active trial
 router.use(requireAuth);
+router.use(requireActiveTrial);
 
 // ─── DASHBOARD ──────────────────────────────────────────────
 
