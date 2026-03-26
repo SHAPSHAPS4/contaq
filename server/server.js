@@ -348,9 +348,7 @@ if (!fs.existsSync(path.join(FRONTEND_ROOT, 'index.html'))) {
 }
 console.log('[Static] Serving frontend from:', FRONTEND_ROOT);
 
-app.use(express.static(FRONTEND_ROOT));
-
-// Root URL serves landing page (marketing/signup), not the app
+// Root URL serves landing page — must be BEFORE express.static
 app.get('/', (req, res) => {
   const landingPath = path.join(FRONTEND_ROOT, 'landing.html');
   if (fs.existsSync(landingPath)) return res.sendFile(landingPath);
@@ -361,6 +359,9 @@ app.get('/', (req, res) => {
 app.get('/app', (req, res) => {
   res.sendFile(path.join(FRONTEND_ROOT, 'index.html'));
 });
+
+// Static files (CSS, JS, images) — skip index.html for root
+app.use(express.static(FRONTEND_ROOT, { index: false }));
 
 // SPA catch-all for app routes
 app.get('*', (req, res, next) => {
