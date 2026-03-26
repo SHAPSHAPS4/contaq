@@ -349,6 +349,20 @@ if (!fs.existsSync(path.join(FRONTEND_ROOT, 'index.html'))) {
 console.log('[Static] Serving frontend from:', FRONTEND_ROOT);
 
 app.use(express.static(FRONTEND_ROOT));
+
+// Root URL serves landing page (marketing/signup), not the app
+app.get('/', (req, res) => {
+  const landingPath = path.join(FRONTEND_ROOT, 'landing.html');
+  if (fs.existsSync(landingPath)) return res.sendFile(landingPath);
+  res.sendFile(path.join(FRONTEND_ROOT, 'index.html'));
+});
+
+// /app serves the main platform (login → dashboard)
+app.get('/app', (req, res) => {
+  res.sendFile(path.join(FRONTEND_ROOT, 'index.html'));
+});
+
+// SPA catch-all for app routes
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
   const indexPath = path.join(FRONTEND_ROOT, 'index.html');

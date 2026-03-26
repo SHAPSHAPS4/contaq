@@ -306,7 +306,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       // No saved session — show login or handle hash route
       var h = window.location.hash.replace('#','');
-      if (!h) nav('login');
+      if (h === 'register') nav('register');
+      else nav('login');
     }
   } catch(e) { try { nav('login'); } catch(e2) {} }
   try {

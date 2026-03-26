@@ -23,6 +23,6 @@ function doLogout() {
   STATE.demoMode = true;
   if (typeof clearSession === 'function') clearSession();
   if (typeof restoreDemoData === 'function') restoreDemoData();
-  window.location.href = 'landing.html';
+  window.location.href = '/';
 }
 
