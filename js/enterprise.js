@@ -44,16 +44,13 @@ function submitBookDemo() {
 
 function demoAutoLoginFromModal() {
   closeModal('modal-book-demo');
-  demoAutoLogin();
+  // Demo auto-login disabled for production
+  window.location.href = '/app#register';
 }
 
 function demoAutoLogin() {
-  var emailEl = document.getElementById('login-email');
-  var passEl  = document.getElementById('login-pass');
-  if (emailEl) emailEl.value = 'demo@contraq.co.uk';
-  if (passEl)  passEl.value  = 'Demo1234!';
-  nav('login');
-  setTimeout(function() { doLogin(); }, 320);
+  // Demo auto-login disabled for production
+  window.location.href = '/app#login';
 }
 
 /* ── Copy demo credentials ─────────────────────────────────── */

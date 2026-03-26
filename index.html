@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <!--
-  CONTRAQ v7 — Modular SaaS Prototype
-  Modularised from v77 monolith
-  DEMO: demo@contraq.co.uk / Demo1234!
+  CONTRAQ v7 — SaaS Platform
 -->
 <html lang="en">
 <head>
@@ -289,14 +287,12 @@
       <div class="auth-logo"><div class="logo-sq"></div><span class="nav-brand" style="margin-left:.5rem">CONTR<span>AQ</span></span></div>
       <h1 class="auth-title">Welcome back</h1>
       <p class="auth-sub">Sign in to your CONTRAQ account</p>
-      <div class="auth-demo"><strong>Demo:</strong> <span id="demo-hint-email">demo&#64;contraq.co.uk</span> &nbsp;/&nbsp; Demo1234!</div>
-      <div class="auth-demo" style="margin-top:.45rem;border-color:var(--c-action);background:var(--c-action-subtle);cursor:pointer" onclick="document.getElementById('login-email').value='admin@contraq.co.uk';document.getElementById('login-pass').value='Admin2025!'"><span style="color:var(--c-action);font-weight:700"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.2rem"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin:</span> admin&#64;contraq.co.uk &nbsp;/&nbsp; Admin2025!</div>
       <div id="login-err" class="auth-err"></div>
-      <div class="field"><label>Email address</label><input type="email" id="login-email" placeholder="your&#64;email.com" value="demo&#64;contraq.co.uk"/></div>
-      <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" value="Demo1234!" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="field"><label>Email address</label><input type="email" id="login-email" placeholder="your&#64;email.com" value=""/></div>
+      <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" value="" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <button class="btn btn-primary btn-action" style="width:100%;justify-content:center;margin-top:.4rem" onclick="doLogin()">Sign in →</button>
       <p class="auth-link">No account? <a onclick="nav('register')">Start your free trial</a> &nbsp;·&nbsp; <a>Forgot password?</a></p>
-      <p class="auth-link" style="margin-top:.4rem"><a onclick="window.location.href='landing.html'">← Back to website</a></p>
+      <p class="auth-link" style="margin-top:.4rem"><a onclick="window.location.href='/'">← Back to website</a></p>
     </div>
   </div>
 </div>
@@ -650,18 +646,8 @@
         <h3 class="demo-confirm-title">We'll call you within 4 hours</h3>
         <p class="demo-confirm-sub">A member of our team will be in touch to confirm your 20-minute demo slot. We'll give you a walkthrough tailored to your trade and team size.</p>
         <div class="demo-confirm-divider"></div>
-        <div class="demo-confirm-explore">In the meantime, explore the interactive demo below</div>
-        <div class="demo-confirm-creds">
-          <div class="demo-cred-field" style="margin-bottom:.5rem;justify-content:center;">
-            <span class="demo-cred-label">Email</span>
-            <span class="demo-cred-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f094959d9fb0939f9e84829181de939fde859b">[email&#160;protected]</a></span>
-          </div>
-          <div class="demo-cred-field" style="justify-content:center;">
-            <span class="demo-cred-label">Password</span>
-            <span class="demo-cred-val">Demo1234!</span>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-action" style="margin-top:1.5rem;width:100%;justify-content:center;max-width:280px;background:linear-gradient(135deg,var(--c-action),var(--c-action-dark));border:none;" onclick="demoAutoLoginFromModal()">▶ Explore Live Demo</button>
+        <div style="font-size:.85rem;color:var(--off3);line-height:1.5;margin-top:.5rem">Ready to get started now? Sign up for a free 7-day trial — no credit card required.</div>
+        <a href="/app#register" class="btn btn-primary btn-action" style="margin-top:1rem;width:100%;justify-content:center;max-width:280px;text-decoration:none;">Start Free Trial →</a>
       </div>
     </div>
 
