@@ -419,23 +419,33 @@ function renderSettingsSection(user) {
       + '&nbsp;<button class="btn btn-dark btn-sm" onclick="dashNav(\'finance\')">View P&amp;L →</button>';
   }
   if (s==='api') {
-    var _hasKey = STATE.anthropicApiKey && STATE.anthropicApiKey.length > 8;
-    var _maskedKey = _hasKey ? STATE.anthropicApiKey.substring(0,8) + '\u2022'.repeat(Math.max(0,STATE.anthropicApiKey.length-12)) + STATE.anthropicApiKey.slice(-4) : '';
-    return '<h3>API &amp; Integrations</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Connect CONTRAQ with your other tools.</p>'
-    + '<div style="background:var(--bg3);border:1.5px solid '+(_hasKey?'var(--lime)':'var(--orange)')+';border-radius:var(--radius2);padding:1.2rem;margin-bottom:1.5rem">'
-    + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem"><span style="font-size:1rem">'+(_hasKey?'\u2705':'\u26a0\ufe0f')+'</span><span style="font-family:var(--mono);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+(_hasKey?'var(--lime)':'var(--orange)')+'">Claude AI API Key '+(_hasKey?'\u2014 Connected':'\u2014 Not configured')+'</span></div>'
-    + '<p style="font-size:.78rem;color:var(--off3);margin:0 0 .8rem;line-height:1.5">Required for AI Quote Builder and Site Journal EOT analysis. Get your key from <span style="color:var(--orange)">console.anthropic.com</span></p>'
-    + '<div class="field" style="margin-bottom:.6rem"><label style="font-size:.72rem;color:var(--off4)">Anthropic API Key</label>'
-    + '<input id="settings-anthropic-key" type="password" value="'+(STATE.anthropicApiKey||'')+'" placeholder="sk-ant-api03-..." style="font-family:var(--mono);font-size:.78rem;background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem .65rem;border-radius:var(--radius2);width:100%"/></div>'
-    + '<div style="display:flex;gap:.5rem;align-items:center">'
-    + '<button class="btn btn-primary btn-sm" onclick="saveAnthropicKey()">Save API Key</button>'
-    + (_hasKey ? '<button class="btn btn-danger btn-sm" onclick="clearAnthropicKey()">Remove Key</button>' : '')
-    + '<span id="api-key-status" style="font-family:var(--mono);font-size:.68rem;color:var(--off4)"></span>'
-    + '</div>'
-    + '<p style="font-size:.65rem;color:var(--off4);margin:.6rem 0 0;line-height:1.4;font-style:italic">Your API key is stored locally in your browser only. It is never sent to CONTRAQ servers \u2014 API calls go directly from your browser to Anthropic.</p>'
-    + '</div>'
-    + '<div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)"><div style="font-size:.82rem;font-weight:600;margin-bottom:1rem">Integrations</div>'
-    + ['Xero accounting','QuickBooks','Sage 50','Salesforce','Microsoft 365'].map(function(i){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="font-size:.82rem">'+i+'</span><button class="btn btn-dark btn-xs" onclick="showToast(\''+i+' connected!\',\'success\')">Connect</button></div>';}).join('')+'</div>';
+    var isAdmin = STATE.demoMode || (STATE.user && STATE.user.role === 'admin' && STATE.user.email === 'admin@contraq.co.uk');
+    var html = '<h3>API &amp; Integrations</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Connect CONTRAQ with your other tools.</p>';
+
+    if (isAdmin) {
+      // Admin view — full API key management
+      var _hasKey = STATE.anthropicApiKey && STATE.anthropicApiKey.length > 8;
+      html += '<div style="background:var(--bg3);border:1.5px solid '+(_hasKey?'var(--lime)':'var(--orange)')+';border-radius:var(--radius2);padding:1.2rem;margin-bottom:1.5rem">'
+        + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem"><span style="font-size:1rem">'+(_hasKey?'\u2705':'\u26a0\ufe0f')+'</span><span style="font-family:var(--mono);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+(_hasKey?'var(--lime)':'var(--orange)')+'">Claude AI API Key '+(_hasKey?'\u2014 Connected':'\u2014 Not configured')+'</span></div>'
+        + '<p style="font-size:.78rem;color:var(--off3);margin:0 0 .8rem;line-height:1.5">Server-side API key for AI Quote Builder. Managed via environment variables.</p>'
+        + '<div class="field" style="margin-bottom:.6rem"><label style="font-size:.72rem;color:var(--off4)">Anthropic API Key</label>'
+        + '<input id="settings-anthropic-key" type="password" value="'+(STATE.anthropicApiKey||'')+'" placeholder="sk-ant-api03-..." style="font-family:var(--mono);font-size:.78rem;background:var(--bg1);border:1px solid var(--border);color:var(--off2);padding:.5rem .65rem;border-radius:var(--radius2);width:100%"/></div>'
+        + '<div style="display:flex;gap:.5rem;align-items:center">'
+        + '<button class="btn btn-primary btn-sm" onclick="saveAnthropicKey()">Save API Key</button>'
+        + (_hasKey ? '<button class="btn btn-danger btn-sm" onclick="clearAnthropicKey()">Remove Key</button>' : '')
+        + '<span id="api-key-status" style="font-family:var(--mono);font-size:.68rem;color:var(--off4)"></span>'
+        + '</div></div>';
+    } else {
+      // Regular user view — AI is included, no key needed
+      html += '<div style="background:var(--bg3);border:1.5px solid var(--lime);border-radius:var(--radius2);padding:1.2rem;margin-bottom:1.5rem">'
+        + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem"><span style="font-size:1rem">\u2705</span><span style="font-family:var(--mono);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--lime)">AI Quote Builder \u2014 Active</span></div>'
+        + '<p style="font-size:.78rem;color:var(--off3);margin:0;line-height:1.5">AI-powered take-offs are included in your Contraq subscription. Upload drawings and specifications to generate quantities automatically. No configuration needed.</p>'
+        + '</div>';
+    }
+
+    html += '<div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)"><div style="font-size:.82rem;font-weight:600;margin-bottom:1rem">Integrations</div>'
+      + ['Xero accounting','QuickBooks','Sage 50','Salesforce','Microsoft 365'].map(function(i){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="font-size:.82rem">'+i+'</span><button class="btn btn-dark btn-xs" onclick="showToast(\''+i+' integration coming soon.\',\'info\')">Coming Soon</button></div>';}).join('')+'</div>';
+    return html;
   }
   if (s==='notifications') {
     if (!STATE.notifPrefs) STATE.notifPrefs = {invoiceOverdue:true,paymentReceived:true,tenderDeadline:true,poDelivery:false,weeklySummary:true,certExpiry:true,cisDeadline:true};
