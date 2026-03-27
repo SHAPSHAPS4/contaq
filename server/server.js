@@ -24,7 +24,7 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const ANTHROPIC_VERSION = '2024-10-22';
+const ANTHROPIC_VERSION = '2023-06-01';
 
 if (!ANTHROPIC_API_KEY) {
   console.error('[Contraq API] FATAL: ANTHROPIC_API_KEY not set in .env');
@@ -245,16 +245,14 @@ async function proxyToAnthropic(req, res, endpointPath) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 180000);
 
-    // Check if request contains PDF documents — enable PDF beta header
-    const hasPDFs = JSON.stringify(messages).includes('"application/pdf"');
-
+    // Always include PDF beta header — lightweight and avoids missed detection
     const anthropicResp = await fetch(ANTHROPIC_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC_API_KEY,
         'anthropic-version': ANTHROPIC_VERSION,
-        ...(hasPDFs ? { 'anthropic-beta': 'pdfs-2024-09-25' } : {})
+        'anthropic-beta': 'pdfs-2024-09-25'
       },
       body: JSON.stringify(anthropicBody),
       signal: controller.signal
