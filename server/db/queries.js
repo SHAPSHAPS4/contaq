@@ -201,9 +201,10 @@ async function saveExtraction(orgId, fields) {
   return data;
 }
 
-async function getExtractions(orgId, { quoteId, limit } = {}) {
+async function getExtractions(orgId, { quoteId, limit, since } = {}) {
   let query = supabaseAdmin.from('extractions').select('*').eq('org_id', orgId);
   if (quoteId) query = query.eq('quote_id', quoteId);
+  if (since) query = query.gte('created_at', since);
   query = query.order('created_at', { ascending: false });
   if (limit) query = query.limit(limit);
   const { data, error } = await query;

@@ -319,9 +319,33 @@ app.post('/api/quote-files/analyse', optionalAuth, async (req, res) => {
 });
 
 /* ── Endpoint: Quote Builder Extraction ───────────────────────────── */
+const AI_QUOTE_LIMITS = { starter: 3, beta: 50, professional: 999999, business: 999999 };
+
 app.post('/api/quotes/extract', optionalAuth, async (req, res) => {
+  // Enforce monthly AI extraction cap for authenticated users
+  if (req.orgId && req.user?.organizations) {
+    const plan = req.user.organizations.plan || 'starter';
+    const monthlyLimit = AI_QUOTE_LIMITS[plan] || 3;
+    try {
+      const { getExtractions } = require('./db/queries');
+      const firstOfMonth = new Date();
+      firstOfMonth.setDate(1);
+      firstOfMonth.setHours(0, 0, 0, 0);
+      const thisMonth = await getExtractions(req.orgId, { since: firstOfMonth.toISOString() });
+      const used = (thisMonth || []).length;
+      if (used >= monthlyLimit) {
+        return res.status(429).json({
+          error: { type: 'quota_exceeded', message: `Monthly AI extraction limit reached (${used}/${monthlyLimit}). Resets on the 1st.` }
+        });
+      }
+    } catch(e) {
+      console.warn('[Quota] Failed to check extraction count:', e.message);
+      // Non-fatal — allow the extraction to proceed
+    }
+  }
+
   await proxyToAnthropic(req, res, '/api/quotes/extract');
-  // Optionally save to database if authenticated
+  // Save extraction to database if authenticated
   if (req.orgId) {
     try {
       const { saveExtraction } = require('./db/queries');

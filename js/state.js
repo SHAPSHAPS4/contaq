@@ -144,6 +144,7 @@ try {
 ══════════════════════════════════════════════════════════════ */
 var PLAN_LIMITS = {
   starter:      { users: 2, projects: 5,  aiQuotes: 3,  hasCIS: false, hasFinance: false, hasProcore: false, storage: '5 GB' },
+  beta:         { users: Infinity, projects: Infinity, aiQuotes: 50, hasCIS: true, hasFinance: true, hasProcore: true, storage: 'Unlimited' },
   professional: { users: 5, projects: 20, aiQuotes: Infinity, hasCIS: true,  hasFinance: true,  hasProcore: false, storage: '25 GB' },
   business:     { users: Infinity, projects: Infinity, aiQuotes: Infinity, hasCIS: true,  hasFinance: true,  hasProcore: true,  storage: 'Unlimited' }
 };
@@ -165,7 +166,11 @@ function checkPlanGate(feature, currentCount) {
 
   switch(feature) {
     case 'aiQuote':
-      if (currentCount >= limits.aiQuotes) return { allowed: false, title: 'AI Quote limit reached', desc: 'Your Starter plan includes 3 AI quotes per month. Upgrade to Professional for unlimited AI-powered scope extraction.', upgradeTo: 'professional' };
+      if (currentCount >= limits.aiQuotes) {
+        var planName = getUserPlan();
+        if (planName === 'beta') return { allowed: false, title: 'Monthly AI extraction limit reached', desc: 'Your Beta plan includes 50 AI extractions per month. Your allowance resets on the 1st. Contact hello@contraq.uk if you need more.' };
+        return { allowed: false, title: 'AI Quote limit reached', desc: 'Your Starter plan includes 3 AI quotes per month. Upgrade to unlock more AI-powered scope extraction.', upgradeTo: 'professional' };
+      }
       return { allowed: true };
     case 'project':
       if (currentCount >= limits.projects) return { allowed: false, title: 'Project limit reached', desc: 'Your Starter plan includes 5 active projects. Upgrade to Professional for up to 20 projects and full commercial tools.', upgradeTo: 'professional' };
