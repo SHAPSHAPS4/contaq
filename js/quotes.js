@@ -1165,7 +1165,19 @@ function qbStartAnalysis() {
       }),
       signal: _scanController.signal
     })
-    .then(function(resp) { return resp.json(); })
+    .then(function(resp) {
+      return resp.text().then(function(sseText) {
+        var lines = sseText.split('\n');
+        for (var i = lines.length - 1; i >= 0; i--) {
+          var line = lines[i].trim();
+          if (line.startsWith('data: {')) {
+            try { return JSON.parse(line.substring(6)); } catch(e) {}
+          }
+        }
+        try { return JSON.parse(sseText); } catch(e) {}
+        throw new Error('No valid response from scope scan');
+      });
+    })
     .then(function(scanResult) {
       clearTimeout(_scanTimeout);
       completeStep(3);
@@ -1384,7 +1396,7 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
     })
     .then(function(resp) {
       clearInterval(_apiStepTimer);
-      if (!resp.ok) {
+      if (!resp.ok && resp.headers.get('content-type')?.includes('application/json')) {
         return resp.text().then(function(body) {
           var detail = '';
           try { var j = JSON.parse(body); detail = (j.error && j.error.message) || body; } catch(e) { detail = body.substring(0, 200); }
@@ -1392,7 +1404,24 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
           throw new Error('API ' + resp.status + ': ' + detail);
         });
       }
-      return resp.json();
+      // Handle SSE streamed response — read all events, extract final JSON
+      return resp.text().then(function(sseText) {
+        // Find the last 'data: {...}' line which contains the reconstructed response
+        var lines = sseText.split('\n');
+        var lastData = null;
+        for (var i = lines.length - 1; i >= 0; i--) {
+          var line = lines[i].trim();
+          if (line.startsWith('data: {')) {
+            try { lastData = JSON.parse(line.substring(6)); break; } catch(e) {}
+          }
+        }
+        if (!lastData) {
+          // Fallback — try parsing the whole thing as JSON (non-streamed response)
+          try { return JSON.parse(sseText); } catch(e) {}
+          throw new Error('No valid response received from AI service');
+        }
+        return lastData;
+      });
     })
     .then(function(apiData) {
       /* ── Step 7: Parse response ───────────────────────── */

@@ -227,17 +227,18 @@ async function proxyToAnthropic(req, res, endpointPath) {
     const cap = ENDPOINT_LIMITS[endpointPath] || 2000;
     const safeMaxTokens = Math.min(parseInt(max_tokens, 10) || 1000, cap);
 
-    // Build Anthropic request
+    // Build Anthropic request — use streaming to avoid Cloudflare 524 timeout
     const anthropicBody = {
       model: safeModel,
       max_tokens: safeMaxTokens,
-      messages
+      messages,
+      stream: true  // Stream to keep connection alive through Cloudflare
     };
     if (system) anthropicBody.system = system;
 
     // Log request size for debugging
     const bodySize = JSON.stringify(req.body).length;
-    console.log(`[Contraq API] ${endpointPath}: ${bodySize} bytes, model=${safeModel}, max_tokens=${safeMaxTokens}`);
+    console.log(`[Contraq API] ${endpointPath}: ${bodySize} bytes, model=${safeModel}, max_tokens=${safeMaxTokens}, stream=true`);
     const startTime = Date.now();
 
     // 3-minute timeout for large PDF extractions
@@ -260,12 +261,80 @@ async function proxyToAnthropic(req, res, endpointPath) {
     });
 
     clearTimeout(timeout);
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
-    // Stream the status code and body back
-    const body = await anthropicResp.text();
-    console.log(`[Contraq API] ${endpointPath}: Anthropic responded ${anthropicResp.status} in ${elapsed}s (${body.length} bytes)`);
-    res.status(anthropicResp.status).set('Content-Type', 'application/json').send(body);
+    if (!anthropicResp.ok) {
+      const errorBody = await anthropicResp.text();
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      console.error(`[Contraq API] ${endpointPath}: Anthropic error ${anthropicResp.status} in ${elapsed}s`);
+      return res.status(anthropicResp.status).set('Content-Type', 'application/json').send(errorBody);
+    }
+
+    // Collect streamed chunks and reconstruct a standard (non-streaming) response
+    // This keeps Cloudflare alive (data flowing) while giving the frontend a normal JSON response
+    let fullText = '';
+    let usage = { input_tokens: 0, output_tokens: 0 };
+    let stopReason = 'end_turn';
+    let respModel = safeModel;
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    });
+
+    const reader = anthropicResp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete line in buffer
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+
+        try {
+          const event = JSON.parse(data);
+
+          if (event.type === 'content_block_delta' && event.delta?.text) {
+            fullText += event.delta.text;
+            // Send a keepalive comment to prevent Cloudflare timeout
+            res.write(': keepalive\n\n');
+          }
+          if (event.type === 'message_start' && event.message) {
+            respModel = event.message.model || respModel;
+            if (event.message.usage) usage.input_tokens = event.message.usage.input_tokens;
+          }
+          if (event.type === 'message_delta') {
+            stopReason = event.delta?.stop_reason || stopReason;
+            if (event.usage) usage.output_tokens = event.usage.output_tokens;
+          }
+        } catch {}
+      }
+    }
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log(`[Contraq API] ${endpointPath}: Streamed ${fullText.length} chars in ${elapsed}s (${usage.input_tokens}+${usage.output_tokens} tokens)`);
+
+    // Send the reconstructed complete response as the final SSE event
+    const reconstructed = JSON.stringify({
+      id: 'msg_proxy_' + Date.now(),
+      type: 'message',
+      role: 'assistant',
+      content: [{ type: 'text', text: fullText }],
+      model: respModel,
+      stop_reason: stopReason,
+      usage
+    });
+    res.write(`data: ${reconstructed}\n\n`);
+    res.write('data: [DONE]\n\n');
+    res.end();
 
   } catch (err) {
     const errMsg = err.name === 'AbortError'
@@ -276,6 +345,8 @@ async function proxyToAnthropic(req, res, endpointPath) {
       res.status(502).json({
         error: { type: 'proxy_error', message: errMsg }
       });
+    } else {
+      res.end();
     }
   }
 }
