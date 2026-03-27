@@ -1158,7 +1158,7 @@ function qbStartAnalysis() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 2000,
         system: 'You are an M&E drawing analyst. Identify service categories only. Return JSON array. No quantities.',
         messages: [{ role: 'user', content: scanBlocks }]
@@ -1373,16 +1373,28 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
 
     var systemPrompt = _qbBuildSystemPrompt();
 
-    /* Animate steps 5-6 while waiting */
-    var _apiStepTimer = setInterval(function() {
-      if (_currentStep < 6) {
-        activateStep(_currentStep + 1);
-        if (_currentStep === 5) docCount.textContent = 'Matching spec & pricing against Price Book (' + MATERIALS_PRICE_BOOK.length + ' items)\u2026';
-        if (_currentStep === 6) docCount.textContent = 'Assembly grouping \u2014 adding ancillaries & fittings allowances\u2026';
-      }
-    }, 4000);
-
     console.log('[Contraq AI] Calling API proxy (' + contentBlocks.length + ' content blocks, model: claude-sonnet-4-6)');
+
+    // Live progress tracking
+    var _streamStartTime = Date.now();
+    var _streamChars = 0;
+    var _streamItems = 0;
+    var _progressEl = docCount;
+
+    function _updateStreamProgress() {
+      var elapsed = Math.round((Date.now() - _streamStartTime) / 1000);
+      var mins = Math.floor(elapsed / 60);
+      var secs = elapsed % 60;
+      var timeStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
+      if (_streamItems > 0) {
+        _progressEl.textContent = 'Extracting\u2026 ' + _streamItems + ' items found (' + timeStr + ')';
+      } else if (_streamChars > 0) {
+        _progressEl.textContent = 'AI analysing drawings\u2026 (' + timeStr + ')';
+      } else {
+        _progressEl.textContent = 'AI processing ' + (hasDwg ? 'drawings' : 'documents') + '\u2026 (' + timeStr + ')';
+      }
+    }
+    var _progressTimer = setInterval(_updateStreamProgress, 1000);
 
     fetch(CONTRAQ_API_BASE + '/api/quotes/extract', {
       method: 'POST',
@@ -1395,7 +1407,6 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
       })
     })
     .then(function(resp) {
-      clearInterval(_apiStepTimer);
       if (!resp.ok && resp.headers.get('content-type')?.includes('application/json')) {
         return resp.text().then(function(body) {
           var detail = '';
@@ -1404,8 +1415,32 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
           throw new Error('API ' + resp.status + ': ' + detail);
         });
       }
-      // Handle SSE streamed response — read all events, extract final JSON
-      return resp.text().then(function(sseText) {
+
+      // Read stream progressively for live UI updates
+      var reader = resp.body.getReader();
+      var decoder = new TextDecoder();
+      var fullText = '';
+
+      function readChunk() {
+        return reader.read().then(function(result) {
+          if (result.done) return fullText;
+          var chunk = decoder.decode(result.value, { stream: true });
+          fullText += chunk;
+          _streamChars += chunk.length;
+
+          // Count JSON objects seen so far (rough item count for progress)
+          var refMatches = fullText.match(/"ref"\s*:/g);
+          if (refMatches) _streamItems = refMatches.length;
+
+          // Advance the visual steps based on stream progress
+          if (_streamItems > 0 && _currentStep < 6) { activateStep(6); }
+          else if (_streamChars > 500 && _currentStep < 5) { activateStep(5); }
+
+          return readChunk();
+        });
+      }
+
+      return readChunk().then(function(sseText) {
         // Find the last 'data: {...}' line which contains the reconstructed response
         var lines = sseText.split('\n');
         var lastData = null;
@@ -1416,7 +1451,6 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
           }
         }
         if (!lastData) {
-          // Fallback — try parsing the whole thing as JSON (non-streamed response)
           try { return JSON.parse(sseText); } catch(e) {}
           throw new Error('No valid response received from AI service');
         }
@@ -1424,6 +1458,7 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
       });
     })
     .then(function(apiData) {
+      clearInterval(_progressTimer);
       /* ── Step 7: Parse response ───────────────────────── */
       activateStep(7);
       docCount.textContent = 'Parsing AI extraction results\u2026';
@@ -1545,7 +1580,7 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
       setTimeout(function() { qbShowExtractionResults(); }, 600);
     })
     .catch(function(err) {
-      clearInterval(_apiStepTimer);
+      clearInterval(_progressTimer);
       console.error('AI Quote Builder API error:', err);
       var errMsg = String(err.message || err);
 
