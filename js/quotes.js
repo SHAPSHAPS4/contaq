@@ -1844,31 +1844,38 @@ function qbShowExtractionResults() {
       + '<td style="font-family:var(--mono);font-size:.73rem;font-weight:600;color:var(--white)">\u00A3'+Math.round(t).toLocaleString('en-GB')+'</td>'
       + '<td style="font-family:var(--mono);font-size:.55rem;color:var(--off4);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+d.src+'">'+d.src+'</td>'
       + '<td style="white-space:nowrap"><div style="display:flex;gap:3px">'
-      + '<button class="ext-action act-accept" id="qb-act-a-'+i+'" onclick="qbReviewAccept('+i+')" title="Accept this item as-is \u2014 it will be included in your quote">\u2713</button>'
-      + '<button class="ext-action act-flag" id="qb-act-f-'+i+'" onclick="qbReviewFlag('+i+')" title="Flag for further review \u2014 item will be included but marked for your attention in the Quote Book">\u2691</button>'
-      + '<button class="ext-action act-reject" id="qb-act-r-'+i+'" onclick="qbReviewReject('+i+')" title="Remove this item \u2014 it won\u2019t be included in the quote">\u00D7</button>'
-      + '</div></td>'
+      + '<button class="ext-action act-accept" id="qb-act-a-'+i+'" onclick="qbReviewAccept('+i+')" title="Accept this item as-is">\u2713</button>'
+      + '<button class="ext-action act-flag" id="qb-act-f-'+i+'" onclick="qbReviewFlag('+i+')" title="Flag for review">\u2691</button>'
+      + '<button class="ext-action act-reject" id="qb-act-r-'+i+'" onclick="qbReviewReject('+i+')" title="Remove this item">\u00D7</button>'
+      + '<button class="ext-action act-comment" id="qb-act-c-'+i+'" onclick="qbToggleComment('+i+')" title="Add correction comment" style="font-size:.6rem">\uD83D\uDCAC</button>'
+      + '</div>'
+      + '<div class="qb-comment-row" id="qb-comment-row-'+i+'" style="display:none;margin-top:4px">'
+      + '<input class="qb-comment-input" id="qb-comment-'+i+'" placeholder="What\u2019s wrong? e.g. \u201CQty should be 25, not 50\u201D" style="width:100%;font-size:.62rem;padding:4px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg1);color:var(--off2);font-family:var(--sans)">'
+      + '</div>'
+      + '</td>'
       + '</tr>';
   }).join('');
 
   qbUpdateReviewProgress();
 
-  // Accuracy rating prompt (shown after extraction for real users)
-  if (typeof ContraqAPI !== 'undefined' && ContraqAPI.isRealUser()) {
-    var ratingBar = document.getElementById('qb-accuracy-bar');
-    if (!ratingBar) {
-      ratingBar = document.createElement('div');
-      ratingBar.id = 'qb-accuracy-bar';
-      ratingBar.style.cssText = 'background:#F8F9FB;border:1px solid #E8ECEF;border-radius:10px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;gap:12px;font-size:13px;color:#374151;';
-      ratingBar.innerHTML = '<span style="font-weight:600;">Was this extraction accurate?</span>'
-        + '<button onclick="rateExtraction(\'yes\')" style="padding:5px 14px;border-radius:8px;border:1px solid #86EFAC;background:#DCFCE7;color:#15803D;font-size:12px;font-weight:600;cursor:pointer;">Yes</button>'
-        + '<button onclick="rateExtraction(\'partially\')" style="padding:5px 14px;border-radius:8px;border:1px solid #FCD34D;background:#FEF3C7;color:#B45309;font-size:12px;font-weight:600;cursor:pointer;">Partially</button>'
-        + '<button onclick="rateExtraction(\'no\')" style="padding:5px 14px;border-radius:8px;border:1px solid #FCA5A5;background:#FEE2E2;color:#B91C1C;font-size:12px;font-weight:600;cursor:pointer;">No</button>';
-      var resultsEl = document.getElementById('qb-phase-results');
-      if (resultsEl) resultsEl.insertBefore(ratingBar, resultsEl.firstChild);
-    }
-    ratingBar.style.display = '';
+  // Feedback & corrections panel (shown after extraction)
+  var feedbackPanel = document.getElementById('qb-feedback-panel');
+  if (!feedbackPanel) {
+    feedbackPanel = document.createElement('div');
+    feedbackPanel.id = 'qb-feedback-panel';
+    feedbackPanel.style.cssText = 'background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:12px;';
+    feedbackPanel.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+      + '<div style="font-size:.75rem;font-weight:700;color:var(--white)">Help Improve AI Accuracy</div>'
+      + '<div style="font-size:.58rem;color:var(--off4);font-family:var(--mono)">&#x1F9E0; Corrections train the AI for your trade</div>'
+      + '</div>'
+      + '<p style="font-size:.68rem;color:var(--off3);line-height:1.5;margin:0 0 10px">Click the <span style="font-size:.7rem">\uD83D\uDCAC</span> button on any row to explain what\u2019s wrong. Edit quantities directly in the table. Then submit your corrections \u2014 the AI learns from every fix.</p>'
+      + '<textarea id="qb-general-feedback" placeholder="General notes about this extraction, e.g. \u201CDrawing was 1:100 not 1:50\u201D or \u201CMissed the return pipework on sheet 2\u201D" style="width:100%;min-height:48px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg1);color:var(--off2);font-size:.7rem;font-family:var(--sans);resize:vertical;margin-bottom:8px"></textarea>'
+      + '<button onclick="qbSubmitCorrections()" class="btn btn-primary btn-sm" style="font-size:.7rem">Submit Corrections to AI \u2192</button>'
+      + '<span style="font-size:.58rem;color:var(--off4);margin-left:8px">Your corrections improve results for everyone in your trade.</span>';
+    var resultsEl = document.getElementById('qb-phase-results');
+    if (resultsEl) resultsEl.insertBefore(feedbackPanel, resultsEl.firstChild);
   }
+  feedbackPanel.style.display = '';
 }
 
 function rateExtraction(accuracy) {
@@ -1925,6 +1932,87 @@ function qbFlagAllLow() {
     if (d.level === 'low' && _qbReviewState[i] !== 'rejected') qbReviewFlag(i);
   });
   showToast(document.getElementById('qb-cnt-l').textContent + ' low-confidence items flagged for review.', 'success');
+}
+
+/* ── Comment / correction per item ────────────────────────── */
+function qbToggleComment(i) {
+  var row = document.getElementById('qb-comment-row-' + i);
+  var btn = document.getElementById('qb-act-c-' + i);
+  if (!row) return;
+  var showing = row.style.display !== 'none';
+  row.style.display = showing ? 'none' : 'block';
+  if (btn) btn.classList.toggle('has-comment', !showing);
+  if (!showing) {
+    var input = document.getElementById('qb-comment-' + i);
+    if (input) input.focus();
+  }
+}
+
+/* ── Submit all corrections to the feedback loop ──────────── */
+function qbSubmitCorrections() {
+  var corrections = [];
+  AI_EXTRACTION_DATA.forEach(function(d, i) {
+    var commentEl = document.getElementById('qb-comment-' + i);
+    var comment = commentEl ? commentEl.value.trim() : '';
+    var state = _qbReviewState[i] || 'unreviewed';
+
+    // Collect corrections: commented items, rejected items, or edited values
+    var qtyInput = document.querySelector('#qb-row-' + i + ' .ext-editable');
+    var editedQty = qtyInput ? parseFloat(qtyInput.value) : d.qty;
+    var wasEdited = editedQty !== d.qty;
+
+    if (comment || state === 'rejected' || wasEdited) {
+      corrections.push({
+        item_ref: d.ref,
+        description: d.desc,
+        service: d.service,
+        original_qty: d.qty,
+        original_rate: d.rate,
+        corrected_qty: editedQty,
+        review_state: state,
+        error: comment || (state === 'rejected' ? 'Item should not have been extracted' : 'Quantity adjusted by estimator'),
+        correction: comment || (wasEdited ? 'Qty changed from ' + d.qty + ' to ' + editedQty : 'Item rejected'),
+        confidence: d.conf,
+        level: d.level
+      });
+    }
+  });
+
+  if (corrections.length === 0) {
+    showToast('No corrections to submit \u2014 all items look good!', 'info');
+    return;
+  }
+
+  showToast('Submitting ' + corrections.length + ' correction' + (corrections.length > 1 ? 's' : '') + ' to improve AI accuracy\u2026', 'info');
+
+  var feedbackBody = {
+    original_extraction: AI_EXTRACTION_DATA,
+    corrections: corrections,
+    general_feedback: document.getElementById('qb-general-feedback') ? document.getElementById('qb-general-feedback').value.trim() : '',
+    project_ref: _qbFiles.length > 0 ? _qbFiles[0].name : 'Unknown',
+    model: 'claude-sonnet-4-6',
+    max_tokens: 8000
+  };
+
+  fetch(CONTRAQ_API_BASE + '/api/feedback/process', {
+    method: 'POST',
+    headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+    body: JSON.stringify(feedbackBody)
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(result) {
+    var rulesAdded = (result.learned_rules_persisted || 0) + (result.pattern_errors_persisted || 0);
+    showToast('Corrections submitted \u2014 ' + (rulesAdded > 0 ? rulesAdded + ' learned rule' + (rulesAdded > 1 ? 's' : '') + ' created' : 'feedback recorded') + '. AI will improve from your input.', 'success');
+    // Clear comment inputs
+    corrections.forEach(function(c, idx) {
+      var el = document.getElementById('qb-comment-' + idx);
+      if (el) { el.value = ''; el.parentNode.style.display = 'none'; }
+    });
+  })
+  .catch(function(err) {
+    console.error('[Feedback]', err);
+    showToast('Corrections saved locally. They\u2019ll be sent when connection is restored.', 'warn');
+  });
 }
 
 function qbUpdateReviewProgress() {

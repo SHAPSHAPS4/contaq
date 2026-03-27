@@ -1587,6 +1587,8 @@ body::after{content:'';position:fixed;inset:0;z-index:998;pointer-events:none;ba
 .ext-action.act-accept{color:var(--off4);} .ext-action.act-accept.done{background:rgba(46,125,50,.12);border-color:var(--lime);color:var(--lime);}
 .ext-action.act-flag{color:var(--off4);} .ext-action.act-flag.flagged{background:rgba(251,191,36,.1);border-color:var(--yellow);color:var(--yellow);}
 .ext-action.act-reject{color:var(--off4);} .ext-action.act-reject:hover{border-color:var(--red);color:var(--red);}
+.ext-action.act-comment{color:var(--off4);} .ext-action.act-comment:hover{border-color:var(--blue);color:var(--blue);} .ext-action.act-comment.has-comment{background:rgba(59,130,246,.1);border-color:var(--blue);color:var(--blue);}
+.qb-comment-input{transition:border-color .15s;} .qb-comment-input:focus{border-color:var(--orange) !important;outline:none;}
 .ext-hist-bar{display:flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.58rem;}
 .ext-hist-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .ext-hist-dot.in-range{background:var(--lime);}
