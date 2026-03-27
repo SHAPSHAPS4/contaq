@@ -1151,6 +1151,9 @@ function qbStartAnalysis() {
       text: 'SCOPE SCAN ONLY — do NOT extract quantities. Identify all M&E service categories visible on these drawings. Return a JSON array of objects: [{"category":"Heating Pipework","trade":"mechanical","count_estimate":"~20 items"},{"category":"Cable Containment","trade":"electrical","count_estimate":"~15 items"},...]. Categories should be specific (e.g. "LTHW Pipework" not just "Pipework"). Include: pipework by system (LTHW, CHW, CWS, HWS, condensate), ductwork, cable containment, electrical distribution, lighting, insulation, valves & fittings, plant/equipment, fire stopping, controls. Only list categories actually visible on the drawings. Be concise.'
     });
 
+    var _scanController = new AbortController();
+    var _scanTimeout = setTimeout(function() { _scanController.abort(); }, 60000);
+
     fetch(CONTRAQ_API_BASE + '/api/quotes/extract', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1159,10 +1162,12 @@ function qbStartAnalysis() {
         max_tokens: 2000,
         system: 'You are an M&E drawing analyst. Identify service categories only. Return JSON array. No quantities.',
         messages: [{ role: 'user', content: scanBlocks }]
-      })
+      }),
+      signal: _scanController.signal
     })
     .then(function(resp) { return resp.json(); })
     .then(function(scanResult) {
+      clearTimeout(_scanTimeout);
       completeStep(3);
 
       // Parse categories from AI response
@@ -1514,18 +1519,29 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
       clearInterval(_apiStepTimer);
       console.error('AI Quote Builder API error:', err);
       var errMsg = String(err.message || err);
-      if (/401|403|auth/i.test(errMsg)) errMsg = 'Authentication failed \u2014 check your API key is valid and has credit';
-      else if (/cors|network|failed to fetch/i.test(errMsg)) errMsg = 'Network/CORS error \u2014 direct browser access may not be enabled for your API key';
+
+      // Retry once on network/timeout errors (not on auth or bad request errors)
+      if (!window._qbRetried && !/401|403|400|auth|invalid/i.test(errMsg)) {
+        window._qbRetried = true;
+        console.log('[QB] Retrying extraction (attempt 2)...');
+        docCount.textContent = 'First attempt failed \u2014 retrying\u2026';
+        docCount.style.color = 'var(--orange)';
+        setTimeout(function() {
+          _qbContinueExtraction(window._qbScanFileData || fileData, hasSpec, hasBoq, hasDwg, activateStep, completeStep, completeAll, docCount, 3);
+        }, 2000);
+        return;
+      }
+      window._qbRetried = false;
+
+      if (/401|403|auth/i.test(errMsg)) errMsg = 'Authentication failed \u2014 please contact support';
+      else if (/cors|network|failed to fetch/i.test(errMsg)) errMsg = 'Network error \u2014 check your connection and try again';
       else if (/429|rate/i.test(errMsg)) errMsg = 'Rate limited \u2014 wait a moment and try again';
-      else if (/400|invalid/i.test(errMsg)) errMsg = 'Bad request \u2014 the model or request format may be invalid';
-      docCount.textContent = '\u26a0 AI call failed: ' + errMsg;
+      else if (/timeout|timed out/i.test(errMsg)) errMsg = 'Request timed out \u2014 try with fewer pages or a smaller document';
+      else if (/400|invalid/i.test(errMsg)) errMsg = 'Bad request \u2014 the document may be too large or in an unsupported format';
+      else if (/502|proxy/i.test(errMsg)) errMsg = 'Server error \u2014 please try again in a moment';
+      docCount.textContent = '\u26a0 AI extraction failed: ' + errMsg;
       docCount.style.color = 'var(--red)';
       showToast('\u26a0 AI Quote Builder: ' + errMsg, 'error');
-      /* Show demo data as fallback but clearly labelled */
-      setTimeout(function() {
-        docCount.textContent += ' \u2014 showing demo data instead';
-        _qbRunDemoFallback(activateStep, completeAll);
-      }, 2000);
     });
 }
 

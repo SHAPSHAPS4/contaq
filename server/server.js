@@ -235,6 +235,10 @@ async function proxyToAnthropic(req, res, endpointPath) {
     };
     if (system) anthropicBody.system = system;
 
+    // 3-minute timeout for large PDF extractions
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 180000);
+
     const anthropicResp = await fetch(ANTHROPIC_URL, {
       method: 'POST',
       headers: {
@@ -242,18 +246,26 @@ async function proxyToAnthropic(req, res, endpointPath) {
         'x-api-key': ANTHROPIC_API_KEY,
         'anthropic-version': ANTHROPIC_VERSION
       },
-      body: JSON.stringify(anthropicBody)
+      body: JSON.stringify(anthropicBody),
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
 
     // Stream the status code and body back
     const body = await anthropicResp.text();
     res.status(anthropicResp.status).set('Content-Type', 'application/json').send(body);
 
   } catch (err) {
+    const errMsg = err.name === 'AbortError'
+      ? 'AI request timed out (3 min). Try with fewer pages or a smaller document.'
+      : 'Failed to reach AI service. Please try again.';
     console.error(`[Contraq API] Proxy error (${endpointPath}):`, err.message);
-    res.status(502).json({
-      error: { type: 'proxy_error', message: 'Failed to reach AI service. Please try again.' }
-    });
+    if (!res.headersSent) {
+      res.status(502).json({
+        error: { type: 'proxy_error', message: errMsg }
+      });
+    }
   }
 }
 
