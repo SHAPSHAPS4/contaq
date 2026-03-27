@@ -35,10 +35,11 @@ function doLogin() {
   err.style.display = 'none';
   if (!email || !pass) { err.textContent = 'Please enter email and password.'; err.style.display = 'block'; return; }
 
-  // Demo/admin fallback — only available via /app?demo=1 or /app?admin=1
+  // Admin login always works, demo requires ?demo=1
   var urlParams = new URLSearchParams(window.location.search);
-  var demoAllowed = urlParams.get('demo') === '1' || urlParams.get('admin') === '1';
-  if (demoAllowed && ((email === 'demo@contraq.co.uk' && pass === 'Demo1234!') || (email === 'admin@contraq.co.uk' && pass === 'Admin2025!'))) {
+  var isAdminLogin = email === 'admin@contraq.co.uk' && pass === 'Admin2025!';
+  var isDemoLogin = urlParams.get('demo') === '1' && email === 'demo@contraq.co.uk' && pass === 'Demo1234!';
+  if (isAdminLogin || isDemoLogin) {
     STATE.loggedIn = true;
     STATE.demoMode = true;
     STATE.user = email.startsWith('admin') ? Object.assign({}, ADMIN_USER) : Object.assign({}, DEMO_USER);
