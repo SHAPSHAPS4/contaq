@@ -23,7 +23,7 @@ router.post('/process', kbInjectionMiddleware, async (req, res) => {
       const anthropicBody = { model: safeModel, max_tokens: req.body.max_tokens, system: req.body.system, messages };
       const anthropicResp = await fetch(ANTHROPIC_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2024-10-22' },
         body: JSON.stringify(anthropicBody)
       });
       const body = await anthropicResp.text();
