@@ -82,7 +82,7 @@ app.use(express.json({ limit: '50mb' }));
 // Rate limiting per IP
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10),
-  max: parseInt(process.env.RATE_LIMIT_MAX || '20', 10),
+  max: parseInt(process.env.RATE_LIMIT_MAX || '60', 10),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: { type: 'rate_limit', message: 'Too many requests — please wait and try again.' } }
@@ -235,6 +235,11 @@ async function proxyToAnthropic(req, res, endpointPath) {
     };
     if (system) anthropicBody.system = system;
 
+    // Log request size for debugging
+    const bodySize = JSON.stringify(req.body).length;
+    console.log(`[Contraq API] ${endpointPath}: ${bodySize} bytes, model=${safeModel}, max_tokens=${safeMaxTokens}`);
+    const startTime = Date.now();
+
     // 3-minute timeout for large PDF extractions
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 180000);
@@ -251,9 +256,11 @@ async function proxyToAnthropic(req, res, endpointPath) {
     });
 
     clearTimeout(timeout);
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
     // Stream the status code and body back
     const body = await anthropicResp.text();
+    console.log(`[Contraq API] ${endpointPath}: Anthropic responded ${anthropicResp.status} in ${elapsed}s (${body.length} bytes)`);
     res.status(anthropicResp.status).set('Content-Type', 'application/json').send(body);
 
   } catch (err) {
