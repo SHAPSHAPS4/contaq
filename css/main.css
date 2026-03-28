@@ -1741,8 +1741,45 @@ body::after{content:'';position:fixed;inset:0;z-index:998;pointer-events:none;ba
 
 
 /* ─── PAS 2030 CERTIFICATE PRINT STYLES ─────────────────── */
+/* ── Quote PDF Preview page ─────────────────────────── */
+.qpdf-page{width:100%;max-width:794px;min-height:1000px;background:#fff;color:#1a1a1a;font-family:'Segoe UI','Calibri',Arial,sans-serif;font-size:11px;padding:48px 52px;box-shadow:0 2px 20px rgba(0,0,0,.25);border-radius:2px;line-height:1.5;}
+.qpdf-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid #217346;margin-bottom:20px;}
+.qpdf-company{font-size:20px;font-weight:800;color:#217346;letter-spacing:-.03em;}
+.qpdf-company-sub{font-size:9px;color:#777;margin-top:2px;font-weight:400;}
+.qpdf-doc-type{font-size:11px;font-weight:700;color:#217346;text-transform:uppercase;letter-spacing:.08em;text-align:right;}
+.qpdf-doc-ref{font-size:9px;color:#555;margin-top:2px;text-align:right;}
+.qpdf-meta{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #d4d4d4;border-radius:4px;margin-bottom:18px;overflow:hidden;}
+.qpdf-meta-cell{padding:7px 12px;border-bottom:1px solid #e5e5e5;border-right:1px solid #e5e5e5;}
+.qpdf-meta-cell:nth-child(even){border-right:none;}
+.qpdf-meta-label{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:1px;}
+.qpdf-meta-value{font-size:11px;font-weight:600;color:#1a1a1a;}
+.qpdf-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#217346;border-bottom:2px solid #217346;padding-bottom:4px;margin:18px 0 10px;}
+.qpdf-table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;}
+.qpdf-table th{background:#217346;color:#fff;font-weight:600;font-size:8.5px;text-transform:uppercase;letter-spacing:.04em;padding:5px 7px;text-align:left;border:1px solid #1a5c35;}
+.qpdf-table th.r{text-align:right;}
+.qpdf-table td{padding:4px 7px;border:1px solid #d4d4d4;vertical-align:top;}
+.qpdf-table tr:nth-child(even) td{background:#f7f7f7;}
+.qpdf-table td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.qpdf-table td.b{font-weight:700;}
+.qpdf-group-row td{background:#e8f5e9 !important;font-weight:700;color:#217346;border-top:2px solid #217346;font-size:10px;}
+.qpdf-subtotal-row td{background:#f0f7ec !important;font-weight:600;font-style:italic;color:#333;border-top:1px solid #aaa;}
+.qpdf-grand-row td{background:#217346 !important;color:#fff !important;font-weight:800;font-size:11px;border-color:#1a5c35 !important;}
+.qpdf-conf{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;}
+.qpdf-conf-h{background:#2e7d32;}.qpdf-conf-m{background:#f59e0b;}.qpdf-conf-l{background:#ef4444;}
+.qpdf-footer{border-top:2px solid #217346;margin-top:24px;padding-top:10px;display:flex;justify-content:space-between;font-size:8px;color:#999;}
+.qpdf-terms{margin-top:16px;padding:10px 12px;background:#f8f8f8;border:1px solid #e0e0e0;border-radius:4px;font-size:8.5px;color:#666;line-height:1.5;}
+.qpdf-terms strong{color:#333;}
+.qpdf-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.qpdf-summary-card{padding:8px 12px;background:#f8f8f8;border:1px solid #e0e0e0;border-radius:4px;text-align:center;}
+.qpdf-summary-card .qpdf-big{font-size:18px;font-weight:800;color:#217346;}
+.qpdf-summary-card .qpdf-small{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-top:2px;}
+
 @media print {
-  body > *:not(#pas-certificate-print) { display: none !important; }
+  body > *:not(.qpdf-print-active) { display: none !important; }
+  .qpdf-print-active { display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
+  .qpdf-print-active .qpdf-page { box-shadow: none; padding: 20px 24px; max-width: 100%; }
+  .modal-backdrop, .modal-close, .btn { display: none !important; }
+  body > *:not(#pas-certificate-print):not(.qpdf-print-active) { display: none !important; }
   #pas-certificate-print { display: block !important; }
   .pas-cert { font-family: Arial, sans-serif; color: #000; background: #fff; padding: 30px; max-width: 800px; margin: 0 auto; }
   .pas-cert-header { border-bottom: 3px solid #1e40af; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }

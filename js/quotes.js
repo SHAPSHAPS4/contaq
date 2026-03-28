@@ -369,7 +369,7 @@ function renderTenders(filterStatus) {
       +'<td class="mono">'+fmtDate(t.enquiry)+'</td>'
       +'<td class="mono">'+(t.decision?fmtDate(t.decision):'—')+'</td>'
       +'<td style="white-space:nowrap">'
-      +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="openTenderDetailView(\''+t.id+'\')">'+ICON.file+' View</button> '
+      +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="openQuotePDF(\''+t.id+'\')">'+ICON.file+' View</button> '
       +'<button class="btn btn-dark btn-xs" onclick="openTenderModal(\''+t.id+'\')">Edit</button>'
       +(isWon && !t.linkedProjectId ? ' <button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2)" onclick="quickWonToProject(\''+t.id+'\')">+ Project</button>' : '')
       +'</td></tr>';
