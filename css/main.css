@@ -1774,6 +1774,34 @@ body::after{content:'';position:fixed;inset:0;z-index:998;pointer-events:none;ba
 .qpdf-summary-card .qpdf-big{font-size:18px;font-weight:800;color:#217346;}
 .qpdf-summary-card .qpdf-small{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-top:2px;}
 
+/* ── Quote PDF — mobile responsive ─────────────────── */
+@media(max-width:768px){
+  #modal-quote-pdf>.modal{max-width:100%;border-radius:12px 12px 0 0;max-height:95vh;}
+  .qpdf-page{padding:20px 16px;min-height:auto;font-size:10px;box-shadow:none;border-radius:0;}
+  .qpdf-header{flex-direction:column;gap:8px;padding-bottom:12px;margin-bottom:14px;}
+  .qpdf-doc-type,.qpdf-doc-ref{text-align:left;}
+  .qpdf-company{font-size:16px;}
+  .qpdf-meta{grid-template-columns:1fr;}
+  .qpdf-meta-cell{border-right:none !important;}
+  .qpdf-summary{grid-template-columns:1fr 1fr 1fr;gap:6px;}
+  .qpdf-summary-card .qpdf-big{font-size:14px;}
+  .qpdf-summary-card .qpdf-small{font-size:7px;}
+  .qpdf-table{font-size:9px;}
+  .qpdf-table th{font-size:7.5px;padding:4px 4px;}
+  .qpdf-table td{padding:3px 4px;}
+  .qpdf-footer{flex-direction:column;gap:2px;font-size:7px;}
+  .qpdf-terms{font-size:7.5px;padding:8px 10px;}
+}
+@media(max-width:480px){
+  .qpdf-page{padding:14px 10px;}
+  .qpdf-summary{grid-template-columns:1fr;}
+  .qpdf-table th:nth-child(1),.qpdf-table td:nth-child(1){display:none;}
+  .qpdf-table th:nth-child(2),.qpdf-table td:nth-child(2){display:none;}
+  .qpdf-table{font-size:8.5px;}
+  .qpdf-company{font-size:14px;}
+  .qpdf-section-title{font-size:9px;}
+}
+
 @media print {
   body > *:not(.qpdf-print-active) { display: none !important; }
   .qpdf-print-active { display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
