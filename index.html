@@ -1186,21 +1186,23 @@
       <!-- PHASE 3: AI extraction results with confidence scoring -->
       <div id="qb-phase-results" style="display:none">
 
-        <!-- AI DISCLAIMER BANNER — persistent, non-dismissable -->
-        <div class="ai-disclaimer-banner" id="qb-ai-disclaimer">
-          <span class="ai-disc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-          <strong>AI-Generated Estimate — Requires Human Verification</strong>
-          <div class="ai-disc-body">Quantities, dimensions, and specifications below are AI-generated estimates based on drawing analysis and industry reference data including BSRIA BG 85/87, BS 5422, NBS, CIBSE, and NRM2 conventions. They are not a substitute for professional quantity surveying. All values must be independently verified before use in commercial tenders.</div>
-          <div class="ai-kb-version" id="qb-kb-badge">Knowledge Base v<span id="qb-kb-ver"></span> · <span id="qb-kb-date"></span> · <span id="qb-kb-src"></span> sources</div>
+        <!-- AI DISCLAIMER — compact collapsible bar -->
+        <div class="ai-disc-compact" id="qb-ai-disclaimer" onclick="this.classList.toggle('expanded')">
+          <div class="ai-disc-compact-bar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.7"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span class="ai-disc-compact-text"><strong>AI-Generated Estimate</strong> — requires human verification before commercial use</span>
+            <span class="ai-kb-version" id="qb-kb-badge">KB v<span id="qb-kb-ver"></span> · <span id="qb-kb-date"></span> · <span id="qb-kb-src"></span> sources</span>
+            <svg class="ai-disc-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="ai-disc-compact-detail">Quantities, dimensions, and specifications are AI-generated estimates based on BSRIA BG 85/87, BS 5422, NBS, CIBSE, and NRM2 conventions. Not a substitute for professional QS. All values must be independently verified before use in tenders.</div>
         </div>
 
-        <!-- Review header & instructions -->
-        <div style="margin-bottom:1rem">
-          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem">
-            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-            <h3 style="font-family:var(--serif);font-size:1.15rem;color:var(--c-charcoal);margin:0">Review &amp; Confirm</h3>
-          </div>
-          <p style="font-size:.78rem;color:var(--c-gray-muted);line-height:1.6;margin:0">The AI has extracted <strong style="color:var(--c-charcoal)" id="qb-rev-item-count">11</strong> line items from your documents. Items with a <span style="color:var(--c-success)">green dot</span> were extracted directly from drawings with high confidence. <span style="color:var(--yellow)">Amber items</span> use partially estimated values from BSRIA/BS defaults. <span style="color:var(--c-danger)">Red items</span> need manual verification against the source documents. Expand the <span style="color:var(--c-action)">assumptions</span> panel on any item to see exactly which reference data was applied.</p>
+        <!-- Review header — compact -->
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+          <h3 style="font-family:var(--serif);font-size:1.05rem;color:var(--c-charcoal);margin:0">Review &amp; Confirm</h3>
+          <span style="font-family:var(--font-mono);font-size:.72rem;font-weight:700;color:var(--c-charcoal)" id="qb-rev-item-count">11</span>
+          <span style="font-size:.65rem;color:var(--c-gray-muted)">items extracted</span>
+          <span style="margin-left:auto;font-family:var(--font-mono);font-size:.52rem;color:var(--c-gray-muted)"><span style="color:var(--c-success)">&bull;</span> High &nbsp;<span style="color:var(--yellow)">&bull;</span> Medium &nbsp;<span style="color:var(--c-danger)">&bull;</span> Low — verify</span>
         </div>
 
         <!-- Review progress bar -->
@@ -1233,9 +1235,9 @@
         </div>
         <div style="font-family:var(--font-mono);font-size:.55rem;color:var(--c-gray-muted);margin-bottom:.5rem" id="qb-conf-summary"></div>
 
-        <!-- Low confidence banner -->
-        <div id="qb-low-banner" style="display:none;background:var(--c-danger-bg);border:1px solid var(--c-danger);border-radius:6px;padding:.55rem .75rem;margin-bottom:.75rem;font-size:.72rem;color:var(--c-gray-text)">
-          ⚠ <strong style="color:var(--c-danger)"><span id="qb-low-count">0</span> items flagged as LOW confidence</strong> — these values were inferred from industry defaults (BSRIA/BS 5422/NRM2) rather than extracted from drawings. They must be verified against the project specification before inclusion in a commercial tender. Click the red dots or expand the assumptions panel for details.
+        <!-- Low confidence banner — compact -->
+        <div id="qb-low-banner" style="display:none;background:var(--c-danger-bg);border:1px solid var(--c-danger);border-radius:5px;padding:.35rem .65rem;margin-bottom:.5rem;font-size:.65rem;color:var(--c-gray-text);display:none;">
+          <strong style="color:var(--c-danger)"><span id="qb-low-count">0</span> LOW confidence items</strong> — inferred from defaults, must be verified. Expand assumptions for details.
         </div>
 
         <!-- Bulk action bar -->
@@ -1247,7 +1249,7 @@
         </div>
 
         <!-- Extraction table with review actions -->
-        <div style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--c-slate);border-radius:8px">
+        <div style="overflow-x:auto;max-height:calc(100vh - 340px);min-height:280px;overflow-y:auto;border:1px solid var(--c-slate);border-radius:8px">
           <table class="ai-ext-table">
             <thead style="position:sticky;top:0;background:var(--c-primary);z-index:2">
               <tr>
@@ -1276,11 +1278,9 @@
         <!-- Source documents -->
         <div style="margin-top:.5rem;font-family:var(--font-mono);font-size:.55rem;color:var(--c-gray-muted);line-height:1.5" id="qb-ext-sources"></div>
 
-        <!-- Disclaimer — non-removable -->
-        <div class="ai-disclaimer-banner" style="margin-top:.65rem;">
-          <span class="ai-disc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="6 9 12 3 18 9"/><line x1="6" y1="21" x2="18" y2="21"/></svg></span>
-          <strong>Commercial Use Notice</strong>
-          <div class="ai-disc-body">CONTRAQ AI outputs are decision-support tools, not professional quantity surveying. References to British Standards (BS 5422, BSRIA BG 85/87), NRM2 measurement rules, and NBS specifications indicate the reference data used — not certification of compliance. Actual project specifications may differ from defaults applied. You accept sole responsibility for verifying all AI-generated values before use in tenders, contracts, or procurement. See <a href="#" onclick="event.preventDefault();showTermsOfService()" style="color:var(--c-action);text-decoration:underline">Terms of Service</a> for full liability limitations.</div>
+        <!-- Commercial notice — compact inline -->
+        <div style="margin-top:.5rem;font-family:var(--font-mono);font-size:.52rem;color:var(--c-gray-muted);line-height:1.4;padding:.35rem .6rem;background:rgba(240,90,40,.03);border-radius:4px;border:1px solid rgba(240,90,40,.1);">
+          AI outputs are decision-support tools, not professional QS. You accept sole responsibility for verifying all values before use in tenders. <a href="#" onclick="event.preventDefault();showTermsOfService()" style="color:var(--c-action)">Terms of Service</a>
         </div>
 
       </div>
@@ -2436,6 +2436,55 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal-footer">
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-folder-upload')">Cancel</button>
       <button class="btn btn-primary btn-action btn-sm" onclick="fuUpload()">Upload Files</button>
+    </div>
+  </div>
+</div>
+
+<!-- Folder Upload Modal (AI-Enabled) -->
+<div class="modal-backdrop" id="modal-folder-upload" onclick="if(event.target===this)closeModal('modal-folder-upload')">
+  <div class="modal" style="max-width:520px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-header">
+      <div>
+        <span class="modal-title" id="fu-title">Upload to Folder — AI Enabled</span>
+        <div style="font-family:var(--font-mono);font-size:.58rem;color:var(--c-gray-muted);margin-top:.15rem" id="fu-subtitle">Accepted: .pdf .docx .xlsx</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-folder-upload')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:1.25rem;">
+      <div class="modal-err" id="fu-err" style="display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:.6rem .85rem;margin-bottom:.85rem;font-size:.78rem;color:#f87171;"></div>
+
+      <!-- AI result banner -->
+      <div id="fu-ai-banner" style="display:none;background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.2);border-radius:8px;padding:.75rem 1rem;margin-bottom:.85rem;">
+        <div style="font-family:var(--font-mono);font-size:.52rem;text-transform:uppercase;color:var(--c-success);margin-bottom:.4rem;">&#129504; AI Analysis Complete</div>
+        <div id="fu-ai-result" style="font-size:.74rem;color:var(--c-gray-text);line-height:1.7;"></div>
+      </div>
+
+      <!-- Drop zone -->
+      <div id="fu-drop-zone"
+        style="border:2px dashed rgba(249,115,22,.3);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:background .15s,border-color .15s;"
+        onclick="document.getElementById('fu-file-input-folder').click()"
+        ondragover="event.preventDefault();this.style.background='rgba(249,115,22,.06)'"
+        ondragleave="this.style.background=''"
+        ondrop="fuDropHandler(event)">
+        <div id="fu-drop-icon" style="font-size:1.5rem;margin-bottom:.4rem;opacity:.5;">&#128196;</div>
+        <div style="font-size:.78rem;color:var(--c-gray-muted);">Drag &amp; drop or <strong style="color:var(--c-action)">browse</strong> to upload</div>
+      </div>
+      <input type="file" id="fu-file-input-folder" style="display:none" multiple accept=".pdf,.xlsx,.xls,.docx,.doc,.jpg,.jpeg,.png" onchange="fuFilesSelected(this.files)"/>
+
+      <!-- File list -->
+      <div id="fu-file-list" style="margin-top:.75rem;display:flex;flex-direction:column;gap:.4rem"></div>
+
+      <!-- Progress -->
+      <div id="fu-progress-wrap" style="display:none;margin-top:1rem;">
+        <div id="fu-progress-label" style="font-family:var(--font-mono);font-size:.62rem;color:var(--c-success);margin-bottom:.35rem;">Reading file&hellip;</div>
+        <div style="height:4px;background:var(--c-slate-light);border-radius:2px;overflow:hidden;">
+          <div id="fu-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--c-success),var(--c-action));border-radius:2px;transition:width .35s;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-folder-upload')">Cancel</button>
+      <button id="fu-analyse-btn" class="btn btn-primary btn-action btn-sm" style="display:none;" onclick="fuStartAnalysis()">Analyse &amp; Upload</button>
     </div>
   </div>
 </div>

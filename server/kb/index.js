@@ -222,11 +222,12 @@ async function loadDynamicSectionsForOrg(orgId, trade) {
     const patternErrors = allRules.filter(r => r.rule_type === 'pattern-error');
 
     // Load trade collective rules (if org has opted in and trade is known)
+    // Also always load 'all' trade rules (admin corrections applying to every trade)
     let collectiveRules = [];
-    if (trade) {
+    if (trade || true) {  // Always attempt — 'all' trade rules should load for everyone
       const collectiveEnabled = await db.isCollectiveLearningEnabled(orgId);
       if (collectiveEnabled) {
-        const rawCollective = await db.getCollectiveRulesForTrade(trade);
+        const rawCollective = await db.getCollectiveRulesForTrade(trade || 'all');
         // Exclude rules originally shared by this org (they already have the org-private version)
         collectiveRules = rawCollective
           .filter(r => r.shared_by_org !== orgId && r.rule_type !== 'pattern-error')

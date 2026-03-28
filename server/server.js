@@ -106,6 +106,9 @@ app.use('/api/beta', betaRoutes);
 app.use('/api/billing', billingRoutes);  // checkout, portal, status (JSON body routes)
 
 /* ── Modular routes (new structured API + legacy compatibility) ──── */
+app.use('/api/pricebook', require('./routes/pricebook-import'));
+app.use('/api/clients', require('./routes/client-import'));
+app.use('/api/folders', require('./routes/folder-analyse'));
 app.use('/api/drawings', require('./routes/drawings'));
 app.use('/api/specs', require('./routes/specs'));
 app.use('/api/takeoff', require('./routes/takeoff'));
@@ -208,7 +211,10 @@ const ENDPOINT_LIMITS = {
   '/api/drawings/extract': 8000,
   '/api/specs/analyse': 8000,
   '/api/takeoff/consolidate': 12000,
-  '/api/feedback/process': 10000
+  '/api/feedback/process': 10000,
+  '/api/pricebook/import': 16000,
+  '/api/clients/import': 16000,
+  '/api/folders/analyse': 4000
 };
 
 async function proxyToAnthropic(req, res, endpointPath) {

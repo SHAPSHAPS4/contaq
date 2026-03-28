@@ -1034,7 +1034,11 @@ function _qbBuildSystemPrompt() {
   + '- Every item has all required fields populated (ref, service, unit_equip, desc, qty, unit, rate, conf, level, flags, src, srcPage, drawingScale, serviceStatus)\n'
   + '- If ANY field is uncertain, provide a default value and flag it \u2014 NEVER omit the field\n'
   + '- Rate=0 is acceptable if flagged; qty=0 for TBC items is acceptable if flagged\n'
-  + '- The confirmation process MUST NOT fail due to missing fields or malformed JSON';
+  + '- The confirmation process MUST NOT fail due to missing fields or malformed JSON'
+
+  /* ── Inject learned rules from estimator corrections ─── */
+  + (typeof getLearnedRulesPrompt === 'function' ? getLearnedRulesPrompt() : '')
+  + (typeof getSelfAuditPrompt === 'function' ? getSelfAuditPrompt() : '');
 }
 
 
@@ -1348,7 +1352,7 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
     // Inject scope filter if user selected specific categories
     var scopeFilter = '';
     if (_qbSelectedScope && _qbSelectedScope.length > 0) {
-      scopeFilter = '\n\nSCOPE FILTER: The estimator has selected ONLY the following categories for extraction. Do NOT extract items outside these categories:\n- ' + _qbSelectedScope.join('\n- ') + '\nIgnore all other services visible on the drawings. Only extract items that fall within the selected categories above.\n\n';
+      scopeFilter = '\n\n=== MANDATORY SCOPE FILTER (HIGHEST PRIORITY) ===\nThe estimator has selected ONLY these categories. You MUST NOT return any items outside this list.\nALLOWED categories:\n- ' + _qbSelectedScope.join('\n- ') + '\n\nFor every item in your output, the "service" field MUST match one of the allowed categories above. If a service on the drawing is not in this list, SKIP IT ENTIRELY — do not include it in the JSON array. This filter overrides all other instructions.\n=== END SCOPE FILTER ===\n\n';
     }
 
     contentBlocks.push({
@@ -1537,6 +1541,17 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
         /* Filter out existing services — they should not have been returned but double-check */
         if (normItem.serviceStatus === 'existing') return null;
 
+        /* Hard scope filter — remove items outside selected categories regardless of what AI returned */
+        if (_qbSelectedScope && _qbSelectedScope.length > 0) {
+          var itemSvc = (normItem.service || '').toLowerCase().trim();
+          var matchesScope = _qbSelectedScope.some(function(cat) {
+            var catLower = cat.toLowerCase().trim();
+            /* Match if service contains the category name or vice versa */
+            return itemSvc.indexOf(catLower) >= 0 || catLower.indexOf(itemSvc) >= 0;
+          });
+          if (!matchesScope) return null;
+        }
+
         /* Local Price Book verification pass */
         if (MATERIALS_PRICE_BOOK.length > 0 && !normItem.priceBookMatch) {
           var bestMatch = _qbFindPriceBookMatch(normItem.desc, normItem.service);
@@ -1552,6 +1567,15 @@ function _qbContinueExtraction(fileData, hasSpec, hasBoq, hasDwg, activateStep, 
         }
         return normItem;
       }).filter(function(item) { return item !== null; });
+
+      /* Log scope filter results */
+      if (_qbSelectedScope && _qbSelectedScope.length > 0) {
+        var preCount = parsed.length;
+        var postCount = AI_EXTRACTION_DATA.length;
+        if (preCount !== postCount) {
+          console.log('[Scope Filter] Removed ' + (preCount - postCount) + ' items outside selected scope (' + _qbSelectedScope.join(', ') + '). ' + postCount + ' items retained.');
+        }
+      }
 
       /* Sort: high first, then med, then low */
       var _levelOrder = {high:0, med:1, low:2};
@@ -2003,6 +2027,22 @@ function qbSubmitCorrections() {
   .then(function(result) {
     var rulesAdded = (result.learned_rules_persisted || 0) + (result.pattern_errors_persisted || 0);
     showToast('Corrections submitted \u2014 ' + (rulesAdded > 0 ? rulesAdded + ' learned rule' + (rulesAdded > 1 ? 's' : '') + ' created' : 'feedback recorded') + '. AI will improve from your input.', 'success');
+
+    /* ── Update session LEARNED_RULES from API response ── */
+    if (result.learned_rules && Array.isArray(result.learned_rules)) {
+      result.learned_rules.forEach(function(rule) {
+        var exists = LEARNED_RULES.some(function(r) { return r.rule_id === rule.rule_id; });
+        if (!exists) LEARNED_RULES.push(rule);
+      });
+      console.log('[KB] Session LEARNED_RULES updated: ' + LEARNED_RULES.length + ' total rules');
+    }
+    if (result.pattern_errors && Array.isArray(result.pattern_errors)) {
+      result.pattern_errors.forEach(function(pe) {
+        var exists = PATTERN_ERRORS.some(function(p) { return p.error_type === pe.error_type; });
+        if (!exists) PATTERN_ERRORS.push(pe);
+      });
+    }
+
     // Clear comment inputs
     corrections.forEach(function(c, idx) {
       var el = document.getElementById('qb-comment-' + idx);

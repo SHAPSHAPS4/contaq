@@ -229,22 +229,228 @@ function fuStartAnalysis() {
   document.getElementById('fu-analyse-btn').style.display = 'none';
   document.getElementById('fu-progress-wrap').style.display = '';
   document.getElementById('fu-ai-banner').style.display = 'none';
-  var steps = ['Reading file…','Detecting document type…','Extracting revision…','Categorising to folder…','Sorting revisions…','Finalising…'];
-  var si = 0, bar = document.getElementById('fu-progress-bar'), lbl = document.getElementById('fu-progress-label');
-  lbl.textContent = steps[0]; bar.style.width = '0%';
-  var iv = setInterval(function(){
-    si++;
-    if (si >= steps.length) { clearInterval(iv); bar.style.width='100%'; fuApplyUpload(); return; }
-    bar.style.width = Math.round(si/steps.length*100)+'%';
-    lbl.textContent = steps[si];
-  }, 500);
+  var bar = document.getElementById('fu-progress-bar');
+  var lbl = document.getElementById('fu-progress-label');
+  lbl.textContent = 'Reading files\u2026'; bar.style.width = '5%';
+
+  /* ── Demo mode: filename-based analysis ── */
+  if (!ContraqAPI.isRealUser()) {
+    _fuRunDemoAnalysis();
+    return;
+  }
+
+  /* ── Real AI: read files as base64 and send to server ── */
+  var filesToSend = [];
+  var pending = STATE._folderPendingFiles.length;
+  var done = 0;
+
+  STATE._folderPendingFiles.forEach(function(f, idx) {
+    var reader = new FileReader();
+    reader.onload = function() {
+      var base64 = reader.result.split(',')[1];
+      var mimeType = f.type || 'application/octet-stream';
+      if (!mimeType || mimeType === 'application/octet-stream') {
+        var ext = (f.name.split('.').pop() || '').toLowerCase();
+        if (ext === 'pdf') mimeType = 'application/pdf';
+        else if (ext === 'xlsx') mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        else if (ext === 'xls') mimeType = 'application/vnd.ms-excel';
+        else if (ext === 'docx') mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        else if (ext === 'png') mimeType = 'image/png';
+        else if (ext === 'jpg' || ext === 'jpeg') mimeType = 'image/jpeg';
+      }
+      filesToSend[idx] = { file_base64: base64, file_name: f.name, mime_type: mimeType };
+      done++;
+      bar.style.width = Math.round(done / pending * 15 + 5) + '%';
+      lbl.textContent = 'Reading files\u2026 ' + done + '/' + pending;
+      if (done === pending) {
+        lbl.textContent = 'Sending to AI\u2026';
+        bar.style.width = '25%';
+        _fuCallAI(filesToSend);
+      }
+    };
+    reader.onerror = function() {
+      done++;
+      if (done === pending && filesToSend.filter(Boolean).length > 0) {
+        _fuCallAI(filesToSend.filter(Boolean));
+      }
+    };
+    reader.readAsDataURL(f);
+  });
 }
 
-function fuApplyUpload() {
+function _fuCallAI(filesToSend) {
+  var ctx = STATE.folderUploadCtx;
+  var bar = document.getElementById('fu-progress-bar');
+  var lbl = document.getElementById('fu-progress-label');
+
+  fetch(CONTRAQ_API_BASE + '/api/folders/analyse', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      files: filesToSend,
+      target_folder: ctx ? ctx.folderKey : null,
+      entity_type: ctx ? ctx.source : null
+    })
+  }).then(function(resp) {
+    if (!resp.ok && !resp.headers.get('content-type')?.includes('text/event-stream')) {
+      return resp.json().then(function(err) { throw new Error(err.error?.message || 'Server error'); });
+    }
+    var streamReader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    var fullText = '';
+    var lastCount = 0;
+
+    function readChunk() {
+      return streamReader.read().then(function(result) {
+        if (result.done) return fullText;
+        var chunk = decoder.decode(result.value, { stream: true });
+        fullText += chunk;
+
+        var lines = fullText.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          if (!lines[i].startsWith('data: ')) continue;
+          var raw = lines[i].slice(6).trim();
+          if (raw === '[DONE]') continue;
+          try {
+            var evt = JSON.parse(raw);
+            if (evt.progress && evt.files_analysed > lastCount) {
+              lastCount = evt.files_analysed;
+              var pct = Math.min(25 + Math.round(lastCount / filesToSend.length * 65), 90);
+              bar.style.width = pct + '%';
+              lbl.textContent = 'Analysing\u2026 ' + lastCount + '/' + filesToSend.length + ' files classified';
+            }
+          } catch(e) {}
+        }
+
+        return readChunk();
+      });
+    }
+
+    return readChunk().then(function(sseText) {
+      var dataLines = sseText.split('\n');
+      var resultData = null;
+      for (var i = dataLines.length - 1; i >= 0; i--) {
+        if (dataLines[i].startsWith('data: ') && dataLines[i].indexOf('"type":"result"') > -1) {
+          try { resultData = JSON.parse(dataLines[i].slice(6)); } catch(e) {}
+          break;
+        }
+      }
+      if (!resultData || !resultData.data || resultData.data.error) {
+        throw new Error(resultData && resultData.data && resultData.data.message || 'AI analysis failed.');
+      }
+      return resultData.data;
+    });
+  }).then(function(aiData) {
+    bar.style.width = '100%';
+    lbl.textContent = 'Finalising\u2026';
+    _fuApplyAIResult(aiData);
+  }).catch(function(err) {
+    console.error('[Folder AI]', err);
+    lbl.textContent = 'AI unavailable \u2014 using filename analysis';
+    bar.style.width = '100%';
+    bar.style.background = 'var(--orange)';
+    /* Fallback to filename-based analysis */
+    setTimeout(function() {
+      bar.style.background = '';
+      _fuApplyFallback();
+    }, 1000);
+  });
+}
+
+function _fuApplyAIResult(aiData) {
   var ctx = STATE.folderUploadCtx;
   if (!ctx) { closeModal('modal-folder-upload'); return; }
   var today = new Date().toISOString().split('T')[0];
-  // Get entity
+
+  var entity = null;
+  if (ctx.source === 'project') {
+    entity = PROJECTS.find(function(p){ return p.id === ctx.entityId; });
+  } else {
+    entity = TENDERS.find(function(t){ return t.id === ctx.entityId; });
+  }
+  if (!entity) { closeModal('modal-folder-upload'); return; }
+  if (!entity.folders) entity.folders = {drawings:[],specs:[],documents:[],purchaseOrder:[],voQuote:[]};
+
+  var aiFiles = aiData.files || [];
+  var insights = [];
+
+  (STATE._folderPendingFiles||[]).forEach(function(f, idx) {
+    var ai = aiFiles[idx] || {};
+    var suggestedFolder = ai.suggested_folder || fuDetectFolder(f.name);
+    var targetFolder = ctx.folderKey;
+    var mismatch = (suggestedFolder !== targetFolder);
+    var rev = ai.revision || fuGuessRevision(f.name);
+    var sizeKb = Math.round(f.size/1024);
+    var sizeStr = sizeKb > 1024 ? (sizeKb/1024).toFixed(1)+' MB' : sizeKb+' KB';
+    var docDate = ai.date || today;
+
+    var newFile = {
+      id: 'fd-'+ctx.entityId+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,5),
+      filename: f.name,
+      revision: rev,
+      date: docDate,
+      size: sizeStr,
+      notes: ai.summary || ''
+    };
+    if (!entity.folders[targetFolder]) entity.folders[targetFolder] = [];
+    entity.folders[targetFolder].unshift(newFile);
+
+    var msg = '<strong style="color:var(--white);">' + f.name + '</strong>';
+    if (ai.title) msg += '<br><span style="font-size:.68rem;color:var(--off3);">' + ai.title + '</span>';
+    msg += '<br><span style="font-family:var(--mono);font-size:.6rem;">'
+      + (ai.document_type || 'Document') + ' &middot; Rev ' + rev
+      + (ai.author ? ' &middot; ' + ai.author : '') + '</span>';
+    if (mismatch) {
+      msg += '<br><span style="color:var(--yellow);font-size:.62rem;">AI suggests: '
+        + (FOLDER_DEFS[suggestedFolder]||{label:suggestedFolder}).label
+        + ' \u2014 placed in ' + (FOLDER_DEFS[targetFolder]||{label:targetFolder}).label + ' as selected</span>';
+    }
+    insights.push(msg);
+  });
+
+  /* ── API: persist folder file metadata to database ── */
+  if (ContraqAPI.isRealUser()) {
+    (STATE._folderPendingFiles||[]).forEach(function(f, idx) {
+      var ai = aiFiles[idx] || {};
+      var rev = ai.revision || fuGuessRevision(f.name);
+      var sizeKb = Math.round(f.size/1024);
+      var sizeStr = sizeKb > 1024 ? (sizeKb/1024).toFixed(1)+' MB' : sizeKb+' KB';
+      fetch(CONTRAQ_API_BASE + '/api/data/documents', {
+        method: 'POST',
+        headers: typeof getAuthHeader === 'function' ? getAuthHeader() : { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: f.name, revision: rev, size: sizeStr,
+          folder_key: ctx.folderKey, entity_type: ctx.source, entity_id: ctx.entityId,
+          date: ai.date || new Date().toISOString().split('T')[0],
+          notes: ai.summary || null, document_type: ai.document_type || null
+        })
+      }).catch(function(e) { console.error('[Folders] Save error:', e); });
+    });
+  }
+
+  document.getElementById('fu-progress-wrap').style.display = 'none';
+  document.getElementById('fu-ai-result').innerHTML = insights.map(function(i){
+    return '<div style="display:flex;gap:.4rem;margin-bottom:.5rem;"><span style="color:var(--lime);">\u2713</span><span style="font-size:.74rem;line-height:1.5;">'+i+'</span></div>';
+  }).join('') + '<div style="font-family:var(--mono);font-size:.55rem;color:var(--off4);margin-top:.45rem;">Files analysed by AI. Revisions sorted \u2014 newest at top.</div>';
+  document.getElementById('fu-ai-banner').style.display = '';
+
+  setTimeout(function(){
+    closeModal('modal-folder-upload');
+    if (ctx.source === 'project' && STATE.viewProjectId) {
+      renderProjectDetailTab(STATE.viewProjectId, 'attachments');
+    } else if (ctx.source === 'tender') {
+      openTenderDetailView(ctx.entityId);
+    }
+    showToast('\u2714 Files uploaded to ' + (FOLDER_DEFS[ctx.folderKey]||{label:ctx.folderKey}).label + ' folder \u2014 AI classified.', 'success');
+  }, 1500);
+}
+
+/* ── Fallback: filename-based analysis (demo + AI failure) ── */
+function _fuApplyFallback() {
+  var ctx = STATE.folderUploadCtx;
+  if (!ctx) { closeModal('modal-folder-upload'); return; }
+  var today = new Date().toISOString().split('T')[0];
+
   var entity = null;
   if (ctx.source === 'project') {
     entity = PROJECTS.find(function(p){ return p.id === ctx.entityId; });
@@ -268,15 +474,14 @@ function fuApplyUpload() {
     };
     if (!entity.folders[targetFolder]) entity.folders[targetFolder] = [];
     entity.folders[targetFolder].unshift(newFile);
-    var msg = '<strong style="color:var(--white);">' + f.name + '</strong> → '
-      + (FOLDER_DEFS[targetFolder]||{label:targetFolder}).label + ' · Rev ' + rev;
+    var msg = '<strong style="color:var(--white);">' + f.name + '</strong> \u2192 '
+      + (FOLDER_DEFS[targetFolder]||{label:targetFolder}).label + ' \u00b7 Rev ' + rev;
     if (mismatch) {
-      msg += ' <span style="color:var(--yellow);font-size:.68rem;">(AI detected as '+(FOLDER_DEFS[detectedFolder]||{label:detectedFolder}).label+' — placed in selected folder)</span>';
+      msg += ' <span style="color:var(--yellow);font-size:.68rem;">(detected as '+(FOLDER_DEFS[detectedFolder]||{label:detectedFolder}).label+' \u2014 placed in selected folder)</span>';
     }
     insights.push(msg);
   });
 
-  /* ── API: persist folder file metadata to database ── */
   if (ContraqAPI.isRealUser()) {
     (STATE._folderPendingFiles||[]).forEach(function(f) {
       var rev = fuGuessRevision(f.name);
@@ -292,20 +497,32 @@ function fuApplyUpload() {
 
   document.getElementById('fu-progress-wrap').style.display = 'none';
   document.getElementById('fu-ai-result').innerHTML = insights.map(function(i){
-    return '<div style="display:flex;gap:.4rem;"><span style="color:var(--lime);">✓</span><span style="font-size:.74rem;line-height:1.6;">'+i+'</span></div>';
-  }).join('') + '<div style="font-family:var(--mono);font-size:.55rem;color:var(--off4);margin-top:.45rem;">Files added. Revisions sorted — newest at top.</div>';
+    return '<div style="display:flex;gap:.4rem;"><span style="color:var(--lime);">\u2713</span><span style="font-size:.74rem;line-height:1.6;">'+i+'</span></div>';
+  }).join('') + '<div style="font-family:var(--mono);font-size:.55rem;color:var(--off4);margin-top:.45rem;">Files added. Revisions sorted \u2014 newest at top.</div>';
   document.getElementById('fu-ai-banner').style.display = '';
 
   setTimeout(function(){
     closeModal('modal-folder-upload');
-    // Re-render
     if (ctx.source === 'project' && STATE.viewProjectId) {
       renderProjectDetailTab(STATE.viewProjectId, 'attachments');
     } else if (ctx.source === 'tender') {
       openTenderDetailView(ctx.entityId);
     }
-    showToast('✔ Files uploaded to ' + (FOLDER_DEFS[ctx.folderKey]||{label:ctx.folderKey}).label + ' folder.', 'success');
+    showToast('\u2714 Files uploaded to ' + (FOLDER_DEFS[ctx.folderKey]||{label:ctx.folderKey}).label + ' folder.', 'success');
   }, 800);
+}
+
+/* ── Demo mode: animated filename-based analysis ── */
+function _fuRunDemoAnalysis() {
+  var steps = ['Reading file\u2026','Detecting document type\u2026','Extracting revision\u2026','Categorising to folder\u2026','Sorting revisions\u2026','Finalising\u2026'];
+  var si = 0, bar = document.getElementById('fu-progress-bar'), lbl = document.getElementById('fu-progress-label');
+  lbl.textContent = steps[0]; bar.style.width = '0%';
+  var iv = setInterval(function(){
+    si++;
+    if (si >= steps.length) { clearInterval(iv); bar.style.width='100%'; _fuApplyFallback(); return; }
+    bar.style.width = Math.round(si/steps.length*100)+'%';
+    lbl.textContent = steps[si];
+  }, 500);
 }
 
 function renderQuoteFilesSection(tenderId, files, isProject) {

@@ -163,6 +163,7 @@ function pbHandleDrop(event) {
 }
 
 function pbShowFileChosen(file) {
+  _pbSelectedFile = file;
   var ext = (file.name.split('.').pop()||'').toLowerCase();
   document.getElementById('pb-file-icon').innerHTML = ext === 'pdf' ? ICON.file : ICON.chart;
   document.getElementById('pb-file-name').textContent = file.name;
@@ -170,71 +171,170 @@ function pbShowFileChosen(file) {
   document.getElementById('pb-file-chosen').classList.add('active');
   var btn = document.getElementById('pb-analyse-btn');
   btn.disabled = false; btn.style.opacity='1'; btn.style.cursor='pointer';
-  /* store filename for later */
-  document.getElementById('pb-dropzone').dataset.fname = file.name;
-  document.getElementById('pb-dropzone').dataset.fsize = (file.size/1024).toFixed(1);
 }
 
+/* ── Store the selected file for upload ─────────────────────── */
+var _pbSelectedFile = null;
+
 function pbStartAnalysis() {
+  var fileInput = document.getElementById('pb-file-input-pb');
+  var file = _pbSelectedFile || (fileInput && fileInput.files && fileInput.files[0]);
+  if (!file) { showToast('No file selected.', 'error'); return; }
+
   document.getElementById('pb-dropzone').style.display='none';
   document.getElementById('pb-file-chosen').style.display='none';
   document.getElementById('pb-upload-footer').style.display='none';
-  document.getElementById('pb-upload-title').textContent='Importing Supplier Price Book…';
+  document.getElementById('pb-upload-title').textContent='Importing Supplier Price Book\u2026';
   document.getElementById('pb-ai-progress').classList.add('active');
+  document.getElementById('pb-ai-step').textContent = 'Reading file\u2026';
+  document.getElementById('pb-ai-prog-fill').style.width = '10%';
 
-  var steps = [
-    {text:'Reading file…',                   pct:15,  delay:0},
-    {text:'Detecting column headers…',        pct:30,  delay:700},
-    {text:'Extracting material rows…',        pct:50,  delay:1400},
-    {text:'Identifying units & pack sizes…',  pct:68,  delay:2100},
-    {text:'Mapping supplier pricing…',        pct:85,  delay:2800},
-    {text:'Finalising price book…',           pct:100, delay:3400},
-  ];
-
-  function runStep(i) {
-    if (i >= steps.length) { setTimeout(pbApplyImportedData, 400); return; }
-    setTimeout(function() {
-      document.getElementById('pb-ai-step').textContent = steps[i].text;
-      document.getElementById('pb-ai-prog-fill').style.width = steps[i].pct+'%';
-      runStep(i+1);
-    }, steps[i].delay);
+  /* ── Demo mode: use hardcoded data ── */
+  if (!ContraqAPI.isRealUser()) {
+    _pbRunDemoImport(file);
+    return;
   }
-  runStep(0);
+
+  /* ── Real AI extraction ── */
+  var reader = new FileReader();
+  reader.onload = function() {
+    var base64 = reader.result.split(',')[1];
+    document.getElementById('pb-ai-step').textContent = 'Sending to AI\u2026';
+    document.getElementById('pb-ai-prog-fill').style.width = '20%';
+    _pbCallAI(file, base64);
+  };
+  reader.onerror = function() {
+    showToast('Failed to read file.', 'error');
+    pbResetUploadModal();
+  };
+  reader.readAsDataURL(file);
 }
 
-function pbApplyImportedData() {
-  var fname  = document.getElementById('pb-dropzone').dataset.fname || 'supplier_pricebook.xlsx';
-  var fsize  = document.getElementById('pb-dropzone').dataset.fsize || '42.3';
+function _pbCallAI(file, base64) {
+  var startTime = Date.now();
+  var fname = file.name;
+  var fsize = (file.size / 1024).toFixed(1);
+  var mimeType = file.type || 'application/pdf';
+  /* xlsx files may report empty type — detect from extension */
+  if (!mimeType || mimeType === 'application/octet-stream') {
+    var ext = (fname.split('.').pop() || '').toLowerCase();
+    if (ext === 'xlsx') mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    else if (ext === 'xls') mimeType = 'application/vnd.ms-excel';
+    else if (ext === 'pdf') mimeType = 'application/pdf';
+  }
 
-  var imported = [
-    {id:'pi01',name:'Aeroflex Acoustic Tube 15mm×10mm',unit:'m',qtyPerPack:2,supplierPrice:1.85,category:'Pipe Insulation',supplier:'Aeroflex Europe',updated:'2026-03-01'},
-    {id:'pi02',name:'Aeroflex Acoustic Tube 28mm×10mm',unit:'m',qtyPerPack:2,supplierPrice:2.40,category:'Pipe Insulation',supplier:'Aeroflex Europe',updated:'2026-03-01'},
-    {id:'pi03',name:'Armaflex AP Tape 50mm',unit:'roll',qtyPerPack:null,supplierPrice:5.20,category:'Adhesives & Tape',supplier:'Armacell UK',updated:'2026-02-20'},
-    {id:'pi04',name:'Armaflex Closed-Cell Foam Sheet 25mm',unit:'sheet',qtyPerPack:null,supplierPrice:31.50,category:'Sheet Insulation',supplier:'Armacell UK',updated:'2026-02-20'},
-    {id:'pi05',name:'Calcium Silicate Block 65mm',unit:'section',qtyPerPack:null,supplierPrice:18.90,category:'High-Temp Insulation',supplier:'Morgan Thermal Ceramics',updated:'2026-01-30'},
-    {id:'pi06',name:'Ceramic Fibre Blanket 50mm×1m',unit:'roll',qtyPerPack:null,supplierPrice:62.00,category:'High-Temp Insulation',supplier:'Morgan Thermal Ceramics',updated:'2026-01-30'},
-    {id:'pi07',name:'Fibreglass Pipe Section 3in×1in',unit:'section',qtyPerPack:null,supplierPrice:7.80,category:'Pipe Insulation',supplier:'Knauf Insulation',updated:'2026-02-10'},
-    {id:'pi08',name:'Foil Scrim Kraft (FSK) Facing Tape',unit:'roll',qtyPerPack:null,supplierPrice:9.40,category:'Adhesives & Tape',supplier:'Scapa UK',updated:'2026-01-10'},
-    {id:'pi09',name:'Galvanised Wire Mesh (1m×10m)',unit:'roll',qtyPerPack:null,supplierPrice:44.00,category:'Fixings',supplier:'SteelMesh Direct',updated:'2025-12-01'},
-    {id:'pi10',name:'Glass Wool Blanket 100mm×600mm',unit:'roll',qtyPerPack:null,supplierPrice:55.00,category:'Sheet Insulation',supplier:'Isover Saint-Gobain',updated:'2026-02-15'},
-    {id:'pi11',name:'Lagging Pins Welded M4 (100×Pack)',unit:'pack',qtyPerPack:100,supplierPrice:11.20,category:'Fixings',supplier:'Fixfast UK',updated:'2026-01-08'},
-    {id:'pi12',name:'Mineral Wool Pipe Section 76mm×50mm',unit:'m',qtyPerPack:1,supplierPrice:6.10,category:'Pipe Insulation',supplier:'Rockwool Ltd',updated:'2026-02-01'},
-    {id:'pi13',name:'Phenolic Ductwork Board 30mm (1.2×2.4m)',unit:'board',qtyPerPack:null,supplierPrice:34.80,category:'Ductwork',supplier:'Kingspan Insulation',updated:'2026-02-25'},
-    {id:'pi14',name:'PIR Pipe Section 28mm×50mm',unit:'m',qtyPerPack:1,supplierPrice:4.25,category:'Pipe Insulation',supplier:'Kingspan Insulation',updated:'2026-02-25'},
-    {id:'pi15',name:'Polysurlyn Jacketing 0.5mm (1m×30m)',unit:'roll',qtyPerPack:null,supplierPrice:78.00,category:'Cladding',supplier:'Rytons Building Products',updated:'2025-11-20'},
-    {id:'pi16',name:'Screws & Rivets — Cladding Pack (200)',unit:'pack',qtyPerPack:200,supplierPrice:8.40,category:'Fixings',supplier:'Fixfast UK',updated:'2026-01-08'},
-    {id:'pi17',name:'Stainless Banding Tool Kit',unit:'kit',qtyPerPack:null,supplierPrice:145.00,category:'Tools',supplier:'Bandfix UK',updated:'2025-10-15'},
-    {id:'pi18',name:'Vapour Barrier Emulsion (5L)',unit:'tin',qtyPerPack:null,supplierPrice:28.50,category:'Adhesives & Tape',supplier:'Tremco CPG',updated:'2025-12-20'},
-  ];
+  fetch(CONTRAQ_API_BASE + '/api/pricebook/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      file_base64: base64,
+      file_name: fname,
+      mime_type: mimeType
+    })
+  }).then(function(resp) {
+    if (!resp.ok && !resp.headers.get('content-type')?.includes('text/event-stream')) {
+      return resp.json().then(function(err) { throw new Error(err.error?.message || 'Server error'); });
+    }
+    /* ── Consume SSE stream ── */
+    var streamReader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    var fullText = '';
+    var lastItemCount = 0;
+
+    function readChunk() {
+      return streamReader.read().then(function(result) {
+        if (result.done) return fullText;
+        var chunk = decoder.decode(result.value, { stream: true });
+        fullText += chunk;
+
+        /* Parse SSE lines for progress updates */
+        var lines = fullText.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          if (!lines[i].startsWith('data: ')) continue;
+          var raw = lines[i].slice(6).trim();
+          if (raw === '[DONE]') continue;
+          try {
+            var evt = JSON.parse(raw);
+            if (evt.progress && evt.items_so_far > lastItemCount) {
+              lastItemCount = evt.items_so_far;
+              var pct = Math.min(20 + Math.round(lastItemCount * 2.5), 90);
+              document.getElementById('pb-ai-prog-fill').style.width = pct + '%';
+              document.getElementById('pb-ai-step').textContent = 'Extracting materials\u2026 ' + lastItemCount + ' items found';
+            }
+          } catch(e) {}
+        }
+
+        return readChunk();
+      });
+    }
+
+    return readChunk().then(function(sseText) {
+      /* Find the final result event */
+      var dataLines = sseText.split('\n');
+      var resultData = null;
+      for (var i = dataLines.length - 1; i >= 0; i--) {
+        if (dataLines[i].startsWith('data: ') && dataLines[i].indexOf('"type":"result"') > -1) {
+          try { resultData = JSON.parse(dataLines[i].slice(6)); } catch(e) {}
+          break;
+        }
+      }
+      if (!resultData || !resultData.data || resultData.data.error) {
+        var msg = resultData && resultData.data && resultData.data.parse_error
+          ? 'AI could not parse the document. Try a cleaner PDF or spreadsheet.'
+          : (resultData && resultData.data && resultData.data.message) || 'No data extracted. Please try again.';
+        throw new Error(msg);
+      }
+      return { data: resultData.data, elapsed: resultData.elapsed_seconds, fname: fname, fsize: fsize };
+    });
+  }).then(function(result) {
+    _pbApplyAIResult(result.data, result.fname, result.fsize, result.elapsed);
+  }).catch(function(err) {
+    console.error('[Pricebook AI]', err);
+    document.getElementById('pb-ai-step').textContent = 'Error: ' + err.message;
+    document.getElementById('pb-ai-prog-fill').style.width = '100%';
+    document.getElementById('pb-ai-prog-fill').style.background = 'var(--red)';
+    setTimeout(function() {
+      pbResetUploadModal();
+      showToast('Price book import failed: ' + err.message, 'error');
+    }, 2000);
+  });
+}
+
+function _pbApplyAIResult(data, fname, fsize, elapsed) {
+  var items = data.items || [];
+  if (!items.length) {
+    showToast('AI found no material items in the document.', 'error');
+    pbResetUploadModal();
+    return;
+  }
+
+  document.getElementById('pb-ai-step').textContent = 'Finalising\u2026 ' + items.length + ' materials extracted';
+  document.getElementById('pb-ai-prog-fill').style.width = '100%';
+
+  var today = new Date().toISOString().split('T')[0];
+
+  /* Map AI output to frontend format */
+  var imported = items.map(function(item, idx) {
+    return {
+      id: 'ai-' + Date.now() + '-' + idx,
+      name: item.name || 'Unknown item',
+      unit: item.unit || 'nr',
+      qtyPerPack: item.qty_per_pack || null,
+      supplierPrice: parseFloat(item.supplier_price) || 0,
+      category: item.category || 'Other',
+      supplier: item.supplier || data.supplier_name || 'Unknown',
+      updated: today
+    };
+  });
 
   /* Replace MATERIALS_PRICE_BOOK */
   MATERIALS_PRICE_BOOK.length = 0;
-  imported.forEach(function(m){ MATERIALS_PRICE_BOOK.push(m); });
+  imported.forEach(function(m) { MATERIALS_PRICE_BOOK.push(m); });
 
   /* Record the uploaded book */
   var now = new Date();
-  var dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  PB_UPLOADED_BOOKS.unshift({name:fname, size:fsize, imported:dateStr, count:imported.length});
+  var dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  PB_UPLOADED_BOOKS.unshift({ name: fname, size: fsize, imported: dateStr, count: imported.length });
 
   /* ── API: persist imported pricebook items ── */
   if (ContraqAPI.isRealUser()) {
@@ -250,10 +350,71 @@ function pbApplyImportedData() {
   closeModal('modal-pb-upload');
   pbResetUploadModal();
   renderPriceBook();
-  showToast('Price book imported — '+imported.length+' materials added and organised.', 'success');
+
+  var elapsedStr = elapsed ? ' in ' + elapsed + 's' : '';
+  showToast('Price book imported — ' + imported.length + ' materials extracted by AI' + elapsedStr + '.', 'success');
+}
+
+/* ── Demo mode fallback (no API call) ─────────────────────────── */
+function _pbRunDemoImport(file) {
+  var fname = file.name;
+  var fsize = (file.size / 1024).toFixed(1);
+
+  var steps = [
+    { text: 'Reading file\u2026', pct: 15, delay: 0 },
+    { text: 'Detecting column headers\u2026', pct: 30, delay: 700 },
+    { text: 'Extracting material rows\u2026', pct: 50, delay: 1400 },
+    { text: 'Identifying units & pack sizes\u2026', pct: 68, delay: 2100 },
+    { text: 'Mapping supplier pricing\u2026', pct: 85, delay: 2800 },
+    { text: 'Finalising price book\u2026', pct: 100, delay: 3400 }
+  ];
+
+  function runStep(i) {
+    if (i >= steps.length) {
+      setTimeout(function() {
+        var demoItems = [
+          { id: 'pi01', name: 'Aeroflex Acoustic Tube 15mm\u00d710mm', unit: 'm', qtyPerPack: 2, supplierPrice: 1.85, category: 'Pipe Insulation', supplier: 'Aeroflex Europe', updated: '2026-03-01' },
+          { id: 'pi02', name: 'Aeroflex Acoustic Tube 28mm\u00d710mm', unit: 'm', qtyPerPack: 2, supplierPrice: 2.40, category: 'Pipe Insulation', supplier: 'Aeroflex Europe', updated: '2026-03-01' },
+          { id: 'pi03', name: 'Armaflex AP Tape 50mm', unit: 'roll', qtyPerPack: null, supplierPrice: 5.20, category: 'Adhesives & Tape', supplier: 'Armacell UK', updated: '2026-02-20' },
+          { id: 'pi04', name: 'Armaflex Closed-Cell Foam Sheet 25mm', unit: 'sheet', qtyPerPack: null, supplierPrice: 31.50, category: 'Sheet Insulation', supplier: 'Armacell UK', updated: '2026-02-20' },
+          { id: 'pi05', name: 'Calcium Silicate Block 65mm', unit: 'section', qtyPerPack: null, supplierPrice: 18.90, category: 'High-Temp Insulation', supplier: 'Morgan Thermal Ceramics', updated: '2026-01-30' },
+          { id: 'pi06', name: 'Ceramic Fibre Blanket 50mm\u00d71m', unit: 'roll', qtyPerPack: null, supplierPrice: 62.00, category: 'High-Temp Insulation', supplier: 'Morgan Thermal Ceramics', updated: '2026-01-30' },
+          { id: 'pi07', name: 'Fibreglass Pipe Section 3in\u00d71in', unit: 'section', qtyPerPack: null, supplierPrice: 7.80, category: 'Pipe Insulation', supplier: 'Knauf Insulation', updated: '2026-02-10' },
+          { id: 'pi08', name: 'Foil Scrim Kraft (FSK) Facing Tape', unit: 'roll', qtyPerPack: null, supplierPrice: 9.40, category: 'Adhesives & Tape', supplier: 'Scapa UK', updated: '2026-01-10' },
+          { id: 'pi09', name: 'Galvanised Wire Mesh (1m\u00d710m)', unit: 'roll', qtyPerPack: null, supplierPrice: 44.00, category: 'Fixings', supplier: 'SteelMesh Direct', updated: '2025-12-01' },
+          { id: 'pi10', name: 'Glass Wool Blanket 100mm\u00d7600mm', unit: 'roll', qtyPerPack: null, supplierPrice: 55.00, category: 'Sheet Insulation', supplier: 'Isover Saint-Gobain', updated: '2026-02-15' },
+          { id: 'pi11', name: 'Lagging Pins Welded M4 (100\u00d7Pack)', unit: 'pack', qtyPerPack: 100, supplierPrice: 11.20, category: 'Fixings', supplier: 'Fixfast UK', updated: '2026-01-08' },
+          { id: 'pi12', name: 'Mineral Wool Pipe Section 76mm\u00d750mm', unit: 'm', qtyPerPack: 1, supplierPrice: 6.10, category: 'Pipe Insulation', supplier: 'Rockwool Ltd', updated: '2026-02-01' },
+          { id: 'pi13', name: 'Phenolic Ductwork Board 30mm (1.2\u00d72.4m)', unit: 'board', qtyPerPack: null, supplierPrice: 34.80, category: 'Ductwork', supplier: 'Kingspan Insulation', updated: '2026-02-25' },
+          { id: 'pi14', name: 'PIR Pipe Section 28mm\u00d750mm', unit: 'm', qtyPerPack: 1, supplierPrice: 4.25, category: 'Pipe Insulation', supplier: 'Kingspan Insulation', updated: '2026-02-25' },
+          { id: 'pi15', name: 'Polysurlyn Jacketing 0.5mm (1m\u00d730m)', unit: 'roll', qtyPerPack: null, supplierPrice: 78.00, category: 'Cladding', supplier: 'Rytons Building Products', updated: '2025-11-20' },
+          { id: 'pi16', name: 'Screws & Rivets \u2014 Cladding Pack (200)', unit: 'pack', qtyPerPack: 200, supplierPrice: 8.40, category: 'Fixings', supplier: 'Fixfast UK', updated: '2026-01-08' },
+          { id: 'pi17', name: 'Stainless Banding Tool Kit', unit: 'kit', qtyPerPack: null, supplierPrice: 145.00, category: 'Tools', supplier: 'Bandfix UK', updated: '2025-10-15' },
+          { id: 'pi18', name: 'Vapour Barrier Emulsion (5L)', unit: 'tin', qtyPerPack: null, supplierPrice: 28.50, category: 'Adhesives & Tape', supplier: 'Tremco CPG', updated: '2025-12-20' }
+        ];
+        MATERIALS_PRICE_BOOK.length = 0;
+        demoItems.forEach(function(m) { MATERIALS_PRICE_BOOK.push(m); });
+        var now = new Date();
+        var dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        PB_UPLOADED_BOOKS.unshift({ name: fname, size: fsize, imported: dateStr, count: demoItems.length });
+        closeModal('modal-pb-upload');
+        pbResetUploadModal();
+        renderPriceBook();
+        showToast('Price book imported — ' + demoItems.length + ' materials added (demo mode).', 'success');
+      }, 400);
+      return;
+    }
+    setTimeout(function() {
+      document.getElementById('pb-ai-step').textContent = steps[i].text;
+      document.getElementById('pb-ai-prog-fill').style.width = steps[i].pct + '%';
+      runStep(i + 1);
+    }, steps[i].delay);
+  }
+  runStep(0);
 }
 
 function pbResetUploadModal() {
+  _pbSelectedFile = null;
   var dz  = document.getElementById('pb-dropzone');
   var fc  = document.getElementById('pb-file-chosen');
   var ap  = document.getElementById('pb-ai-progress');
@@ -261,7 +422,7 @@ function pbResetUploadModal() {
   var btn = document.getElementById('pb-analyse-btn');
   var fi  = document.getElementById('pb-file-input-pb');
   var ttl = document.getElementById('pb-upload-title');
-  if (dz)  { dz.style.display=''; delete dz.dataset.fname; }
+  if (dz)  dz.style.display='';
   if (fc)  { fc.classList.remove('active'); fc.style.display=''; }
   if (ap)  { ap.classList.remove('active'); }
   if (ft)  ft.style.display='';
@@ -270,7 +431,7 @@ function pbResetUploadModal() {
   if (ttl) ttl.textContent='Upload Supplier Price Book';
   var pf = document.getElementById('pb-ai-prog-fill');
   var st = document.getElementById('pb-ai-step');
-  if (pf) pf.style.width='0%';
+  if (pf) { pf.style.width='0%'; pf.style.background=''; }
   if (st) st.textContent='Reading file\u2026';
 }
 
@@ -304,7 +465,11 @@ function clHandleDrop(event) {
   clShowFileChosen(file);
 }
 
+/* ── Store the selected file for client upload ─────────────── */
+var _clSelectedFile = null;
+
 function clShowFileChosen(file) {
+  _clSelectedFile = file;
   var ext = (file.name.split('.').pop()||'').toLowerCase();
   document.getElementById('cl-file-icon').innerHTML = ext === 'pdf' ? ICON.file : ICON.chart;
   document.getElementById('cl-file-name').textContent = file.name;
@@ -315,58 +480,234 @@ function clShowFileChosen(file) {
 }
 
 function clStartAnalysis() {
+  var file = _clSelectedFile;
+  if (!file) { showToast('No file selected.', 'error'); return; }
+
   document.getElementById('cl-dropzone').style.display='none';
   document.getElementById('cl-file-chosen').style.display='none';
   document.getElementById('cl-upload-footer').style.display='none';
   document.getElementById('cl-upload-title').textContent='Importing Client Records\u2026';
   document.getElementById('cl-ai-progress').classList.add('active');
+  document.getElementById('cl-ai-step').textContent = 'Reading file\u2026';
+  document.getElementById('cl-ai-prog-fill').style.width = '10%';
 
+  /* ── Demo mode: use hardcoded data ── */
+  if (!ContraqAPI.isRealUser()) {
+    _clRunDemoImport();
+    return;
+  }
+
+  /* ── Real AI extraction ── */
+  var reader = new FileReader();
+  reader.onload = function() {
+    var base64 = reader.result.split(',')[1];
+    document.getElementById('cl-ai-step').textContent = 'Sending to AI\u2026';
+    document.getElementById('cl-ai-prog-fill').style.width = '20%';
+    _clCallAI(file, base64);
+  };
+  reader.onerror = function() {
+    showToast('Failed to read file.', 'error');
+    clResetUploadModal();
+  };
+  reader.readAsDataURL(file);
+}
+
+function _clCallAI(file, base64) {
+  var fname = file.name;
+  var mimeType = file.type || 'application/pdf';
+  if (!mimeType || mimeType === 'application/octet-stream') {
+    var ext = (fname.split('.').pop() || '').toLowerCase();
+    if (ext === 'xlsx') mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    else if (ext === 'xls') mimeType = 'application/vnd.ms-excel';
+    else if (ext === 'pdf') mimeType = 'application/pdf';
+  }
+
+  fetch(CONTRAQ_API_BASE + '/api/clients/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      file_base64: base64,
+      file_name: fname,
+      mime_type: mimeType
+    })
+  }).then(function(resp) {
+    if (!resp.ok && !resp.headers.get('content-type')?.includes('text/event-stream')) {
+      return resp.json().then(function(err) { throw new Error(err.error?.message || 'Server error'); });
+    }
+    var streamReader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    var fullText = '';
+    var lastCount = 0;
+
+    function readChunk() {
+      return streamReader.read().then(function(result) {
+        if (result.done) return fullText;
+        var chunk = decoder.decode(result.value, { stream: true });
+        fullText += chunk;
+
+        var lines = fullText.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          if (!lines[i].startsWith('data: ')) continue;
+          var raw = lines[i].slice(6).trim();
+          if (raw === '[DONE]') continue;
+          try {
+            var evt = JSON.parse(raw);
+            if (evt.progress && evt.clients_so_far > lastCount) {
+              lastCount = evt.clients_so_far;
+              var pct = Math.min(20 + Math.round(lastCount * 4), 90);
+              document.getElementById('cl-ai-prog-fill').style.width = pct + '%';
+              document.getElementById('cl-ai-step').textContent = 'Extracting clients\u2026 ' + lastCount + ' found';
+            }
+          } catch(e) {}
+        }
+
+        return readChunk();
+      });
+    }
+
+    return readChunk().then(function(sseText) {
+      var dataLines = sseText.split('\n');
+      var resultData = null;
+      for (var i = dataLines.length - 1; i >= 0; i--) {
+        if (dataLines[i].startsWith('data: ') && dataLines[i].indexOf('"type":"result"') > -1) {
+          try { resultData = JSON.parse(dataLines[i].slice(6)); } catch(e) {}
+          break;
+        }
+      }
+      if (!resultData || !resultData.data || resultData.data.error) {
+        var msg = resultData && resultData.data && resultData.data.parse_error
+          ? 'AI could not parse the document. Try a cleaner PDF or spreadsheet.'
+          : (resultData && resultData.data && resultData.data.message) || 'No data extracted. Please try again.';
+        throw new Error(msg);
+      }
+      return { data: resultData.data, elapsed: resultData.elapsed_seconds };
+    });
+  }).then(function(result) {
+    _clApplyAIResult(result.data, result.elapsed);
+  }).catch(function(err) {
+    console.error('[Client AI]', err);
+    document.getElementById('cl-ai-step').textContent = 'Error: ' + err.message;
+    document.getElementById('cl-ai-prog-fill').style.width = '100%';
+    document.getElementById('cl-ai-prog-fill').style.background = 'var(--red)';
+    setTimeout(function() {
+      clResetUploadModal();
+      showToast('Client import failed: ' + err.message, 'error');
+    }, 2000);
+  });
+}
+
+/* ── Colour palette for client avatars ─────────────────────── */
+var _clColors = ['#4ade80','#38bdf8','#fb923c','#c084fc','#f87171','#facc15','#34d399','#60a5fa','#a78bfa','#f97316','#2dd4bf','#e879f9','#fbbf24','#818cf8','#fb7185','#a3e635'];
+
+function _clApplyAIResult(data, elapsed) {
+  var clients = data.clients || [];
+  if (!clients.length) {
+    showToast('AI found no client records in the document.', 'error');
+    clResetUploadModal();
+    return;
+  }
+
+  document.getElementById('cl-ai-step').textContent = 'Finalising\u2026 ' + clients.length + ' clients extracted';
+  document.getElementById('cl-ai-prog-fill').style.width = '100%';
+
+  var imported = clients.map(function(c, idx) {
+    var name = c.name || 'Unknown';
+    var words = name.split(/\s+/);
+    var initials = words.length >= 2
+      ? (words[0][0] + words[1][0]).toUpperCase()
+      : name.substring(0, 2).toUpperCase();
+    return {
+      id: 'cl-ai-' + Date.now() + '-' + idx,
+      name: name,
+      initials: initials,
+      color: _clColors[idx % _clColors.length],
+      sector: c.sector || 'Other',
+      since: c.since || new Date().getFullYear().toString(),
+      contact: c.contact || null,
+      phone: c.phone || null,
+      email: c.email || null,
+      address: c.address || null,
+      creditTerms: c.credit_terms || 30,
+      retentionPct: c.retention_pct || 0,
+      notes: c.notes || ''
+    };
+  });
+
+  CLIENTS.length = 0;
+  imported.forEach(function(c) { CLIENTS.push(c); });
+
+  /* ── API: persist imported clients to database ── */
+  if (ContraqAPI.isRealUser()) {
+    imported.forEach(function(c) {
+      ContraqAPI.saveClient({
+        name: c.name,
+        contact: c.contact,
+        email: c.email,
+        phone: c.phone,
+        address: c.address,
+        category: c.sector,
+        pay_terms: c.creditTerms,
+        notes: c.notes
+      });
+    });
+  }
+
+  closeModal('modal-cl-upload');
+  clResetUploadModal();
+  renderClients();
+
+  var elapsedStr = elapsed ? ' in ' + elapsed + 's' : '';
+  showToast('Client records imported — ' + imported.length + ' clients extracted by AI' + elapsedStr + '.', 'success');
+}
+
+/* ── Demo mode fallback ── */
+function _clRunDemoImport() {
   var steps = [
-    {text:'Reading file\u2026',               pct:15,  delay:0},
-    {text:'Extracting client rows\u2026',     pct:35,  delay:700},
-    {text:'Identifying contacts & sectors\u2026', pct:55, delay:1400},
-    {text:'Mapping trade history\u2026',      pct:72,  delay:2100},
-    {text:'Building client profiles\u2026',   pct:88,  delay:2800},
-    {text:'Finalising import\u2026',          pct:100, delay:3400},
+    { text: 'Reading file\u2026', pct: 15, delay: 0 },
+    { text: 'Extracting client rows\u2026', pct: 35, delay: 700 },
+    { text: 'Identifying contacts & sectors\u2026', pct: 55, delay: 1400 },
+    { text: 'Mapping trade history\u2026', pct: 72, delay: 2100 },
+    { text: 'Building client profiles\u2026', pct: 88, delay: 2800 },
+    { text: 'Finalising import\u2026', pct: 100, delay: 3400 }
   ];
 
   function runStep(i) {
-    if (i >= steps.length) { setTimeout(clApplyImportedData, 400); return; }
+    if (i >= steps.length) {
+      setTimeout(function() {
+        var demoClients = [
+          { id: 'cl-1', name: 'Balfour Beatty', initials: 'BB', color: '#4ade80', sector: 'Tier-1 Contractor', since: '2019', contact: 'Sarah Webb', phone: '020 7216 6800', email: 's.webb@balfourbeatty.com', address: '130 Wilton Road, London SW1V 1LQ', creditTerms: 30, retentionPct: 5, notes: 'Major framework contractor. Priority account.' },
+          { id: 'cl-2', name: 'Aecom Ltd', initials: 'AC', color: '#38bdf8', sector: 'Engineering', since: '2020', contact: 'Andy Clarke', phone: '020 7061 7000', email: 'andy.clarke@aecom.com', address: '22 Hanover Square, London W1S 1JA', creditTerms: 45, retentionPct: 0, notes: 'Global consultancy. Regular design-and-build referrals.' },
+          { id: 'cl-3', name: 'Morgan Sindall', initials: 'MS', color: '#fb923c', sector: 'Tier-1 Contractor', since: '2020', contact: 'Phillip Grant', phone: '020 3060 7800', email: 'p.grant@morgansindall.com', address: 'Kent House, 14-17 Market Place, London W1W 8AJ', creditTerms: 30, retentionPct: 3, notes: 'Framework partner \u2014 HS2 enabling works.' },
+          { id: 'cl-4', name: 'Mace Group', initials: 'MG', color: '#c084fc', sector: 'Project Management', since: '2021', contact: 'Diane Okafor', phone: '020 3522 3000', email: 'd.okafor@macegroup.com', address: '155 Moorgate, London EC2M 6XB', creditTerms: 45, retentionPct: 5, notes: 'High-value residential & commercial pipeline.' },
+          { id: 'cl-5', name: 'Skanska UK', initials: 'SK', color: '#f87171', sector: 'Tier-1 Contractor', since: '2021', contact: 'Lars Eriksson', phone: '020 7121 9400', email: 'l.eriksson@skanska.co.uk', address: '25 Canada Square, Canary Wharf E14 5LB', creditTerms: 30, retentionPct: 5, notes: 'Nordic tier-1. Strong civils + MEP pipeline.' },
+          { id: 'cl-6', name: 'Vinci Construction UK', initials: 'VC', color: '#facc15', sector: 'Tier-1 Contractor', since: '2022', contact: 'Marc Dupont', phone: '020 7363 4800', email: 'm.dupont@vinci-construction.co.uk', address: 'Astral House, Imperial Way, Watford WD24 4WW', creditTerms: 60, retentionPct: 5, notes: 'French tier-1 with growing UK residential portfolio.' },
+          { id: 'cl-7', name: 'ISG Ltd', initials: 'IS', color: '#34d399', sector: 'Fit-Out Contractor', since: '2022', contact: 'Rachel Drummond', phone: '020 7633 1900', email: 'r.drummond@isgltd.com', address: 'One America Square, London EC3N 2LS', creditTerms: 30, retentionPct: 0, notes: 'Interior & fit-out specialist. Repeat retail client.' },
+          { id: 'cl-8', name: 'Kier Group', initials: 'KG', color: '#60a5fa', sector: 'Tier-1 Contractor', since: '2023', contact: 'Tom Hicks', phone: '01767 640111', email: 't.hicks@kier.co.uk', address: 'Tempsford Hall, Sandy SG19 2BD', creditTerms: 45, retentionPct: 5, notes: 'Growing relationship via public-sector frameworks.' },
+          { id: 'cl-9', name: 'Multiplex Europe', initials: 'MX', color: '#a78bfa', sector: 'Developer', since: '2023', contact: 'James Obi', phone: '020 7631 5900', email: 'j.obi@multiplex.global', address: '70 St Mary Axe, London EC3A 8BE', creditTerms: 30, retentionPct: 3, notes: 'Australian developer. High-rise residential in City.' },
+          { id: 'cl-10', name: 'Laing O\'Rourke', initials: 'LO', color: '#f97316', sector: 'Tier-1 Contractor', since: '2024', contact: 'Aoife Murphy', phone: '01322 296200', email: 'a.murphy@laingorourke.com', address: 'Bridge Place, Dartford DA1 1BU', creditTerms: 60, retentionPct: 5, notes: 'New relationship via Hinkley Point C supply chain.' },
+          { id: 'cl-11', name: 'Bowmer & Kirkland', initials: 'BK', color: '#2dd4bf', sector: 'Regional Contractor', since: '2024', contact: 'Steve Kirkland', phone: '01773 604000', email: 's.kirkland@band-k.co.uk', address: 'High Edge Court, Heage, Belper DE56 2BW', creditTerms: 30, retentionPct: 3, notes: 'Strong Midlands and North regional pipeline.' },
+          { id: 'cl-12', name: 'Graham Construction', initials: 'GC', color: '#e879f9', sector: 'Regional Contractor', since: '2024', contact: 'Neil Graham', phone: '028 9268 9500', email: 'n.graham@graham.co.uk', address: 'Hillsborough House, Hillsborough BT26 6AH', creditTerms: 30, retentionPct: 3, notes: 'Northern Ireland & Scotland specialist.' }
+        ];
+        CLIENTS.length = 0;
+        demoClients.forEach(function(c) { CLIENTS.push(c); });
+        closeModal('modal-cl-upload');
+        clResetUploadModal();
+        renderClients();
+        showToast('Client records imported — ' + demoClients.length + ' clients loaded (demo mode).', 'success');
+      }, 400);
+      return;
+    }
     setTimeout(function() {
       document.getElementById('cl-ai-step').textContent = steps[i].text;
-      document.getElementById('cl-ai-prog-fill').style.width = steps[i].pct+'%';
-      runStep(i+1);
+      document.getElementById('cl-ai-prog-fill').style.width = steps[i].pct + '%';
+      runStep(i + 1);
     }, steps[i].delay);
   }
   runStep(0);
 }
 
-function clApplyImportedData() {
-  var imported = [
-    {id:'cl-1', name:'Balfour Beatty',        initials:'BB',color:'#4ade80',sector:'Tier-1 Contractor',  since:'2019',contact:'Sarah Webb',      phone:'020 7216 6800',email:'s.webb@balfourbeatty.com',     address:'130 Wilton Road, London SW1V 1LQ',  creditTerms:30,retentionPct:5, notes:'Major framework contractor. Priority account.'},
-    {id:'cl-2', name:'Aecom Ltd',              initials:'AC',color:'#38bdf8',sector:'Engineering',        since:'2020',contact:'Andy Clarke',     phone:'020 7061 7000',email:'andy.clarke@aecom.com',          address:'22 Hanover Square, London W1S 1JA', creditTerms:45,retentionPct:0, notes:'Global consultancy. Regular design-and-build referrals.'},
-    {id:'cl-3', name:'Morgan Sindall',         initials:'MS',color:'#fb923c',sector:'Tier-1 Contractor',  since:'2020',contact:'Phillip Grant',   phone:'020 3060 7800',email:'p.grant@morgansindall.com',       address:'Kent House, 14-17 Market Place, London W1W 8AJ',creditTerms:30,retentionPct:3, notes:'Framework partner — HS2 enabling works.'},
-    {id:'cl-4', name:'Mace Group',             initials:'MG',color:'#c084fc',sector:'Project Management', since:'2021',contact:'Diane Okafor',    phone:'020 3522 3000',email:'d.okafor@macegroup.com',           address:'155 Moorgate, London EC2M 6XB',      creditTerms:45,retentionPct:5, notes:'High-value residential & commercial pipeline.'},
-    {id:'cl-5', name:'Skanska UK',             initials:'SK',color:'#f87171',sector:'Tier-1 Contractor',  since:'2021',contact:'Lars Eriksson',   phone:'020 7121 9400',email:'l.eriksson@skanska.co.uk',         address:'25 Canada Square, Canary Wharf E14 5LB',creditTerms:30,retentionPct:5, notes:'Nordic tier-1. Strong civils + MEP pipeline.'},
-    {id:'cl-6', name:'Vinci Construction UK',  initials:'VC',color:'#facc15',sector:'Tier-1 Contractor',  since:'2022',contact:'Marc Dupont',     phone:'020 7363 4800',email:'m.dupont@vinci-construction.co.uk',address:'Astral House, Imperial Way, Watford WD24 4WW',creditTerms:60,retentionPct:5, notes:'French tier-1 with growing UK residential portfolio.'},
-    {id:'cl-7', name:'ISG Ltd',                initials:'IS',color:'#34d399',sector:'Fit-Out Contractor', since:'2022',contact:'Rachel Drummond', phone:'020 7633 1900',email:'r.drummond@isgltd.com',             address:'One America Square, London EC3N 2LS', creditTerms:30,retentionPct:0, notes:'Interior & fit-out specialist. Repeat retail client.'},
-    {id:'cl-8', name:'Kier Group',             initials:'KG',color:'#60a5fa',sector:'Tier-1 Contractor',  since:'2023',contact:'Tom Hicks',       phone:'01767 640111',  email:'t.hicks@kier.co.uk',               address:'Tempsford Hall, Sandy SG19 2BD',     creditTerms:45,retentionPct:5, notes:'Growing relationship via public-sector frameworks.'},
-    {id:'cl-9', name:'Multiplex Europe',       initials:'MX',color:'#a78bfa',sector:'Developer',          since:'2023',contact:'James Obi',       phone:'020 7631 5900',email:'j.obi@multiplex.global',            address:'70 St Mary Axe, London EC3A 8BE',    creditTerms:30,retentionPct:3, notes:'Australian developer. High-rise residential in City.'},
-    {id:'cl-10',name:'Laing O\'Rourke',        initials:'LO',color:'#f97316',sector:'Tier-1 Contractor',  since:'2024',contact:'Aoife Murphy',    phone:'01322 296200',  email:'a.murphy@laingorourke.com',          address:'Bridge Place, Dartford DA1 1BU',     creditTerms:60,retentionPct:5, notes:'New relationship via Hinkley Point C supply chain.'},
-    {id:'cl-11',name:'Bowmer & Kirkland',      initials:'BK',color:'#2dd4bf',sector:'Regional Contractor',since:'2024',contact:'Steve Kirkland',  phone:'01773 604000',  email:'s.kirkland@band-k.co.uk',            address:'High Edge Court, Heage, Belper DE56 2BW',creditTerms:30,retentionPct:3, notes:'Strong Midlands and North regional pipeline.'},
-    {id:'cl-12',name:'Graham Construction',    initials:'GC',color:'#e879f9',sector:'Regional Contractor',since:'2024',contact:'Neil Graham',     phone:'028 9268 9500',  email:'n.graham@graham.co.uk',              address:'Hillsborough House, Hillsborough BT26 6AH',creditTerms:30,retentionPct:3, notes:'Northern Ireland & Scotland specialist.'},
-  ];
-
-  CLIENTS.length = 0;
-  imported.forEach(function(c){ CLIENTS.push(c); });
-
-  closeModal('modal-cl-upload');
-  clResetUploadModal();
-  renderClients();
-  showToast('Client records imported — '+imported.length+' clients loaded and organised.', 'success');
-}
-
 function clResetUploadModal() {
+  _clSelectedFile = null;
   var dz  = document.getElementById('cl-dropzone');
   var fc  = document.getElementById('cl-file-chosen');
   var ap  = document.getElementById('cl-ai-progress');
@@ -383,7 +724,7 @@ function clResetUploadModal() {
   if (ttl) ttl.textContent='Upload Client Records';
   var pf = document.getElementById('cl-ai-prog-fill');
   var st = document.getElementById('cl-ai-step');
-  if (pf) pf.style.width='0%';
+  if (pf) { pf.style.width='0%'; pf.style.background=''; }
   if (st) st.textContent='Reading file\u2026';
 }
 

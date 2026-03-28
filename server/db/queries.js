@@ -448,11 +448,12 @@ async function promoteLearnedRule(orgId, ruleId) {
 
 async function getCollectiveRulesForTrade(trade) {
   if (!trade) return [];
+  // Fetch rules for this specific trade AND universal 'all' trade rules (from admin)
   const { data, error } = await supabaseAdmin
     .from('learned_rules')
     .select('*')
     .eq('scope', 'trade-collective')
-    .eq('trade', trade)
+    .in('trade', [trade, 'all'])
     .order('occurrences', { ascending: false });
   if (error) throw error;
   return data || [];

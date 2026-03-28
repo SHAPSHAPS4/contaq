@@ -9,7 +9,8 @@ router.post('/process', kbInjectionMiddleware, async (req, res) => {
   const startTime = Date.now();
   const orgId = req.orgId || null;
   const userId = req.user?.id || null;
-  const trade = req.userTrade || req.user?.organizations?.trade || null;
+  const isAdmin = req.user?.role === 'admin';
+  const trade = isAdmin ? 'all' : (req.userTrade || req.user?.organizations?.trade || null);
 
   try {
     const { original_extraction, corrections, general_feedback, project_ref, messages, model, max_tokens } = req.body;
@@ -49,7 +50,7 @@ router.post('/process', kbInjectionMiddleware, async (req, res) => {
 
     const systemPrompt = `You are an M&E estimating assistant in refinement mode.\nProcess the estimator corrections and generate LEARNED rules to prevent recurrence.\n${req.kbPrompt}`.trim();
 
-    const userPrompt = `Project reference: ${project_ref || 'Not stated'}\n\nORIGINAL EXTRACTION:\n${JSON.stringify(original_extraction || {}, null, 2)}\n\nESTIMATOR CORRECTIONS:\n${JSON.stringify(corrections, null, 2)}\n\nGENERAL FEEDBACK: ${general_feedback || 'None provided'}\n\nPlease:\n1. Acknowledge each error with root cause\n2. Produce corrected extraction\n3. State LEARNED rules with concrete examples: { rule_id, trigger, action, reason, error_type, example_before, example_after }\n   - example_before: the specific AI output that was wrong (e.g. "50m duct, no elbows")\n   - example_after: what the estimator corrected it to (e.g. "50m duct + 10 elbows")\n4. Identify PATTERN errors if same error_type appears 3+ times\n5. Produce feedback session summary`.trim();
+    const userPrompt = `Project reference: ${project_ref || 'Not stated'}\n\nORIGINAL EXTRACTION:\n${JSON.stringify(original_extraction || {}, null, 2)}\n\nESTIMATOR CORRECTIONS:\n${JSON.stringify(corrections, null, 2)}\n\nGENERAL FEEDBACK: ${general_feedback || 'None provided'}\n\nPlease:\n1. Acknowledge each error with root cause\n2. Produce corrected extraction\n3. State LEARNED rules with concrete examples\n4. Identify PATTERN errors if same error_type appears 3+ times\n5. Produce feedback session summary\n\nReturn a single JSON object with EXACTLY these top-level keys:\n{\n  "acknowledgements": [...],\n  "corrected_extraction": [...],\n  "learned_rules": [\n    { "rule_id": "LEARNED_001", "trigger": "when...", "action": "then...", "reason": "because...", "error_type": "scaling|missing_item|wrong_qty|wrong_rate|wrong_unit|misclassification", "example_before": "the wrong AI output", "example_after": "what it should have been" }\n  ],\n  "pattern_errors": [\n    { "error_type": "...", "occurrences": 3, "heightened_action": "..." }\n  ],\n  "summary": "..."\n}`.trim();
 
     const result = await callAI({
       systemPrompt,
@@ -58,8 +59,14 @@ router.post('/process', kbInjectionMiddleware, async (req, res) => {
       model: model || 'claude-sonnet-4-6',
     });
 
-    const learned_rules = result.data?.updated_rules || [];
-    const pattern_errors = result.data?.pattern_errors || [];
+    // Claude may return rules under various key names — check all likely variants
+    const d = result.data || {};
+    const learned_rules = d.updated_rules || d.learned_rules || d.LEARNED_rules || d.rules || d.new_rules || [];
+    const pattern_errors = d.pattern_errors || d.PATTERN_errors || d.patterns || [];
+
+    if (!learned_rules.length) {
+      console.warn('[Feedback] No learned rules extracted from AI response. Keys present:', Object.keys(d).join(', '));
+    }
 
     if (learned_rules.length) await persistLearnedRules(learned_rules, orgId, userId, trade);
     for (const p of pattern_errors) {
@@ -67,10 +74,15 @@ router.post('/process', kbInjectionMiddleware, async (req, res) => {
     }
 
     const duration = Date.now() - startTime;
+    if (isAdmin) {
+      console.log(`[Feedback] ADMIN correction: ${learned_rules.length} rules created with trade='all' (applies to all trades). ${corrections.length} corrections processed.`);
+    }
     logSession({
       type: 'feedback_process',
       project_ref,
       org_id: orgId,
+      is_admin: isAdmin,
+      trade_scope: trade,
       duration_ms: duration,
       tokens: result.usage,
       rules_added: learned_rules.length,
@@ -83,6 +95,8 @@ router.post('/process', kbInjectionMiddleware, async (req, res) => {
       duration_ms: duration,
       usage: result.usage,
       response: result.data,
+      learned_rules: learned_rules,
+      pattern_errors: pattern_errors,
       learned_rules_persisted: learned_rules.length,
       pattern_errors_persisted: pattern_errors.length,
       kb_updated: learned_rules.length > 0 || pattern_errors.length > 0,

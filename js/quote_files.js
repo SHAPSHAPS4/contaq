@@ -617,141 +617,131 @@ function openTenderDetailView(tenderId) {
   if (linkedProj) h += '<div style="margin-top:.6rem;padding:.5rem .75rem;background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.2);border-radius:6px;font-size:.73rem;color:var(--lime);">Linked to project: <strong>'+linkedProj.code+' — '+linkedProj.name.split("—")[0].trim()+'</strong></div>';
   h += '</div>';
 
-  /* ── AI Line Items Section (if this quote has them) ─── */
+  /* ── AI Line Items Section — Excel-style spreadsheet ─── */
   if (t.lineItems && t.lineItems.length > 0) {
     var meta = t.aiMetadata || {};
     var liTotal = t.lineItems.reduce(function(s,li){return s + li.total;}, 0);
 
-    // AI DISCLAIMER BANNER — persistent on every view
-    h += '<div class="ai-disclaimer-banner">'
-      + '<span class="ai-disc-icon">⚠️</span>'
-      + '<strong>AI-Generated Estimate — Requires Human Verification</strong>'
-      + '<div class="ai-disc-body">Quantities, dimensions, and specifications below are AI-generated estimates based on drawing analysis and industry reference data. They are not a substitute for professional quantity surveying. All values must be independently verified before use in commercial tenders. '
-      + '<a href="#" onclick="event.preventDefault();showTermsOfService()" style="color:var(--orange)">Terms of Service →</a></div>'
-      + '<div class="ai-kb-version">Knowledge Base v'+(meta.kbVersion||KB_VERSION)+' · '+(meta.kbVersionDate||KB_VERSION_DATE)+' · '+(meta.kbSources||KB_VERSION_SOURCES)+' sources'
-      + (meta.exportGateConfirmedAt ? ' · ✓ Review gate confirmed '+new Date(meta.exportGateConfirmedAt).toLocaleString('en-GB') : '')
-      + '</div></div>';
-
-    // AI extraction banner
-    h += '<div style="background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.15);border-radius:10px;padding:.85rem 1rem;margin-bottom:.85rem">'
-      + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">'
-      + '<span style="font-size:1rem">\uD83E\uDDE0</span>'
-      + '<span style="font-family:var(--sans);font-size:.88rem;font-weight:700;color:var(--white)">AI-Extracted Line Items</span>'
-      + '<span style="font-family:var(--mono);font-size:.55rem;color:var(--off4);margin-left:auto">'
-      + (meta.extractedAt ? new Date(meta.extractedAt).toLocaleDateString('en-GB') : '') + '</span>'
+    // Compact AI disclaimer
+    h += '<div class="ai-disc-compact" onclick="this.classList.toggle(\'expanded\')" style="margin-bottom:.65rem">'
+      + '<div class="ai-disc-compact-bar">'
+      + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.7"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+      + '<span class="ai-disc-compact-text"><strong>AI-Generated Estimate</strong> \u2014 requires human verification before commercial use</span>'
+      + '<span class="ai-kb-version">KB v'+(meta.kbVersion||KB_VERSION)+' \u00B7 '+(meta.kbVersionDate||KB_VERSION_DATE)+' \u00B7 '+(meta.kbSources||KB_VERSION_SOURCES)+' sources'
+      + (meta.exportGateConfirmedAt ? ' \u00B7 \u2713 Gate '+new Date(meta.exportGateConfirmedAt).toLocaleDateString('en-GB') : '')
+      + '</span>'
+      + '<svg class="ai-disc-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>'
+      + '</div>'
+      + '<div class="ai-disc-compact-detail">AI estimates based on BSRIA BG 85/87, BS 5422, NBS, CIBSE, NRM2. Not a substitute for professional QS. All values must be independently verified. '
+      + '<a href="#" onclick="event.stopPropagation();event.preventDefault();showTermsOfService()" style="color:var(--orange)">Terms of Service \u2192</a></div>'
       + '</div>';
 
-    // Confidence summary bar
+    // Compact extraction metadata row
     var totalItems = t.lineItems.length;
     var hc = (meta.highCount||0), mc = (meta.medCount||0), lc = (meta.lowCount||0);
-    h += '<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem;flex-wrap:wrap">'
-      + '<div style="flex:1;min-width:180px">'
-      + '<div style="display:flex;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden">'
-      + '<div style="width:'+Math.round(hc/totalItems*100)+'%;background:var(--lime)"></div>'
-      + '<div style="width:'+Math.round(mc/totalItems*100)+'%;background:var(--yellow)"></div>'
-      + '<div style="width:'+Math.round(lc/totalItems*100)+'%;background:var(--red)"></div>'
-      + '</div></div>'
-      + '<div style="display:flex;gap:.5rem;font-family:var(--mono);font-size:.6rem">'
-      + '<span style="color:var(--lime)">'+hc+' HIGH</span>'
-      + '<span style="color:var(--yellow)">'+mc+' MED</span>'
-      + '<span style="color:var(--red)">'+lc+' LOW</span>'
-      + '</div>'
-      + '<span style="font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--orange)">'+(meta.avgConfidence||0)+'% avg</span>'
+    h += '<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.65rem;flex-wrap:wrap;font-family:var(--mono);font-size:.58rem;color:var(--off4)">'
+      + '<span>\uD83E\uDDE0 AI Extraction</span>'
+      + (meta.extractedAt ? '<span>'+new Date(meta.extractedAt).toLocaleDateString('en-GB')+'</span>' : '')
+      + '<span style="display:inline-flex;gap:.35rem"><span style="color:var(--lime)">'+hc+' HIGH</span><span style="color:var(--yellow)">'+mc+' MED</span><span style="color:var(--red)">'+lc+' LOW</span></span>'
+      + '<span style="color:var(--orange);font-weight:700">'+(meta.avgConfidence||0)+'% avg</span>'
+      + (meta.sourceFiles&&meta.sourceFiles.length ? '<span>\uD83D\uDCCE '+meta.sourceFiles.join(' \u00B7 ')+'</span>' : '')
+      + (meta.timeSavedHrs ? '<span>\u23F1 '+meta.timeSavedHrs+' hrs saved</span>' : '')
       + '</div>';
 
-    // Source files
-    if (meta.sourceFiles && meta.sourceFiles.length) {
-      h += '<div style="font-family:var(--mono);font-size:.58rem;color:var(--off4);margin-bottom:.5rem">\uD83D\uDCCE '
-        + meta.sourceFiles.join(' \u00B7 ') + '</div>';
-    }
-    if (meta.timeSavedHrs) {
-      h += '<div style="font-family:var(--mono);font-size:.58rem;color:var(--off3);margin-bottom:.4rem">'
-        + '\u23F1 Est. time saved: <strong style="color:var(--lime)">' + meta.timeSavedHrs + ' hrs</strong>'
-        + (meta.rejectedItems ? ' \u00B7 ' + meta.rejectedItems + ' item'+(meta.rejectedItems>1?'s':'')+' rejected during review' : '')
-        + '</div>';
-    }
-    h += '</div>';
+    // ── Excel-style toolbar ──
+    h += '<div class="xl-toolbar">'
+      + '<span class="xl-logo">\uD83D\uDCCA Contraq</span>'
+      + '<span class="xl-filename">'+t.ref+' \u2014 Line Items</span>'
+      + '<div style="margin-left:auto;display:flex;gap:.4rem">'
+      + '<button class="xl-btn xl-btn-primary" onclick="qbExportSpreadsheet(\''+t.id+'\')">\uD83D\uDCE5 Export to Excel</button>'
+      + '<button class="xl-btn" onclick="qbCopyLineItems(\''+t.id+'\')">\uD83D\uDCCB Copy</button>'
+      + '<button class="xl-btn" onclick="qbReQuote(\''+t.id+'\')">\uD83D\uDD04 Re-quote</button>'
+      + '</div></div>';
 
-    // Line items table
-    h += '<div style="overflow-x:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:.85rem">'
-      + '<table class="ai-ext-table" style="width:100%;min-width:600px"><thead><tr>'
-      + '<th style="width:28px"></th>'
+    // Formula bar
+    h += '<div class="xl-formula-bar">'
+      + '<span class="xl-cell-ref">H'+(totalItems+2)+'</span>'
+      + '<span class="xl-fx">fx</span>'
+      + '<span style="color:#333">=SUM(H2:H'+(totalItems+1)+') \u2192 <strong>\u00A3'+Math.round(liTotal).toLocaleString('en-GB')+'</strong></span>'
+      + '</div>';
+
+    // ── Spreadsheet table ──
+    h += '<div class="xl-sheet-wrap">'
+      + '<table class="xl-sheet"><thead><tr>'
+      + '<th class="xl-rownum"></th>'
+      + '<th style="width:24px"></th>'
       + '<th style="width:55px">Ref</th>'
       + '<th>Description</th>'
-      + '<th style="width:48px;text-align:right">Qty</th>'
-      + '<th style="width:38px">Unit</th>'
-      + '<th style="width:56px;text-align:right">Rate</th>'
-      + '<th style="width:50px">Hist.</th>'
-      + '<th style="width:68px;text-align:right">Total</th>'
-      + '<th style="width:52px">Status</th>'
+      + '<th class="xl-num" style="width:52px">Qty</th>'
+      + '<th style="width:40px">Unit</th>'
+      + '<th class="xl-num" style="width:64px">Rate (\u00A3)</th>'
+      + '<th class="xl-num" style="width:72px">Total (\u00A3)</th>'
+      + '<th style="width:42px">Status</th>'
       + '</tr></thead><tbody>';
 
-    var _lastUnitEquip = '';
+    var _xlRow = 1;
+    var _xlLastUE = '';
+    var _xlGroupTotals = {};
+    var _xlGroupQtys = {};
+
     t.lineItems.forEach(function(li) {
-      /* Insert unit/equipment group header when it changes */
       var ue = li.unit_equip || '';
-      if (ue && ue !== _lastUnitEquip) {
-        h += '<tr><td colspan="9" style="background:rgba(249,115,22,.05);border-bottom:1px solid rgba(249,115,22,.15);padding:.45rem .6rem;font-family:var(--mono);font-size:.65rem;font-weight:600;color:var(--orange)">\u2699\uFE0F ' + ue + '</td></tr>';
-        _lastUnitEquip = ue;
+      if (ue && ue !== _xlLastUE) {
+        h += '<tr class="xl-group-row"><td class="xl-rownum"></td><td colspan="8">\u2699\uFE0F ' + ue + '</td></tr>';
+        _xlLastUE = ue;
+        if (!_xlGroupTotals[ue]) { _xlGroupTotals[ue] = 0; _xlGroupQtys[ue] = 0; }
+      }
+      if (ue) {
+        _xlGroupTotals[ue] = (_xlGroupTotals[ue]||0) + (li.total||0);
+        _xlGroupQtys[ue] = (_xlGroupQtys[ue]||0) + (parseFloat(li.qty)||0);
       }
 
-      var confColor = li.level==='high' ? 'var(--lime)' : li.level==='med' ? 'var(--yellow)' : 'var(--red)';
-      var stateLabel = li.reviewState === 'accepted' ? '\u2713' : li.reviewState === 'flagged' ? '\u2691' : '\u2022';
-      var stateBg = li.reviewState === 'accepted' ? 'rgba(163,230,53,.1)' : li.reviewState === 'flagged' ? 'rgba(251,191,36,.1)' : 'transparent';
-      var stateColor = li.reviewState === 'accepted' ? 'var(--lime)' : li.reviewState === 'flagged' ? 'var(--yellow)' : 'var(--off4)';
-
-      // Confidence label
-      var tdConfLabel = li.level==='high'?'<span class="conf-label from-drawing">From drawing</span>':li.level==='med'?'<span class="conf-label partially-estimated">Partially estimated</span>':'<span class="conf-label ai-estimate">AI estimate — verify</span>';
-
-      // Assumptions count indicator
-      var tdAsmHtml = '';
-      if (li.assumptions && li.assumptions.length > 0) {
-        tdAsmHtml = '<span style="font-family:var(--mono);font-size:.48rem;padding:.1rem .3rem;border-radius:3px;background:rgba(249,115,22,.08);color:var(--orange);border:1px solid rgba(249,115,22,.15);margin-left:.25rem">'+li.assumptions.length+' assumption'+(li.assumptions.length>1?'s':'')+'</span>';
-      }
-
-      // Historical rate dot
-      var histHtml = '';
-      var histVal = (typeof li.hist === 'number' && !isNaN(li.hist)) ? li.hist : 0;
-      if (li.histRange==='in-range') histHtml = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-right:.25rem"></span><span style="color:var(--lime)">\u00A3'+histVal.toFixed(2)+'</span>';
-      else if (li.histRange==='near') histHtml = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--yellow);margin-right:.25rem"></span><span style="color:var(--yellow)">\u00A3'+histVal.toFixed(2)+'</span>';
-      else if (li.histRange==='outlier') histHtml = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);margin-right:.25rem"></span><span style="color:var(--red)">\u00A3'+histVal.toFixed(2)+'</span>';
-      else histHtml = '<span style="color:var(--off4)">\u2014</span>';
+      var confClass = li.level==='high'?'xl-conf-high':li.level==='med'?'xl-conf-med':'xl-conf-low';
+      var stateLabel = li.reviewState==='accepted'?'\u2713':li.reviewState==='flagged'?'\u2691':'\u2022';
+      var stateClass = li.reviewState==='accepted'?'xl-status-accepted':li.reviewState==='flagged'?'xl-status-flagged':'';
 
       h += '<tr>'
-        + '<td><div class="conf-dot '+li.level+'" style="cursor:default;font-size:.6rem" title="'+li.conf+'/100 — '+(li.level==='high'?'High':li.level==='med'?'Medium':'Low')+' confidence">'+li.conf+'</div></td>'
-        + '<td style="font-family:var(--mono);font-size:.62rem;color:var(--off4)">'+li.ref+'</td>'
-        + '<td style="font-size:.72rem;color:var(--off2);line-height:1.4">'+(li.service?'<span style="font-family:var(--mono);font-size:.55rem;color:var(--orange)">\uD83D\uDD27 '+li.service+'</span><br>':'')+li.desc+tdConfLabel+tdAsmHtml+'</td>'
-        + '<td style="font-family:var(--mono);font-size:.72rem;color:var(--white);text-align:right">'+li.qty+'</td>'
-        + '<td style="font-family:var(--mono);font-size:.6rem;color:var(--off4)">'+li.unit+'</td>'
-        + '<td style="font-family:var(--mono);font-size:.72rem;color:var(--white);text-align:right">\u00A3'+li.rate.toFixed(2)+'</td>'
-        + '<td style="font-family:var(--mono);font-size:.6rem">'+histHtml+'</td>'
-        + '<td style="font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--white);text-align:right">\u00A3'+Math.round(li.total).toLocaleString('en-GB')+'</td>'
-        + '<td style="text-align:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;background:'+stateBg+';color:'+stateColor+';font-size:.7rem;font-weight:700" title="'+li.reviewState+'">'+stateLabel+'</span></td>'
+        + '<td class="xl-rownum">'+_xlRow+'</td>'
+        + '<td style="text-align:center"><span class="xl-conf '+confClass+'" title="'+li.conf+'% \u2014 '+(li.level==='high'?'High':li.level==='med'?'Medium':'Low')+'"></span></td>'
+        + '<td style="font-size:.68rem;color:#666">'+li.ref+'</td>'
+        + '<td style="font-size:.72rem;line-height:1.35">'
+          + (li.service ? '<span style="font-size:.6rem;color:#217346;font-weight:600">\uD83D\uDD27 '+li.service+'</span> \u2014 ' : '')
+          + li.desc
+        + '</td>'
+        + '<td class="xl-num" style="font-weight:600">'+li.qty+'</td>'
+        + '<td style="font-size:.68rem;color:#666">'+li.unit+'</td>'
+        + '<td class="xl-curr">\u00A3'+li.rate.toFixed(2)+'</td>'
+        + '<td class="xl-curr" style="font-weight:600">\u00A3'+Math.round(li.total).toLocaleString('en-GB')+'</td>'
+        + '<td style="text-align:center"><span class="xl-status '+stateClass+'" title="'+(li.reviewState||'unreviewed')+'">'+stateLabel+'</span></td>'
         + '</tr>';
+      _xlRow++;
     });
+
+    // Grand total row
+    h += '<tr class="xl-grand">'
+      + '<td class="xl-rownum"></td>'
+      + '<td></td>'
+      + '<td></td>'
+      + '<td style="text-align:right">TOTAL (' + totalItems + ' items'
+      + (meta.flaggedCount ? ' \u00B7 '+meta.flaggedCount+' flagged' : '') + ')</td>'
+      + '<td></td><td></td><td></td>'
+      + '<td class="xl-curr">\u00A3'+Math.round(liTotal).toLocaleString('en-GB')+'</td>'
+      + '<td></td></tr>';
 
     h += '</tbody></table></div>';
 
-    // Grand total bar
-    h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .85rem;background:var(--bg3);border:1px solid var(--border);border-radius:6px;margin-bottom:.85rem">'
-      + '<div style="font-family:var(--mono);font-size:.68rem;color:var(--off4)">'+t.lineItems.length+' line items'
-      + (meta.flaggedCount ? ' \u00B7 <span style="color:var(--yellow)">'+meta.flaggedCount+' flagged</span>' : '') + '</div>'
-      + '<div style="font-family:var(--mono);font-weight:700;color:var(--white);font-size:.95rem">\u00A3'+Math.round(liTotal).toLocaleString('en-GB')+'</div>'
+    // Sheet tabs
+    h += '<div class="xl-sheet-tabs">'
+      + '<div class="xl-sheet-tab active">Line Items</div>'
+      + '<div class="xl-sheet-tab">Summary</div>'
       + '</div>';
 
-    // Collective intelligence indicator
-    h += '<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;background:linear-gradient(135deg,rgba(163,230,53,.06),rgba(249,115,22,.06));border:1px solid rgba(163,230,53,.15);border-radius:6px;margin-bottom:.65rem">'
-      + '<span style="font-size:.7rem">&#x1F9E0;</span>'
-      + '<span style="font-size:.62rem;color:var(--off3);line-height:1.4"><strong style="color:var(--lime)">Collective Intelligence</strong> — This estimate is informed by corrections from '
-      + (meta.kbVersion ? '<span style="color:var(--white)">'+KB_VERSION_SOURCES+' industry sources</span>' : 'industry sources')
-      + ' and feedback from contractors across the platform. Every correction improves accuracy for all users in your trade.</span>'
-      + '</div>';
-
-    // Export / action buttons
-    h += '<div style="display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap">'
-      + '<button class="btn btn-dark btn-xs" onclick="qbExportSpreadsheet(\''+t.id+'\')" style="font-size:.65rem">\uD83D\uDCE5 Export spreadsheet</button>'
-      + '<button class="btn btn-dark btn-xs" onclick="qbCopyLineItems(\''+t.id+'\')" style="font-size:.65rem">\uD83D\uDCCB Copy to clipboard</button>'
-      + '<button class="btn btn-primary btn-xs" onclick="qbReQuote(\''+t.id+'\')" style="font-size:.65rem">\uD83D\uDD04 Re-quote with updated rates</button>'
+    // Collective intelligence — compact
+    h += '<div style="display:flex;align-items:center;gap:.4rem;padding:.35rem .6rem;margin-top:.65rem;font-size:.58rem;color:var(--off4);font-family:var(--mono)">'
+      + '<span>\uD83E\uDDE0</span>'
+      + '<span><strong style="color:var(--lime)">Collective Intelligence</strong> \u2014 informed by '
+      + (meta.kbVersion ? KB_VERSION_SOURCES+' sources' : 'industry sources')
+      + '. Corrections improve accuracy for all users.</span>'
       + '</div>';
   }
 
