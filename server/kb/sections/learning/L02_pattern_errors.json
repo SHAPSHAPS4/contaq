@@ -1,5 +1,14 @@
 {
-  "pattern_errors": [],
-  "last_updated": null,
+  "pattern_errors": [
+    {
+      "pattern_id": "PATTERN_001",
+      "error_type": "scaling",
+      "occurrences": 1,
+      "heightened_action": "Pattern threshold not yet reached (requires 3+ occurrences). However, a PRECAUTIONARY flag is raised: scaling errors are high-impact because they are systematic and silent — one misread contaminates an entire sheet. Even at 1 occurrence, LEARNED_001 through LEARNED_004 are activated immediately. If scaling errors appear in 2 further sessions, a MANDATORY PRE-EXTRACTION SCALE AUDIT protocol will be enforced on all new projects, requiring human confirmation of scale before any measurements are accepted.",
+      "first_detected": "2026-03-28T12:25:13.117Z",
+      "last_triggered": "2026-03-28T12:25:13.117Z"
+    }
+  ],
+  "last_updated": "2026-03-28T12:25:13.118Z",
   "total_patterns": 0
 }

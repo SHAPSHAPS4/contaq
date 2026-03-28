@@ -1,5 +1,42 @@
 {
-  "learned_rules": [],
-  "total_rules": 0,
-  "last_updated": "2026-03-19T17:41:36.823Z"
+  "learned_rules": [
+    {
+      "rule_id": "LEARNED_001",
+      "trigger": "When extracting linear or area measurements from any drawing, before applying a scale factor",
+      "action": "Identify and explicitly record the drawing scale annotation (e.g. '1:100', '1:50') from the title block or nearest scale bar. Cross-check by measuring a known reference element (e.g. a door leaf assumed 900mm, a standard room module, or a north arrow bar scale). If the measured reference does not match the expected real-world dimension within ±5%, flag a scale conflict and halt extraction pending human confirmation.",
+      "reason": "Because a scale misread of 1:50 vs 1:100 doubles every linear measurement on the sheet, producing systematic overcount errors across all pipe runs, cable routes, ductwork, and containment. A single undetected scale error contaminates the entire drawing take-off.",
+      "error_type": "scaling",
+      "example_before": "AI reads scale annotation as 1:50 and measures pipe run as 150m.",
+      "example_after": "AI reads scale annotation as 1:100, cross-checks against a reference dimension on the same sheet, confirms scale, and correctly measures pipe run as 85m."
+    },
+    {
+      "rule_id": "LEARNED_002",
+      "trigger": "When the extracted quantity for a linear service (pipe, duct, cable, containment) is suspiciously round or notably high relative to the visible drawing extent",
+      "action": "Flag the item with a LOW_CONFIDENCE warning and note the specific scale used. Request estimator verification before accepting the quantity into the bill.",
+      "reason": "Because round numbers (e.g. exactly 150m) can be a symptom of a scaling error where the measured value has been inadvertently doubled or halved by a factor of 2 — the most common scale ratio confusion (1:50/1:100, 1:100/1:200, 1:25/1:50).",
+      "error_type": "scaling",
+      "example_before": "AI outputs qty: 150m with confidence 72 and no scale audit trail recorded.",
+      "example_after": "AI outputs qty: 150m but flags: 'SCALE_AUDIT_REQUIRED — measured at 1:50, cross-check pending. Confidence reduced to 45 until scale confirmed.'"
+    },
+    {
+      "rule_id": "LEARNED_003",
+      "trigger": "When a scale error is confirmed on any one item within a drawing package or drawing sheet",
+      "action": "Immediately apply a blanket review flag to ALL other items extracted from the same drawing reference or sheet number. Recalculate all affected quantities using the corrected scale factor before re-presenting to the estimator.",
+      "reason": "Because a scale misread is a sheet-level error, not an item-level error. Every measurement taken from that sheet will carry the same multiplier error. Correcting only the reported item leaves all other items silently wrong.",
+      "error_type": "scaling",
+      "example_before": "Estimator corrects INS-001 from 150m to 85m. AI updates only INS-001 and leaves CHW-003 (50m), HWS-007 (30m) and EX-DUCT-002 (20m) from the same drawing sheet uncorrected at their doubled values.",
+      "example_after": "Estimator corrects INS-001 from 150m to 85m. AI applies correction factor (85/150 = 0.567) to all items from the same drawing sheet, flags them for estimator sign-off: CHW-003 revised to ~28m, HWS-007 revised to ~17m, EX-DUCT-002 revised to ~11m."
+    },
+    {
+      "rule_id": "LEARNED_004",
+      "trigger": "When processing a drawing set containing multiple sheets, before beginning take-off",
+      "action": "Build and record a scale register: log each drawing number, its stated scale, and the result of a reference-dimension cross-check. Where multiple sheets show different scales, apply per-sheet scale factors and never assume a uniform scale across the set.",
+      "reason": "Because multi-discipline or multi-zone drawing packages frequently contain sheets at different scales (e.g. site plan at 1:200, floor plan at 1:100, detail at 1:20). Assuming a single scale across all sheets is a primary source of systematic overcount or undercount errors.",
+      "error_type": "scaling",
+      "example_before": "AI applies 1:100 uniformly across all sheets. Detail sheet is actually 1:20, so a 200mm pipe spool is extracted as 1000mm (1m) instead of 200mm.",
+      "example_after": "AI records scale register: Drawing M-101: 1:100 (verified), Drawing M-201: 1:50 (verified), Drawing M-301 Detail: 1:20 (verified). Each take-off measurement references its own sheet scale."
+    }
+  ],
+  "last_updated": "2026-03-28T12:25:13.114Z",
+  "total_rules": 4
 }
