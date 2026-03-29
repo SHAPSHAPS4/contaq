@@ -755,14 +755,17 @@ function openTenderDetailView(tenderId) {
 ================================================================ */
 
 function openQuotePDF(tenderId) {
+  try {
   var t = TENDERS.find(function(x){ return x.id === tenderId; });
-  if (!t) return;
+  if (!t) { console.error('[PDF] Tender not found:', tenderId); showToast('Quote not found.', 'error'); return; }
   var cl = CLIENTS.find(function(c){ return c.id === t.client; });
   var clientName = cl ? cl.name : (t.clientName || 'Client');
   var clientAddr = cl ? (cl.address || '') : '';
   var page = document.getElementById('qpdf-page');
+  if (!page) { console.error('[PDF] qpdf-page element not found'); return; }
   page.dataset.tenderId = tenderId;
-  document.getElementById('qpdf-toolbar-title').textContent = t.ref + ' \u2014 Quote Preview';
+  var toolbarTitle = document.getElementById('qpdf-toolbar-title');
+  if (toolbarTitle) toolbarTitle.textContent = t.ref + ' \u2014 Quote Preview';
 
   var h = '';
 
@@ -923,6 +926,10 @@ function openQuotePDF(tenderId) {
 
   page.innerHTML = h;
   openModal('modal-quote-pdf');
+  } catch(err) {
+    console.error('[PDF Preview] Error:', err);
+    showToast('Failed to generate quote preview: ' + err.message, 'error');
+  }
 }
 
 function qpdfPrint() {
