@@ -755,9 +755,10 @@ function openTenderDetailView(tenderId) {
 ================================================================ */
 
 function openQuotePDF(tenderId) {
+  alert('openQuotePDF called with: ' + tenderId);
   try {
   var t = TENDERS.find(function(x){ return x.id === tenderId; });
-  if (!t) { console.error('[PDF] Tender not found:', tenderId); showToast('Quote not found.', 'error'); return; }
+  if (!t) { alert('Tender not found: ' + tenderId + '. TENDERS has ' + TENDERS.length + ' items. IDs: ' + TENDERS.slice(0,5).map(function(x){return x.id;}).join(', ')); showToast('Quote not found.', 'error'); return; }
   var cl = CLIENTS.find(function(c){ return c.id === t.client; });
   var clientName = cl ? cl.name : (t.clientName || 'Client');
   var clientAddr = cl ? (cl.address || '') : '';
@@ -927,7 +928,7 @@ function openQuotePDF(tenderId) {
   page.innerHTML = h;
   openModal('modal-quote-pdf');
   } catch(err) {
-    console.error('[PDF Preview] Error:', err);
+    alert('PDF Preview error: ' + err.message + ' at ' + (err.stack||'').split('\n')[1]);
     showToast('Failed to generate quote preview: ' + err.message, 'error');
   }
 }
