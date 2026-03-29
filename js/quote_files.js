@@ -755,10 +755,9 @@ function openTenderDetailView(tenderId) {
 ================================================================ */
 
 function openQuotePDF(tenderId) {
-  alert('openQuotePDF called with: ' + tenderId);
   try {
   var t = TENDERS.find(function(x){ return x.id === tenderId; });
-  if (!t) { alert('Tender not found: ' + tenderId + '. TENDERS has ' + TENDERS.length + ' items. IDs: ' + TENDERS.slice(0,5).map(function(x){return x.id;}).join(', ')); showToast('Quote not found.', 'error'); return; }
+  if (!t) { showToast('Quote not found.', 'error'); return; }
   var cl = CLIENTS.find(function(c){ return c.id === t.client; });
   var clientName = cl ? cl.name : (t.clientName || 'Client');
   var clientAddr = cl ? (cl.address || '') : '';
@@ -927,14 +926,21 @@ function openQuotePDF(tenderId) {
 
   page.innerHTML = h;
   var modalEl = document.getElementById('modal-quote-pdf');
-  alert('Modal element found: ' + !!modalEl + ', current display: ' + (modalEl ? getComputedStyle(modalEl).display : 'N/A') + ', classes: ' + (modalEl ? modalEl.className : 'N/A'));
-  openModal('modal-quote-pdf');
   if (modalEl) {
-    alert('After openModal — classes: ' + modalEl.className + ', display: ' + getComputedStyle(modalEl).display);
+    modalEl.classList.add('open');
+    modalEl.style.display = 'flex';
+    modalEl.style.zIndex = '10000';
   }
   } catch(err) {
-    alert('PDF Preview error: ' + err.message + ' at ' + (err.stack||'').split('\n')[1]);
     showToast('Failed to generate quote preview: ' + err.message, 'error');
+  }
+}
+
+function closeQuotePDF() {
+  var modalEl = document.getElementById('modal-quote-pdf');
+  if (modalEl) {
+    modalEl.classList.remove('open');
+    modalEl.style.display = 'none';
   }
 }
 
