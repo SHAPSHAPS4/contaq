@@ -3,6 +3,172 @@
    Lines 8968-11062 from contraq-v77
 ═══════════════════════════════════════════ */
 
+/* ── View Quote — opens full breakdown in a new window ────── */
+function viewQuote(tenderId) {
+  var t = TENDERS.find(function(x) { return x.id === tenderId; });
+  if (!t) { showToast('Quote not found.', 'error'); return; }
+  var cl = CLIENTS.find(function(c) { return c.id === t.client; });
+  var clientName = cl ? cl.name : (t.clientName || 'Client');
+  var clientAddr = cl ? (cl.address || '') : '';
+  var items = t.lineItems || [];
+  var grandTotal = items.length > 0
+    ? items.reduce(function(s, li) { return s + (li.total || 0); }, 0)
+    : (t.value || 0);
+  var meta = t.aiMetadata || {};
+
+  /* Build the full HTML page */
+  var page = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1"/>'
+    + '<title>' + t.ref + ' — Contraq Quote</title>'
+    + '<style>'
+    + '*{margin:0;padding:0;box-sizing:border-box;}'
+    + 'body{font-family:"Segoe UI",Calibri,Arial,sans-serif;font-size:11px;color:#1a1a1a;background:#e8e8e8;padding:20px;line-height:1.5;}'
+    + '.toolbar{display:flex;align-items:center;gap:10px;padding:8px 16px;background:#fff;border-radius:8px 8px 0 0;border:1px solid #d4d4d4;border-bottom:none;max-width:860px;margin:0 auto;}'
+    + '.toolbar .logo{font-weight:800;color:#217346;font-size:14px;}'
+    + '.toolbar .fname{font-size:12px;color:#444;font-weight:500;}'
+    + '.toolbar .btn{padding:5px 12px;border:1px solid #bbb;border-radius:4px;background:#fff;font-size:11px;color:#333;cursor:pointer;font-family:inherit;}'
+    + '.toolbar .btn:hover{background:#e2efda;}'
+    + '.toolbar .btn-green{background:#217346;color:#fff;border-color:#1a5c35;}'
+    + '.toolbar .btn-green:hover{background:#1a5c35;}'
+    + '.page{background:#fff;max-width:860px;margin:0 auto;padding:48px 52px;box-shadow:0 2px 20px rgba(0,0,0,.15);min-height:600px;}'
+    + '.hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid #217346;margin-bottom:20px;}'
+    + '.hdr-company{font-size:20px;font-weight:800;color:#217346;}'
+    + '.hdr-sub{font-size:9px;color:#777;margin-top:2px;}'
+    + '.hdr-doc{font-size:11px;font-weight:700;color:#217346;text-transform:uppercase;letter-spacing:.08em;text-align:right;}'
+    + '.hdr-ref{font-size:9px;color:#555;margin-top:2px;text-align:right;}'
+    + '.meta{display:grid;grid-template-columns:1fr 1fr;border:1px solid #d4d4d4;border-radius:4px;margin-bottom:18px;overflow:hidden;}'
+    + '.meta-cell{padding:7px 12px;border-bottom:1px solid #e5e5e5;border-right:1px solid #e5e5e5;}'
+    + '.meta-cell:nth-child(even){border-right:none;}'
+    + '.meta-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:1px;}'
+    + '.meta-val{font-size:11px;font-weight:600;color:#1a1a1a;}'
+    + '.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}'
+    + '.sum-card{padding:8px 12px;background:#f8f8f8;border:1px solid #e0e0e0;border-radius:4px;text-align:center;}'
+    + '.sum-big{font-size:18px;font-weight:800;color:#217346;}'
+    + '.sum-sm{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-top:2px;}'
+    + '.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#217346;border-bottom:2px solid #217346;padding-bottom:4px;margin:18px 0 10px;}'
+    + 'table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;}'
+    + 'th{background:#217346;color:#fff;font-weight:600;font-size:8.5px;text-transform:uppercase;letter-spacing:.04em;padding:5px 7px;text-align:left;border:1px solid #1a5c35;}'
+    + 'th.r{text-align:right;}'
+    + 'td{padding:4px 7px;border:1px solid #d4d4d4;vertical-align:top;}'
+    + 'tr:nth-child(even) td{background:#f7f7f7;}'
+    + 'td.r{text-align:right;font-variant-numeric:tabular-nums;}'
+    + 'td.b{font-weight:700;}'
+    + '.grp td{background:#e8f5e9 !important;font-weight:700;color:#217346;border-top:2px solid #217346;}'
+    + '.sub td{background:#f0f7ec !important;font-weight:600;font-style:italic;color:#333;border-top:1px solid #aaa;}'
+    + '.grand td{background:#217346 !important;color:#fff !important;font-weight:800;font-size:11px;border-color:#1a5c35 !important;}'
+    + '.conf{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;}'
+    + '.conf-h{background:#2e7d32;}.conf-m{background:#f59e0b;}.conf-l{background:#ef4444;}'
+    + '.terms{margin-top:16px;padding:10px 12px;background:#f8f8f8;border:1px solid #e0e0e0;border-radius:4px;font-size:8.5px;color:#666;line-height:1.5;}'
+    + '.terms strong{color:#333;}'
+    + '.footer{border-top:2px solid #217346;margin-top:24px;padding-top:10px;display:flex;justify-content:space-between;font-size:8px;color:#999;}'
+    + '.ai-note{margin-top:10px;padding:6px 10px;background:#fff8f0;border:1px solid #f0d4b8;border-radius:3px;font-size:7.5px;color:#999;}'
+    + '@media(max-width:640px){.page{padding:16px 12px;}.meta{grid-template-columns:1fr;}.meta-cell{border-right:none !important;}.summary{grid-template-columns:1fr;}.hdr{flex-direction:column;gap:8px;}.hdr-doc,.hdr-ref{text-align:left;}}'
+    + '@media print{body{background:#fff;padding:0;}.toolbar{display:none;}.page{box-shadow:none;padding:20px 24px;max-width:100%;}}'
+    + '</style></head><body>';
+
+  /* Toolbar */
+  page += '<div class="toolbar">'
+    + '<span class="logo">CONTRAQ</span>'
+    + '<span class="fname">' + t.ref + ' — ' + t.name.split('—')[0].split('\u2014')[0].trim() + '</span>'
+    + '<div style="margin-left:auto;display:flex;gap:6px;">'
+    + '<button class="btn btn-green" onclick="window.print()">&#128424; Print / Save PDF</button>'
+    + '<button class="btn" onclick="window.close()">Close</button>'
+    + '</div></div>';
+
+  /* Page */
+  page += '<div class="page">';
+
+  /* Header */
+  page += '<div class="hdr">'
+    + '<div><div class="hdr-company">CONTRAQ</div><div class="hdr-sub">M&amp;E Estimation &amp; Contract Management</div></div>'
+    + '<div><div class="hdr-doc">Quotation</div><div class="hdr-ref">' + t.ref + '</div>'
+    + '<div class="hdr-ref">' + (t.submitted ? fmtDate(t.submitted) : fmtDate(new Date().toISOString().split('T')[0])) + '</div></div>'
+    + '</div>';
+
+  /* Meta */
+  page += '<div class="meta">';
+  var metas = [['Client', clientName], ['Quote Ref', t.ref], ['Address', clientAddr || '\u2014'], ['Project', t.name],
+    ['Enquiry', t.enquiry ? fmtDate(t.enquiry) : '\u2014'], ['Status', (t.status || 'open').charAt(0).toUpperCase() + (t.status || 'open').slice(1)]];
+  metas.forEach(function(m) {
+    page += '<div class="meta-cell"><div class="meta-lbl">' + m[0] + '</div><div class="meta-val">' + m[1] + '</div></div>';
+  });
+  page += '</div>';
+
+  /* Line items */
+  if (items.length > 0) {
+    page += '<div class="summary">'
+      + '<div class="sum-card"><div class="sum-big">' + items.length + '</div><div class="sum-sm">Line Items</div></div>'
+      + '<div class="sum-card"><div class="sum-big">' + (meta.avgConfidence || '\u2014') + '%</div><div class="sum-sm">Avg Confidence</div></div>'
+      + '<div class="sum-card"><div class="sum-big">\u00A3' + Math.round(grandTotal).toLocaleString('en-GB') + '</div><div class="sum-sm">Total Value</div></div>'
+      + '</div>';
+
+    page += '<div class="sec-title">Schedule of Quantities &amp; Pricing</div>';
+    page += '<table><thead><tr><th style="width:18px"></th><th style="width:48px">Ref</th><th>Description</th>'
+      + '<th class="r" style="width:45px">Qty</th><th style="width:35px">Unit</th>'
+      + '<th class="r" style="width:58px">Rate (\u00A3)</th><th class="r" style="width:68px">Total (\u00A3)</th></tr></thead><tbody>';
+
+    var lastGroup = '', groupTotals = {}, groupItems = {};
+    items.forEach(function(li) {
+      var g = li.unit_equip || li.service || 'General';
+      if (!groupTotals[g]) { groupTotals[g] = 0; groupItems[g] = 0; }
+      groupTotals[g] += (li.total || 0); groupItems[g]++;
+    });
+
+    items.forEach(function(li) {
+      var group = li.unit_equip || li.service || 'General';
+      if (group !== lastGroup) {
+        if (lastGroup && groupTotals[lastGroup] !== undefined) {
+          page += '<tr class="sub"><td></td><td></td><td style="text-align:right">' + lastGroup + ' Subtotal (' + groupItems[lastGroup] + ' items)</td><td></td><td></td><td></td><td class="r b">\u00A3' + Math.round(groupTotals[lastGroup]).toLocaleString('en-GB') + '</td></tr>';
+        }
+        page += '<tr class="grp"><td colspan="7">' + group + '</td></tr>';
+        lastGroup = group;
+      }
+      var cc = li.level === 'high' ? 'conf-h' : li.level === 'med' ? 'conf-m' : 'conf-l';
+      page += '<tr><td><span class="conf ' + cc + '" title="' + (li.conf || 0) + '%"></span></td>'
+        + '<td style="font-size:9px;color:#666">' + (li.ref || '') + '</td>'
+        + '<td>' + (li.desc || '') + '</td>'
+        + '<td class="r">' + (li.qty || 0) + '</td>'
+        + '<td style="font-size:9px;color:#666">' + (li.unit || 'nr') + '</td>'
+        + '<td class="r">\u00A3' + (li.rate || 0).toFixed(2) + '</td>'
+        + '<td class="r b">\u00A3' + Math.round(li.total || 0).toLocaleString('en-GB') + '</td></tr>';
+    });
+
+    if (lastGroup && groupTotals[lastGroup] !== undefined) {
+      page += '<tr class="sub"><td></td><td></td><td style="text-align:right">' + lastGroup + ' Subtotal (' + groupItems[lastGroup] + ' items)</td><td></td><td></td><td></td><td class="r b">\u00A3' + Math.round(groupTotals[lastGroup]).toLocaleString('en-GB') + '</td></tr>';
+    }
+
+    page += '<tr class="grand"><td></td><td></td><td style="text-align:right">GRAND TOTAL</td><td></td><td></td><td></td><td class="r">\u00A3' + Math.round(grandTotal).toLocaleString('en-GB') + '</td></tr>';
+    page += '</tbody></table>';
+    page += '<div style="margin-top:6px;font-size:8px;color:#999;display:flex;gap:12px"><span><span class="conf conf-h"></span> High</span><span><span class="conf conf-m"></span> Medium</span><span><span class="conf conf-l"></span> Low — verify</span></div>';
+  } else {
+    page += '<div class="sec-title">Quotation Summary</div>'
+      + '<table><thead><tr><th>Description</th><th class="r" style="width:100px">Value (\u00A3)</th></tr></thead><tbody>'
+      + '<tr><td>' + t.name + '</td><td class="r b">\u00A3' + Math.round(t.value || 0).toLocaleString('en-GB') + '</td></tr>'
+      + '<tr class="grand"><td style="text-align:right">TOTAL</td><td class="r">\u00A3' + Math.round(t.value || 0).toLocaleString('en-GB') + '</td></tr>'
+      + '</tbody></table>';
+  }
+
+  page += '<div class="terms"><strong>Terms &amp; Conditions</strong><br>'
+    + 'Valid for 30 days. Prices exclusive of VAT. Payment terms: ' + (cl && cl.creditTerms ? cl.creditTerms + ' days' : '30 days') + '. '
+    + 'Works per relevant British Standards and project specifications.</div>';
+
+  if (items.length > 0 && t.aiMetadata) {
+    page += '<div class="ai-note">AI-generated estimate (KB v' + (t.aiMetadata.kbVersion || '') + '). Verify before commercial use.</div>';
+  }
+
+  page += '<div class="footer"><span>Generated by Contraq \u00B7 contraq.co.uk</span><span>' + t.ref + '</span></div>';
+  page += '</div></body></html>';
+
+  /* Open in new window */
+  var w = window.open('', '_blank');
+  if (w) {
+    w.document.write(page);
+    w.document.close();
+  } else {
+    showToast('Pop-up blocked — please allow pop-ups for this site.', 'error');
+  }
+}
+
 function renderCreateQuoteForm() {
   var content = document.getElementById('dash-content');
   if (!content) return;
@@ -369,7 +535,7 @@ function renderTenders(filterStatus) {
       +'<td class="mono">'+fmtDate(t.enquiry)+'</td>'
       +'<td class="mono">'+(t.decision?fmtDate(t.decision):'—')+'</td>'
       +'<td style="white-space:nowrap">'
-      +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="openTenderDetailView(\''+t.id+'\')">'+ICON.file+' View</button> '
+      +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="viewQuote(\''+t.id+'\')">'+ICON.file+' View</button> '
       +'<button class="btn btn-dark btn-xs" onclick="openTenderModal(\''+t.id+'\')">Edit</button>'
       +(isWon && !t.linkedProjectId ? ' <button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2)" onclick="quickWonToProject(\''+t.id+'\')">+ Project</button>' : '')
       +'</td></tr>';
