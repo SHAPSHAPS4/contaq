@@ -924,13 +924,15 @@ function openQuotePDF(tenderId) {
     + '<span>' + t.ref + ' \u00B7 Page 1 of 1</span>'
     + '</div>';
 
-  page.innerHTML = h;
+  /* Show modal FIRST (empty), then inject content after it's visible */
   var modalEl = document.getElementById('modal-quote-pdf');
   if (modalEl) {
-    modalEl.classList.add('open');
-    modalEl.style.display = 'flex';
-    modalEl.style.zIndex = '10000';
+    modalEl.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;align-items:center;justify-content:center;';
   }
+  /* Defer HTML injection so the modal paints first */
+  setTimeout(function() {
+    page.innerHTML = h;
+  }, 50);
   } catch(err) {
     showToast('Failed to generate quote preview: ' + err.message, 'error');
   }
