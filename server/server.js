@@ -479,11 +479,22 @@ app.get('/', (req, res) => {
 
 // /app serves the main platform (login → dashboard)
 app.get('/app', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(FRONTEND_ROOT, 'index.html'));
 });
 
 // Static files (CSS, JS, images) — skip index.html for root
-app.use(express.static(FRONTEND_ROOT, { index: false }));
+// No caching for HTML/JS/CSS to prevent stale code issues during development
+app.use(express.static(FRONTEND_ROOT, {
+  index: false,
+  setHeaders: function(res, filePath) {
+    if (filePath.endsWith('.html') || filePath.endsWith('.js') || filePath.endsWith('.css')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // SPA catch-all for app routes
 app.get('*', (req, res, next) => {
