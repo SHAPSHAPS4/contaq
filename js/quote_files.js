@@ -926,7 +926,12 @@ function openQuotePDF(tenderId) {
     + '</div>';
 
   page.innerHTML = h;
+  var modalEl = document.getElementById('modal-quote-pdf');
+  alert('Modal element found: ' + !!modalEl + ', current display: ' + (modalEl ? getComputedStyle(modalEl).display : 'N/A') + ', classes: ' + (modalEl ? modalEl.className : 'N/A'));
   openModal('modal-quote-pdf');
+  if (modalEl) {
+    alert('After openModal — classes: ' + modalEl.className + ', display: ' + getComputedStyle(modalEl).display);
+  }
   } catch(err) {
     alert('PDF Preview error: ' + err.message + ' at ' + (err.stack||'').split('\n')[1]);
     showToast('Failed to generate quote preview: ' + err.message, 'error');
