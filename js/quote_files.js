@@ -596,10 +596,18 @@ function openTenderDetailView(tenderId) {
   if (!t) return;
   var cl = CLIENTS.find(function(c){return c.id===t.client;});
   var linkedProj = t.linkedProjectId ? PROJECTS.find(function(p){return p.id===t.linkedProjectId;}) : null;
-  document.getElementById("tender-detail-title").textContent = t.ref + " — " + t.name.split("—")[0].trim();
+  document.getElementById("tender-detail-title").textContent = t.ref + " \u2014 " + t.name.split("\u2014")[0].split("—")[0].trim();
   var sc = t.status==="won"?"#a3e635":t.status==="lost"?"#f87171":t.status==="submitted"?"#60a5fa":"#fbbf24";
   var sl = t.status.charAt(0).toUpperCase()+t.status.slice(1);
-  var h = '<div style="background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:.85rem;">'
+
+  /* ── Action bar with PDF view button ── */
+  var h = '<div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">'
+    + '<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="showQuotePDFInline(\''+t.id+'\')">&#128196; View as PDF</button>'
+    + '<button class="btn btn-dark btn-xs" onclick="qbExportSpreadsheet(\''+t.id+'\')" style="font-size:.65rem">&#128229; Export Excel</button>'
+    + '<button class="btn btn-dark btn-xs" onclick="qbCopyLineItems(\''+t.id+'\')" style="font-size:.65rem">&#128203; Copy</button>'
+    + '</div>';
+
+  h += '<div style="background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:.85rem;">'
     + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">'
     + '<div><div style="font-family:var(--mono);font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);margin-bottom:.2rem;">Quote Reference</div>'
     + '<div style="font-size:1rem;font-weight:700;color:var(--white);">'+t.ref+'</div>'
@@ -748,6 +756,134 @@ function openTenderDetailView(tenderId) {
   h += renderFoldersUI("tender", t.id, t.folders||{}, t.quoteFiles||[]);
   document.getElementById("tender-detail-body").innerHTML = h;
   openModal("modal-tender-detail");
+}
+
+/* ── Show PDF view inside the existing tender detail modal ── */
+function showQuotePDFInline(tenderId) {
+  var t = TENDERS.find(function(x){ return x.id === tenderId; });
+  if (!t) return;
+  var cl = CLIENTS.find(function(c){ return c.id === t.client; });
+  var clientName = cl ? cl.name : (t.clientName || 'Client');
+  var clientAddr = cl ? (cl.address || '') : '';
+
+  document.getElementById("tender-detail-title").textContent = t.ref + " \u2014 Quote PDF";
+
+  var h = '<div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">'
+    + '<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="openTenderDetailView(\''+t.id+'\')">\u2190 Back to details</button>'
+    + '<button class="btn btn-dark btn-xs" onclick="window.print()" style="font-size:.65rem">&#128424; Print / Save PDF</button>'
+    + '<button class="btn btn-dark btn-xs" onclick="qbExportSpreadsheet(\''+t.id+'\')" style="font-size:.65rem">&#128229; Export Excel</button>'
+    + '</div>';
+
+  h += '<div class="qpdf-page" style="margin:0 auto">';
+
+  /* Header */
+  h += '<div class="qpdf-header">'
+    + '<div><div class="qpdf-company">CONTRAQ</div>'
+    + '<div class="qpdf-company-sub">M&amp;E Estimation &amp; Contract Management</div></div>'
+    + '<div><div class="qpdf-doc-type">Quotation</div>'
+    + '<div class="qpdf-doc-ref">' + t.ref + '</div>'
+    + '<div class="qpdf-doc-ref">' + (t.submitted ? fmtDate(t.submitted) : fmtDate(new Date().toISOString().split('T')[0])) + '</div>'
+    + '</div></div>';
+
+  /* Meta grid */
+  h += '<div class="qpdf-meta">';
+  [['Client', clientName], ['Quote Ref', t.ref], ['Address', clientAddr || '\u2014'], ['Project', t.name],
+   ['Enquiry', t.enquiry ? fmtDate(t.enquiry) : '\u2014'], ['Status', (t.status||'open').charAt(0).toUpperCase() + (t.status||'open').slice(1)]
+  ].forEach(function(m) {
+    h += '<div class="qpdf-meta-cell"><div class="qpdf-meta-label">' + m[0] + '</div><div class="qpdf-meta-value">' + m[1] + '</div></div>';
+  });
+  h += '</div>';
+
+  /* Line items */
+  var items = t.lineItems || [];
+  if (items.length > 0) {
+    var grandTotal = items.reduce(function(s,li){ return s + (li.total || 0); }, 0);
+    var meta = t.aiMetadata || {};
+
+    /* Summary cards */
+    h += '<div class="qpdf-summary">'
+      + '<div class="qpdf-summary-card"><div class="qpdf-big">' + items.length + '</div><div class="qpdf-small">Line Items</div></div>'
+      + '<div class="qpdf-summary-card"><div class="qpdf-big">' + (meta.avgConfidence || '\u2014') + '%</div><div class="qpdf-small">Avg Confidence</div></div>'
+      + '<div class="qpdf-summary-card"><div class="qpdf-big">\u00A3' + Math.round(grandTotal).toLocaleString('en-GB') + '</div><div class="qpdf-small">Total Value</div></div>'
+      + '</div>';
+
+    h += '<div class="qpdf-section-title">Schedule of Quantities &amp; Pricing</div>';
+    h += '<table class="qpdf-table"><thead><tr>'
+      + '<th style="width:18px"></th><th style="width:48px">Ref</th><th>Description</th>'
+      + '<th class="r" style="width:45px">Qty</th><th style="width:35px">Unit</th>'
+      + '<th class="r" style="width:58px">Rate (\u00A3)</th><th class="r" style="width:68px">Total (\u00A3)</th>'
+      + '</tr></thead><tbody>';
+
+    var lastGroup = '';
+    var groupTotals = {};
+    var groupItems = {};
+    items.forEach(function(li) {
+      var g = li.unit_equip || li.service || 'General';
+      if (!groupTotals[g]) { groupTotals[g] = 0; groupItems[g] = 0; }
+      groupTotals[g] += (li.total || 0);
+      groupItems[g]++;
+    });
+
+    items.forEach(function(li) {
+      var group = li.unit_equip || li.service || 'General';
+      if (group !== lastGroup) {
+        if (lastGroup && groupTotals[lastGroup] !== undefined) {
+          h += '<tr class="qpdf-subtotal-row"><td></td><td></td>'
+            + '<td style="text-align:right">' + lastGroup + ' Subtotal (' + groupItems[lastGroup] + ' items)</td>'
+            + '<td></td><td></td><td></td>'
+            + '<td class="r b">\u00A3' + Math.round(groupTotals[lastGroup]).toLocaleString('en-GB') + '</td></tr>';
+        }
+        h += '<tr class="qpdf-group-row"><td colspan="7">' + group + '</td></tr>';
+        lastGroup = group;
+      }
+      var confClass = li.level === 'high' ? 'qpdf-conf-h' : li.level === 'med' ? 'qpdf-conf-m' : 'qpdf-conf-l';
+      h += '<tr>'
+        + '<td><span class="qpdf-conf ' + confClass + '" title="' + (li.conf||0) + '%"></span></td>'
+        + '<td style="font-size:9px;color:#666">' + (li.ref||'') + '</td>'
+        + '<td>' + (li.desc||'') + '</td>'
+        + '<td class="r">' + (li.qty||0) + '</td>'
+        + '<td style="font-size:9px;color:#666">' + (li.unit||'nr') + '</td>'
+        + '<td class="r">\u00A3' + (li.rate||0).toFixed(2) + '</td>'
+        + '<td class="r b">\u00A3' + Math.round(li.total||0).toLocaleString('en-GB') + '</td></tr>';
+    });
+
+    if (lastGroup && groupTotals[lastGroup] !== undefined) {
+      h += '<tr class="qpdf-subtotal-row"><td></td><td></td>'
+        + '<td style="text-align:right">' + lastGroup + ' Subtotal (' + groupItems[lastGroup] + ' items)</td>'
+        + '<td></td><td></td><td></td>'
+        + '<td class="r b">\u00A3' + Math.round(groupTotals[lastGroup]).toLocaleString('en-GB') + '</td></tr>';
+    }
+
+    h += '<tr class="qpdf-grand-row"><td></td><td></td>'
+      + '<td style="text-align:right">GRAND TOTAL</td><td></td><td></td><td></td>'
+      + '<td class="r">\u00A3' + Math.round(grandTotal).toLocaleString('en-GB') + '</td></tr>';
+    h += '</tbody></table>';
+
+    h += '<div style="margin-top:6px;font-size:8px;color:#999;display:flex;gap:12px">'
+      + '<span><span class="qpdf-conf qpdf-conf-h"></span> High</span>'
+      + '<span><span class="qpdf-conf qpdf-conf-m"></span> Medium</span>'
+      + '<span><span class="qpdf-conf qpdf-conf-l"></span> Low \u2014 verify</span></div>';
+  } else {
+    h += '<div class="qpdf-section-title">Quotation Summary</div>'
+      + '<table class="qpdf-table"><thead><tr><th>Description</th><th class="r" style="width:100px">Value (\u00A3)</th></tr></thead><tbody>'
+      + '<tr><td>' + t.name + '</td><td class="r b">\u00A3' + Math.round(t.value||0).toLocaleString('en-GB') + '</td></tr>'
+      + '<tr class="qpdf-grand-row"><td style="text-align:right">TOTAL</td><td class="r">\u00A3' + Math.round(t.value||0).toLocaleString('en-GB') + '</td></tr>'
+      + '</tbody></table>';
+  }
+
+  h += '<div class="qpdf-terms"><strong>Terms &amp; Conditions</strong><br>'
+    + 'Valid for 30 days. Prices exclusive of VAT. Payment terms: ' + (cl && cl.creditTerms ? cl.creditTerms + ' days' : '30 days') + '. '
+    + 'Works per relevant British Standards and project specifications.</div>';
+
+  if (items.length > 0 && t.aiMetadata) {
+    h += '<div style="margin-top:10px;padding:6px 10px;background:#fff8f0;border:1px solid #f0d4b8;border-radius:3px;font-size:7.5px;color:#999">'
+      + 'AI-generated estimate (KB v' + (t.aiMetadata.kbVersion||'') + '). Verify before commercial use.</div>';
+  }
+
+  h += '<div class="qpdf-footer"><span>Generated by Contraq</span><span>' + t.ref + '</span></div>';
+  h += '</div>'; /* close qpdf-page */
+
+  document.getElementById("tender-detail-body").innerHTML = h;
 }
 
 /* ================================================================
