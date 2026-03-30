@@ -175,11 +175,11 @@ function viewQuote(tenderId) {
   }
 }
 
-/* PDF generation — runs in parent window where jspdf + html2canvas are loaded via index.html */
+/* PDF generation — uses iframe for style isolation from dark-themed main page */
 function downloadQuotePDF(tenderId) {
   var t = TENDERS.find(function(x) { return x.id === tenderId; });
   if (!t) { showToast('Quote not found.', 'error'); return; }
-  if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+  if (typeof jspdf === 'undefined') {
     showToast('PDF libraries still loading — try again in a moment.', 'error'); return;
   }
   var cl = CLIENTS.find(function(c) { return c.id === t.client; });
@@ -192,162 +192,233 @@ function downloadQuotePDF(tenderId) {
   var meta = t.aiMetadata || {};
   var safeRef = t.ref.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-  /* Build container for PDF capture — must be on-screen for html2canvas but hidden behind overlay */
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:99998;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:16px;color:#555;';
-  overlay.textContent = 'Generating PDF...';
-  document.body.appendChild(overlay);
-  var wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;left:0;top:0;width:860px;background:#fff;z-index:99997;pointer-events:none;overflow:hidden;';
-  var css = '<style>'
-    + '*{margin:0;padding:0;box-sizing:border-box;}'
-    + 'body,.qpdf{font-family:"Segoe UI",Calibri,Arial,sans-serif;font-size:11px;color:#1a1a1a;line-height:1.5;}'
-    + '.page{background:#fff;padding:48px 52px;}'
-    + '.hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid #217346;margin-bottom:20px;}'
-    + '.hdr-company{font-size:20px;font-weight:800;color:#217346;}'
-    + '.hdr-sub{font-size:9px;color:#777;margin-top:2px;}'
-    + '.hdr-doc{font-size:11px;font-weight:700;color:#217346;text-transform:uppercase;letter-spacing:.08em;text-align:right;}'
-    + '.hdr-ref{font-size:9px;color:#555;margin-top:2px;text-align:right;}'
-    + '.meta{display:grid;grid-template-columns:1fr 1fr;border:1px solid #d4d4d4;border-radius:4px;margin-bottom:18px;overflow:hidden;}'
-    + '.meta-cell{padding:7px 12px;border-bottom:1px solid #e5e5e5;border-right:1px solid #e5e5e5;}'
-    + '.meta-cell:nth-child(even){border-right:none;}'
-    + '.meta-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:1px;}'
-    + '.meta-val{font-size:11px;font-weight:600;color:#1a1a1a;}'
-    + '.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}'
-    + '.sum-card{padding:8px 12px;background:#f8f8f8;border:1px solid #e0e0e0;border-radius:4px;text-align:center;}'
-    + '.sum-big{font-size:18px;font-weight:800;color:#217346;}'
-    + '.sum-sm{font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-top:2px;}'
-    + '.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#217346;border-bottom:2px solid #217346;padding-bottom:4px;margin:18px 0 10px;}'
-    + 'table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;}'
-    + 'th{background:#217346;color:#fff;font-weight:600;font-size:8.5px;text-transform:uppercase;letter-spacing:.04em;padding:5px 7px;text-align:left;border:1px solid #1a5c35;}'
-    + 'th.r{text-align:right;}'
-    + 'td{padding:4px 7px;border:1px solid #d4d4d4;vertical-align:top;}'
-    + 'tr:nth-child(even) td{background:#f7f7f7;}'
-    + 'td.r{text-align:right;font-variant-numeric:tabular-nums;}'
-    + 'td.b{font-weight:700;}'
-    + '.grp td{background:#e8f5e9 !important;font-weight:700;color:#217346;border-top:2px solid #217346;}'
-    + '.sub td{background:#f0f7ec !important;font-weight:600;font-style:italic;color:#333;border-top:1px solid #aaa;}'
-    + '.grand td{background:#217346 !important;color:#fff !important;font-weight:800;font-size:11px;border-color:#1a5c35 !important;}'
-    + '.conf{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;}'
-    + '.conf-h{background:#2e7d32;}.conf-m{background:#f59e0b;}.conf-l{background:#ef4444;}'
-    + '.terms{margin-top:16px;padding:10px 12px;background:#f8f8f8;border:1px solid #e0e0e0;border-radius:4px;font-size:8.5px;color:#666;line-height:1.5;}'
-    + '.terms strong{color:#333;}'
-    + '.footer{border-top:2px solid #217346;margin-top:24px;padding-top:10px;display:flex;justify-content:space-between;font-size:8px;color:#999;}'
-    + '.ai-note{margin-top:10px;padding:6px 10px;background:#fff8f0;border:1px solid #f0d4b8;border-radius:3px;font-size:7.5px;color:#999;}'
-    + '</style>';
+  showToast('Generating PDF...', 'ok');
 
-  var html = '<div class="qpdf">' + css + '<div class="page">';
-
-  /* Header */
-  html += '<div class="hdr">'
-    + '<div><div class="hdr-company">CONTRAQ</div><div class="hdr-sub">M&amp;E Estimation &amp; Contract Management</div></div>'
-    + '<div><div class="hdr-doc">Quotation</div><div class="hdr-ref">' + t.ref + '</div>'
-    + '<div class="hdr-ref">' + (t.submitted ? fmtDate(t.submitted) : fmtDate(new Date().toISOString().split('T')[0])) + '</div></div>'
-    + '</div>';
-
-  /* Meta */
-  html += '<div class="meta">';
-  var metas = [['Client', clientName], ['Quote Ref', t.ref], ['Address', clientAddr || '\u2014'], ['Project', t.name],
-    ['Enquiry', t.enquiry ? fmtDate(t.enquiry) : '\u2014'], ['Status', (t.status || 'open').charAt(0).toUpperCase() + (t.status || 'open').slice(1)]];
-  metas.forEach(function(m) {
-    html += '<div class="meta-cell"><div class="meta-lbl">' + m[0] + '</div><div class="meta-val">' + m[1] + '</div></div>';
-  });
-  html += '</div>';
-
-  /* Line items */
-  if (items.length > 0) {
-    html += '<div class="summary">'
-      + '<div class="sum-card"><div class="sum-big">' + items.length + '</div><div class="sum-sm">Line Items</div></div>'
-      + '<div class="sum-card"><div class="sum-big">' + (meta.avgConfidence || '\u2014') + '%</div><div class="sum-sm">Avg Confidence</div></div>'
-      + '<div class="sum-card"><div class="sum-big">\u00A3' + Math.round(grandTotal).toLocaleString('en-GB') + '</div><div class="sum-sm">Total Value</div></div>'
-      + '</div>';
-    html += '<div class="sec-title">Schedule of Quantities &amp; Pricing</div>';
-    html += '<table><thead><tr><th style="width:18px"></th><th style="width:48px">Ref</th><th>Description</th>'
-      + '<th class="r" style="width:45px">Qty</th><th style="width:35px">Unit</th>'
-      + '<th class="r" style="width:58px">Rate (\u00A3)</th><th class="r" style="width:68px">Total (\u00A3)</th></tr></thead><tbody>';
-    var lastGroup = '', groupTotals = {}, groupItems = {};
-    items.forEach(function(li) {
-      var g = li.unit_equip || li.service || 'General';
-      if (!groupTotals[g]) { groupTotals[g] = 0; groupItems[g] = 0; }
-      groupTotals[g] += (li.total || 0); groupItems[g]++;
-    });
-    items.forEach(function(li) {
-      var group = li.unit_equip || li.service || 'General';
-      if (group !== lastGroup) {
-        if (lastGroup && groupTotals[lastGroup] !== undefined) {
-          html += '<tr class="sub"><td></td><td></td><td style="text-align:right">' + lastGroup + ' Subtotal (' + groupItems[lastGroup] + ' items)</td><td></td><td></td><td></td><td class="r b">\u00A3' + Math.round(groupTotals[lastGroup]).toLocaleString('en-GB') + '</td></tr>';
-        }
-        html += '<tr class="grp"><td colspan="7">' + group + '</td></tr>';
-        lastGroup = group;
-      }
-      var cc = li.level === 'high' ? 'conf-h' : li.level === 'med' ? 'conf-m' : 'conf-l';
-      html += '<tr><td><span class="conf ' + cc + '" title="' + (li.conf || 0) + '%"></span></td>'
-        + '<td style="font-size:9px;color:#666">' + (li.ref || '') + '</td>'
-        + '<td>' + (li.desc || '') + '</td>'
-        + '<td class="r">' + (li.qty || 0) + '</td>'
-        + '<td style="font-size:9px;color:#666">' + (li.unit || 'nr') + '</td>'
-        + '<td class="r">\u00A3' + (li.rate || 0).toFixed(2) + '</td>'
-        + '<td class="r b">\u00A3' + Math.round(li.total || 0).toLocaleString('en-GB') + '</td></tr>';
-    });
-    if (lastGroup && groupTotals[lastGroup] !== undefined) {
-      html += '<tr class="sub"><td></td><td></td><td style="text-align:right">' + lastGroup + ' Subtotal (' + groupItems[lastGroup] + ' items)</td><td></td><td></td><td></td><td class="r b">\u00A3' + Math.round(groupTotals[lastGroup]).toLocaleString('en-GB') + '</td></tr>';
-    }
-    html += '<tr class="grand"><td></td><td></td><td style="text-align:right">GRAND TOTAL</td><td></td><td></td><td></td><td class="r">\u00A3' + Math.round(grandTotal).toLocaleString('en-GB') + '</td></tr>';
-    html += '</tbody></table>';
-  } else {
-    html += '<div class="sec-title">Quotation Summary</div>'
-      + '<table><thead><tr><th>Description</th><th class="r" style="width:100px">Value (\u00A3)</th></tr></thead><tbody>'
-      + '<tr><td>' + t.name + '</td><td class="r b">\u00A3' + Math.round(t.value || 0).toLocaleString('en-GB') + '</td></tr>'
-      + '<tr class="grand"><td style="text-align:right">TOTAL</td><td class="r">\u00A3' + Math.round(t.value || 0).toLocaleString('en-GB') + '</td></tr>'
-      + '</tbody></table>';
-  }
-  html += '<div class="terms"><strong>Terms &amp; Conditions</strong><br>'
-    + 'Valid for 30 days. Prices exclusive of VAT. Payment terms: ' + (cl && cl.creditTerms ? cl.creditTerms + ' days' : '30 days') + '. '
-    + 'Works per relevant British Standards and project specifications.</div>';
-  if (items.length > 0 && t.aiMetadata) {
-    html += '<div class="ai-note">AI-generated estimate (KB v' + (t.aiMetadata.kbVersion || '') + '). Verify before commercial use.</div>';
-  }
-  html += '<div class="footer"><span>Generated by Contraq \u00B7 contraq.co.uk</span><span>' + t.ref + '</span></div>';
-  html += '</div></div>';
-
-  wrap.innerHTML = html;
-  document.body.appendChild(wrap);
-
-  html2canvas(wrap.querySelector('.page'), { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(function(canvas) {
-    var imgData = canvas.toDataURL('image/jpeg', 0.95);
+  /* Build PDF directly with jsPDF — no html2canvas needed */
+  try {
     var pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    var pdfW = pdf.internal.pageSize.getWidth();
-    var pdfH = pdf.internal.pageSize.getHeight();
-    var imgW = pdfW - 16;
-    var imgH = (canvas.height * imgW) / canvas.width;
-    if (imgH <= pdfH - 16) {
-      pdf.addImage(imgData, 'JPEG', 8, 8, imgW, imgH);
-    } else {
-      var pageCanvas = document.createElement('canvas');
-      var ctx = pageCanvas.getContext('2d');
-      var sliceH = Math.floor(canvas.width * ((pdfH - 16) / imgW));
-      var pages = Math.ceil(canvas.height / sliceH);
-      for (var p = 0; p < pages; p++) {
-        if (p > 0) pdf.addPage();
-        var srcY = p * sliceH;
-        var srcH = Math.min(sliceH, canvas.height - srcY);
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = srcH;
-        ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
-        var pageImg = pageCanvas.toDataURL('image/jpeg', 0.95);
-        var drawH = (srcH * imgW) / canvas.width;
-        pdf.addImage(pageImg, 'JPEG', 8, 8, imgW, drawH);
-      }
+    var W = pdf.internal.pageSize.getWidth();
+    var H = pdf.internal.pageSize.getHeight();
+    var margin = 15;
+    var col = W - margin * 2;
+    var y = margin;
+
+    /* Helper: add new page if needed */
+    function checkPage(need) {
+      if (y + need > H - margin) { pdf.addPage(); y = margin; }
     }
+
+    /* Header */
+    pdf.setFillColor(33, 115, 70);
+    pdf.rect(0, 0, W, 28, 'F');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(18);
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('CONTRAQ', margin, 12);
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('M&E Estimation & Contract Management', margin, 17);
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Quotation', W - margin, 12, { align: 'right' });
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(t.ref, W - margin, 17, { align: 'right' });
+    var dateStr = t.submitted ? t.submitted : new Date().toISOString().split('T')[0];
+    pdf.text(dateStr, W - margin, 22, { align: 'right' });
+    y = 35;
+
+    /* Meta grid */
+    var metaData = [
+      ['Client', clientName], ['Quote Ref', t.ref],
+      ['Address', clientAddr || '\u2014'], ['Project', t.name],
+      ['Enquiry', t.enquiry || '\u2014'], ['Status', (t.status || 'open').charAt(0).toUpperCase() + (t.status || 'open').slice(1)]
+    ];
+    var cellW = col / 2;
+    pdf.setDrawColor(200, 200, 200);
+    for (var mi = 0; mi < metaData.length; mi++) {
+      var cx = margin + (mi % 2) * cellW;
+      var cy = y + Math.floor(mi / 2) * 12;
+      pdf.setFontSize(6.5);
+      pdf.setTextColor(140, 140, 140);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(metaData[mi][0].toUpperCase(), cx + 3, cy + 4);
+      pdf.setFontSize(9);
+      pdf.setTextColor(30, 30, 30);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(String(metaData[mi][1]).substring(0, 45), cx + 3, cy + 9);
+      pdf.rect(cx, cy, cellW, 12);
+    }
+    y += Math.ceil(metaData.length / 2) * 12 + 8;
+
+    /* Summary cards */
+    if (items.length > 0) {
+      var cardW = col / 3;
+      var cards = [
+        [String(items.length), 'Line Items'],
+        [(meta.avgConfidence || '\u2014') + '%', 'Avg Confidence'],
+        ['\u00A3' + Math.round(grandTotal).toLocaleString('en-GB'), 'Total Value']
+      ];
+      for (var ci = 0; ci < cards.length; ci++) {
+        var cardX = margin + ci * cardW;
+        pdf.setFillColor(248, 248, 248);
+        pdf.setDrawColor(220, 220, 220);
+        pdf.roundedRect(cardX, y, cardW - 3, 16, 2, 2, 'FD');
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(33, 115, 70);
+        pdf.text(cards[ci][0], cardX + (cardW - 3) / 2, y + 8, { align: 'center' });
+        pdf.setFontSize(6);
+        pdf.setTextColor(140, 140, 140);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(cards[ci][1].toUpperCase(), cardX + (cardW - 3) / 2, y + 13, { align: 'center' });
+      }
+      y += 22;
+    }
+
+    /* Section title */
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(33, 115, 70);
+    var secTitle = items.length > 0 ? 'SCHEDULE OF QUANTITIES & PRICING' : 'QUOTATION SUMMARY';
+    pdf.text(secTitle, margin, y);
+    y += 1;
+    pdf.setDrawColor(33, 115, 70);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, y, margin + col, y);
+    y += 5;
+
+    /* Table */
+    if (items.length > 0) {
+      /* Table header */
+      var cols = [
+        { label: 'Ref', w: 18 },
+        { label: 'Description', w: col - 18 - 18 - 15 - 22 - 22 },
+        { label: 'Qty', w: 18, align: 'right' },
+        { label: 'Unit', w: 15 },
+        { label: 'Rate (\u00A3)', w: 22, align: 'right' },
+        { label: 'Total (\u00A3)', w: 22, align: 'right' }
+      ];
+      pdf.setFillColor(33, 115, 70);
+      pdf.rect(margin, y, col, 6, 'F');
+      pdf.setFontSize(6.5);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(255, 255, 255);
+      var hx = margin;
+      cols.forEach(function(c) {
+        var tx = c.align === 'right' ? hx + c.w - 2 : hx + 2;
+        pdf.text(c.label.toUpperCase(), tx, y + 4, c.align === 'right' ? { align: 'right' } : {});
+        hx += c.w;
+      });
+      y += 6;
+
+      /* Table rows */
+      var lastGroup = '';
+      items.forEach(function(li) {
+        var group = li.unit_equip || li.service || 'General';
+        if (group !== lastGroup) {
+          checkPage(12);
+          /* Group header */
+          pdf.setFillColor(232, 245, 233);
+          pdf.rect(margin, y, col, 5, 'F');
+          pdf.setFontSize(7);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(33, 115, 70);
+          pdf.text(group, margin + 2, y + 3.5);
+          y += 5;
+          lastGroup = group;
+        }
+        checkPage(6);
+        /* Row background */
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(margin, y, col, 5, 'F');
+        pdf.setDrawColor(220, 220, 220);
+        pdf.line(margin, y + 5, margin + col, y + 5);
+        pdf.setFontSize(7);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(50, 50, 50);
+        var rx = margin;
+        var rowData = [
+          { val: li.ref || '', w: cols[0].w },
+          { val: (li.desc || '').substring(0, 55), w: cols[1].w },
+          { val: String(li.qty || 0), w: cols[2].w, align: 'right' },
+          { val: li.unit || 'nr', w: cols[3].w },
+          { val: '\u00A3' + (li.rate || 0).toFixed(2), w: cols[4].w, align: 'right' },
+          { val: '\u00A3' + Math.round(li.total || 0).toLocaleString('en-GB'), w: cols[5].w, align: 'right' }
+        ];
+        rowData.forEach(function(rd) {
+          var tx = rd.align === 'right' ? rx + rd.w - 2 : rx + 2;
+          pdf.text(String(rd.val), tx, y + 3.5, rd.align === 'right' ? { align: 'right' } : {});
+          rx += rd.w;
+        });
+        y += 5;
+      });
+
+      /* Grand total row */
+      checkPage(8);
+      pdf.setFillColor(33, 115, 70);
+      pdf.rect(margin, y, col, 7, 'F');
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(255, 255, 255);
+      pdf.text('GRAND TOTAL', margin + col - 22 - 5, y + 5, { align: 'right' });
+      pdf.text('\u00A3' + Math.round(grandTotal).toLocaleString('en-GB'), margin + col - 2, y + 5, { align: 'right' });
+      y += 12;
+    } else {
+      checkPage(20);
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(50, 50, 50);
+      pdf.text(t.name, margin, y + 4);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('\u00A3' + Math.round(t.value || 0).toLocaleString('en-GB'), margin + col, y + 4, { align: 'right' });
+      y += 8;
+      pdf.setFillColor(33, 115, 70);
+      pdf.rect(margin, y, col, 7, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.text('TOTAL', margin + col - 25, y + 5, { align: 'right' });
+      pdf.text('\u00A3' + Math.round(t.value || 0).toLocaleString('en-GB'), margin + col - 2, y + 5, { align: 'right' });
+      y += 12;
+    }
+
+    /* Terms */
+    checkPage(20);
+    pdf.setFillColor(248, 248, 248);
+    pdf.setDrawColor(220, 220, 220);
+    pdf.roundedRect(margin, y, col, 14, 1, 1, 'FD');
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(60, 60, 60);
+    pdf.text('Terms & Conditions', margin + 3, y + 4);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(100, 100, 100);
+    pdf.setFontSize(6.5);
+    var terms = 'Valid for 30 days. Prices exclusive of VAT. Payment terms: ' + (cl && cl.creditTerms ? cl.creditTerms + ' days' : '30 days') + '. Works per relevant British Standards and project specifications.';
+    pdf.text(terms, margin + 3, y + 9, { maxWidth: col - 6 });
+    y += 18;
+
+    /* AI note */
+    if (items.length > 0 && t.aiMetadata) {
+      pdf.setFontSize(6);
+      pdf.setTextColor(160, 160, 160);
+      pdf.text('AI-generated estimate (KB v' + (t.aiMetadata.kbVersion || '') + '). Verify before commercial use.', margin, y);
+      y += 6;
+    }
+
+    /* Footer */
+    pdf.setDrawColor(33, 115, 70);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, H - 12, margin + col, H - 12);
+    pdf.setFontSize(6);
+    pdf.setTextColor(160, 160, 160);
+    pdf.text('Generated by Contraq \u00B7 contraq.co.uk', margin, H - 8);
+    pdf.text(t.ref, margin + col, H - 8, { align: 'right' });
+
     pdf.save(safeRef + '.pdf');
-    document.body.removeChild(wrap);
-    document.body.removeChild(overlay);
     showToast('PDF downloaded: ' + safeRef + '.pdf', 'ok');
-  }).catch(function(err) {
-    document.body.removeChild(wrap);
-    document.body.removeChild(overlay);
+  } catch(err) {
     showToast('PDF generation failed: ' + err.message, 'error');
-  });
+  }
 }
 
 function renderCreateQuoteForm() {
