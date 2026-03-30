@@ -192,9 +192,13 @@ function downloadQuotePDF(tenderId) {
   var meta = t.aiMetadata || {};
   var safeRef = t.ref.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-  /* Build offscreen container with quote HTML */
+  /* Build container for PDF capture — must be on-screen for html2canvas but hidden behind overlay */
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:99998;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:16px;color:#555;';
+  overlay.textContent = 'Generating PDF...';
+  document.body.appendChild(overlay);
   var wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:860px;background:#fff;z-index:-1;';
+  wrap.style.cssText = 'position:fixed;left:0;top:0;width:860px;background:#fff;z-index:99997;pointer-events:none;overflow:hidden;';
   var css = '<style>'
     + '*{margin:0;padding:0;box-sizing:border-box;}'
     + 'body,.qpdf{font-family:"Segoe UI",Calibri,Arial,sans-serif;font-size:11px;color:#1a1a1a;line-height:1.5;}'
@@ -337,9 +341,11 @@ function downloadQuotePDF(tenderId) {
     }
     pdf.save(safeRef + '.pdf');
     document.body.removeChild(wrap);
+    document.body.removeChild(overlay);
     showToast('PDF downloaded: ' + safeRef + '.pdf', 'ok');
   }).catch(function(err) {
     document.body.removeChild(wrap);
+    document.body.removeChild(overlay);
     showToast('PDF generation failed: ' + err.message, 'error');
   });
 }
