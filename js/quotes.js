@@ -290,8 +290,8 @@ function downloadQuotePDF(tenderId) {
 
     /* Table */
     if (items.length > 0) {
-      /* Column definitions — give description maximum space */
-      var colRef = 15, colQty = 14, colUnit = 12, colRate = 20, colTotal = 22;
+      /* Column definitions — Ref widened to prevent bleed into Description */
+      var colRef = 22, colQty = 14, colUnit = 12, colRate = 20, colTotal = 22;
       var colDesc = col - colRef - colQty - colUnit - colRate - colTotal;
       var rowPad = 2;    /* vertical padding inside each row */
       var rowFont = 7;   /* font size for row content */
@@ -350,7 +350,7 @@ function downloadQuotePDF(tenderId) {
         pdf.setFontSize(rowFont);
         pdf.setFont('helvetica', 'normal');
         var descText = li.desc || '';
-        var descLines = pdf.splitTextToSize(descText, colDesc - 4);
+        var descLines = pdf.splitTextToSize(descText, colDesc - 6);
         var lineH = 3.2;
         var textBlockH = descLines.length * lineH;
         var rowH = Math.max(7, textBlockH + rowPad * 2);
@@ -364,37 +364,50 @@ function downloadQuotePDF(tenderId) {
           pdf.rect(margin, y, col, rowH, 'F');
         }
 
-        /* Row border */
+        /* Row border — horizontal bottom line */
         pdf.setDrawColor(225, 225, 225);
         pdf.setLineWidth(0.15);
         pdf.line(margin, y + rowH, margin + col, y + rowH);
+
+        /* Vertical column dividers */
+        var divX = margin;
+        [colRef, colDesc, colQty, colUnit, colRate, colTotal].forEach(function(cw) {
+          divX += cw;
+          if (divX < margin + col) {
+            pdf.setDrawColor(235, 235, 235);
+            pdf.setLineWidth(0.1);
+            pdf.line(divX, y, divX, y + rowH);
+          }
+        });
 
         /* Row content — vertically centred */
         var textY = y + rowPad + 2.5;
         var rx = margin;
 
-        /* Ref */
-        pdf.setFontSize(6.5);
+        /* Ref — truncate to fit column */
+        pdf.setFontSize(6);
         pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(120, 120, 120);
-        pdf.text(String(li.ref || ''), rx + 2, textY);
+        var refText = String(li.ref || '');
+        var refLines = pdf.splitTextToSize(refText, colRef - 4);
+        pdf.text(refLines[0], rx + 2, textY);
         rx += colRef;
 
-        /* Description — multi-line */
+        /* Description — multi-line with proper padding */
         pdf.setFontSize(rowFont);
         pdf.setTextColor(40, 40, 40);
-        pdf.text(descLines, rx + 2, textY);
+        pdf.text(descLines, rx + 3, textY);
         rx += colDesc;
 
         /* Qty */
         pdf.setFontSize(rowFont);
         pdf.setTextColor(40, 40, 40);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(String(li.qty || 0), rx + colQty - 2, textY, { align: 'right' });
+        pdf.text(String(li.qty || 0), rx + colQty - 3, textY, { align: 'right' });
         rx += colQty;
 
         /* Unit */
-        pdf.setFontSize(6.5);
+        pdf.setFontSize(6);
         pdf.setTextColor(120, 120, 120);
         pdf.text(li.unit || 'nr', rx + 2, textY);
         rx += colUnit;
@@ -402,12 +415,12 @@ function downloadQuotePDF(tenderId) {
         /* Rate */
         pdf.setFontSize(rowFont);
         pdf.setTextColor(40, 40, 40);
-        pdf.text('\u00A3' + (li.rate || 0).toFixed(2), rx + colRate - 2, textY, { align: 'right' });
+        pdf.text('\u00A3' + (li.rate || 0).toFixed(2), rx + colRate - 3, textY, { align: 'right' });
         rx += colRate;
 
         /* Total */
         pdf.setFont('helvetica', 'bold');
-        pdf.text('\u00A3' + Math.round(li.total || 0).toLocaleString('en-GB'), rx + colTotal - 2, textY, { align: 'right' });
+        pdf.text('\u00A3' + Math.round(li.total || 0).toLocaleString('en-GB'), rx + colTotal - 3, textY, { align: 'right' });
 
         y += rowH;
         rowIdx++;
