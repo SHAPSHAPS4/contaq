@@ -290,80 +290,139 @@ function downloadQuotePDF(tenderId) {
 
     /* Table */
     if (items.length > 0) {
-      /* Table header */
-      var cols = [
-        { label: 'Ref', w: 18 },
-        { label: 'Description', w: col - 18 - 18 - 15 - 22 - 22 },
-        { label: 'Qty', w: 18, align: 'right' },
-        { label: 'Unit', w: 15 },
-        { label: 'Rate (\u00A3)', w: 22, align: 'right' },
-        { label: 'Total (\u00A3)', w: 22, align: 'right' }
-      ];
-      pdf.setFillColor(33, 115, 70);
-      pdf.rect(margin, y, col, 6, 'F');
-      pdf.setFontSize(6.5);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(255, 255, 255);
-      var hx = margin;
-      cols.forEach(function(c) {
-        var tx = c.align === 'right' ? hx + c.w - 2 : hx + 2;
-        pdf.text(c.label.toUpperCase(), tx, y + 4, c.align === 'right' ? { align: 'right' } : {});
-        hx += c.w;
-      });
-      y += 6;
+      /* Column definitions — give description maximum space */
+      var colRef = 15, colQty = 14, colUnit = 12, colRate = 20, colTotal = 22;
+      var colDesc = col - colRef - colQty - colUnit - colRate - colTotal;
+      var rowPad = 2;    /* vertical padding inside each row */
+      var rowFont = 7;   /* font size for row content */
+      var hdrH = 7;      /* header row height */
+
+      /* Draw table header */
+      function drawTableHeader() {
+        pdf.setFillColor(33, 115, 70);
+        pdf.rect(margin, y, col, hdrH, 'F');
+        pdf.setFontSize(6);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(255, 255, 255);
+        var headers = [
+          { label: 'REF', w: colRef },
+          { label: 'DESCRIPTION', w: colDesc },
+          { label: 'QTY', w: colQty, align: 'right' },
+          { label: 'UNIT', w: colUnit },
+          { label: 'RATE (\u00A3)', w: colRate, align: 'right' },
+          { label: 'TOTAL (\u00A3)', w: colTotal, align: 'right' }
+        ];
+        var hx = margin;
+        headers.forEach(function(h) {
+          var tx = h.align === 'right' ? hx + h.w - 2 : hx + 2;
+          pdf.text(h.label, tx, y + 4.5, h.align === 'right' ? { align: 'right' } : {});
+          hx += h.w;
+        });
+        y += hdrH;
+      }
+
+      drawTableHeader();
 
       /* Table rows */
       var lastGroup = '';
+      var rowIdx = 0;
       items.forEach(function(li) {
         var group = li.unit_equip || li.service || 'General';
+
+        /* Group header row */
         if (group !== lastGroup) {
-          checkPage(12);
-          /* Group header */
+          checkPage(14);
+          if (y <= margin) drawTableHeader(); /* repeat header after page break */
           pdf.setFillColor(232, 245, 233);
-          pdf.rect(margin, y, col, 5, 'F');
+          pdf.rect(margin, y, col, 6, 'F');
+          pdf.setDrawColor(33, 115, 70);
+          pdf.setLineWidth(0.3);
+          pdf.line(margin, y, margin + col, y);
           pdf.setFontSize(7);
           pdf.setFont('helvetica', 'bold');
           pdf.setTextColor(33, 115, 70);
-          pdf.text(group, margin + 2, y + 3.5);
-          y += 5;
+          pdf.text(group, margin + 3, y + 4);
+          y += 6;
           lastGroup = group;
         }
-        checkPage(6);
-        /* Row background */
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(margin, y, col, 5, 'F');
-        pdf.setDrawColor(220, 220, 220);
-        pdf.line(margin, y + 5, margin + col, y + 5);
-        pdf.setFontSize(7);
+
+        /* Calculate row height based on description length */
+        pdf.setFontSize(rowFont);
         pdf.setFont('helvetica', 'normal');
-        pdf.setTextColor(50, 50, 50);
+        var descText = li.desc || '';
+        var descLines = pdf.splitTextToSize(descText, colDesc - 4);
+        var lineH = 3.2;
+        var textBlockH = descLines.length * lineH;
+        var rowH = Math.max(7, textBlockH + rowPad * 2);
+
+        checkPage(rowH + 2);
+        if (y <= margin) drawTableHeader(); /* repeat header after page break */
+
+        /* Alternating row background */
+        if (rowIdx % 2 === 1) {
+          pdf.setFillColor(248, 249, 250);
+          pdf.rect(margin, y, col, rowH, 'F');
+        }
+
+        /* Row border */
+        pdf.setDrawColor(225, 225, 225);
+        pdf.setLineWidth(0.15);
+        pdf.line(margin, y + rowH, margin + col, y + rowH);
+
+        /* Row content — vertically centred */
+        var textY = y + rowPad + 2.5;
         var rx = margin;
-        var rowData = [
-          { val: li.ref || '', w: cols[0].w },
-          { val: (li.desc || '').substring(0, 55), w: cols[1].w },
-          { val: String(li.qty || 0), w: cols[2].w, align: 'right' },
-          { val: li.unit || 'nr', w: cols[3].w },
-          { val: '\u00A3' + (li.rate || 0).toFixed(2), w: cols[4].w, align: 'right' },
-          { val: '\u00A3' + Math.round(li.total || 0).toLocaleString('en-GB'), w: cols[5].w, align: 'right' }
-        ];
-        rowData.forEach(function(rd) {
-          var tx = rd.align === 'right' ? rx + rd.w - 2 : rx + 2;
-          pdf.text(String(rd.val), tx, y + 3.5, rd.align === 'right' ? { align: 'right' } : {});
-          rx += rd.w;
-        });
-        y += 5;
+
+        /* Ref */
+        pdf.setFontSize(6.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(120, 120, 120);
+        pdf.text(String(li.ref || ''), rx + 2, textY);
+        rx += colRef;
+
+        /* Description — multi-line */
+        pdf.setFontSize(rowFont);
+        pdf.setTextColor(40, 40, 40);
+        pdf.text(descLines, rx + 2, textY);
+        rx += colDesc;
+
+        /* Qty */
+        pdf.setFontSize(rowFont);
+        pdf.setTextColor(40, 40, 40);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(String(li.qty || 0), rx + colQty - 2, textY, { align: 'right' });
+        rx += colQty;
+
+        /* Unit */
+        pdf.setFontSize(6.5);
+        pdf.setTextColor(120, 120, 120);
+        pdf.text(li.unit || 'nr', rx + 2, textY);
+        rx += colUnit;
+
+        /* Rate */
+        pdf.setFontSize(rowFont);
+        pdf.setTextColor(40, 40, 40);
+        pdf.text('\u00A3' + (li.rate || 0).toFixed(2), rx + colRate - 2, textY, { align: 'right' });
+        rx += colRate;
+
+        /* Total */
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('\u00A3' + Math.round(li.total || 0).toLocaleString('en-GB'), rx + colTotal - 2, textY, { align: 'right' });
+
+        y += rowH;
+        rowIdx++;
       });
 
       /* Grand total row */
-      checkPage(8);
+      checkPage(10);
       pdf.setFillColor(33, 115, 70);
-      pdf.rect(margin, y, col, 7, 'F');
+      pdf.rect(margin, y, col, 8, 'F');
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(255, 255, 255);
-      pdf.text('GRAND TOTAL', margin + col - 22 - 5, y + 5, { align: 'right' });
-      pdf.text('\u00A3' + Math.round(grandTotal).toLocaleString('en-GB'), margin + col - 2, y + 5, { align: 'right' });
-      y += 12;
+      pdf.text('GRAND TOTAL', margin + col - colTotal - 4, y + 5.5, { align: 'right' });
+      pdf.text('\u00A3' + Math.round(grandTotal).toLocaleString('en-GB'), margin + col - 2, y + 5.5, { align: 'right' });
+      y += 14;
     } else {
       checkPage(20);
       pdf.setFontSize(9);
