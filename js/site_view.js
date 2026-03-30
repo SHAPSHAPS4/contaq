@@ -23,15 +23,51 @@ var SV = {
 var LS_CLOCK   = 'sv_clock_' + new Date().toISOString().split('T')[0];
 var LS_OFFLINE = 'sv_offline_queue';
 
-/* ── Activation ─────────────────────────────────────────────── */
+/* ── Site panel toggle (right-side panel) ─────────────────── */
 function svActivate() {
-  nav('site');
-  svInit();
+  var panel = document.getElementById('page-site');
+  var overlay = document.getElementById('sv-panel-overlay');
+  if (!panel) return;
+  if (panel.classList.contains('sv-open')) {
+    svCloseSitePanel();
+  } else {
+    panel.classList.add('sv-open');
+    if (overlay) overlay.classList.add('visible');
+    svInit();
+  }
+}
+
+function svCloseSitePanel() {
+  var panel = document.getElementById('page-site');
+  var overlay = document.getElementById('sv-panel-overlay');
+  if (panel) panel.classList.remove('sv-open');
+  if (overlay) overlay.classList.remove('visible');
 }
 
 function svExitToDesktop() {
-  nav('dashboard');
-  initDashboard();
+  svCloseSitePanel();
+}
+
+/* ── Toggle quick actions panel ───────────────────────────── */
+function svToggleActions() {
+  var panel = document.getElementById('sv-actions-panel');
+  var btn = document.getElementById('sv-actions-toggle');
+  if (!panel) return;
+  var isCollapsed = panel.classList.toggle('collapsed');
+  if (btn) btn.classList.toggle('collapsed', isCollapsed);
+  // Remember preference
+  try { localStorage.setItem('sv_actions_collapsed', isCollapsed ? '1' : '0'); } catch(e){}
+}
+
+function svRestoreActionsState() {
+  try {
+    if (localStorage.getItem('sv_actions_collapsed') === '1') {
+      var panel = document.getElementById('sv-actions-panel');
+      var btn = document.getElementById('sv-actions-toggle');
+      if (panel) panel.classList.add('collapsed');
+      if (btn) btn.classList.add('collapsed');
+    }
+  } catch(e){}
 }
 
 /* Auto-activate on mobile */
@@ -48,6 +84,7 @@ function svInit() {
   svRenderHome();
   svStartClockTicker();
   svCheckOffline();
+  svRestoreActionsState();
   // populate project dropdowns
   svPopulateProjectDropdowns();
 }
@@ -585,11 +622,11 @@ function svSyncOfflineQueue() {
 
 /* Mobile nav/init hooks moved into original nav() above */
 
-/* ── On window resize, respect mobile breakpoint ─────────────── */
-window.addEventListener('resize', function() {
-  var trigger = document.querySelector('.sv-desktop-trigger');
-  if (trigger && typeof STATE !== 'undefined' && STATE.loggedIn) {
-    trigger.style.display = window.innerWidth < 900 ? 'flex' : 'none';
+/* ── Close site panel on Escape key ───────────────────────────── */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var panel = document.getElementById('page-site');
+    if (panel && panel.classList.contains('sv-open')) svCloseSitePanel();
   }
 });
 
