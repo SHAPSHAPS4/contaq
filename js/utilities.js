@@ -52,7 +52,7 @@ function openModal(id) {
 }
 function closeModal(id) {
   var m = document.getElementById(id);
-  if (m) m.classList.remove('open');
+  if (m) { m.classList.remove('open'); m.style.zIndex = ''; }
 }
 function showModalErr(id, msg) {
   var el = document.getElementById(id);

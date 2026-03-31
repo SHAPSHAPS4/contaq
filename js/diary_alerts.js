@@ -50,7 +50,7 @@ function openClientDetail(clientId) {
         +'<div style="font-size:.65rem;color:var(--off4);margin-top:.1rem">'+badge(p.status)+' &nbsp;'+billedPct+'% billed · '+projInvs.length+' invoice'+(projInvs.length===1?'':'s')+'</div></div>'
         +'<span class="cl-proj-val">£'+fmtNum(p.value)+'</span>'
         +'<span class="cl-proj-mgn '+mgnCls+'">'+mgn+'% GP</span>'
-        +'<button class="btn btn-dark btn-xs" onclick="openTradeModal(\''+p.id+'\')">Edit</button>'
+        +'<button class="btn btn-dark btn-xs" onclick="openTradeModal(\''+p.id+'\');var _m=document.getElementById(\'modal-trade\');if(_m)_m.style.zIndex=\'310\'">Edit</button>'
         +'</div>';
     });
   }
@@ -67,7 +67,7 @@ function openClientDetail(clientId) {
         +'<td class="mono">£'+fmtNum(inv.amount)+'</td>'
         +'<td class="mono"'+(inv.status==='overdue'?' style="color:var(--red)"':'')+'>'+fmtDate(inv.due)+'</td>'
         +'<td>'+badge(inv.status)+'</td>'
-        +'<td><button class="btn btn-dark btn-xs" onclick="openInvoiceModal(\''+inv.id+'\')">Edit</button></td></tr>';
+        +'<td><button class="btn btn-dark btn-xs" onclick="openInvoiceModal(\''+inv.id+'\');var _m=document.getElementById(\'modal-invoice\');if(_m)_m.style.zIndex=\'310\'">Edit</button></td></tr>';
     }).join('');
     html += '</tbody></table>';
   }
@@ -81,7 +81,7 @@ function openClientDetail(clientId) {
         +'<td style="font-size:.75rem">'+t.name+'</td>'
         +'<td class="mono">£'+fmtNum(t.value)+'</td>'
         +'<td>'+badge(t.status)+'</td>'
-        +'<td><button class="btn btn-dark btn-xs" onclick="openTenderModal(\''+t.id+'\')">Edit</button></td></tr>';
+        +'<td><button class="btn btn-dark btn-xs" onclick="openTenderModal(\''+t.id+'\');var _m=document.getElementById(\'modal-tender\');if(_m)_m.style.zIndex=\'310\'">Edit</button></td></tr>';
     }).join('');
     html += '</tbody></table>';
   }
