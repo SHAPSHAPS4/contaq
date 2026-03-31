@@ -196,6 +196,13 @@ function tcRenderResults(data) {
   var conflicts = data.conflicts || [];
   var reviewItems = data.estimator_review_required || [];
 
+  /* Run scope check if not already done */
+  if (!data._scopeGaps) {
+    var sc = (data.scope_check && data.scope_check.missing_items) ? data.scope_check : _tcRunScopeCheck(takeoff);
+    data._scopeGaps = sc.missing_items || [];
+  }
+  var scopeGaps = data._scopeGaps;
+
   /* Count stats */
   var highCount = 0, medCount = 0, lowCount = 0;
   var tradeCounts = {};
@@ -217,6 +224,7 @@ function tcRenderResults(data) {
   sh += _tcCard(medCount, 'Medium', 'var(--yellow)');
   sh += _tcCard(lowCount, 'Low / Review', '#f87171');
   sh += _tcCard(conflicts.length, 'Conflicts', conflicts.length ? 'var(--orange)' : 'var(--off4)');
+  sh += _tcCard(scopeGaps.length, 'Scope gaps', scopeGaps.length ? '#f59e0b' : 'var(--off4)');
   sh += '</div>';
 
   /* Source breakdown */
@@ -287,6 +295,38 @@ function tcRenderResults(data) {
     document.getElementById('tc-results-conflicts').innerHTML = '<div style="font-size:.72rem;color:var(--lime);margin-bottom:.5rem;">\u2714 No conflicts found between drawings and specification.</div>';
   }
 
+  /* Scope gaps */
+  if (scopeGaps.length) {
+    var sg = '<div style="font-size:.78rem;color:#f59e0b;font-weight:600;margin-bottom:.4rem;">\u26a0 ' + scopeGaps.length + ' implied scope item' + (scopeGaps.length !== 1 ? 's' : '') + ' missing from takeoff</div>';
+    sg += '<div style="font-size:.62rem;color:var(--off3);margin-bottom:.5rem;">These items are typically required based on M&amp;E best practice when the trigger items are present in the extraction. Review and add to takeoff or dismiss if not applicable.</div>';
+    sg += '<div class="card" style="padding:0;"><div style="overflow-x:auto;"><table class="tbl"><thead><tr>'
+      + '<th style="width:70px;">Trade</th>'
+      + '<th>Missing Item</th>'
+      + '<th style="width:50px;text-align:right;">Est. Qty</th>'
+      + '<th style="width:30px;">Unit</th>'
+      + '<th style="width:140px;">Triggered By</th>'
+      + '<th style="width:120px;">Action</th>'
+      + '</tr></thead><tbody>';
+    scopeGaps.forEach(function(gap, i) {
+      var tradeColor = gap.trade === 'Mechanical' ? 'var(--orange)' : gap.trade === 'Electrical' ? '#60a5fa' : 'var(--lime)';
+      var tradeBg = gap.trade === 'Mechanical' ? 'rgba(249,115,22,.08)' : gap.trade === 'Electrical' ? 'rgba(96,165,250,.08)' : 'rgba(163,230,53,.08)';
+      sg += '<tr>'
+        + '<td><span style="font-family:var(--mono);font-size:.52rem;background:' + tradeBg + ';color:' + tradeColor + ';border:1px solid ' + tradeColor + '33;border-radius:3px;padding:.08rem .25rem;">' + gap.trade + '</span></td>'
+        + '<td style="font-size:.72rem;color:var(--white);">' + gap.description + '</td>'
+        + '<td class="mono" style="font-size:.74rem;color:#f59e0b;text-align:right;font-weight:600;">' + gap.estimated_quantity + '</td>'
+        + '<td class="mono" style="font-size:.66rem;color:var(--off3);">' + gap.unit + '</td>'
+        + '<td style="font-size:.62rem;color:var(--off3);">' + gap.trigger + '</td>'
+        + '<td style="white-space:nowrap;">'
+        + '<button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);margin-right:.25rem;" onclick="_tcAddScopeItem(' + i + ')">+ Add</button>'
+        + '<button class="btn btn-xs" style="background:rgba(255,255,255,.04);color:var(--off4);border:1px solid var(--border);" onclick="_tcDismissScopeItem(' + i + ')">Dismiss</button>'
+        + '</td></tr>';
+    });
+    sg += '</tbody></table></div></div>';
+    document.getElementById('tc-results-scope-gaps').innerHTML = sg;
+  } else {
+    document.getElementById('tc-results-scope-gaps').innerHTML = '<div style="font-size:.72rem;color:var(--lime);margin-bottom:.5rem;">\u2714 No scope gaps detected \u2014 all implied items are present.</div>';
+  }
+
   /* Estimator review */
   if (reviewItems.length) {
     var rh = '<div style="font-size:.78rem;color:#f87171;font-weight:600;margin-bottom:.4rem;">Estimator Sign-Off Required (' + reviewItems.length + ' item' + (reviewItems.length !== 1 ? 's' : '') + ')</div>'
@@ -300,6 +340,87 @@ function tcRenderResults(data) {
   } else {
     document.getElementById('tc-results-review').innerHTML = '';
   }
+}
+
+/* ── Client-side scope checker (mirrors server/services/scope-checker.js) ── */
+var _scopeRules = [
+  {id:'SC-M-001',trade:'Mechanical',trigger:'Any LTHW pipework > 10m',kw:['lthw','heating pipe','hot water pipe','copper pipe','steel pipe'],minQty:10,unit:'m',items:[
+    {desc:'Isolation valves (1 per 15m pipe run)',unit:'nr',formula:'qty/15',min:2},{desc:'Double regulating valves (1 per branch)',unit:'nr',formula:'qty/20',min:1},{desc:'Y-type strainers at pump inlets',unit:'nr',formula:'1',min:1},{desc:'Commissioning set at each index circuit',unit:'nr',formula:'1',min:1}]},
+  {id:'SC-M-002',trade:'Mechanical',trigger:'Any pump present',kw:['pump','circulator'],minQty:1,unit:'nr',items:[
+    {desc:'Flexible connections at pump connections',unit:'nr',formula:'qty*2',min:2},{desc:'Isolation valves at pump connections',unit:'nr',formula:'qty*2',min:2},{desc:'Non-return valve on pump discharge',unit:'nr',formula:'qty',min:1},{desc:'Strainer on pump suction',unit:'nr',formula:'qty',min:1}]},
+  {id:'SC-M-003',trade:'Mechanical',trigger:'Any boiler present',kw:['boiler','heat generator','heat source'],minQty:1,unit:'nr',items:[
+    {desc:'Safety relief valve on boiler',unit:'nr',formula:'qty',min:1},{desc:'Expansion vessel sized for system',unit:'nr',formula:'1',min:1},{desc:'Pressurisation unit',unit:'nr',formula:'1',min:1},{desc:'Gas service isolation valve',unit:'nr',formula:'qty',min:1},{desc:'Flue system (allow provisional)',unit:'nr',formula:'qty',min:1}]},
+  {id:'SC-M-004',trade:'Mechanical',trigger:'Any AHU or MVHR present',kw:['ahu','air handling unit','mvhr','heat recovery'],minQty:1,unit:'nr',items:[
+    {desc:'Flexible ductwork connections at AHU',unit:'nr',formula:'qty*2',min:2},{desc:'Access doors adjacent to AHU',unit:'nr',formula:'qty*2',min:2},{desc:'Anti-vibration mounts for AHU',unit:'nr',formula:'qty*4',min:4}]},
+  {id:'SC-E-001',trade:'Electrical',trigger:'Any distribution board present',kw:['distribution board','db','consumer unit','panel board'],minQty:1,unit:'nr',items:[
+    {desc:'Earth bar at each distribution board',unit:'nr',formula:'qty',min:1},{desc:'Main earth cable from DB to earth electrode',unit:'m',formula:'10',min:5},{desc:'DB label and circuit schedule',unit:'nr',formula:'qty',min:1}]},
+  {id:'SC-E-002',trade:'Electrical',trigger:'Cable containment > 20m',kw:['cable tray','cable ladder','trunking','containment'],minQty:20,unit:'m',items:[
+    {desc:'Containment brackets and supports (1 per 1.5m)',unit:'nr',formula:'qty/1.5',min:10},{desc:'Earth continuity bonding straps (1 per 10m)',unit:'nr',formula:'qty/10',min:2},{desc:'Containment end caps and accessories (10%)',unit:'nr',formula:'qty*0.1',min:5}]},
+  {id:'SC-E-003',trade:'Electrical',trigger:'Any fire alarm devices present',kw:['smoke detector','heat detector','call point','mcp','sounder','fire alarm'],minQty:1,unit:'nr',items:[
+    {desc:'Fire alarm control panel',unit:'nr',formula:'1',min:1},{desc:'Fire alarm cable FP200 (5m per device)',unit:'m',formula:'qty*5',min:20},{desc:'Zone chart and cause-and-effect matrix',unit:'nr',formula:'1',min:1}]},
+  {id:'SC-I-001',trade:'Insulation',trigger:'Any LTHW pipework present',kw:['lthw','heating pipe','copper pipe lthw'],minQty:1,unit:'m',items:[
+    {desc:'Pipe insulation on all LTHW pipework',unit:'m',formula:'qty',min:10},{desc:'Valve insulation boxes at isolation valves',unit:'nr',formula:'qty/15',min:2}]},
+  {id:'SC-I-002',trade:'Insulation',trigger:'Any chilled water pipework present',kw:['chw','chilled water','cooling pipe'],minQty:1,unit:'m',items:[
+    {desc:'Elastomeric insulation with vapour barrier on CHW',unit:'m',formula:'qty',min:5},{desc:'Insulation to all CHW valves and flanges',unit:'nr',formula:'qty/10',min:2}]}
+];
+
+function _tcRunScopeCheck(takeoff) {
+  var missing = [];
+  _scopeRules.forEach(function(rule) {
+    var triggerQty = 0;
+    takeoff.forEach(function(item) {
+      var desc = ((item.description || '') + ' ' + (item.specification || '') + ' ' + (item.trade || '')).toLowerCase();
+      rule.kw.forEach(function(kw) { if (desc.indexOf(kw) >= 0) triggerQty += (parseFloat(item.quantity) || 0); });
+    });
+    if (triggerQty < rule.minQty) return;
+    rule.items.forEach(function(imp) {
+      var alreadyPresent = takeoff.some(function(item) {
+        var d = ((item.description || '') + ' ' + (item.specification || '')).toLowerCase();
+        var impWords = imp.desc.toLowerCase().split(/[\s(,]+/).filter(function(w) { return w.length > 3; }).slice(0, 3);
+        var matchCount = 0;
+        impWords.forEach(function(w) { if (d.indexOf(w) >= 0) matchCount++; });
+        return matchCount >= 2;
+      });
+      if (!alreadyPresent) {
+        var qty = imp.min;
+        try {
+          var f = imp.formula.replace(/qty/g, String(triggerQty));
+          var calc = Math.ceil(Function('"use strict"; return (' + f + ')')());
+          if (calc > qty) qty = calc;
+        } catch(e) {}
+        missing.push({ rule_id: rule.id, trade: rule.trade, description: imp.desc, estimated_quantity: qty, unit: imp.unit, trigger: rule.trigger, trigger_quantity: triggerQty });
+      }
+    });
+  });
+  return { scope_gaps_found: missing.length, missing_items: missing };
+}
+
+function _tcAddScopeItem(idx) {
+  if (!_tcResult || !_tcResult._scopeGaps) return;
+  var item = _tcResult._scopeGaps[idx];
+  if (!item) return;
+  var takeoff = _tcResult.consolidated_takeoff || [];
+  takeoff.push({
+    trade: item.trade,
+    description: item.description + ' [Scope Check]',
+    specification: 'Implied by: ' + item.trigger,
+    quantity: item.estimated_quantity,
+    unit: item.unit,
+    source: 'Scope Check',
+    confidence: 'Medium'
+  });
+  _tcResult.consolidated_takeoff = takeoff;
+  _tcResult._scopeGaps.splice(idx, 1);
+  tcRenderResults(_tcResult);
+  showToast('Added to takeoff: ' + item.description, 'success');
+}
+
+function _tcDismissScopeItem(idx) {
+  if (!_tcResult || !_tcResult._scopeGaps) return;
+  var item = _tcResult._scopeGaps[idx];
+  _tcResult._scopeGaps.splice(idx, 1);
+  tcRenderResults(_tcResult);
+  showToast('Dismissed: ' + item.description, 'ok');
 }
 
 /* ── Helper: summary card ─────────────────────────────────────── */
