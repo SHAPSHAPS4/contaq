@@ -625,6 +625,137 @@ function downloadQuoteExcel(tenderId) {
   showToast('Excel downloaded: ' + safeRef + '.xlsx', 'ok');
 }
 
+/* Similar Projects — client-side similarity matching against historical quotes */
+function showSimilarProjects(tenderId) {
+  var target = TENDERS.find(function(x) { return x.id === tenderId; });
+  if (!target) { showToast('Quote not found.', 'error'); return; }
+
+  /* Extract keywords from the target quote */
+  var targetWords = _simExtractKeywords(target);
+  var targetValue = target.value || 0;
+  var targetTrades = _simExtractTrades(target);
+
+  /* Score every other tender */
+  var scored = [];
+  TENDERS.forEach(function(t) {
+    if (t.id === tenderId) return;
+    var score = 0;
+
+    /* Keyword overlap (max 40) */
+    var tWords = _simExtractKeywords(t);
+    var overlap = 0;
+    targetWords.forEach(function(w) { if (tWords.indexOf(w) >= 0) overlap++; });
+    score += Math.min(40, overlap * 4);
+
+    /* Trade overlap (max 20) */
+    var tTrades = _simExtractTrades(t);
+    var tradeMatch = 0;
+    targetTrades.forEach(function(tr) { if (tTrades.indexOf(tr) >= 0) tradeMatch++; });
+    score += Math.min(20, tradeMatch * 10);
+
+    /* Value similarity (max 20) */
+    var tVal = t.value || 0;
+    if (targetValue > 0 && tVal > 0) {
+      var ratio = Math.min(targetValue, tVal) / Math.max(targetValue, tVal);
+      score += Math.round(ratio * 20);
+    }
+
+    /* Client match bonus (10) */
+    if (t.client === target.client) score += 10;
+
+    /* Status bonus — won quotes are more useful (10) */
+    if (t.status === 'won') score += 10;
+
+    if (score >= 15) scored.push({ tender: t, score: Math.min(100, score) });
+  });
+
+  scored.sort(function(a, b) { return b.score - a.score; });
+  var top = scored.slice(0, 5);
+
+  /* Build modal content */
+  var cl = CLIENTS.find(function(c) { return c.id === target.client; });
+  var h = '<div style="padding:1.2rem;">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">';
+  h += '<div><div style="font-size:1rem;font-weight:700;color:var(--white);">Similar Projects</div>';
+  h += '<div style="font-size:.72rem;color:var(--off3);margin-top:.15rem;">Comparing against: ' + target.ref + ' \u2014 ' + (target.name || '').split('\u2014')[0].split('—')[0].trim() + '</div></div>';
+  h += '<button class="btn btn-dark btn-xs" onclick="closeModal(\'modal-similar-projects\')">Close</button></div>';
+
+  /* Reference quote summary */
+  h += '<div class="card" style="margin-bottom:1rem;padding:.75rem;">';
+  h += '<div style="display:flex;gap:1.5rem;flex-wrap:wrap;">';
+  h += '<div><div style="font-size:.6rem;color:var(--off4);text-transform:uppercase;">Client</div><div style="font-size:.8rem;color:var(--white);font-weight:600;">' + (cl ? cl.name : 'Unknown') + '</div></div>';
+  h += '<div><div style="font-size:.6rem;color:var(--off4);text-transform:uppercase;">Value</div><div style="font-size:.8rem;color:var(--lime);font-weight:600;font-family:var(--mono);">\u00A3' + fmtNum(targetValue) + '</div></div>';
+  h += '<div><div style="font-size:.6rem;color:var(--off4);text-transform:uppercase;">Status</div><div>' + badge(target.status) + '</div></div>';
+  h += '<div><div style="font-size:.6rem;color:var(--off4);text-transform:uppercase;">Keywords</div><div style="font-size:.7rem;color:var(--off3);">' + targetWords.slice(0, 8).join(', ') + '</div></div>';
+  h += '</div></div>';
+
+  if (top.length === 0) {
+    h += '<div style="text-align:center;padding:2rem;color:var(--off4);font-size:.8rem;">No similar projects found in the quote book.</div>';
+  } else {
+    h += '<div style="font-size:.78rem;font-weight:600;color:var(--white);margin-bottom:.5rem;">' + top.length + ' similar project' + (top.length !== 1 ? 's' : '') + ' found</div>';
+    top.forEach(function(match) {
+      var mt = match.tender;
+      var mcl = CLIENTS.find(function(c) { return c.id === mt.client; });
+      var scoreColor = match.score >= 60 ? 'var(--lime)' : match.score >= 35 ? '#f59e0b' : 'var(--off3)';
+      var scoreBg = match.score >= 60 ? 'rgba(163,230,53,.08)' : match.score >= 35 ? 'rgba(251,191,36,.08)' : 'rgba(255,255,255,.04)';
+      var valueDiff = targetValue > 0 ? Math.round(((mt.value || 0) - targetValue) / targetValue * 100) : 0;
+      var diffStr = valueDiff > 0 ? '+' + valueDiff + '%' : valueDiff + '%';
+      var diffColor = Math.abs(valueDiff) <= 15 ? 'var(--lime)' : Math.abs(valueDiff) <= 30 ? '#f59e0b' : '#f87171';
+
+      h += '<div class="card" style="margin-bottom:.5rem;padding:.65rem .75rem;">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+      h += '<div style="flex:1;">';
+      h += '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;">';
+      h += '<span style="font-family:var(--mono);font-size:.65rem;color:var(--off3);">' + mt.ref + '</span>';
+      h += badge(mt.status);
+      h += '</div>';
+      h += '<div style="font-size:.8rem;color:var(--white);font-weight:500;margin-bottom:.25rem;">' + (mt.name || '').split('\u2014')[0].split('—')[0].trim() + '</div>';
+      h += '<div style="font-size:.68rem;color:var(--off3);">' + (mcl ? mcl.name : 'Unknown client') + ' &middot; \u00A3' + fmtNum(mt.value || 0) + ' &middot; ' + fmtDate(mt.enquiry) + '</div>';
+      h += '</div>';
+      h += '<div style="text-align:right;min-width:90px;">';
+      h += '<div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:' + scoreColor + ';background:' + scoreBg + ';border:1px solid ' + scoreColor + '33;border-radius:var(--radius2);padding:.3rem .6rem;display:inline-block;">' + match.score + '%</div>';
+      h += '<div style="font-size:.58rem;color:var(--off4);margin-top:.2rem;">match score</div>';
+      if (targetValue > 0 && mt.value > 0) {
+        h += '<div style="font-family:var(--mono);font-size:.7rem;color:' + diffColor + ';margin-top:.2rem;">' + diffStr + ' value</div>';
+      }
+      h += '</div></div></div>';
+    });
+  }
+
+  h += '</div>';
+
+  /* Show in modal */
+  var modal = document.getElementById('modal-similar-projects');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-similar-projects';
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = '<div class="modal" style="max-width:680px;max-height:85vh;overflow-y:auto;" id="modal-similar-projects-body"></div>';
+    modal.onclick = function(e) { if (e.target === modal) closeModal('modal-similar-projects'); };
+    document.body.appendChild(modal);
+  }
+  document.getElementById('modal-similar-projects-body').innerHTML = h;
+  openModal('modal-similar-projects');
+}
+
+function _simExtractKeywords(t) {
+  var text = ((t.name || '') + ' ' + (t.notes || '')).toLowerCase();
+  var words = text.split(/[\s,.\-—\u2014()\/]+/).filter(function(w) { return w.length > 3; });
+  var stopWords = ['with','from','this','that','will','have','been','their','there','which','phase','floor','level','block','works'];
+  return words.filter(function(w) { return stopWords.indexOf(w) < 0; }).filter(function(w, i, a) { return a.indexOf(w) === i; });
+}
+
+function _simExtractTrades(t) {
+  var text = ((t.name || '') + ' ' + (t.notes || '')).toLowerCase();
+  var trades = [];
+  if (/insulation|lagging|cladding/.test(text)) trades.push('insulation');
+  if (/pipe|plumb|hvac|mechanical|heating|boiler|pump|ductwork|ahu/.test(text)) trades.push('mechanical');
+  if (/electric|cable|lighting|power|fire alarm|data|containment/.test(text)) trades.push('electrical');
+  if (/fire stop|firestop|penetration seal/.test(text)) trades.push('firestopping');
+  if (/trace heat/.test(text)) trades.push('trace heating');
+  return trades;
+}
+
 function renderCreateQuoteForm() {
   var content = document.getElementById('dash-content');
   if (!content) return;
@@ -994,6 +1125,7 @@ function renderTenders(filterStatus) {
       +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="viewQuote(\''+t.id+'\')">'+ICON.file+' View</button> '
       +'<button class="btn btn-xs" style="background:rgba(33,115,70,.08);color:#217346;border:1px solid rgba(33,115,70,.2);" onclick="downloadQuotePDF(\''+t.id+'\')">&#128229; PDF</button> '
       +'<button class="btn btn-xs" style="background:rgba(33,115,70,.08);color:#217346;border:1px solid rgba(33,115,70,.2);" onclick="downloadQuoteExcel(\''+t.id+'\')">&#128196; Excel</button> '
+      +'<button class="btn btn-xs" style="background:rgba(251,191,36,.08);color:#f59e0b;border:1px solid rgba(251,191,36,.2);" onclick="showSimilarProjects(\''+t.id+'\')">&#128269; Similar</button> '
       +'<button class="btn btn-dark btn-xs" onclick="openTenderModal(\''+t.id+'\')">Edit</button>'
       +(isWon && !t.linkedProjectId ? ' <button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2)" onclick="quickWonToProject(\''+t.id+'\')">+ Project</button>' : '')
       +'</td></tr>';
