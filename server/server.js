@@ -509,14 +509,17 @@ app.use((_req, res) => {
   res.status(404).json({ error: { type: 'not_found', message: 'Endpoint not found' } });
 });
 
-/* ── Global error handler ─────────────────────────────────────────── */
-app.use((err, _req, res, _next) => {
+/* ── Global error handler — standardised response format ───────────── */
+const { errorHandler, ApiError } = require('./middleware/error-handler');
+app.use((err, req, res, _next) => {
   _errorCount++;
-  console.error('[Contraq API] Unhandled error:', err.message, err.stack ? err.stack.split('\n')[1] : '');
-  if (err.message && err.message.startsWith('CORS:')) {
-    return res.status(403).json({ error: { type: 'cors', message: err.message } });
+  if (err instanceof ApiError) {
+    return errorHandler(err, req, res, _next);
   }
-  res.status(500).json({ error: { type: 'server_error', message: 'Internal server error' } });
+  if (err.message && err.message.startsWith('CORS:')) {
+    return res.status(403).json({ success: false, error: { code: 'CORS_ERROR', message: err.message } });
+  }
+  errorHandler(err, req, res, _next);
 });
 
 /* ── Start ────────────────────────────────────────────────────────── */
