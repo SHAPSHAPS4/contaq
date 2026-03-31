@@ -591,19 +591,55 @@ function renderDashHome() {
   content.innerHTML += '<div class="card"><div class="card-header"><span class="card-title">Recent invoices</span><button class="btn btn-dark btn-xs" onclick="dashNav(\'invoices\')">View all →</button></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Ref</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="dash-inv-tbody"></tbody></table></div></div>';
   content.innerHTML += '<div class="card"><div class="card-header"><span class="card-title">Active projects</span><button class="btn btn-dark btn-xs" onclick="dashNav(\'projects\')">View all →</button></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Code</th><th>Project</th><th>Client</th><th>Value</th><th>Status</th><th></th></tr></thead><tbody id="dash-proj-tbody"></tbody></table></div></div>';
 
-  // Empty state for real orgs (no demo data)
-  if (!STATE.demoMode && PROJECTS.length === 0 && INVOICES.length === 0) {
-    content.innerHTML += '<div class="card" style="text-align:center;padding:2rem 1.5rem">'
-      + '<div style="font-size:2rem;margin-bottom:.5rem">&#x1F680;</div>'
-      + '<div style="font-size:1.05rem;font-weight:700;color:var(--white);margin-bottom:.4rem">Welcome to Contraq</div>'
-      + '<div style="font-size:.82rem;color:var(--off3);line-height:1.5;max-width:400px;margin:0 auto .8rem">'
-      + 'Your workspace is ready. Start by creating your first quote using the <strong style="color:var(--orange)">AI Quote Builder</strong> in the sidebar, or add a project manually.'
-      + '</div>'
-      + '<div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap">'
-      + '<button class="btn btn-primary btn-sm" onclick="openModal(\'modal-qb-upload\')">AI Quote Builder</button>'
-      + '<button class="btn btn-dark btn-sm" onclick="dashNav(\'projects\')">Add Project</button>'
-      + '<button class="btn btn-dark btn-sm" onclick="dashNav(\'clients\')">Add Client</button>'
-      + '</div></div>';
+  // Activation checklist for new users (shows until all steps complete)
+  var _acSteps = [
+    { id: 'client', label: 'Add your first client', desc: 'Main contractors you quote for', done: CLIENTS.length > 0, action: "dashNav('clients')", btn: 'Add Client' },
+    { id: 'quote', label: 'Create or upload a quote', desc: 'Use AI to extract from PDF or create manually', done: TENDERS.length > 0, action: "dashNav('tenders')", btn: 'Quote Book' },
+    { id: 'engineer', label: 'Add an engineer or operative', desc: 'Track certs and schedule work', done: ENGINEERS.length > 0, action: "dashNav('engineers')", btn: 'Add Engineer' },
+    { id: 'project', label: 'Create or convert a project', desc: 'Track costs, progress, and invoicing', done: PROJECTS.length > 0, action: "dashNav('projects')", btn: 'Projects' },
+    { id: 'invoice', label: 'Raise your first invoice', desc: 'Application for payment or invoice from a project', done: INVOICES.length > 0, action: "dashNav('finance')", btn: 'Finance' }
+  ];
+  var _acDone = _acSteps.filter(function(s) { return s.done; }).length;
+  var _acTotal = _acSteps.length;
+  var _acPct = Math.round((_acDone / _acTotal) * 100);
+  var _acAllDone = _acDone === _acTotal;
+  var _acDismissed = false;
+  try { _acDismissed = localStorage.getItem('contraq_checklist_dismissed') === 'true'; } catch(e) {}
+
+  if (!_acDismissed && !_acAllDone) {
+    var acHtml = '<div class="card" style="padding:1.25rem 1.5rem;margin-bottom:1rem;">';
+    acHtml += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">';
+    acHtml += '<div><div style="font-size:1.05rem;font-weight:700;color:var(--white);">Get started with Contraq</div>';
+    acHtml += '<div style="font-size:.72rem;color:var(--off3);margin-top:.15rem;">' + _acDone + ' of ' + _acTotal + ' steps complete</div></div>';
+    acHtml += '<button class="btn btn-dark btn-xs" style="font-size:.6rem;" onclick="localStorage.setItem(\'contraq_checklist_dismissed\',\'true\');this.closest(\'.card\').remove();">Dismiss</button>';
+    acHtml += '</div>';
+
+    /* Progress bar */
+    acHtml += '<div style="height:6px;background:var(--bg2);border-radius:3px;margin-bottom:1rem;overflow:hidden;">';
+    acHtml += '<div style="height:100%;width:' + _acPct + '%;background:var(--lime);border-radius:3px;transition:width .3s;"></div></div>';
+
+    /* Steps */
+    _acSteps.forEach(function(step) {
+      var checkColor = step.done ? 'var(--lime)' : 'var(--off4)';
+      var checkBg = step.done ? 'rgba(163,230,53,.1)' : 'var(--bg2)';
+      var checkIcon = step.done ? '&#10003;' : '&nbsp;';
+      acHtml += '<div style="display:flex;align-items:center;gap:.75rem;padding:.55rem 0;' + (step.done ? 'opacity:.5;' : '') + 'border-bottom:1px solid var(--border);">';
+      acHtml += '<div style="width:22px;height:22px;border-radius:50%;background:' + checkBg + ';border:2px solid ' + checkColor + ';display:flex;align-items:center;justify-content:center;font-size:.65rem;color:' + checkColor + ';flex-shrink:0;">' + checkIcon + '</div>';
+      acHtml += '<div style="flex:1;"><div style="font-size:.82rem;color:var(--white);font-weight:500;' + (step.done ? 'text-decoration:line-through;' : '') + '">' + step.label + '</div>';
+      acHtml += '<div style="font-size:.65rem;color:var(--off4);">' + step.desc + '</div></div>';
+      if (!step.done) acHtml += '<button class="btn btn-primary btn-xs" onclick="' + step.action + '">' + step.btn + '</button>';
+      acHtml += '</div>';
+    });
+
+    acHtml += '</div>';
+    content.innerHTML += acHtml;
+  } else if (!STATE.demoMode && _acAllDone && !_acDismissed) {
+    content.innerHTML += '<div class="card" style="text-align:center;padding:1.5rem;margin-bottom:1rem;border-color:var(--lime);">'
+      + '<div style="font-size:1.5rem;margin-bottom:.3rem;">&#10003;</div>'
+      + '<div style="font-size:.95rem;font-weight:600;color:var(--lime);margin-bottom:.3rem;">Setup complete</div>'
+      + '<div style="font-size:.75rem;color:var(--off3);">You\'re all set. Contraq is ready for production use.</div>'
+      + '<button class="btn btn-dark btn-xs" style="margin-top:.75rem;font-size:.6rem;" onclick="localStorage.setItem(\'contraq_checklist_dismissed\',\'true\');this.closest(\'.card\').remove();">Dismiss</button>'
+      + '</div>';
   }
 
   var invTbody = document.getElementById('dash-inv-tbody');
