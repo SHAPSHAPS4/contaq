@@ -483,10 +483,11 @@ function renderProjectDetailTab(projectId, tab) {
   events.forEach(function(ev){(ev.engineers||[]).forEach(function(eid){if(engIds.indexOf(eid)<0)engIds.push(eid);});});
   var assignedEngs = ENGINEERS.filter(function(e){return engIds.indexOf(e.id)>=0;});
 
-  var tabs = ['overview','invoices','measures','engineers','procurement','p&l','attachments','journal'];
+  var tabs = ['overview','invoices','measures','engineers','procurement','p&l','drawings','attachments','journal'];
   var flds = p.folders||{};
   var totalFolderDocs = ((flds.drawings||[]).length+(flds.specs||[]).length+(flds.documents||[]).length+(flds.purchaseOrder||[]).length+(flds.voQuote||[]).length);
-  var tabLabels = {overview:'Overview',invoices:'Invoices ('+invs.length+')',measures:'Measures ('+msrs.length+')',engineers:'Team ('+assignedEngs.length+')',procurement:'POs ('+pos.length+')','p&l':'P&L',attachments:'Docs ('+(totalFolderDocs+(p.quoteFiles||[]).length)+')','journal':'Journal ('+(p.journal||[]).length+')'};
+  var drawingCount = (flds.drawings||[]).length;
+  var tabLabels = {overview:'Overview',invoices:'Invoices ('+invs.length+')',measures:'Measures ('+msrs.length+')',engineers:'Team ('+assignedEngs.length+')',procurement:'POs ('+pos.length+')','p&l':'P&L',drawings:'Drawings ('+drawingCount+')',attachments:'Docs ('+(totalFolderDocs+(p.quoteFiles||[]).length)+')','journal':'Journal ('+(p.journal||[]).length+')'};
 
   var html = '<div class="proj-detail-tabs">';
   tabs.forEach(function(t){
@@ -630,6 +631,10 @@ function renderProjectDetailTab(projectId, tab) {
     html += '<div class="cl-detail-section-title">Billing status</div>';
     html += '<div style="font-size:.78rem;color:var(--off3);margin-bottom:.5rem">'+billedPct+'% billed · £'+fmtNum(billed)+' of £'+fmtNum(p.value)+' contract value</div>';
     html += '<div style="height:8px;background:var(--bg4);border-radius:4px;margin-bottom:.75rem"><div style="width:'+billedPct+'%;height:100%;background:var(--lime);border-radius:4px;transition:width .4s"></div></div>';
+  }
+
+  if (tab === 'drawings') {
+    html += renderDrawingRegisterTab(p);
   }
 
   if (tab === 'attachments') {

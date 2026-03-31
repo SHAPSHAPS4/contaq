@@ -216,5 +216,231 @@ function generatePORef(catCode) {
 }
 
 /* ================================================================
+   DRAWING REGISTER — Multi-drawing management per project
+================================================================ */
+var _drawingRegisters = {};
+try { _drawingRegisters = JSON.parse(localStorage.getItem('contraq_drawing_registers') || '{}'); } catch(e) {}
+function _drSave() { try { localStorage.setItem('contraq_drawing_registers', JSON.stringify(_drawingRegisters)); } catch(e) {} }
+
+function renderDrawingRegisterTab(p) {
+  var drawings = (p.folders && p.folders.drawings) || [];
+  var reg = _drawingRegisters[p.id] || { drawings: [], processed: 0, aggregated: false };
+  var h = '';
+
+  /* Header */
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">';
+  h += '<div>';
+  h += '<div class="cl-detail-section-title" style="margin:0;">Drawing Register</div>';
+  h += '<div style="font-size:.68rem;color:var(--off4);margin-top:.15rem;">' + drawings.length + ' drawing' + (drawings.length !== 1 ? 's' : '') + ' uploaded &middot; ' + reg.processed + ' processed</div>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:.4rem;">';
+  if (drawings.length > 0 && reg.processed < drawings.length) {
+    h += '<button class="btn btn-primary btn-xs" onclick="drProcessAll(\'' + p.id + '\')">Process All Drawings</button>';
+  }
+  if (reg.processed > 0) {
+    h += '<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="drShowAggregate(\'' + p.id + '\')">View Aggregate</button>';
+  }
+  h += '</div></div>';
+
+  /* Stats cards */
+  if (reg.drawings.length > 0) {
+    var pending = 0, complete = 0, failed = 0, totalItems = 0;
+    reg.drawings.forEach(function(d) {
+      if (d.status === 'complete') { complete++; totalItems += d.items_extracted || 0; }
+      else if (d.status === 'error') failed++;
+      else pending++;
+    });
+    h += '<div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;">';
+    h += '<div class="card" style="flex:1;min-width:80px;padding:.5rem .7rem;"><div class="mono" style="font-size:1rem;color:var(--white);font-weight:700;">' + reg.drawings.length + '</div><div style="font-size:.55rem;color:var(--off4);">Total drawings</div></div>';
+    h += '<div class="card" style="flex:1;min-width:80px;padding:.5rem .7rem;"><div class="mono" style="font-size:1rem;color:var(--lime);font-weight:700;">' + complete + '</div><div style="font-size:.55rem;color:var(--off4);">Processed</div></div>';
+    if (pending > 0) h += '<div class="card" style="flex:1;min-width:80px;padding:.5rem .7rem;"><div class="mono" style="font-size:1rem;color:#f59e0b;font-weight:700;">' + pending + '</div><div style="font-size:.55rem;color:var(--off4);">Pending</div></div>';
+    if (failed > 0) h += '<div class="card" style="flex:1;min-width:80px;padding:.5rem .7rem;"><div class="mono" style="font-size:1rem;color:#f87171;font-weight:700;">' + failed + '</div><div style="font-size:.55rem;color:var(--off4);">Failed</div></div>';
+    h += '<div class="card" style="flex:1;min-width:80px;padding:.5rem .7rem;"><div class="mono" style="font-size:1rem;color:var(--orange);font-weight:700;">' + totalItems + '</div><div style="font-size:.55rem;color:var(--off4);">Items extracted</div></div>';
+    h += '</div>';
+  }
+
+  /* Drawing register table */
+  if (drawings.length === 0) {
+    h += '<div style="text-align:center;padding:2rem;color:var(--off4);font-size:.8rem;">No drawings uploaded. Add drawings to the project from the Docs tab.</div>';
+  } else {
+    /* Sync register with folder drawings */
+    var regMap = {};
+    reg.drawings.forEach(function(d) { regMap[d.filename] = d; });
+    var updated = false;
+    drawings.forEach(function(d) {
+      if (!regMap[d.filename]) {
+        reg.drawings.push({ filename: d.filename, revision: d.revision || 'A', date: d.date, size: d.size || '', status: 'pending', items_extracted: 0, validation_grade: '', drawing_ref: d.notes || '' });
+        updated = true;
+      }
+    });
+    if (updated) { _drawingRegisters[p.id] = reg; _drSave(); }
+
+    h += '<div class="card" style="padding:0;"><div style="overflow-x:auto;"><table class="tbl"><thead><tr>';
+    h += '<th>Drawing</th><th style="width:40px;">Rev</th><th style="width:55px;">Status</th>';
+    h += '<th style="width:40px;">Grade</th><th style="width:50px;">Items</th><th style="width:65px;">Date</th>';
+    h += '<th style="width:90px;">Action</th>';
+    h += '</tr></thead><tbody>';
+
+    reg.drawings.forEach(function(d, i) {
+      var statusColor = d.status === 'complete' ? 'var(--lime)' : d.status === 'error' ? '#f87171' : d.status === 'processing' ? '#60a5fa' : 'var(--off4)';
+      var statusBg = d.status === 'complete' ? 'rgba(163,230,53,.08)' : d.status === 'error' ? 'rgba(248,113,113,.08)' : d.status === 'processing' ? 'rgba(96,165,250,.08)' : 'rgba(255,255,255,.04)';
+      var gradeBg = d.validation_grade === 'A' || d.validation_grade === 'B' ? 'rgba(163,230,53,.08)' : d.validation_grade === 'C' ? 'rgba(251,191,36,.08)' : d.validation_grade ? 'rgba(248,113,113,.08)' : '';
+      var gradeColor = d.validation_grade === 'A' || d.validation_grade === 'B' ? 'var(--lime)' : d.validation_grade === 'C' ? '#f59e0b' : d.validation_grade ? '#f87171' : 'var(--off4)';
+
+      h += '<tr>';
+      h += '<td style="font-size:.72rem;color:var(--white);" title="' + (d.drawing_ref || '') + '">' + d.filename + '</td>';
+      h += '<td><span style="font-family:var(--mono);font-size:.65rem;color:var(--off3);">' + (d.revision || '') + '</span></td>';
+      h += '<td><span style="font-family:var(--mono);font-size:.52rem;background:' + statusBg + ';color:' + statusColor + ';border:1px solid ' + statusColor + '33;border-radius:3px;padding:.08rem .25rem;text-transform:uppercase;">' + (d.status || 'pending') + '</span></td>';
+      h += '<td><span style="font-family:var(--mono);font-size:.7rem;font-weight:600;background:' + gradeBg + ';color:' + gradeColor + ';border-radius:3px;padding:.05rem .2rem;">' + (d.validation_grade || '\u2014') + '</span></td>';
+      h += '<td class="mono" style="font-size:.72rem;color:var(--white);font-weight:600;">' + (d.items_extracted || 0) + '</td>';
+      h += '<td style="font-size:.62rem;color:var(--off4);">' + (d.date || '') + '</td>';
+      h += '<td style="white-space:nowrap;">';
+      if (d.status === 'pending' || d.status === 'error') {
+        h += '<button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);" onclick="drProcessOne(\'' + p.id + '\',' + i + ')">Extract</button> ';
+      }
+      if (d.status === 'complete') {
+        h += '<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="drViewResult(\'' + p.id + '\',' + i + ')">View</button> ';
+        h += '<button class="btn btn-xs" style="background:rgba(255,255,255,.04);color:var(--off4);border:1px solid var(--border);" onclick="drReprocess(\'' + p.id + '\',' + i + ')">Redo</button>';
+      }
+      h += '</td></tr>';
+    });
+
+    h += '</tbody></table></div></div>';
+  }
+
+  /* Duplicate flags */
+  if (reg.duplicates && reg.duplicates.length > 0) {
+    h += '<div style="margin-top:1rem;">';
+    h += '<div style="font-size:.78rem;color:#f59e0b;font-weight:600;margin-bottom:.4rem;">\u26a0 ' + reg.duplicates.length + ' potential duplicate' + (reg.duplicates.length !== 1 ? 's' : '') + ' across drawings</div>';
+    reg.duplicates.forEach(function(dup, di) {
+      h += '<div class="card" style="margin-bottom:.3rem;padding:.5rem .65rem;border-left:3px solid #f59e0b;">';
+      h += '<div style="font-size:.72rem;color:var(--white);">' + dup.description + '</div>';
+      h += '<div style="font-size:.62rem;color:var(--off3);">Found in: ' + (dup.found_in || []).join(', ') + ' &middot; Total qty: ' + (dup.total_qty || 0) + ' ' + (dup.unit || '') + '</div>';
+      h += '<div style="margin-top:.3rem;display:flex;gap:.3rem;">';
+      h += '<button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);" onclick="drResolveDuplicate(\'' + p.id + '\',' + di + ',\'keep\')">Keep both</button>';
+      h += '<button class="btn btn-xs" style="background:rgba(248,113,113,.08);color:#f87171;border:1px solid rgba(248,113,113,.2);" onclick="drResolveDuplicate(\'' + p.id + '\',' + di + ',\'remove\')">Remove duplicate</button>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+  }
+
+  return h;
+}
+
+/* Process all pending drawings in register */
+function drProcessAll(projectId) {
+  var reg = _drawingRegisters[projectId];
+  if (!reg) return;
+  var pending = reg.drawings.filter(function(d) { return d.status === 'pending' || d.status === 'error'; });
+  if (pending.length === 0) { showToast('All drawings already processed.', 'ok'); return; }
+  showToast('Processing ' + pending.length + ' drawing(s)...', 'ok');
+  var processed = 0;
+  pending.forEach(function(d) {
+    d.status = 'processing';
+  });
+  _drSave();
+  renderProjectDetailTab(projectId, 'drawings');
+
+  /* Simulate extraction per drawing (in production, calls /api/register/:ref/process-all) */
+  pending.forEach(function(d, idx) {
+    setTimeout(function() {
+      var grades = ['A', 'A', 'B', 'B', 'C', 'B'];
+      var items = Math.floor(Math.random() * 25) + 8;
+      d.status = 'complete';
+      d.items_extracted = items;
+      d.validation_grade = grades[Math.floor(Math.random() * grades.length)];
+      d.processed_at = new Date().toISOString();
+      reg.processed = reg.drawings.filter(function(dd) { return dd.status === 'complete'; }).length;
+      _drawingRegisters[projectId] = reg;
+      _drSave();
+      processed++;
+      if (processed === pending.length) {
+        drDetectDuplicates(projectId);
+        renderProjectDetailTab(projectId, 'drawings');
+        showToast('All drawings processed. ' + reg.processed + '/' + reg.drawings.length + ' complete.', 'success');
+      }
+    }, (idx + 1) * 1200);
+  });
+}
+
+function drProcessOne(projectId, drawingIdx) {
+  var reg = _drawingRegisters[projectId];
+  if (!reg || !reg.drawings[drawingIdx]) return;
+  var d = reg.drawings[drawingIdx];
+  d.status = 'processing';
+  _drSave();
+  renderProjectDetailTab(projectId, 'drawings');
+  showToast('Processing: ' + d.filename, 'ok');
+  setTimeout(function() {
+    var grades = ['A', 'B', 'B', 'C'];
+    d.status = 'complete';
+    d.items_extracted = Math.floor(Math.random() * 25) + 8;
+    d.validation_grade = grades[Math.floor(Math.random() * grades.length)];
+    d.processed_at = new Date().toISOString();
+    reg.processed = reg.drawings.filter(function(dd) { return dd.status === 'complete'; }).length;
+    _drSave();
+    drDetectDuplicates(projectId);
+    renderProjectDetailTab(projectId, 'drawings');
+    showToast('Extraction complete: ' + d.filename + ' (' + d.items_extracted + ' items, grade ' + d.validation_grade + ')', 'success');
+  }, 2000);
+}
+
+function drReprocess(projectId, drawingIdx) {
+  var reg = _drawingRegisters[projectId];
+  if (!reg || !reg.drawings[drawingIdx]) return;
+  reg.drawings[drawingIdx].status = 'pending';
+  reg.drawings[drawingIdx].items_extracted = 0;
+  reg.drawings[drawingIdx].validation_grade = '';
+  reg.processed = reg.drawings.filter(function(d) { return d.status === 'complete'; }).length;
+  _drSave();
+  renderProjectDetailTab(projectId, 'drawings');
+  showToast('Drawing reset to pending.', 'ok');
+}
+
+function drViewResult(projectId, drawingIdx) {
+  var reg = _drawingRegisters[projectId];
+  if (!reg || !reg.drawings[drawingIdx]) return;
+  var d = reg.drawings[drawingIdx];
+  showToast(d.filename + ': ' + d.items_extracted + ' items extracted, grade ' + d.validation_grade + ', processed ' + (d.processed_at || '').split('T')[0], 'ok');
+}
+
+function drShowAggregate(projectId) {
+  var reg = _drawingRegisters[projectId];
+  if (!reg) return;
+  var totalItems = 0;
+  reg.drawings.forEach(function(d) { if (d.status === 'complete') totalItems += d.items_extracted || 0; });
+  var dups = (reg.duplicates || []).length;
+  showToast('Aggregate: ' + totalItems + ' total items across ' + reg.processed + ' drawings. ' + dups + ' potential duplicates flagged.', 'ok');
+}
+
+function drDetectDuplicates(projectId) {
+  var reg = _drawingRegisters[projectId];
+  if (!reg) return;
+  /* Simple duplicate detection simulation — in production uses server/services/drawing-register.js */
+  var completed = reg.drawings.filter(function(d) { return d.status === 'complete'; });
+  var dups = [];
+  if (completed.length >= 2) {
+    var commonItems = ['LTHW Pipework 22mm copper', 'Cable containment — perforated tray', 'Isolation valves — gate type'];
+    commonItems.forEach(function(desc) {
+      if (Math.random() > 0.5) {
+        var found = completed.slice(0, Math.min(2, completed.length)).map(function(d) { return d.filename; });
+        dups.push({ description: desc, found_in: found, total_qty: Math.floor(Math.random() * 50) + 10, unit: desc.indexOf('valve') >= 0 ? 'nr' : 'm' });
+      }
+    });
+  }
+  reg.duplicates = dups;
+  _drSave();
+}
+
+function drResolveDuplicate(projectId, dupIdx, action) {
+  var reg = _drawingRegisters[projectId];
+  if (!reg || !reg.duplicates) return;
+  reg.duplicates.splice(dupIdx, 1);
+  _drSave();
+  renderProjectDetailTab(projectId, 'drawings');
+  showToast('Duplicate ' + (action === 'keep' ? 'kept (both instances)' : 'removed') + '.', 'success');
+}
+
+/* ================================================================
    DOCUMENT ATTACHMENTS (Projects & Quotes)
 ================================================================ */
