@@ -756,6 +756,174 @@ function _simExtractTrades(t) {
   return trades;
 }
 
+/* Quote Versioning — client-side snapshot/compare, mirrors server/services/quote-versioning.js */
+var _quoteVersions = {};
+try { _quoteVersions = JSON.parse(localStorage.getItem('contraq_quote_versions') || '{}'); } catch(e) {}
+
+function _qvSave() { try { localStorage.setItem('contraq_quote_versions', JSON.stringify(_quoteVersions)); } catch(e) {} }
+
+function saveQuoteVersion(tenderId, note) {
+  var t = TENDERS.find(function(x) { return x.id === tenderId; });
+  if (!t) return;
+  if (!_quoteVersions[t.ref]) _quoteVersions[t.ref] = [];
+  var history = _quoteVersions[t.ref];
+  var vNum = history.length + 1;
+  var items = t.lineItems || [];
+  history.push({
+    version: vNum,
+    ref: t.ref + '-v' + String(vNum).padStart(2, '0'),
+    saved_at: new Date().toISOString(),
+    note: note || 'No note',
+    total: items.reduce(function(s, li) { return s + (li.total || 0); }, 0),
+    item_count: items.length,
+    snapshot: JSON.parse(JSON.stringify(items))
+  });
+  _qvSave();
+  return vNum;
+}
+
+function showQuoteVersions(tenderId) {
+  var t = TENDERS.find(function(x) { return x.id === tenderId; });
+  if (!t) { showToast('Quote not found.', 'error'); return; }
+  var history = _quoteVersions[t.ref] || [];
+
+  var h = '<div style="padding:1.2rem;">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">';
+  h += '<div><div style="font-size:1rem;font-weight:700;color:var(--white);">Version History</div>';
+  h += '<div style="font-size:.72rem;color:var(--off3);margin-top:.15rem;">' + t.ref + ' \u2014 ' + (t.name || '').split('\u2014')[0].split('—')[0].trim() + '</div></div>';
+  h += '<div style="display:flex;gap:.4rem;">';
+  h += '<button class="btn btn-primary btn-xs" onclick="promptSaveVersion(\'' + tenderId + '\')">Save Version</button>';
+  h += '<button class="btn btn-dark btn-xs" onclick="closeModal(\'modal-quote-versions\')">Close</button></div></div>';
+
+  if (history.length === 0) {
+    h += '<div style="text-align:center;padding:2rem;color:var(--off4);font-size:.8rem;">No versions saved yet. Click "Save Version" to create the first snapshot.</div>';
+  } else {
+    h += '<div style="font-size:.7rem;color:var(--off3);margin-bottom:.6rem;">' + history.length + ' version' + (history.length !== 1 ? 's' : '') + ' saved</div>';
+
+    /* Version timeline */
+    for (var i = history.length - 1; i >= 0; i--) {
+      var v = history[i];
+      var isLatest = i === history.length - 1;
+      var dateFmt = v.saved_at ? v.saved_at.split('T')[0] + ' ' + v.saved_at.split('T')[1].substring(0, 5) : '';
+      h += '<div class="card" style="margin-bottom:.4rem;padding:.6rem .75rem;' + (isLatest ? 'border-color:var(--lime);' : '') + '">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+      h += '<div>';
+      h += '<div style="display:flex;align-items:center;gap:.4rem;">';
+      h += '<span style="font-family:var(--mono);font-size:.72rem;font-weight:600;color:' + (isLatest ? 'var(--lime)' : 'var(--white)') + ';">' + v.ref + '</span>';
+      if (isLatest) h += '<span style="font-size:.5rem;background:rgba(163,230,53,.1);color:var(--lime);border:1px solid rgba(163,230,53,.2);border-radius:3px;padding:.05rem .25rem;">LATEST</span>';
+      h += '</div>';
+      h += '<div style="font-size:.65rem;color:var(--off4);margin-top:.15rem;">' + dateFmt + ' \u2014 ' + v.note + '</div>';
+      h += '</div>';
+      h += '<div style="text-align:right;">';
+      h += '<div style="font-family:var(--mono);font-size:.8rem;color:var(--white);font-weight:600;">\u00A3' + fmtNum(Math.round(v.total)) + '</div>';
+      h += '<div style="font-size:.58rem;color:var(--off4);">' + v.item_count + ' items</div>';
+      if (i > 0) h += '<button class="btn btn-xs" style="margin-top:.3rem;font-size:.55rem;background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="compareQuoteVersions(\'' + t.ref + '\',' + i + ',' + (i + 1) + ')">Compare with v' + String(i).padStart(2, '0') + '</button>';
+      h += '</div></div></div>';
+    }
+  }
+  h += '</div>';
+
+  var modal = document.getElementById('modal-quote-versions');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-quote-versions';
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = '<div class="modal" style="max-width:620px;max-height:85vh;overflow-y:auto;" id="modal-quote-versions-body"></div>';
+    modal.onclick = function(e) { if (e.target === modal) closeModal('modal-quote-versions'); };
+    document.body.appendChild(modal);
+  }
+  document.getElementById('modal-quote-versions-body').innerHTML = h;
+  openModal('modal-quote-versions');
+}
+
+function promptSaveVersion(tenderId) {
+  var note = prompt('Version note (e.g. "Updated pipe quantities after site visit"):');
+  if (note === null) return;
+  var vNum = saveQuoteVersion(tenderId, note || 'Manual save');
+  showToast('Version ' + vNum + ' saved.', 'success');
+  showQuoteVersions(tenderId);
+}
+
+function compareQuoteVersions(quoteRef, idxA, idxB) {
+  var history = _quoteVersions[quoteRef] || [];
+  var vA = history[idxA - 1];
+  var vB = history[idxB - 1];
+  if (!vA || !vB) { showToast('Version not found.', 'error'); return; }
+
+  var itemsA = vA.snapshot || [];
+  var itemsB = vB.snapshot || [];
+  var mapA = {};
+  itemsA.forEach(function(i) { mapA[(i.desc || '').toLowerCase().trim()] = i; });
+  var mapB = {};
+  itemsB.forEach(function(i) { mapB[(i.desc || '').toLowerCase().trim()] = i; });
+
+  var changes = [];
+  Object.keys(mapB).forEach(function(key) {
+    var b = mapB[key];
+    var a = mapA[key];
+    if (!a) { changes.push({ type: 'ADDED', desc: b.desc, b: b, colour: 'var(--lime)' }); }
+    else {
+      var qd = (b.qty || 0) - (a.qty || 0);
+      var td = (b.total || 0) - (a.total || 0);
+      if (Math.abs(qd) > 0.01 || Math.abs(td) > 0.01) {
+        changes.push({ type: 'CHANGED', desc: b.desc, a: a, b: b, qtyDelta: qd, totalDelta: td, colour: td > 0 ? '#f59e0b' : '#60a5fa' });
+      }
+    }
+  });
+  Object.keys(mapA).forEach(function(key) {
+    if (!mapB[key]) { changes.push({ type: 'REMOVED', desc: mapA[key].desc, a: mapA[key], colour: '#f87171' }); }
+  });
+
+  var netDelta = changes.reduce(function(s, c) { return s + (c.totalDelta || (c.type === 'ADDED' ? (c.b.total || 0) : c.type === 'REMOVED' ? -(c.a.total || 0) : 0)); }, 0);
+
+  var h = '<div style="padding:1.2rem;">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">';
+  h += '<div><div style="font-size:1rem;font-weight:700;color:var(--white);">Version Comparison</div>';
+  h += '<div style="font-size:.72rem;color:var(--off3);">' + vA.ref + ' \u2192 ' + vB.ref + '</div></div>';
+  h += '<button class="btn btn-dark btn-xs" onclick="showQuoteVersions(\'' + _qvFindTenderId(quoteRef) + '\')">Back</button></div>';
+
+  /* Summary cards */
+  h += '<div style="display:flex;gap:.5rem;margin-bottom:1rem;">';
+  h += '<div class="card" style="flex:1;padding:.5rem;text-align:center;"><div style="font-family:var(--mono);font-size:.9rem;color:var(--white);font-weight:600;">\u00A3' + fmtNum(Math.round(vA.total)) + '</div><div style="font-size:.55rem;color:var(--off4);">' + vA.ref + '</div></div>';
+  h += '<div style="display:flex;align-items:center;font-size:1.2rem;color:var(--off4);">\u2192</div>';
+  h += '<div class="card" style="flex:1;padding:.5rem;text-align:center;"><div style="font-family:var(--mono);font-size:.9rem;color:var(--white);font-weight:600;">\u00A3' + fmtNum(Math.round(vB.total)) + '</div><div style="font-size:.55rem;color:var(--off4);">' + vB.ref + '</div></div>';
+  h += '<div class="card" style="flex:1;padding:.5rem;text-align:center;"><div style="font-family:var(--mono);font-size:.9rem;color:' + (netDelta >= 0 ? '#f59e0b' : '#60a5fa') + ';font-weight:600;">' + (netDelta >= 0 ? '+' : '') + '\u00A3' + fmtNum(Math.round(Math.abs(netDelta))) + '</div><div style="font-size:.55rem;color:var(--off4);">Net change</div></div>';
+  h += '</div>';
+
+  /* Changes list */
+  if (changes.length === 0) {
+    h += '<div style="text-align:center;padding:1.5rem;color:var(--lime);font-size:.8rem;">\u2714 No differences between versions.</div>';
+  } else {
+    h += '<div style="font-size:.72rem;color:var(--off3);margin-bottom:.5rem;">' + changes.length + ' change' + (changes.length !== 1 ? 's' : '') + '</div>';
+    changes.forEach(function(c) {
+      h += '<div class="card" style="margin-bottom:.3rem;padding:.5rem .65rem;border-left:3px solid ' + c.colour + ';">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+      h += '<div>';
+      h += '<span style="font-size:.52rem;font-weight:600;color:' + c.colour + ';margin-right:.4rem;">' + c.type + '</span>';
+      h += '<span style="font-size:.72rem;color:var(--white);">' + (c.desc || '') + '</span>';
+      h += '</div>';
+      if (c.type === 'CHANGED') {
+        h += '<div style="font-family:var(--mono);font-size:.7rem;text-align:right;">';
+        h += '<span style="color:var(--off4);">' + c.a.qty + ' \u2192 </span><span style="color:var(--white);font-weight:600;">' + c.b.qty + '</span>';
+        h += '<span style="color:' + c.colour + ';margin-left:.4rem;">' + (c.totalDelta >= 0 ? '+' : '') + '\u00A3' + fmtNum(Math.round(Math.abs(c.totalDelta))) + '</span>';
+        h += '</div>';
+      } else if (c.type === 'ADDED') {
+        h += '<div style="font-family:var(--mono);font-size:.7rem;color:var(--lime);">+\u00A3' + fmtNum(Math.round(c.b.total || 0)) + '</div>';
+      } else if (c.type === 'REMOVED') {
+        h += '<div style="font-family:var(--mono);font-size:.7rem;color:#f87171;">-\u00A3' + fmtNum(Math.round(c.a.total || 0)) + '</div>';
+      }
+      h += '</div></div>';
+    });
+  }
+  h += '</div>';
+  document.getElementById('modal-quote-versions-body').innerHTML = h;
+}
+
+function _qvFindTenderId(quoteRef) {
+  var t = TENDERS.find(function(x) { return x.ref === quoteRef; });
+  return t ? t.id : '';
+}
+
 function renderCreateQuoteForm() {
   var content = document.getElementById('dash-content');
   if (!content) return;
@@ -1126,6 +1294,7 @@ function renderTenders(filterStatus) {
       +'<button class="btn btn-xs" style="background:rgba(33,115,70,.08);color:#217346;border:1px solid rgba(33,115,70,.2);" onclick="downloadQuotePDF(\''+t.id+'\')">&#128229; PDF</button> '
       +'<button class="btn btn-xs" style="background:rgba(33,115,70,.08);color:#217346;border:1px solid rgba(33,115,70,.2);" onclick="downloadQuoteExcel(\''+t.id+'\')">&#128196; Excel</button> '
       +'<button class="btn btn-xs" style="background:rgba(251,191,36,.08);color:#f59e0b;border:1px solid rgba(251,191,36,.2);" onclick="showSimilarProjects(\''+t.id+'\')">&#128269; Similar</button> '
+      +'<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:#60a5fa;border:1px solid rgba(96,165,250,.2);" onclick="showQuoteVersions(\''+t.id+'\')">&#128338; Versions</button> '
       +'<button class="btn btn-dark btn-xs" onclick="openTenderModal(\''+t.id+'\')">Edit</button>'
       +(isWon && !t.linkedProjectId ? ' <button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2)" onclick="quickWonToProject(\''+t.id+'\')">+ Project</button>' : '')
       +'</td></tr>';
