@@ -18,16 +18,19 @@ async function requireAuth(req, res, next) {
 
     // Verify JWT with Supabase
     if (!supabaseAdmin) {
-      // Mock mode — attach demo user for local development
-      req.user = {
-        id: 'demo-user-id',
-        org_id: 'demo-org-id',
-        email: 'demo@contraq.co.uk',
-        name: 'Demo User',
-        role: 'admin'
-      };
-      req.orgId = 'demo-org-id';
-      return next();
+      // Demo mode only when explicitly enabled (local development)
+      if (process.env.DEMO_MODE === 'true') {
+        req.user = {
+          id: 'demo-user-id',
+          org_id: 'demo-org-id',
+          email: 'demo@contraq.co.uk',
+          name: 'Demo User',
+          role: 'admin'
+        };
+        req.orgId = 'demo-org-id';
+        return next();
+      }
+      return res.status(503).json({ error: 'Authentication service unavailable' });
     }
 
     const { data: { user: authUser }, error } = await supabaseAdmin.auth.getUser(token);

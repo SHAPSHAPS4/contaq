@@ -462,10 +462,10 @@ function renderSettingsSection(user) {
     + _nItems.map(function(n){var on=STATE.notifPrefs[n[0]];return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border)"><div><div style="font-size:.84rem;font-weight:600">'+n[1]+'</div><div style="font-size:.72rem;color:var(--off4)">'+n[2]+'</div></div><div style="width:38px;height:22px;border-radius:11px;background:'+(on?'var(--orange)':'var(--bg4)')+';border:1.5px solid '+(on?'var(--orange)':'var(--border)')+';cursor:pointer;position:relative;flex-shrink:0" onclick="toggleNotifPref(\''+n[0]+'\')"><div style="position:absolute;top:2px;left:'+(on?'16px':'2px')+';width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s"></div></div></div>';}).join('');
   }
   if (s==='security') return '<h3>Security</h3><p class="lead" style="font-size:.8rem;margin-bottom:1.5rem">Manage your password and account security.</p>'
-    + '<div class="field"><label>Current password</label><input type="password" placeholder="••••••••"/></div>'
-    + '<div class="field"><label>New password</label><input type="password" placeholder="••••••••"/></div>'
-    + '<div class="field"><label>Confirm new password</label><input type="password" placeholder="••••••••"/></div>'
-    + '<button class="btn btn-primary btn-sm" onclick="showToast(\'Password updated.\',\'success\')">Update password</button>'
+    + '<div class="field"><label>Current password</label><input id="sec-current-pw" type="password" placeholder="••••••••"/></div>'
+    + '<div class="field"><label>New password</label><input id="sec-new-pw" type="password" placeholder="••••••••"/></div>'
+    + '<div class="field"><label>Confirm new password</label><input id="sec-confirm-pw" type="password" placeholder="••••••••"/></div>'
+    + '<button class="btn btn-primary btn-sm" onclick="changePassword()">Update password</button>'
     + '<div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)"><div style="font-size:.82rem;font-weight:600;color:var(--red);margin-bottom:.5rem">Danger zone</div><button class="btn btn-danger btn-sm" onclick="doLogout()">Sign out of all devices</button></div>';
   if (s==='platform') {
     if (!STATE.platformSettings) {
@@ -547,6 +547,31 @@ function saveProfile() {
   if (sbName) sbName.textContent = STATE.user.fname + ' ' + STATE.user.lname;
   if (sbAv) sbAv.textContent = (STATE.user.fname||'J')[0] + (STATE.user.lname||'M')[0];
   showToast('Profile saved.', 'success');
+}
+
+/* ── Change password ───────────────────────────────────────── */
+function changePassword() {
+  var cur = document.getElementById('sec-current-pw');
+  var np = document.getElementById('sec-new-pw');
+  var cp = document.getElementById('sec-confirm-pw');
+  if (!cur || !np || !cp) return;
+  var currentPw = cur.value.trim();
+  var newPw = np.value.trim();
+  var confirmPw = cp.value.trim();
+  if (!currentPw || !newPw || !confirmPw) { showToast('Please fill in all fields.', 'error'); return; }
+  if (newPw.length < 8) { showToast('New password must be at least 8 characters.', 'error'); return; }
+  if (newPw !== confirmPw) { showToast('New passwords do not match.', 'error'); return; }
+  var token = STATE.session ? STATE.session.access_token : null;
+  fetch((STATE.apiBase || '') + '/api/auth/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': token ? 'Bearer ' + token : '' },
+    body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw })
+  }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+  .then(function(res) {
+    if (!res.ok) { showToast(res.data.error || 'Failed to update password.', 'error'); return; }
+    showToast('Password updated successfully.', 'success');
+    cur.value = ''; np.value = ''; cp.value = '';
+  }).catch(function() { showToast('Failed to update password.', 'error'); });
 }
 
 /* ── Notification toggle ───────────────────────────────────── */

@@ -97,12 +97,14 @@ router.post('/login', async (req, res) => {
     }
 
     if (!supabaseAdmin) {
-      // Mock mode for local development
-      return res.json({
-        session: { access_token: 'mock-token', refresh_token: 'mock-refresh' },
-        user: { id: 'demo-user-id', email, name: 'Demo User', role: 'admin' },
-        org: { id: 'demo-org-id', name: 'Demo Company', plan: 'professional', slug: 'demo' }
-      });
+      if (process.env.DEMO_MODE === 'true') {
+        return res.json({
+          session: { access_token: 'mock-token', refresh_token: 'mock-refresh' },
+          user: { id: 'demo-user-id', email, name: 'Demo User', role: 'admin' },
+          org: { id: 'demo-org-id', name: 'Demo Company', plan: 'professional', slug: 'demo' }
+        });
+      }
+      return res.status(503).json({ error: 'Authentication service unavailable' });
     }
 
     // Authenticate with a separate Supabase client (don't pollute admin client's auth state)
@@ -244,6 +246,52 @@ router.post('/invite', requireAuth, requireRole('admin'), async (req, res) => {
   } catch (err) {
     console.error('[Invite]', err.message);
     res.status(500).json({ error: 'Failed to invite user' });
+  }
+});
+
+// ─── CHANGE PASSWORD — authenticated user updates their password ─
+router.post('/change-password', requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+
+    if (!supabaseAdmin) {
+      return res.status(503).json({ error: 'Database not configured' });
+    }
+
+    // Verify current password by attempting to sign in
+    const { createClient } = require('@supabase/supabase-js');
+    const verifyClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    const { error: verifyError } = await verifyClient.auth.signInWithPassword({
+      email: req.user.email,
+      password: currentPassword
+    });
+
+    if (verifyError) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Update password via admin API
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+      req.user.auth_id,
+      { password: newPassword }
+    );
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('[ChangePassword]', err.message);
+    res.status(500).json({ error: 'Failed to update password' });
   }
 });
 
