@@ -84,11 +84,9 @@ function roiUpdate() {
   var retLo = Math.round(annualTurnover * 0.01);
   var retHi = Math.round(annualTurnover * 0.03);
 
-  // Plan selection
-  var subCost, planName;
-  if (eng <= 2 && proj <= 5) { subCost = 49; planName = 'Starter'; }
-  else if (eng <= 5) { subCost = 149; planName = 'Professional'; }
-  else { subCost = 349; planName = 'Business'; }
+  // Single plan — Contraq Beta at £99/month (founding member rate)
+  var subCost = 99;
+  var planName = 'Contraq Beta';
 
   // Total annual: VO monthly × 12 + time savings monthly × 12 + retention annual
   var adminRate = 30;  // £30/hr — ONS ASHE 2023

@@ -74,7 +74,9 @@ function renderSuppliers() {
     byCategory[s.category] += s.spendYTD || 0;
   });
 
-  var html = '<div class="sup-stat-grid">';
+  var html = '<div class="page-hdr"><div class="page-hdr-left"><h2>Suppliers</h2><div style="position:relative;display:inline-block"><button class="help-tip" onclick="showHelpTip(\'suppliers\')" title="What is this?">?</button><div class="help-tooltip" id="help-tip-suppliers">'+HELP_TIPS.suppliers+'</div></div><p>'+SUPPLIERS.length+' suppliers &middot; '+active.length+' active</p></div>'
+    + '<div style="display:flex;gap:.65rem"><button class="btn btn-primary btn-sm" onclick="openSupplierModal(null)">+ Add supplier</button></div></div>';
+  html += '<div class="sup-stat-grid">';
 
   // Card 1: Total suppliers
   html += '<div class="sup-stat-card" onclick="openSupReport(\'count\')">'

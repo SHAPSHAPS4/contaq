@@ -77,7 +77,7 @@ function renderClients() {
     return;
   }
 
-  var html = '<div class="page-hdr"><div class="page-hdr-left"><h2>Client Register</h2><p>'+CLIENTS.length+' clients</p></div>'
+  var html = '<div class="page-hdr"><div class="page-hdr-left"><h2>Client Register</h2><div style="position:relative;display:inline-block"><button class="help-tip" onclick="showHelpTip(\'clients\')" title="What is this?">?</button><div class="help-tooltip" id="help-tip-clients">'+HELP_TIPS.clients+'</div></div><p>'+CLIENTS.length+' clients</p></div>'
     + '<div style="display:flex;align-items:center;gap:.65rem;">'
     + '<button class="cl-reset-link" onclick="clResetDemoData()">&#8635; Reset demo</button>'
     + '<button class="cl-upload-btn" onclick="openModal(\'modal-cl-upload\')">'

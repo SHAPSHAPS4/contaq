@@ -216,7 +216,19 @@ var HELP_TIPS = {
   invoices: "Every invoice you raise lives here. CONTRAQ tracks what's been paid, what's overdue, and sends reminders so you don't have to chase manually.",
   engineers: "Add your team here to track CSCS cards, asbestos certs, and IPAF licences. You'll get warned before anything expires.",
   finance: "Your Profit & Loss report — see exactly where your money comes from and where it goes each month, without needing an accountant.",
-  procurement: "Every purchase order in one place. Stops materials being bought twice and makes sure costs hit the right project."
+  procurement: "Every purchase order in one place. Stops materials being bought twice and makes sure costs hit the right project.",
+  home: "Your dashboard shows what needs attention today. Use Focus View for the 3 highest-priority actions, or Full Dashboard for the complete picture.",
+  diary: "The Engineer Diary lets you schedule your team across projects using week, month, and 6-month views. Drag assignments to reschedule. Utilisation is tracked automatically.",
+  clients: "Your Client Register stores main contractors, credit terms, retention rates, and contact details. Upload an existing client list using AI or add them manually.",
+  suppliers: "Track your material suppliers and subcontractors. Monitor spend, manage account references, and see which suppliers deliver on time.",
+  pricebook: "Your Price Book stores material and labour rates. AI can import from supplier price lists. Rates are used automatically when pricing takeoffs.",
+  cis: "CIS Compliance tracks your Construction Industry Scheme deductions and generates monthly CIS300 returns for HMRC. Payments are grouped by tax month.",
+  eco4: "ECO4 and PAS 2030 compliance tracking for energy efficiency installations. Manage certificates, lodgements, and audit readiness.",
+  measures: "Site Measures collects quantities and progress data from site. Upload measure sheets, photos, and DWG files against each project.",
+  reports: "Reports give you a high-level view of business performance. P&L summaries, invoice ageing, tender analysis, and project profitability.",
+  settings: "Configure your company details, billing, team permissions, AI settings, and platform preferences. Admin users can manage all settings.",
+  journal: "The Site Journal records daily progress, delays, and issues. AI can analyse entries to support Extension of Time (EOT) claims.",
+  admin: "The Admin Panel shows platform usage, user activity, and system health. Manage team members, review AI accuracy, and configure billing."
 };
 
 function showHelpTip(id) {
@@ -287,13 +299,22 @@ function renderDashHome() {
     + '<button class="dash-ai-cta-btn" onclick="event.stopPropagation();openModal(\'modal-qb-upload\')">Upload a spec &amp; build a quote \u2192</button>'
     + '</div>';
 
-  /* ── Focus / Full toggle bar ─────────────────────────────── */
+  /* ── Focus / Full toggle bar with action count ─────────── */
   var _fm = STATE.dashMode === 'focus';
+  var _focusActions = 0;
+  _focusActions += TENDERS.filter(function(t) { return t.status === 'open' || t.status === 'submitted'; }).length;
+  _focusActions += INVOICES.filter(function(i) { return i.status === 'overdue'; }).length;
+  var _certExpiring = 0;
+  var _now = new Date();
+  ENGINEERS.forEach(function(e) { (e.certs || []).forEach(function(c) { if (c.expiry) { var d = new Date(c.expiry); var diff = (d - _now) / 86400000; if (diff <= 30) _certExpiring++; } }); });
+  _focusActions += _certExpiring;
+
   content.innerHTML += '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">'
-    + '<button class="btn btn-sm '+(_fm?'btn-primary':'btn-dark')+'" onclick="STATE.dashMode=\'focus\';renderDashHome()" style="font-size:.72rem;padding:.3rem .75rem;border-radius:20px">Focus View</button>'
+    + '<button class="btn btn-sm '+(_fm?'btn-primary':'btn-dark')+'" onclick="STATE.dashMode=\'focus\';renderDashHome()" style="font-size:.72rem;padding:.3rem .75rem;border-radius:20px">Focus View' + (_focusActions > 0 ? ' <span style="background:var(--orange);color:#fff;border-radius:10px;padding:0 .4rem;font-size:.6rem;margin-left:.25rem;">' + _focusActions + '</span>' : '') + '</button>'
     + '<button class="btn btn-sm '+(!_fm?'btn-primary':'btn-dark')+'" onclick="STATE.dashMode=\'full\';renderDashHome()" style="font-size:.72rem;padding:.3rem .75rem;border-radius:20px">Full Dashboard</button>'
+    + '<div style="position:relative;display:inline-block;margin-left:.25rem;"><button class="help-tip" onclick="showHelpTip(\'home\')" title="What is this?">?</button><div class="help-tooltip" id="help-tip-home">'+HELP_TIPS.home+'</div></div>'
     + '</div>';
-  content.innerHTML += '<div style="font-size:.72rem;color:var(--off4);margin-bottom:1.4rem">Focus View shows your 3 highest-priority actions today</div>';
+  content.innerHTML += '<div style="font-size:.72rem;color:var(--off4);margin-bottom:1.4rem">' + (_fm ? 'Showing your highest-priority actions today' : 'Full dashboard with KPIs, charts, and activity') + '</div>';
 
   /* ── Focus Mode: 3-card "Today\'s Priorities" ──────────── */
   if (STATE.dashMode === 'focus') {

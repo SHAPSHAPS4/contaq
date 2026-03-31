@@ -175,7 +175,7 @@ function renderCISReturns() {
   var totalNet   = totalGross - totalDed;
   var subCount   = [...new Set(CIS_PAYMENTS.map(function(p){return p.subId;}))].length;
 
-  var html = '';
+  var html = '<div class="page-hdr"><div class="page-hdr-left"><h2>CIS Compliance</h2><div style="position:relative;display:inline-block"><button class="help-tip" onclick="showHelpTip(\'cis\')" title="What is this?">?</button><div class="help-tooltip" id="help-tip-cis">'+HELP_TIPS.cis+'</div></div><p>Construction Industry Scheme</p></div></div>';
 
   // HMRC compliance banner
   html += '<div class="cis-hmrc-banner"><span>✅</span> All subcontractors verified with HMRC · Contractor UTR: <strong style="font-family:var(--mono);">6732 00441 22</strong> · Accounts Office Ref: <strong style="font-family:var(--mono);">123PA00456789</strong></div>';

@@ -210,8 +210,8 @@ function renderDiaryWeek() {
       (!ftxt || p.name.toLowerCase().indexOf(ftxt)>=0 || p.code.toLowerCase().indexOf(ftxt)>=0);
   });
 
-  var h = '';
-  h += '<div style="display:flex;gap:0;height:calc(100vh - 130px);min-height:540px;overflow:hidden;">';
+  var h = '<div class="page-hdr" style="margin-bottom:.5rem;"><div class="page-hdr-left"><h2>Engineer Diary</h2><div style="position:relative;display:inline-block"><button class="help-tip" onclick="showHelpTip(\'diary\')" title="What is this?">?</button><div class="help-tooltip" id="help-tip-diary">'+HELP_TIPS.diary+'</div></div><p>'+ENGINEERS.length+' engineers &middot; '+SCHED_STATE.assignments.length+' assignments</p></div></div>';
+  h += '<div style="display:flex;gap:0;height:calc(100vh - 165px);min-height:540px;overflow:hidden;">';
 
   /* Left sidebar */
   h += '<div class="sched-sidebar">';

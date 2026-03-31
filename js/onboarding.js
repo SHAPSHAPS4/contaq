@@ -51,8 +51,20 @@ function obStep(delta) {
   if (delta > 0 && STATE.obStep < 3) { STATE.obStep++; renderObSteps(); return; }
   if (delta < 0 && STATE.obStep > 1) { STATE.obStep--; renderObSteps(); return; }
   if (delta > 0 && STATE.obStep === 3) {
+    /* Store onboarding preferences */
+    try {
+      localStorage.setItem('contraq_onboarding_complete', 'true');
+      localStorage.setItem('contraq_trades', JSON.stringify(STATE.selectedTrades));
+    } catch(e) {}
     if (!STATE.loggedIn) nav('stripe');
-    else { nav('dashboard'); showToast('Setup complete! Welcome to CONTRAQ.','success'); }
+    else {
+      nav('dashboard');
+      var tradeLabel = STATE.selectedTrades.length >= 3 ? 'M&E Contractor' : STATE.selectedTrades.map(function(t) {
+        var labels = { insulation: 'Insulation', ductwork: 'Ductwork', pipework: 'Pipework', electrical: 'Electrical', plumbing: 'Plumbing & Heating', fire: 'Fire Protection', cladding: 'Cladding', other: 'Specialist' };
+        return labels[t] || t;
+      }).join(' & ');
+      showToast('Welcome to Contraq, ' + tradeLabel + '! Your workspace is ready.', 'success');
+    }
   }
 }
 
