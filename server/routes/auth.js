@@ -9,6 +9,7 @@ const { supabaseAdmin } = require('../db/supabase');
 const { createOrganization, createUser, getUserByAuthId, getUsersByOrg } = require('../db/queries');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const emailService = require('../services/email');
+const { validate, schemas } = require('../middleware/validate');
 
 // ─── DEBUG — test signup path (remove later)
 router.get('/debug', async (req, res) => {
@@ -19,7 +20,7 @@ router.get('/debug', async (req, res) => {
 });
 
 // ─── SIGNUP — creates org + user + Supabase auth account ────
-router.post('/signup', function(req, res) {
+router.post('/signup', validate(schemas.signup), function(req, res) {
   (async function() { try {
     const { email, password, name, companyName, trade, plan } = req.body;
 
@@ -88,7 +89,7 @@ router.post('/signup', function(req, res) {
 });
 
 // ─── LOGIN — authenticates and returns session token ────────
-router.post('/login', async (req, res) => {
+router.post('/login', validate(schemas.login), async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -194,7 +195,7 @@ router.get('/team', requireAuth, requireRole('admin', 'manager'), async (req, re
 });
 
 // ─── INVITE — add a user to the org (admin only) ────────────
-router.post('/invite', requireAuth, requireRole('admin'), async (req, res) => {
+router.post('/invite', requireAuth, requireRole('admin'), validate(schemas.invite), async (req, res) => {
   try {
     const { email, name, role } = req.body;
     if (!email || !name) {
@@ -250,7 +251,7 @@ router.post('/invite', requireAuth, requireRole('admin'), async (req, res) => {
 });
 
 // ─── CHANGE PASSWORD — authenticated user updates their password ─
-router.post('/change-password', requireAuth, async (req, res) => {
+router.post('/change-password', requireAuth, validate(schemas.changePassword), async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -296,7 +297,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
 });
 
 // ─── PASSWORD RESET — send reset email ──────────────────────
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', validate(schemas.resetPassword), async (req, res) => {
   try {
     const { email: resetEmail } = req.body;
     if (!resetEmail || !supabaseAdmin) {
