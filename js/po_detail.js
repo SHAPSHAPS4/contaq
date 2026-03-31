@@ -62,6 +62,21 @@ function renderClients() {
     return;
   }
 
+  /* Empty state */
+  if (CLIENTS.length === 0) {
+    document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Client Register</h2><p>0 clients</p></div>'
+      + '<div style="display:flex;gap:.65rem"><button class="btn btn-primary btn-sm" onclick="openClientModal(null)">+ Add client</button></div></div>'
+      + '<div class="empty-state" style="padding:3.5rem 1rem;text-align:center;">'
+      + '<div style="opacity:.3;color:var(--off3)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>'
+      + '<div style="font-size:1.1rem;color:var(--white);margin:.75rem 0 .5rem;">No clients yet</div>'
+      + '<div style="max-width:380px;margin:0 auto;line-height:1.6;font-size:.78rem;color:var(--off3);">Add your main contractors and clients to track credit terms, retention, and project history. Or upload a client register using AI.</div>'
+      + '<div style="display:flex;gap:.5rem;justify-content:center;margin-top:1.25rem">'
+      + '<button class="btn btn-primary" onclick="openClientModal(null)">Add First Client</button>'
+      + '<button class="btn btn-dark" onclick="openModal(\'modal-cl-upload\')">Upload Register</button>'
+      + '</div></div>';
+    return;
+  }
+
   var html = '<div class="page-hdr"><div class="page-hdr-left"><h2>Client Register</h2><p>'+CLIENTS.length+' clients</p></div>'
     + '<div style="display:flex;align-items:center;gap:.65rem;">'
     + '<button class="cl-reset-link" onclick="clResetDemoData()">&#8635; Reset demo</button>'

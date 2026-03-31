@@ -115,6 +115,19 @@ function sendPOEmail() {
 }
 
 function renderProcurement(filter) {
+  /* Empty state */
+  if (PO_REGISTER.length === 0) {
+    document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Procurement</h2><p>0 purchase orders</p></div>'
+      + '<div style="display:flex;gap:.65rem"><button class="btn btn-primary btn-sm" onclick="openPOModal(null)">+ New PO</button></div></div>'
+      + '<div class="empty-state" style="padding:3.5rem 1rem;text-align:center;">'
+      + '<div style="opacity:.3;color:var(--off3)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>'
+      + '<div style="font-size:1.1rem;color:var(--white);margin:.75rem 0 .5rem;">No purchase orders</div>'
+      + '<div style="max-width:380px;margin:0 auto;line-height:1.6;font-size:.78rem;color:var(--off3);">Create purchase orders to track material spend, delivery status, and supplier performance across your projects.</div>'
+      + '<button class="btn btn-primary" style="margin-top:1.25rem" onclick="openPOModal(null)">Create First PO</button>'
+      + '</div>';
+    return;
+  }
+
   filter = filter||'all';
   var filtered = PO_REGISTER.filter(function(po){
     if (filter !== 'all' && po.status !== filter) return false;

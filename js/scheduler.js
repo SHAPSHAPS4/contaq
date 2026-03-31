@@ -155,6 +155,18 @@ function renderDiary() {
     return;
   }
 
+  /* Empty state — no engineers means no schedule */
+  if (ENGINEERS.length === 0) {
+    document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Engineer Diary</h2><p>Schedule &amp; resource planning</p></div></div>'
+      + '<div class="empty-state" style="padding:3.5rem 1rem;text-align:center;">'
+      + '<div style="opacity:.3;color:var(--off3)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>'
+      + '<div style="font-size:1.1rem;color:var(--white);margin:.75rem 0 .5rem;">No engineers to schedule</div>'
+      + '<div style="max-width:380px;margin:0 auto;line-height:1.6;font-size:.78rem;color:var(--off3);">Add your engineers and operatives first, then assign them to projects using the drag-and-drop diary. Track utilisation across week, month, and 6-month views.</div>'
+      + '<button class="btn btn-primary" style="margin-top:1.25rem" onclick="dashNav(\'engineers\')">Add Engineers First</button>'
+      + '</div>';
+    return;
+  }
+
   injectDiaryDemoData();
   generateDiaryAlerts();
   var v = SCHED_STATE.diaryView || 'week';

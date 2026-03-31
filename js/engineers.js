@@ -47,6 +47,19 @@ function renderSuppliers() {
     return;
   }
 
+  /* Empty state */
+  if (SUPPLIERS.length === 0) {
+    document.getElementById('dash-content').innerHTML = '<div class="page-hdr"><div class="page-hdr-left"><h2>Suppliers</h2><p>0 suppliers</p></div>'
+      + '<div style="display:flex;gap:.65rem"><button class="btn btn-primary btn-sm" onclick="openSupplierModal(null)">+ Add supplier</button></div></div>'
+      + '<div class="empty-state" style="padding:3.5rem 1rem;text-align:center;">'
+      + '<div style="opacity:.3;color:var(--off3)"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div>'
+      + '<div style="font-size:1.1rem;color:var(--white);margin:.75rem 0 .5rem;">No suppliers added</div>'
+      + '<div style="max-width:380px;margin:0 auto;line-height:1.6;font-size:.78rem;color:var(--off3);">Add your material suppliers and subcontractors to track spend, manage accounts, and streamline procurement.</div>'
+      + '<button class="btn btn-primary" style="margin-top:1.25rem" onclick="openSupplierModal(null)">Add First Supplier</button>'
+      + '</div>';
+    return;
+  }
+
   var active = SUPPLIERS.filter(function(s){return s.status==='active';});
   var totalSpendYTD = SUPPLIERS.reduce(function(sum,s){return sum+(s.spendYTD||0);},0);
   var totalSpendAll = SUPPLIERS.reduce(function(sum,s){return sum+(s.spendTotal||0);},0);
