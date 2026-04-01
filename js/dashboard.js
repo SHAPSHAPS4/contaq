@@ -91,7 +91,7 @@ function isAdminUser(user) {
 function adminNavClick() {
   var user = STATE.user || DEMO_USER;
   if (!isAdminUser(user)) {
-    showToast('Access Denied — Admin privileges required.', 'error');
+    showToast('Access Denied — role: ' + (user.role || 'none') + ', email: ' + (user.email || 'none'), 'error');
     return;
   }
   dashNav('admin');
