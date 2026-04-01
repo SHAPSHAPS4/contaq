@@ -122,6 +122,7 @@ app.use('/api/invoices', require('./routes/invoices'));
 app.use('/api/similarity', require('./routes/similarity'));
 app.use('/api/versions', require('./routes/versioning'));
 app.use('/api/register', require('./routes/drawing-register'));
+app.use('/api/admin/training', require('./routes/training-hub'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
 /* ── Quote Builder frontend ───────────────────────────────────────── */
