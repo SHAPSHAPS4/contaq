@@ -38,10 +38,10 @@ function doLogin() {
   // Admin login — always works, bypasses API
   if (email === 'admin@contraq.co.uk') {
     if (pass !== 'Admin2025!') { err.textContent = 'Invalid admin password.'; err.style.display = 'block'; return; }
+    if (typeof restoreDemoData === 'function') restoreDemoData();
     STATE.loggedIn = true;
     STATE.demoMode = true;
     STATE.user = Object.assign({}, ADMIN_USER);
-    if (typeof restoreDemoData === 'function') restoreDemoData();
     nav('dashboard');
     return;
   }
@@ -49,10 +49,10 @@ function doLogin() {
   // Demo login — requires ?demo=1 in URL
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('demo') === '1' && email === 'demo@contraq.co.uk' && pass === 'Demo1234!') {
+    if (typeof restoreDemoData === 'function') restoreDemoData();
     STATE.loggedIn = true;
     STATE.demoMode = true;
     STATE.user = Object.assign({}, DEMO_USER);
-    if (typeof restoreDemoData === 'function') restoreDemoData();
     nav('dashboard');
     return;
   }
