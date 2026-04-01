@@ -82,7 +82,10 @@ function initDashboard() {
 }
 
 function isAdminUser(user) {
-  return (user.role && user.role.toLowerCase() === 'admin') || (user.email === 'admin@contraq.co.uk');
+  if (!user) return false;
+  if (user.role && user.role.toLowerCase() === 'admin') return true;
+  var adminEmails = ['admin@contraq.co.uk', 'sam@foxdoninsulation.co.uk'];
+  return adminEmails.indexOf(user.email) >= 0;
 }
 
 function adminNavClick() {
