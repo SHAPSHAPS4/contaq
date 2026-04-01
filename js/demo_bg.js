@@ -297,10 +297,17 @@ function initVisibleProgressBars() {
 document.addEventListener('DOMContentLoaded', function() {
   // Try to restore saved session first
   try {
-    if (typeof tryRestoreSession === 'function' && tryRestoreSession()) {
+    var h = window.location.hash.replace('#','');
+    /* If URL has #login, clear any stale session so user can log in fresh */
+    if (h === 'login') {
+      if (typeof clearSession === 'function') clearSession();
+      STATE.loggedIn = false;
+      STATE.demoMode = false;
+      STATE.user = null;
+    }
+    if (h !== 'login' && typeof tryRestoreSession === 'function' && tryRestoreSession()) {
       // Session restored — go to dashboard
-      var h = window.location.hash.replace('#','');
-      if (!h || h === 'login' || h === 'register') {
+      if (!h || h === 'register') {
         nav('dashboard');
       }
     } else {

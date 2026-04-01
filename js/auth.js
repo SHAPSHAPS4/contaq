@@ -211,6 +211,10 @@ function tryRestoreSession() {
     if (typeof clearDemoData === 'function') clearDemoData();
     STATE.loggedIn = true;
     STATE.demoMode = false;
+    var restoredRole = savedUser.role;
+    /* Ensure founder always gets admin regardless of stored role */
+    var adminEmails = ['admin@contraq.co.uk', 'sam@foxdoninsulation.co.uk'];
+    if (adminEmails.indexOf(savedUser.email) >= 0) restoredRole = 'admin';
     STATE.user = {
       id: savedUser.id,
       fname: savedUser.name ? savedUser.name.split(' ')[0] : 'User',
@@ -218,7 +222,7 @@ function tryRestoreSession() {
       email: savedUser.email,
       company: savedOrg ? savedOrg.name : '',
       plan: savedOrg ? savedOrg.plan : 'professional',
-      role: savedUser.role,
+      role: restoredRole,
       orgId: savedOrg ? savedOrg.id : null
     };
     return true;
