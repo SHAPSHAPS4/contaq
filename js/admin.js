@@ -9,7 +9,7 @@ function setAdminTab(tab) { STATE.adminTab = tab; renderAdminPanel(); }
 
 function renderAdminPanel() {
   var user = STATE.user || DEMO_USER;
-  if (user.role !== 'admin') {
+  if (!isAdminUser(user)) {
     showToast('Access Denied — Admin privileges required.', 'error');
     dashNav('home');
     return;

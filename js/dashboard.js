@@ -38,9 +38,10 @@ function initDashboard() {
   document.body.style.setProperty('--trade-label', '"'+tradeLabel+'"');
   var tdEl = document.getElementById('sb-trade-desc');
   if (tdEl) tdEl.textContent = tradeLabel;
-  // Show admin tab only for admin role
+  // Show admin tab for admin role (case-insensitive) or admin demo user
+  var isAdmin = (user.role && user.role.toLowerCase() === 'admin') || (user.email === 'admin@contraq.co.uk');
   var adminTab = document.getElementById('sbn-admin');
-  if (adminTab) adminTab.style.display = (user.role === 'admin') ? '' : 'none';
+  if (adminTab) adminTab.style.display = isAdmin ? '' : 'none';
   // Show lock icons for Starter-gated sidebar items
   var isStarter = getUserPlan() === 'starter';
   ['invoices','finance','cis'].forEach(function(id){
@@ -80,9 +81,13 @@ function initDashboard() {
   dashNav(STATE.currentPanel||'home');
 }
 
+function isAdminUser(user) {
+  return (user.role && user.role.toLowerCase() === 'admin') || (user.email === 'admin@contraq.co.uk');
+}
+
 function adminNavClick() {
   var user = STATE.user || DEMO_USER;
-  if (user.role !== 'admin') {
+  if (!isAdminUser(user)) {
     showToast('Access Denied — Admin privileges required.', 'error');
     return;
   }
