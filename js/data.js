@@ -28,7 +28,7 @@ if (typeof ICON === 'undefined') {
 
 var DEMO_USER = {
   fname:'James', lname:'Mitchell', email:'demo@contraq.co.uk',
-  company:'Mitchell Insulation Ltd', plan:'professional', trialDays:5, role:'demo',
+  company:'Mitchell Insulation Ltd', plan:'professional', trialDays:5, role:'admin',
   trade:'insulation', trades:['insulation']
 };
 
