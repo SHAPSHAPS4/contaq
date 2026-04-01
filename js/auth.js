@@ -35,14 +35,23 @@ function doLogin() {
   err.style.display = 'none';
   if (!email || !pass) { err.textContent = 'Please enter email and password.'; err.style.display = 'block'; return; }
 
-  // Admin login always works, demo requires ?demo=1
-  var urlParams = new URLSearchParams(window.location.search);
-  var isAdminLogin = email === 'admin@contraq.co.uk' && pass === 'Admin2025!';
-  var isDemoLogin = urlParams.get('demo') === '1' && email === 'demo@contraq.co.uk' && pass === 'Demo1234!';
-  if (isAdminLogin || isDemoLogin) {
+  // Admin login — always works, bypasses API
+  if (email === 'admin@contraq.co.uk') {
+    if (pass !== 'Admin2025!') { err.textContent = 'Invalid admin password.'; err.style.display = 'block'; return; }
     STATE.loggedIn = true;
     STATE.demoMode = true;
-    STATE.user = email.startsWith('admin') ? Object.assign({}, ADMIN_USER) : Object.assign({}, DEMO_USER);
+    STATE.user = Object.assign({}, ADMIN_USER);
+    if (typeof restoreDemoData === 'function') restoreDemoData();
+    nav('dashboard');
+    return;
+  }
+
+  // Demo login — requires ?demo=1 in URL
+  var urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('demo') === '1' && email === 'demo@contraq.co.uk' && pass === 'Demo1234!') {
+    STATE.loggedIn = true;
+    STATE.demoMode = true;
+    STATE.user = Object.assign({}, DEMO_USER);
     if (typeof restoreDemoData === 'function') restoreDemoData();
     nav('dashboard');
     return;
