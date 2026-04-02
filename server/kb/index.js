@@ -667,6 +667,8 @@ module.exports = {
   getKBPromptWithBudget,
   persistLearnedRules,
   persistPatternError,
+  persistLearnedRulesToFiles,
+  persistPatternErrorToFiles,
   getSelfAuditPrompt,
   estimateTokens,
   getMetadata,

@@ -15,7 +15,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth, requireRole } = require('../middleware/auth');
 const hub = require('../services/training-hub');
-const { persistLearnedRulesToFiles, persistPatternErrorToFiles } = require('../kb/index');
+const { persistLearnedRules, persistPatternError } = require('../kb/index');
 const { logSession } = require('../services/session-logger');
 
 // All routes require admin
@@ -103,16 +103,17 @@ router.post('/review', async (req, res) => {
         source: 'training_hub'
       }));
 
-      // Persist rules to KB files
+      // Persist rules via unified KB interface (Supabase if org exists, files as fallback)
+      // trade='all' ensures training hub rules apply to ALL trades platform-wide
       try {
-        const persisted = persistLearnedRulesToFiles(newRules);
-        rulesCreated = persisted || newRules.length;
+        const persisted = await persistLearnedRules(newRules, req.orgId, req.user.id, 'all');
+        rulesCreated = persisted?.persisted || newRules.length;
       } catch (e) {
         console.error('[Training Hub] Rule persistence error:', e.message);
         rulesCreated = 0;
       }
 
-      // Track pattern errors (increment if same error_type seen before)
+      // Track pattern errors via unified interface
       const errorTypeCounts = {};
       corrections.forEach(c => {
         const et = errorTypeMap[c.tag] || c.tag;
@@ -120,11 +121,7 @@ router.post('/review', async (req, res) => {
       });
       for (const [errorType, count] of Object.entries(errorTypeCounts)) {
         try {
-          persistPatternErrorToFiles([{
-            error_type: errorType,
-            occurrences: count,
-            heightened_action: 'Flagged via Training Hub admin review. Check ' + errorType + ' carefully in future extractions.'
-          }]);
+          await persistPatternError(errorType, count, 'Flagged via Training Hub admin review. Check ' + errorType + ' carefully in future extractions.', req.orgId, req.user.id);
           patternsUpdated++;
         } catch (e) {
           console.error('[Training Hub] Pattern error persistence:', e.message);
@@ -211,8 +208,8 @@ router.post('/bulk-review', async (req, res) => {
         }));
 
         try {
-          persistLearnedRulesToFiles(newRules);
-          rulesCreated = newRules.length;
+          const persisted = await persistLearnedRules(newRules, req.orgId, req.user.id, 'all');
+          rulesCreated = persisted?.persisted || newRules.length;
         } catch (e) {}
 
         totalCorrections += corrections.length;

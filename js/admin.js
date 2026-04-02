@@ -163,9 +163,17 @@ var _trainingQueue = [];
 var _trainingReviewItem = null;
 
 function renderAdminAITraining(container) {
-  /* Load metrics + queue from API or use demo data */
-  var metrics = _trainingData || _demoTrainingMetrics();
-  var queue = _trainingQueue.length ? _trainingQueue : _demoTrainingQueue();
+  /* Show loading state, then fetch real data from API */
+  container.innerHTML += '<div id="training-hub-content" style="text-align:center;padding:2rem;color:var(--off4);font-size:.8rem;">Loading training data...</div>';
+  _loadTrainingData(function() {
+    var el = document.getElementById('training-hub-content');
+    if (el) el.innerHTML = _buildTrainingHubHTML();
+  });
+}
+
+function _buildTrainingHubHTML() {
+  var metrics = _trainingData || _emptyTrainingMetrics();
+  var queue = _trainingQueue;
 
   var h = '';
 
@@ -224,8 +232,8 @@ function renderAdminAITraining(container) {
   }
   h += '</div>';
 
-  /* Recent Golden Records */
-  var goldens = _demoGoldenRecords();
+  /* Recent Golden Records — from API only */
+  var goldens = _trainingGoldenRecords || [];
   if (goldens.length > 0) {
     h += '<div class="card" style="margin-bottom:1rem;">';
     h += '<div class="card-header"><span class="card-title">Recent Golden Records</span><span class="mono" style="font-size:.65rem;color:var(--off4);">' + goldens.length + ' total</span></div>';
@@ -247,25 +255,30 @@ function renderAdminAITraining(container) {
     h += '</tbody></table></div></div>';
   }
 
-  /* Error Type Breakdown + Actions row */
+  /* Error Type Breakdown from real metrics + Actions row */
   h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">';
 
-  /* Error types */
-  h += '<div class="card"><div class="card-header"><span class="card-title">Top Error Types</span></div>';
-  var errorTypes = [
-    { type: 'Quantity hallucination', pct: 31, color: '#f87171' },
-    { type: 'Missing specification', pct: 24, color: '#f59e0b' },
-    { type: 'Wrong unit', pct: 18, color: 'var(--orange)' },
-    { type: 'Invented item', pct: 15, color: '#f87171' },
-    { type: 'Duplicate extraction', pct: 12, color: 'var(--blue)' }
-  ];
-  errorTypes.forEach(function(e) {
-    h += '<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;">';
-    h += '<div style="flex:1;font-size:.75rem;color:var(--off2);">' + e.type + '</div>';
-    h += '<div style="width:80px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;"><div style="width:' + e.pct + '%;height:100%;background:' + e.color + ';border-radius:3px;"></div></div>';
-    h += '<span class="mono" style="font-size:.7rem;color:' + e.color + ';width:30px;text-align:right;">' + e.pct + '%</span>';
-    h += '</div>';
-  });
+  /* Error types — derived from real totals */
+  h += '<div class="card"><div class="card-header"><span class="card-title">Error Breakdown</span></div>';
+  var t = metrics.totals || {};
+  var totalErrors = (t.wrong || 0) + (t.hallucinations || 0) + (t.missed || 0);
+  if (totalErrors > 0) {
+    var realErrors = [
+      { type: 'Wrong value', count: t.wrong || 0, color: '#f59e0b' },
+      { type: 'Hallucination', count: t.hallucinations || 0, color: '#f87171' },
+      { type: 'Missed item', count: t.missed || 0, color: 'var(--blue)' }
+    ];
+    realErrors.forEach(function(e) {
+      var pct = Math.round((e.count / totalErrors) * 100);
+      h += '<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;">';
+      h += '<div style="flex:1;font-size:.75rem;color:var(--off2);">' + e.type + '</div>';
+      h += '<div style="width:80px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;"><div style="width:' + pct + '%;height:100%;background:' + e.color + ';border-radius:3px;"></div></div>';
+      h += '<span class="mono" style="font-size:.7rem;color:' + e.color + ';width:40px;text-align:right;">' + e.count + '</span>';
+      h += '</div>';
+    });
+  } else {
+    h += '<div style="text-align:center;padding:1rem;color:var(--off4);font-size:.75rem;">No error data yet. Review extractions to build stats.</div>';
+  }
   h += '</div>';
 
   /* Quick actions */
@@ -278,10 +291,7 @@ function renderAdminAITraining(container) {
 
   h += '</div>';
 
-  container.innerHTML += h;
-
-  /* Try loading real data from API */
-  _loadTrainingData();
+  return h;
 }
 
 function _trainKPI(val, label, color) {
@@ -294,7 +304,6 @@ function _trainKPI(val, label, color) {
 
 function openTrainingReview(extractionId) {
   var ext = _trainingQueue.find(function(e) { return e.id === extractionId; });
-  if (!ext) ext = _demoTrainingQueue().find(function(e) { return e.id === extractionId; });
   if (!ext) { showToast('Extraction not found.', 'error'); return; }
 
   _trainingReviewItem = ext;
@@ -394,7 +403,7 @@ function tagAllTrainingItems(tag) {
 }
 
 function bulkReviewAllCorrect() {
-  var queue = _trainingQueue.length ? _trainingQueue : _demoTrainingQueue();
+  var queue = _trainingQueue;
   if (queue.length === 0) { showToast('Queue is empty.', 'ok'); return; }
   if (!confirm('Mark all ' + queue.length + ' extractions as correct? This will create golden records and clear the queue.')) return;
 
@@ -684,8 +693,26 @@ function trainProcessUploads() {
 }
 
 function exportTrainingData() {
-  var stored = [];
-  try { stored = JSON.parse(localStorage.getItem('contraq_golden_records') || '[]'); } catch(e) {}
+  var token = STATE.session ? STATE.session.access_token : null;
+  if (token && CONTRAQ_API_BASE) {
+    fetch(CONTRAQ_API_BASE + '/api/admin/training/export', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (!data.success) { showToast('Export failed.', 'error'); return; }
+      var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'contraq-training-data-' + new Date().toISOString().split('T')[0] + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Training data exported.', 'success');
+    }).catch(function(err) { showToast('Export failed: ' + err.message, 'error'); });
+    return;
+  }
+  var stored = _trainingGoldenRecords || [];
   if (stored.length === 0) { showToast('No training data to export yet.', 'error'); return; }
   var blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), golden_records: stored }, null, 2)], { type: 'application/json' });
   var url = URL.createObjectURL(blob);
@@ -699,79 +726,44 @@ function exportTrainingData() {
   showToast('Training data exported (' + stored.length + ' golden records).', 'success');
 }
 
-function _loadTrainingData() {
+var _trainingGoldenRecords = [];
+
+function _loadTrainingData(callback) {
   var token = STATE.session ? STATE.session.access_token : null;
-  if (!token || !CONTRAQ_API_BASE) return;
+  if (!token || !CONTRAQ_API_BASE) {
+    if (callback) callback();
+    return;
+  }
+  var pending = 3;
+  function done() { pending--; if (pending <= 0 && callback) callback(); }
+
   fetch(CONTRAQ_API_BASE + '/api/admin/training/metrics', {
     headers: { 'Authorization': 'Bearer ' + token }
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (data.success) { _trainingData = data; }
-  }).catch(function() {});
+  }).catch(function() {}).then(done);
+
   fetch(CONTRAQ_API_BASE + '/api/admin/training/queue', {
     headers: { 'Authorization': 'Bearer ' + token }
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (data.success && data.extractions) { _trainingQueue = data.extractions; }
-  }).catch(function() {});
+  }).catch(function() {}).then(done);
+
+  fetch(CONTRAQ_API_BASE + '/api/admin/training/golden-records', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.success && data.records) { _trainingGoldenRecords = data.records; }
+  }).catch(function() {}).then(done);
 }
 
-/* ── Demo data for training hub ──────────────────────── */
-function _demoTrainingMetrics() {
+function _emptyTrainingMetrics() {
   return {
-    totals: { total_reviews: 23, total_items: 312, correct: 247, wrong: 34, hallucinations: 19, missed: 12 },
-    rates: { accuracy_pct: 79.2, hallucination_pct: 6.1, wrong_pct: 10.9 },
-    weekly: [
-      { date: '2026-03-17', reviews: 3, items: 42, correct: 30, wrong: 7, hallucinations: 3, missed: 2 },
-      { date: '2026-03-18', reviews: 4, items: 51, correct: 38, wrong: 6, hallucinations: 4, missed: 3 },
-      { date: '2026-03-19', reviews: 2, items: 28, correct: 23, wrong: 3, hallucinations: 1, missed: 1 },
-      { date: '2026-03-24', reviews: 5, items: 67, correct: 55, wrong: 7, hallucinations: 3, missed: 2 },
-      { date: '2026-03-25', reviews: 3, items: 38, correct: 32, wrong: 3, hallucinations: 2, missed: 1 },
-      { date: '2026-03-31', reviews: 6, items: 86, correct: 69, wrong: 8, hallucinations: 6, missed: 3 }
-    ],
-    pending_reviews: 4,
-    golden_records: 19,
-    active_rules: 12,
-    prompt_versions: 3
+    totals: { total_reviews: 0, total_items: 0, correct: 0, wrong: 0, hallucinations: 0, missed: 0 },
+    rates: { accuracy_pct: 0, hallucination_pct: 0, wrong_pct: 0 },
+    weekly: [],
+    pending_reviews: 0,
+    golden_records: 0,
+    active_rules: 0,
+    prompt_versions: 0
   };
-}
-
-function _demoTrainingQueue() {
-  return [
-    { id: 'ext-demo-1', document_name: 'C1799-MX-55001-AC-GF.pdf', extraction_type: 'drawing', validation_grade: 'C', validation_score: 52, item_count: 12, created_at: '2026-04-01T09:30:00Z', review_status: 'pending', raw_result: { extraction: [
-      { description: '250mm dia circular supply duct', quantity: 42, unit: 'm', trade: 'Mechanical', confidence: 'Medium', specification: 'Galvanised steel' },
-      { description: 'Volume control damper VCD', quantity: 6, unit: 'nr', trade: 'Mechanical', confidence: 'High', specification: '250mm dia' },
-      { description: 'Supply air grille', quantity: 8, unit: 'nr', trade: 'Mechanical', confidence: 'High', specification: 'Aluminium, white' },
-      { description: 'Return air grille', quantity: 4, unit: 'nr', trade: 'Mechanical', confidence: 'Medium', specification: 'Aluminium' },
-      { description: 'AC cassette unit', quantity: 4, unit: 'nr', trade: 'Mechanical', confidence: 'High', specification: 'Ceiling mounted' },
-      { description: 'Refrigerant pipework', quantity: 85, unit: 'm', trade: 'Mechanical', confidence: 'Low', specification: 'Copper' },
-      { description: 'Condensate drain pipe', quantity: 30, unit: 'm', trade: 'Mechanical', confidence: 'Low', specification: 'PVC' },
-      { description: 'Duct support brackets', quantity: 28, unit: 'nr', trade: 'Mechanical', confidence: 'Medium', specification: 'Galvanised' }
-    ] } },
-    { id: 'ext-demo-2', document_name: 'PRJ-042-Elec-DB-Schedule.pdf', extraction_type: 'drawing', validation_grade: 'B', validation_score: 68, item_count: 18, created_at: '2026-03-31T14:15:00Z', review_status: 'pending', raw_result: { extraction: [
-      { description: 'Distribution board 12-way', quantity: 2, unit: 'nr', trade: 'Electrical', confidence: 'High', specification: 'Hager VML' },
-      { description: 'RCBO 32A Type B', quantity: 12, unit: 'nr', trade: 'Electrical', confidence: 'High', specification: 'Hager' },
-      { description: 'SWA cable 4c 6mm', quantity: 45, unit: 'm', trade: 'Electrical', confidence: 'Medium', specification: 'BS 5467' },
-      { description: 'Cable tray 300mm', quantity: 1500, unit: 'm', trade: 'Electrical', confidence: 'Low', specification: 'Galvanised' }
-    ] } },
-    { id: 'ext-demo-3', document_name: 'LTHW-Pipework-GF-Rev-B.pdf', extraction_type: 'drawing', validation_grade: 'D', validation_score: 35, item_count: 8, created_at: '2026-03-31T11:00:00Z', review_status: 'pending', raw_result: { extraction: [
-      { description: 'LTHW copper pipe 22mm', quantity: 120, unit: 'm', trade: 'Mechanical', confidence: 'Medium', specification: 'BS EN 1057' },
-      { description: 'LTHW copper pipe 28mm', quantity: 65, unit: 'm', trade: 'Mechanical', confidence: 'Medium', specification: 'BS EN 1057' },
-      { description: 'Gate valve 22mm', quantity: 8, unit: 'nr', trade: 'Mechanical', confidence: 'High', specification: 'PN16' },
-      { description: 'Circulator pump', quantity: 2, unit: 'nr', trade: 'Mechanical', confidence: 'High', specification: 'Grundfos UPS' }
-    ] } },
-    { id: 'ext-demo-4', document_name: 'Insulation-Spec-NBS-Z22.pdf', extraction_type: 'spec', validation_grade: 'A', validation_score: 82, item_count: 6, created_at: '2026-03-30T16:45:00Z', review_status: 'pending', raw_result: { extraction: [
-      { description: 'Mineral wool pipe insulation 25mm', quantity: 185, unit: 'm', trade: 'Insulation', confidence: 'High', specification: 'Rockwool RockLap' },
-      { description: 'Mineral wool pipe insulation 30mm', quantity: 65, unit: 'm', trade: 'Insulation', confidence: 'High', specification: 'Rockwool RockLap' }
-    ] } }
-  ];
-}
-
-function _demoGoldenRecords() {
-  var stored = [];
-  try { stored = JSON.parse(localStorage.getItem('contraq_golden_records') || '[]'); } catch(e) {}
-  if (stored.length > 0) return stored;
-  return [
-    { document_name: 'Vent-GF-Rev-P01.pdf', correct_count: 14, wrong_count: 2, hallucination_count: 1, missed_count: 0, accuracy_pct: 82, created_at: '2026-03-28T10:00:00Z' },
-    { document_name: 'Elec-Lighting-FF.pdf', correct_count: 22, wrong_count: 3, hallucination_count: 0, missed_count: 1, accuracy_pct: 85, created_at: '2026-03-27T14:30:00Z' },
-    { document_name: 'LTHW-Pipework-Sch.pdf', correct_count: 8, wrong_count: 4, hallucination_count: 2, missed_count: 1, accuracy_pct: 53, created_at: '2026-03-26T09:15:00Z' }
-  ];
 }
