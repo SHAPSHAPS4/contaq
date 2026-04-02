@@ -15,6 +15,8 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth, requireRole } = require('../middleware/auth');
 const hub = require('../services/training-hub');
+const { persistLearnedRulesToFiles, persistPatternErrorToFiles } = require('../kb/index');
+const { logSession } = require('../services/session-logger');
 
 // All routes require admin
 router.use(requireAuth);
@@ -52,8 +54,8 @@ router.get('/extraction/:id', (req, res) => {
   }
 });
 
-// Submit review — creates golden record + saves feedback
-router.post('/review', (req, res) => {
+// Submit review — creates golden record + feeds corrections into KB flywheel
+router.post('/review', async (req, res) => {
   try {
     const { extraction_id, corrected_items, original_items, feedback, document_name, extraction_type } = req.body;
     if (!extraction_id || !feedback) {
@@ -76,7 +78,169 @@ router.post('/review', (req, res) => {
       hub.saveFeedback(goldenRecord.id, feedback);
     }
 
-    res.json({ success: true, golden_record: goldenRecord });
+    // ── FLYWHEEL: Convert corrections into KB learned rules ──
+    const corrections = feedback.filter(f => f.tag === 'wrong_value' || f.tag === 'hallucination' || f.tag === 'missed_item');
+    let rulesCreated = 0;
+    let patternsUpdated = 0;
+
+    if (corrections.length > 0) {
+      // Build learned rules from corrections
+      const errorTypeMap = { wrong_value: 'wrong_qty', hallucination: 'hallucination', missed_item: 'missing_item' };
+      const newRules = corrections.map((c, i) => ({
+        rule_id: 'TRAINED_' + Date.now() + '_' + String(i + 1).padStart(3, '0'),
+        trigger: 'When extracting from ' + (extraction_type || 'drawing') + ' and encountering: ' + (c.original_value || '').substring(0, 100),
+        action: c.tag === 'hallucination'
+          ? 'Do NOT extract this item — it was flagged as hallucinated. ' + (c.comment || 'Not present in source document.')
+          : c.tag === 'missed_item'
+            ? 'Look for this item type — it was missed in previous extraction. ' + (c.comment || '')
+            : 'Correct value should be: ' + (c.corrected_value || '') + '. ' + (c.comment || ''),
+        reason: 'Admin review on ' + (document_name || 'document') + ': ' + c.tag + (c.comment ? ' — ' + c.comment : ''),
+        error_type: errorTypeMap[c.tag] || c.tag,
+        example_before: c.original_value || '',
+        example_after: c.corrected_value || c.comment || '',
+        date: new Date().toISOString().split('T')[0],
+        occurrences: 1,
+        source: 'training_hub'
+      }));
+
+      // Persist rules to KB files
+      try {
+        const persisted = persistLearnedRulesToFiles(newRules);
+        rulesCreated = persisted || newRules.length;
+      } catch (e) {
+        console.error('[Training Hub] Rule persistence error:', e.message);
+        rulesCreated = 0;
+      }
+
+      // Track pattern errors (increment if same error_type seen before)
+      const errorTypeCounts = {};
+      corrections.forEach(c => {
+        const et = errorTypeMap[c.tag] || c.tag;
+        errorTypeCounts[et] = (errorTypeCounts[et] || 0) + 1;
+      });
+      for (const [errorType, count] of Object.entries(errorTypeCounts)) {
+        try {
+          persistPatternErrorToFiles([{
+            error_type: errorType,
+            occurrences: count,
+            heightened_action: 'Flagged via Training Hub admin review. Check ' + errorType + ' carefully in future extractions.'
+          }]);
+          patternsUpdated++;
+        } catch (e) {
+          console.error('[Training Hub] Pattern error persistence:', e.message);
+        }
+      }
+
+      // Log session
+      logSession({
+        type: 'training_hub_review',
+        project_ref: document_name,
+        org_id: req.orgId,
+        is_admin: true,
+        duration_ms: 0,
+        tokens: { input_tokens: 0, output_tokens: 0 },
+        rules_added: rulesCreated,
+        patterns_added: patternsUpdated,
+        corrections_count: corrections.length
+      });
+    }
+
+    res.json({
+      success: true,
+      golden_record: goldenRecord,
+      kb_updated: rulesCreated > 0,
+      rules_created: rulesCreated,
+      patterns_updated: patternsUpdated,
+      corrections_processed: corrections.length
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Bulk review — submit multiple extractions at once
+router.post('/bulk-review', async (req, res) => {
+  try {
+    const { reviews } = req.body;
+    if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
+      return res.status(400).json({ success: false, error: 'reviews array required' });
+    }
+
+    const results = [];
+    let totalRules = 0;
+    let totalPatterns = 0;
+    let totalCorrections = 0;
+
+    for (const review of reviews) {
+      const goldenRecord = hub.createGoldenRecord({
+        extraction_id: review.extraction_id,
+        org_id: req.orgId,
+        document_name: review.document_name || 'Unknown',
+        extraction_type: review.extraction_type || 'unknown',
+        corrected_items: review.corrected_items || [],
+        original_items: review.original_items || [],
+        feedback: review.feedback || [],
+        reviewed_by: req.user.id,
+      });
+
+      if (review.feedback && review.feedback.length > 0) {
+        hub.saveFeedback(goldenRecord.id, review.feedback);
+      }
+
+      // Feed corrections into KB
+      const corrections = (review.feedback || []).filter(f => f.tag === 'wrong_value' || f.tag === 'hallucination' || f.tag === 'missed_item');
+      let rulesCreated = 0;
+
+      if (corrections.length > 0) {
+        const errorTypeMap = { wrong_value: 'wrong_qty', hallucination: 'hallucination', missed_item: 'missing_item' };
+        const newRules = corrections.map((c, i) => ({
+          rule_id: 'TRAINED_' + Date.now() + '_' + String(i + 1).padStart(3, '0'),
+          trigger: 'When extracting from ' + (review.extraction_type || 'drawing') + ' and encountering: ' + (c.original_value || '').substring(0, 100),
+          action: c.tag === 'hallucination'
+            ? 'Do NOT extract this item — hallucinated. ' + (c.comment || '')
+            : c.tag === 'missed_item'
+              ? 'Look for this item type — missed previously. ' + (c.comment || '')
+              : 'Correct value: ' + (c.corrected_value || '') + '. ' + (c.comment || ''),
+          reason: 'Bulk review: ' + c.tag + (c.comment ? ' — ' + c.comment : ''),
+          error_type: errorTypeMap[c.tag] || c.tag,
+          example_before: c.original_value || '',
+          example_after: c.corrected_value || c.comment || '',
+          date: new Date().toISOString().split('T')[0],
+          occurrences: 1,
+          source: 'training_hub_bulk'
+        }));
+
+        try {
+          persistLearnedRulesToFiles(newRules);
+          rulesCreated = newRules.length;
+        } catch (e) {}
+
+        totalCorrections += corrections.length;
+        totalRules += rulesCreated;
+      }
+
+      results.push({ extraction_id: review.extraction_id, golden_record_id: goldenRecord.id, accuracy_pct: goldenRecord.accuracy_pct, rules_created: rulesCreated });
+    }
+
+    logSession({
+      type: 'training_hub_bulk_review',
+      project_ref: 'bulk-' + reviews.length + '-extractions',
+      org_id: req.orgId,
+      is_admin: true,
+      duration_ms: 0,
+      tokens: { input_tokens: 0, output_tokens: 0 },
+      rules_added: totalRules,
+      patterns_added: totalPatterns,
+      corrections_count: totalCorrections
+    });
+
+    res.json({
+      success: true,
+      reviews_processed: results.length,
+      total_rules_created: totalRules,
+      total_corrections: totalCorrections,
+      results
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

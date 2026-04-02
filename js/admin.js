@@ -195,7 +195,13 @@ function renderAdminAITraining(container) {
 
   /* Review Queue */
   h += '<div class="card" style="margin-bottom:1rem;">';
-  h += '<div class="card-header"><span class="card-title">Review Queue</span><span class="mono" style="font-size:.65rem;color:var(--off4);">' + queue.length + ' pending</span></div>';
+  h += '<div class="card-header"><span class="card-title">Review Queue</span><span class="mono" style="font-size:.65rem;color:var(--off4);">' + queue.length + ' pending</span>'
+    + '<div style="display:flex;gap:.3rem;margin-left:auto;">';
+  if (queue.length > 0) {
+    h += '<button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);" onclick="bulkReviewAllCorrect()">Approve All Correct</button>';
+  }
+  h += '<button class="btn btn-xs" style="background:rgba(96,165,250,.07);color:var(--blue);border:1px solid rgba(96,165,250,.2);" onclick="openBulkUploadForTraining()">Upload Drawings</button>';
+  h += '</div></div>';
   if (queue.length === 0) {
     h += '<div style="text-align:center;padding:1.5rem;color:var(--lime);font-size:.8rem;">All extractions reviewed. Queue is clear.</div>';
   } else {
@@ -304,7 +310,9 @@ function openTrainingReview(extractionId) {
   h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">';
   h += '<div><div style="font-size:1rem;font-weight:700;color:var(--white);">Review Extraction</div>';
   h += '<div style="font-size:.72rem;color:var(--off3);margin-top:.1rem;">' + ext.document_name + ' &middot; ' + (ext.extraction_type || '') + ' &middot; Grade ' + (ext.validation_grade || '?') + '</div></div>';
-  h += '<div style="display:flex;gap:.4rem;">';
+  h += '<div style="display:flex;gap:.4rem;flex-wrap:wrap;">';
+  h += '<button class="btn btn-xs" style="background:rgba(163,230,53,.08);color:var(--lime);border:1px solid rgba(163,230,53,.2);" onclick="tagAllTrainingItems(\'correct\')">Tag All Correct</button>';
+  h += '<button class="btn btn-xs" style="background:rgba(248,113,113,.06);color:#f87171;border:1px solid rgba(248,113,113,.2);" onclick="tagAllTrainingItems(\'hallucination\')">Tag All Halluc.</button>';
   h += '<button class="btn btn-primary btn-xs" onclick="submitTrainingReview(\'' + extractionId + '\')">Save Review</button>';
   h += '<button class="btn btn-dark btn-xs" onclick="closeModal(\'modal-training-review\')">Cancel</button>';
   h += '</div></div>';
@@ -374,6 +382,76 @@ function openTrainingReview(extractionId) {
 
 function _tagBtn(idx, tag, label, color, bg) {
   return '<button class="btn btn-xs" id="train-tag-' + idx + '-' + tag + '" style="background:' + bg + ';color:' + color + ';border:1px solid ' + color + '33;font-size:.55rem;" onclick="tagTrainingItem(' + idx + ',\'' + tag + '\')">' + label + '</button>';
+}
+
+function tagAllTrainingItems(tag) {
+  var i = 0;
+  while (document.getElementById('train-item-' + i)) {
+    tagTrainingItem(i, tag);
+    i++;
+  }
+  showToast('All ' + i + ' items tagged as ' + tag + '.', 'ok');
+}
+
+function bulkReviewAllCorrect() {
+  var queue = _trainingQueue.length ? _trainingQueue : _demoTrainingQueue();
+  if (queue.length === 0) { showToast('Queue is empty.', 'ok'); return; }
+  if (!confirm('Mark all ' + queue.length + ' extractions as correct? This will create golden records and clear the queue.')) return;
+
+  var reviews = [];
+  queue.forEach(function(ext) {
+    var items = [];
+    if (ext.raw_result) {
+      items = ext.raw_result.extraction || ext.raw_result.consolidated_takeoff || ext.raw_result.items || [];
+      if (!Array.isArray(items)) items = [];
+    }
+    var feedback = items.map(function(item, i) {
+      return { item_index: i, field_name: 'description', original_value: item.description || item.desc || '', corrected_value: '', tag: 'correct', comment: 'Bulk approved', severity: 'low' };
+    });
+    reviews.push({
+      extraction_id: ext.id,
+      document_name: ext.document_name,
+      extraction_type: ext.extraction_type,
+      corrected_items: items,
+      original_items: items,
+      feedback: feedback
+    });
+  });
+
+  /* Send bulk review to API */
+  var token = STATE.session ? STATE.session.access_token : null;
+  if (token && CONTRAQ_API_BASE) {
+    fetch(CONTRAQ_API_BASE + '/api/admin/training/bulk-review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ reviews: reviews })
+    }).then(function(r) { return r.json(); }).then(function(resp) {
+      if (resp.success) showToast('Bulk review complete: ' + resp.reviews_processed + ' extractions processed, ' + resp.total_rules_created + ' rules created.', 'success');
+    }).catch(function() {});
+  }
+
+  /* Save locally */
+  var stored = [];
+  try { stored = JSON.parse(localStorage.getItem('contraq_golden_records') || '[]'); } catch(e) {}
+  reviews.forEach(function(r) {
+    stored.push({
+      id: 'gr-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      extraction_id: r.extraction_id,
+      document_name: r.document_name,
+      extraction_type: r.extraction_type,
+      feedback: r.feedback,
+      correct_count: r.feedback.length,
+      wrong_count: 0, hallucination_count: 0, missed_count: 0,
+      item_count: r.feedback.length,
+      accuracy_pct: 100,
+      created_at: new Date().toISOString()
+    });
+  });
+  try { localStorage.setItem('contraq_golden_records', JSON.stringify(stored)); } catch(e) {}
+
+  _trainingQueue = [];
+  showToast('Bulk review: ' + reviews.length + ' extractions marked correct.', 'success');
+  setAdminTab('ai-training');
 }
 
 function tagTrainingItem(idx, tag) {
@@ -449,8 +527,10 @@ function submitTrainingReview(extractionId) {
   stored.push(gr);
   try { localStorage.setItem('contraq_golden_records', JSON.stringify(stored)); } catch(e) {}
 
-  /* Try API call */
+  /* Send to API — creates golden record AND feeds corrections into KB flywheel */
   var token = STATE.session ? STATE.session.access_token : null;
+  var corrections = feedback.filter(function(f) { return f.tag !== 'correct'; });
+
   if (token && CONTRAQ_API_BASE) {
     fetch(CONTRAQ_API_BASE + '/api/admin/training/review', {
       method: 'POST',
@@ -463,6 +543,10 @@ function submitTrainingReview(extractionId) {
         document_name: ext.document_name,
         extraction_type: ext.extraction_type
       })
+    }).then(function(r) { return r.json(); }).then(function(resp) {
+      if (resp.kb_updated) {
+        showToast(resp.rules_created + ' KB rule(s) created from your corrections. AI will improve on next extraction.', 'success');
+      }
     }).catch(function() {});
   }
 
@@ -470,8 +554,133 @@ function submitTrainingReview(extractionId) {
   _trainingQueue = _trainingQueue.filter(function(e) { return e.id !== extractionId; });
 
   closeModal('modal-training-review');
-  showToast('Review saved. Golden record created (' + gr.accuracy_pct + '% accuracy).', 'success');
+  var msg = 'Review saved (' + gr.accuracy_pct + '% accuracy).';
+  if (corrections.length > 0) msg += ' ' + corrections.length + ' correction(s) feeding into KB flywheel.';
+  showToast(msg, 'success');
   setAdminTab('ai-training');
+}
+
+/* ── Bulk upload drawings for training review ─────────── */
+function openBulkUploadForTraining() {
+  var h = '<div style="padding:1.2rem;">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">';
+  h += '<div><div style="font-size:1rem;font-weight:700;color:var(--white);">Upload Drawings for AI Review</div>';
+  h += '<div style="font-size:.72rem;color:var(--off3);margin-top:.1rem;">Upload PDF drawings to extract and add to the review queue.</div></div>';
+  h += '<button class="btn btn-dark btn-xs" onclick="closeModal(\'modal-training-upload\')">Close</button></div>';
+
+  h += '<div style="border:2px dashed var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1rem;" id="train-upload-zone">';
+  h += '<div style="font-size:.85rem;color:var(--off3);margin-bottom:.5rem;">Drop PDF drawings here or click to select</div>';
+  h += '<input type="file" id="train-upload-input" accept=".pdf" multiple style="display:none" onchange="trainFilesSelected(this.files)"/>';
+  h += '<button class="btn btn-primary btn-sm" onclick="document.getElementById(\'train-upload-input\').click()">Select PDFs</button>';
+  h += '</div>';
+
+  h += '<div id="train-upload-list" style="margin-bottom:1rem;"></div>';
+  h += '<button class="btn btn-primary btn-sm" id="train-upload-go" style="display:none;" onclick="trainProcessUploads()">Extract All &amp; Add to Queue</button>';
+  h += '</div>';
+
+  var modal = document.getElementById('modal-training-upload');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-training-upload';
+    modal.className = 'modal-backdrop';
+    modal.innerHTML = '<div class="modal" style="max-width:600px;max-height:80vh;overflow-y:auto;" id="modal-training-upload-body"></div>';
+    modal.onclick = function(e) { if (e.target === modal) closeModal('modal-training-upload'); };
+    document.body.appendChild(modal);
+  }
+  document.getElementById('modal-training-upload-body').innerHTML = h;
+  openModal('modal-training-upload');
+}
+
+var _trainUploadFiles = [];
+
+function trainFilesSelected(files) {
+  _trainUploadFiles = Array.from(files);
+  var list = document.getElementById('train-upload-list');
+  var goBtn = document.getElementById('train-upload-go');
+  if (!list) return;
+
+  var h = '';
+  _trainUploadFiles.forEach(function(f, i) {
+    var sizeMB = (f.size / 1048576).toFixed(1);
+    h += '<div class="card" style="padding:.4rem .65rem;margin-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;">';
+    h += '<div style="display:flex;align-items:center;gap:.5rem;">';
+    h += '<span style="font-family:var(--mono);font-size:.55rem;background:rgba(248,113,113,.06);color:#f87171;border:1px solid rgba(248,113,113,.2);border-radius:3px;padding:.05rem .2rem;">PDF</span>';
+    h += '<span style="font-size:.75rem;color:var(--white);">' + f.name + '</span>';
+    h += '</div>';
+    h += '<span style="font-family:var(--mono);font-size:.65rem;color:var(--off4);">' + sizeMB + ' MB</span>';
+    h += '</div>';
+  });
+  list.innerHTML = h;
+  if (goBtn) goBtn.style.display = _trainUploadFiles.length > 0 ? '' : 'none';
+}
+
+function trainProcessUploads() {
+  if (_trainUploadFiles.length === 0) return;
+  showToast('Processing ' + _trainUploadFiles.length + ' drawing(s)...', 'ok');
+
+  var processed = 0;
+  _trainUploadFiles.forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var base64 = e.target.result.split(',')[1];
+
+      /* Call drawing extraction API */
+      var token = STATE.session ? STATE.session.access_token : null;
+      var headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+
+      fetch(CONTRAQ_API_BASE + '/api/drawings/extract', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          drawing_base64: base64,
+          drawing_mime_type: 'application/pdf',
+          project_ref: 'TRAINING-' + new Date().toISOString().split('T')[0],
+          model: 'claude-sonnet-4-6'
+        })
+      }).then(function(r) { return r.json(); }).then(function(result) {
+        /* Add to review queue */
+        var ext = {
+          id: 'ext-upload-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          document_name: file.name,
+          extraction_type: 'drawing',
+          validation_grade: result.extraction ? (result.validation_grade || 'B') : 'F',
+          validation_score: result.validation_score || 0,
+          item_count: result.extraction && result.extraction.extraction ? result.extraction.extraction.length : 0,
+          created_at: new Date().toISOString(),
+          review_status: 'pending',
+          raw_result: result.extraction || result
+        };
+        _trainingQueue.push(ext);
+
+        /* Also log to backend */
+        if (token && CONTRAQ_API_BASE) {
+          fetch(CONTRAQ_API_BASE + '/api/admin/training/queue', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(ext)
+          }).catch(function() {});
+        }
+
+        processed++;
+        if (processed === _trainUploadFiles.length) {
+          closeModal('modal-training-upload');
+          showToast(processed + ' drawing(s) extracted and added to review queue.', 'success');
+          _trainUploadFiles = [];
+          setAdminTab('ai-training');
+        }
+      }).catch(function(err) {
+        processed++;
+        showToast('Failed to extract ' + file.name + ': ' + err.message, 'error');
+        if (processed === _trainUploadFiles.length) {
+          closeModal('modal-training-upload');
+          _trainUploadFiles = [];
+          setAdminTab('ai-training');
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function exportTrainingData() {
