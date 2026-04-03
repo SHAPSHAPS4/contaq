@@ -530,12 +530,6 @@ function submitTrainingReview(extractionId) {
     created_at: new Date().toISOString()
   };
 
-  /* Store in localStorage */
-  var stored = [];
-  try { stored = JSON.parse(localStorage.getItem('contraq_golden_records') || '[]'); } catch(e) {}
-  stored.push(gr);
-  try { localStorage.setItem('contraq_golden_records', JSON.stringify(stored)); } catch(e) {}
-
   /* Send to API — creates golden record AND feeds corrections into KB flywheel */
   var token = STATE.session ? STATE.session.access_token : null;
   var corrections = feedback.filter(function(f) { return f.tag !== 'correct'; });
@@ -648,27 +642,45 @@ function trainProcessUploads() {
           model: 'claude-sonnet-4-6'
         })
       }).then(function(r) { return r.json(); }).then(function(result) {
-        /* Add to review queue */
+        /* Build extraction entry */
+        var rawResult = result.extraction || result;
+        var itemCount = rawResult.extraction ? rawResult.extraction.length : (rawResult.items ? rawResult.items.length : 0);
         var ext = {
-          id: 'ext-upload-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
           document_name: file.name,
           extraction_type: 'drawing',
           validation_grade: result.extraction ? (result.validation_grade || 'B') : 'F',
           validation_score: result.validation_score || 0,
-          item_count: result.extraction && result.extraction.extraction ? result.extraction.extraction.length : 0,
-          created_at: new Date().toISOString(),
-          review_status: 'pending',
-          raw_result: result.extraction || result
+          item_count: itemCount,
+          raw_result: rawResult
         };
-        _trainingQueue.push(ext);
 
-        /* Also log to backend */
+        /* Log to backend — use server-returned ID */
         if (token && CONTRAQ_API_BASE) {
           fetch(CONTRAQ_API_BASE + '/api/admin/training/queue', {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(ext)
-          }).catch(function() {});
+          }).then(function(r2) { return r2.json(); }).then(function(logged) {
+            if (logged.success && logged.extraction) {
+              _trainingQueue.push(logged.extraction);
+            } else {
+              /* Fallback: use client-generated ID */
+              ext.id = 'ext-upload-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+              ext.created_at = new Date().toISOString();
+              ext.review_status = 'pending';
+              _trainingQueue.push(ext);
+            }
+          }).catch(function() {
+            ext.id = 'ext-upload-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+            ext.created_at = new Date().toISOString();
+            ext.review_status = 'pending';
+            _trainingQueue.push(ext);
+          });
+        } else {
+          ext.id = 'ext-upload-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+          ext.created_at = new Date().toISOString();
+          ext.review_status = 'pending';
+          _trainingQueue.push(ext);
         }
 
         processed++;

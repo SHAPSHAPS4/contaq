@@ -43,6 +43,29 @@ router.get('/queue', (req, res) => {
   }
 });
 
+// Log extraction to queue (called after drawing upload + extraction)
+router.post('/queue', (req, res) => {
+  try {
+    const entry = hub.logExtraction({
+      org_id: req.orgId,
+      user_id: req.user.id,
+      document_name: req.body.document_name,
+      extraction_type: req.body.extraction_type || 'drawing',
+      model_used: req.body.model_used || 'claude-sonnet-4-6',
+      prompt_version: req.body.prompt_version || 1,
+      input_tokens: req.body.input_tokens || 0,
+      output_tokens: req.body.output_tokens || 0,
+      validation_grade: req.body.validation_grade || null,
+      validation_score: req.body.validation_score || 0,
+      raw_result: req.body.raw_result || {},
+      item_count: req.body.item_count || 0,
+    });
+    res.json({ success: true, extraction: entry });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Single extraction detail
 router.get('/extraction/:id', (req, res) => {
   try {
