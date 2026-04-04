@@ -119,8 +119,29 @@ router.post('/login', validate(schemas.login), async (req, res) => {
     }
 
     // Get user profile with org (using admin client which bypasses RLS)
-    const user = await getUserByAuthId(data.user.id);
+    console.log('[Login] Auth success for', email, '— auth_id:', data.user.id, '— looking up profile...');
+    let user;
+    try {
+      user = await getUserByAuthId(data.user.id);
+      console.log('[Login] getUserByAuthId result:', user ? user.email : 'NULL');
+    } catch (profileErr) {
+      console.error('[Login] getUserByAuthId threw:', profileErr.message);
+    }
     if (!user) {
+      // Fallback: try direct query in case getUserByAuthId has an issue
+      try {
+        const { data: fallbackUser } = await supabaseAdmin.from('users').select('*, organizations(*)').eq('auth_id', data.user.id).maybeSingle();
+        if (fallbackUser) {
+          console.log('[Login] Fallback query found user:', fallbackUser.email);
+          user = fallbackUser;
+          user.organizations = fallbackUser.organizations;
+        }
+      } catch (fbErr) {
+        console.error('[Login] Fallback query failed:', fbErr.message);
+      }
+    }
+    if (!user) {
+      console.error('[Login] Profile NOT FOUND for auth_id:', data.user.id);
       return res.status(403).json({ error: 'User profile not found. Please contact support.' });
     }
 
