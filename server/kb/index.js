@@ -47,6 +47,7 @@ const KB_SECTIONS = {
   'KB-X02': { file: 'rules/X02_confidence_scoring.json', priority: 'critical', always: true },
   'KB-X03': { file: 'rules/X03_conflict_resolution.json', priority: 'critical', always: true },
   'KB-X04': { file: 'rules/X04_hallucination_prevention.json', priority: 'critical', always: true },
+  'KB-X05': { file: 'rules/X05_estimator_guidelines.json', priority: 'critical', always: true },
 };
 
 /* ══════════════════════════════════════════════════════════════════
@@ -59,18 +60,18 @@ const ENDPOINT_SECTIONS = {
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
     'KB-I01','KB-I02','KB-I03','KB-I04',
-    'KB-X01','KB-X02','KB-X03','KB-X04',
+    'KB-X01','KB-X02','KB-X03','KB-X04','KB-X05',
   ],
   '/api/specs/analyse': [
     'KB-C01','KB-C02','KB-C03','KB-C04',
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
     'KB-I01','KB-I02','KB-I03','KB-I04',
-    'KB-X02','KB-X03','KB-X04',
+    'KB-X02','KB-X03','KB-X04','KB-X05',
   ],
   '/api/takeoff/consolidate': [
     'KB-C02','KB-C03','KB-C04',
-    'KB-X01','KB-X02','KB-X03','KB-X04',
+    'KB-X01','KB-X02','KB-X03','KB-X04','KB-X05',
   ],
   '/api/feedback/process': [
     'KB-X01','KB-X02','KB-X03','KB-X04',
@@ -80,7 +81,7 @@ const ENDPOINT_SECTIONS = {
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
     'KB-I01','KB-I02','KB-I03','KB-I04',
-    'KB-X01','KB-X02','KB-X03','KB-X04',
+    'KB-X01','KB-X02','KB-X03','KB-X04','KB-X05',
   ],
   '/api/journal/analyse': [
     'KB-C01','KB-C04',
