@@ -106,6 +106,8 @@ router.post('/review', async (req, res) => {
     let rulesCreated = 0;
     let patternsUpdated = 0;
 
+    console.log(`[Training Hub] Review for "${document_name}": ${feedback.length} items, ${corrections.length} corrections, orgId=${req.orgId}, userId=${req.user?.id}`);
+
     if (corrections.length > 0) {
       // Build learned rules from corrections
       const errorTypeMap = { wrong_value: 'wrong_qty', hallucination: 'hallucination', missed_item: 'missing_item' };
@@ -129,10 +131,12 @@ router.post('/review', async (req, res) => {
       // Persist rules via unified KB interface (Supabase if org exists, files as fallback)
       // trade='all' ensures training hub rules apply to ALL trades platform-wide
       try {
+        console.log(`[Training Hub] Persisting ${newRules.length} rules for orgId=${req.orgId}, trade=all`);
         const persisted = await persistLearnedRules(newRules, req.orgId, req.user.id, 'all');
+        console.log(`[Training Hub] Persist result:`, JSON.stringify(persisted));
         rulesCreated = persisted?.persisted || newRules.length;
       } catch (e) {
-        console.error('[Training Hub] Rule persistence error:', e.message);
+        console.error('[Training Hub] Rule persistence error:', e.message, e.stack);
         rulesCreated = 0;
       }
 
@@ -336,6 +340,28 @@ router.get('/feedback-stats', (req, res) => {
     res.json({ success: true, ...hub.getFeedbackStats() });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Diagnostic: check DB connectivity and rule counts
+router.get('/diagnostics', async (req, res) => {
+  try {
+    const { loadLearning } = require('../kb/index');
+    const learning = await loadLearning(req.orgId);
+    const fileRules = hub.getExtractions({}).length;
+    const goldenRecords = hub.getGoldenRecords(1000).length;
+
+    res.json({
+      success: true,
+      org_id: req.orgId,
+      user_id: req.user?.id,
+      db_learned_rules: learning.learnedRules.length,
+      db_pattern_errors: learning.patternErrors.length,
+      file_extractions: fileRules,
+      file_golden_records: goldenRecords,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message, stack: err.stack });
   }
 });
 

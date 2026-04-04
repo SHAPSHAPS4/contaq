@@ -206,9 +206,16 @@ function persistPatternErrorToFiles(errorType, occurrences, heightenedAction) {
 let _db = null;
 function _getDB() {
   if (!_db) {
-    try { _db = require('../db/queries'); } catch { _db = null; }
+    try { _db = require('../db/queries'); } catch (e) {
+      console.error('[KB] Failed to load db/queries:', e.message);
+      _db = null;
+    }
   }
-  return _db && _db.dbReady() ? _db : null;
+  if (_db && !_db.dbReady()) {
+    console.warn('[KB] db/queries loaded but dbReady() returned false — Supabase not configured');
+    return null;
+  }
+  return _db || null;
 }
 
 async function loadDynamicSectionsForOrg(orgId, trade) {
