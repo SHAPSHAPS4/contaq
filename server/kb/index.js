@@ -495,7 +495,25 @@ function formatSection(sectionId, content) {
   const title = content.title || content.id || sectionId;
   const ver = content.version ? ` v${content.version}` : '';
   const payload = content.data || content; // Use .data if wrapped, raw content otherwise
-  return `═══ ${sectionId}: ${title}${ver} ═══\n${JSON.stringify(payload, null, 2)}`;
+  const compressed = compressPayload(payload);
+  return `═══ ${sectionId}: ${title}${ver} ═══\n${JSON.stringify(compressed)}`;
+}
+
+/** Strip verbose reference data that doesn't help extraction accuracy */
+function compressPayload(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(compressPayload);
+  const result = {};
+  for (const [key, value] of Object.entries(obj)) {
+    // Skip large reference arrays that list every possible size — Claude knows standard sizes
+    if (key === 'common_sizes' || key === 'common_sizes_mm' || key === 'conductor_sizes_mm2') continue;
+    // Skip verbose gauge tables — Claude knows DW/144 gauge defaults
+    if (key === 'gauge_by_size') continue;
+    // Skip pressure class detail — not needed for quantity extraction
+    if (key === 'airtightness_classes') continue;
+    result[key] = compressPayload(value);
+  }
+  return result;
 }
 
 function formatLearnedRules(rules) {
