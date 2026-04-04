@@ -123,6 +123,7 @@ app.use('/api/similarity', require('./routes/similarity'));
 app.use('/api/versions', require('./routes/versioning'));
 app.use('/api/register', require('./routes/drawing-register'));
 app.use('/api/admin/training', require('./routes/training-hub'));
+app.use('/api/ai', require('./routes/ai-pipeline'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
 /* ── Quote Builder frontend ───────────────────────────────────────── */
