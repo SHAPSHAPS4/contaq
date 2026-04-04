@@ -26,6 +26,45 @@ function getAuthHeader() {
   return { 'Content-Type': 'application/json' };
 }
 
+/* ── Auto token refresh ─────────────────────────────────────── */
+var _refreshing = null;
+
+function ensureFreshToken() {
+  if (!CONTRAQ_SESSION || !CONTRAQ_SESSION.token) return Promise.resolve();
+  /* Check if token expires within the next 2 minutes */
+  var expiresAt = CONTRAQ_SESSION.expires;
+  if (expiresAt && (expiresAt * 1000) - Date.now() > 120000) return Promise.resolve();
+  /* Token expired or about to — refresh it */
+  if (!CONTRAQ_SESSION.refresh) return Promise.resolve();
+  if (_refreshing) return _refreshing;
+  _refreshing = fetch(CONTRAQ_API_BASE + '/api/auth/refresh', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: CONTRAQ_SESSION.refresh })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    _refreshing = null;
+    if (data.access_token) {
+      CONTRAQ_SESSION.token = data.access_token;
+      CONTRAQ_SESSION.refresh = data.refresh_token || CONTRAQ_SESSION.refresh;
+      CONTRAQ_SESSION.expires = data.expires_at || null;
+      localStorage.setItem('contraq_session', JSON.stringify(CONTRAQ_SESSION));
+      console.log('[Auth] Token refreshed silently.');
+    }
+  }).catch(function(e) {
+    _refreshing = null;
+    console.warn('[Auth] Token refresh failed:', e.message);
+  });
+  return _refreshing;
+}
+
+/* Refresh on page load if token is stale */
+if (CONTRAQ_SESSION && CONTRAQ_SESSION.refresh) ensureFreshToken();
+
+/* Refresh every 50 minutes to stay ahead of 1hr expiry */
+setInterval(function() {
+  if (CONTRAQ_SESSION && CONTRAQ_SESSION.refresh) ensureFreshToken();
+}, 50 * 60 * 1000);
+
 /* ── Login ────────────────────────────────────────────────────── */
 function doLogin() {
   var email = document.getElementById('login-email').value.trim().toLowerCase();
