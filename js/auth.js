@@ -35,17 +35,6 @@ function doLogin() {
   err.style.display = 'none';
   if (!email || !pass) { err.textContent = 'Please enter email and password.'; err.style.display = 'block'; return; }
 
-  // Admin login — always works, bypasses API
-  if (email === 'admin@contraq.co.uk') {
-    if (pass !== 'Admin2025!') { err.textContent = 'Invalid admin password.'; err.style.display = 'block'; return; }
-    if (typeof restoreDemoData === 'function') restoreDemoData();
-    STATE.loggedIn = true;
-    STATE.demoMode = true;
-    STATE.user = Object.assign({}, ADMIN_USER);
-    nav('dashboard');
-    return;
-  }
-
   // Demo login — requires ?demo=1 in URL
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('demo') === '1' && email === 'demo@contraq.co.uk' && pass === 'Demo1234!') {
@@ -57,7 +46,7 @@ function doLogin() {
     return;
   }
 
-  // Real API login
+  // API login (all users including admin)
   if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
 
   fetch(CONTRAQ_API_BASE + '/api/auth/login', {

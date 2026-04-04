@@ -576,7 +576,7 @@ function changePassword() {
   if (!currentPw || !newPw || !confirmPw) { showToast('Please fill in all fields.', 'error'); return; }
   if (newPw.length < 8) { showToast('New password must be at least 8 characters.', 'error'); return; }
   if (newPw !== confirmPw) { showToast('New passwords do not match.', 'error'); return; }
-  var token = STATE.session ? STATE.session.access_token : null;
+  var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
   fetch((STATE.apiBase || '') + '/api/auth/change-password', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': token ? 'Bearer ' + token : '' },

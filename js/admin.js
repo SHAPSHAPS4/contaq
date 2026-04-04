@@ -428,7 +428,7 @@ function bulkReviewAllCorrect() {
   });
 
   /* Send bulk review to API */
-  var token = STATE.session ? STATE.session.access_token : null;
+  var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
   if (token && CONTRAQ_API_BASE) {
     fetch(CONTRAQ_API_BASE + '/api/admin/training/bulk-review', {
       method: 'POST',
@@ -531,7 +531,7 @@ function submitTrainingReview(extractionId) {
   };
 
   /* Send to API — creates golden record AND feeds corrections into KB flywheel */
-  var token = STATE.session ? STATE.session.access_token : null;
+  var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
   var corrections = feedback.filter(function(f) { return f.tag !== 'correct'; });
 
   if (token && CONTRAQ_API_BASE) {
@@ -628,7 +628,7 @@ function trainProcessUploads() {
       var base64 = e.target.result.split(',')[1];
 
       /* Call drawing extraction API */
-      var token = STATE.session ? STATE.session.access_token : null;
+      var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
       var headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = 'Bearer ' + token;
 
@@ -705,7 +705,7 @@ function trainProcessUploads() {
 }
 
 function exportTrainingData() {
-  var token = STATE.session ? STATE.session.access_token : null;
+  var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
   if (token && CONTRAQ_API_BASE) {
     fetch(CONTRAQ_API_BASE + '/api/admin/training/export', {
       headers: { 'Authorization': 'Bearer ' + token }
@@ -741,7 +741,7 @@ function exportTrainingData() {
 var _trainingGoldenRecords = [];
 
 function _loadTrainingData(callback) {
-  var token = STATE.session ? STATE.session.access_token : null;
+  var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
   if (!token || !CONTRAQ_API_BASE) {
     if (callback) callback();
     return;
