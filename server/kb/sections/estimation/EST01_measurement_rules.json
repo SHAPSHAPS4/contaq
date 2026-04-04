@@ -1,0 +1,85 @@
+{
+  "section_id": "KB-EST01",
+  "title": "M&E Measurement Rules — NRM2 & SMM7",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "UK M&E quantities follow NRM2 (RICS, current standard) or SMM7 (legacy, still widely used). Both define how each service type is measured, what unit to use, and what is included in the rate vs measured separately.",
+    "measurement_units": {
+      "pipework": {
+        "unit": "m (linear metres)",
+        "classification": "By nominal bore (NB) in mm and material",
+        "method": "Measure along centreline of pipe, through fittings",
+        "sizes_mm": "15, 22, 28, 35, 42, 54, 67, 76, 108, 159, 219",
+        "materials": ["Copper to BS EN 1057", "Mild steel to BS 1387 (medium/heavy)", "Stainless steel", "MLCP (multi-layer composite)", "Plastic (PP, PE, PB, PVC)"],
+        "in_rate": "Jointing of straight runs, basic clips, making good, testing, waste/cutting",
+        "measured_separately": "Named valves and accessories, fittings (bends/tees/reducers), fire stopping, BWIC, insulation"
+      },
+      "ductwork_rectangular": {
+        "unit": "m² (developed surface area)",
+        "formula": "2 × (W + H) / 1000 × Length = m²",
+        "example": "600×400mm duct, 10m long: 2 × (0.6 + 0.4) × 10 = 20.0 m²",
+        "classification": "By gauge (mm) per DW/144 pressure class",
+        "gauge_by_longest_side": {
+          "up_to_300mm": "0.50mm",
+          "301_750mm": "0.60mm",
+          "751_1000mm": "0.70mm",
+          "1001_1500mm": "0.80mm",
+          "1501_2000mm": "1.00mm",
+          "over_2000mm": "1.20mm"
+        },
+        "note": "Higher pressure classes require one gauge step heavier. Fittings measured separately in m² of surface area."
+      },
+      "ductwork_circular": {
+        "unit": "m (linear metres)",
+        "classification": "By diameter (mm) and material",
+        "fittings": "Enumerated as nr"
+      },
+      "cable_containment": {
+        "unit": "m (linear metres)",
+        "classification": "By type and width/size",
+        "types": {
+          "cable_tray": "150, 225, 300, 450, 600mm widths",
+          "cable_basket": "100, 200, 300, 450, 600mm widths",
+          "cable_trunking": "50×50, 100×50, 100×100, 150×150mm etc.",
+          "conduit": "20, 25, 32mm diameter",
+          "cable_ladder": "300, 450, 600, 900mm widths"
+        }
+      },
+      "cables": {
+        "unit": "m (linear metres)",
+        "classification": "By type, voltage rating, cores × CSA",
+        "examples": ["XLPE/SWA/PVC 4c × 25mm² 600/1000V", "FP200 2c × 1.5mm² fire rated", "Cat6A UTP data cable"],
+        "terminations": "Enumerated (nr) — cable glands at each end"
+      },
+      "equipment": {
+        "unit": "nr (number)",
+        "classification": "By type, manufacturer/model or performance spec, duty, capacity",
+        "includes": "Delivery, offloading, positioning, fixing, connections"
+      },
+      "insulation": {
+        "pipework": "Linear metres (m) by bore size, material type, thickness, finish",
+        "ductwork": "m² by insulation type, thickness",
+        "materials": ["Phenolic foam (Kingspan Kooltherm)", "Mineral wool (Rockwool)", "Elastomeric (Armaflex)", "PIR", "Glass fibre"],
+        "finishes": ["Aluminium cladding", "PVC jacket", "Painted canvas", "Self-adhesive"]
+      }
+    },
+    "nrm2_principles": [
+      "Measurement is NET IN PLACE — no waste allowance in measured quantities (waste is in the rate)",
+      "Work is deemed to include all labours unless stated otherwise",
+      "Items include fixing, jointing, and testing unless otherwise stated",
+      "Provisional sums for items that cannot be fully defined",
+      "BWIC (builders work in connection) measured separately — holes, chases, sleeves, fire stopping"
+    ],
+    "key_references": {
+      "NRM2": "RICS New Rules of Measurement 2 (2012/2013) — current standard",
+      "SMM7": "Standard Method of Measurement 7th Edition (1988/1998) — legacy, still used",
+      "DW144": "BESA Specification for Sheet Metal Ductwork (2016) — ductwork gauge/classification",
+      "DW172": "BESA Specification for Kitchen Ventilation Systems (2018) — 30-50% premium over standard",
+      "BS7671": "IET Wiring Regulations 18th Edition (2022) — electrical installation requirements",
+      "BS5422": "Thermal insulation of pipes and ductwork — thickness tables",
+      "BS_EN_1057": "Copper tube specification",
+      "BS_EN_12056": "Gravity drainage systems"
+    }
+  }
+}

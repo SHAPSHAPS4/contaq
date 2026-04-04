@@ -1,0 +1,111 @@
+{
+  "section_id": "KB-VAL02",
+  "title": "Plausibility Checks & Quality Assurance",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "Before finalising any extraction, run plausibility checks to catch scale errors, double-counting, and omissions. These are the checks an experienced estimator applies instinctively.",
+    "building_footprint_checks": {
+      "rule": "Compare extracted quantities against the building's physical dimensions. If quantities don't make sense for the building size, something is wrong.",
+      "checks": [
+        {
+          "check": "Main duct run vs building length",
+          "rule_of_thumb": "Main supply/return duct on one floor should be 1–3× the building's longest dimension",
+          "example": "50m building → main supply duct should be ~50–150m on that floor. If you get 500m, suspect scale error (2×) or wrong drawing.",
+          "if_fails": "Re-check scale. Cross-validate against a known dimension on the drawing."
+        },
+        {
+          "check": "Total pipework vs building area",
+          "rule_of_thumb": "Total LTHW pipework per floor is typically 2–5m per radiator/FCU served (branches + mains share)",
+          "example": "Floor has 20 FCUs → expect 40–100m of total pipework on that floor. If you get 500m, check for double-counting or scale error.",
+          "if_fails": "Review measurement method. Are you measuring the same pipe runs twice from overlapping drawings?"
+        },
+        {
+          "check": "Equipment count vs floor area",
+          "rule_of_thumb": "FCUs/cassettes: typically 1 per 15–30m² in offices. Radiators: 1 per room or 1 per 3–5m of external wall.",
+          "example": "500m² office floor → expect 17–33 FCUs. If you get 5, you're missing some. If you get 100, you're double-counting.",
+          "if_fails": "Cross-check against equipment schedule if available."
+        },
+        {
+          "check": "Diffuser count vs ductwork extent",
+          "rule_of_thumb": "Each supply diffuser serves ~10–20m² floor area. Branch run to diffuser: typically 2–8m.",
+          "example": "12 diffusers with 2–8m branches each → 24–96m of branch ductwork. If branch total is 400m, something is wrong.",
+          "if_fails": "Check individual branch measurements. Verify scale."
+        },
+        {
+          "check": "Cable containment vs floor area",
+          "rule_of_thumb": "Cable tray/basket: typically 0.3–0.8m per m² of floor area (offices). Data-heavy buildings higher.",
+          "example": "500m² floor → 150–400m of containment. If you get 2000m, suspect double-counting.",
+          "if_fails": "Are you counting containment on both ceiling plan and services coordination drawing? Measure from one source only."
+        }
+      ]
+    },
+    "system_completeness_checks": {
+      "rule": "For each system identified, verify the extraction is logically complete — every system has a source, distribution, and terminal.",
+      "checks": [
+        {
+          "system": "Heating (LTHW)",
+          "must_have": ["Heat source (boiler/heat pump/HIU)", "Pump(s)", "Flow pipework by size", "Return pipework (should mirror flow)", "Terminal units (radiators/FCUs/trench heaters)", "Isolation valves at plant and branches", "Expansion vessel", "Controls/BMS points"],
+          "common_omissions": ["Return pipework (often forgotten — should equal flow meterage)", "Isolation valves (always needed but often not drawn)", "Flexible connections at rotating equipment"]
+        },
+        {
+          "system": "Cooling (CHW)",
+          "must_have": ["Chiller or cooling source", "Primary/secondary pumps", "Flow and return pipework", "FCUs/AHU cooling coils", "Expansion vessel", "Controls"],
+          "common_omissions": ["Insulation with vapour barrier (essential for CHW to prevent condensation)", "Drain points", "Pressure relief valves"]
+        },
+        {
+          "system": "Ventilation",
+          "must_have": ["AHU or fan", "Supply ductwork by size", "Return/extract ductwork", "Terminal devices (diffusers/grilles)", "Fire dampers at compartment boundaries", "Volume control dampers", "Flexible connections at plant"],
+          "common_omissions": ["Fire dampers (life-safety — must be at every rated wall/floor penetration)", "Access doors (required per DW/144 at regular intervals)", "Acoustic attenuators"]
+        },
+        {
+          "system": "Electrical",
+          "must_have": ["Distribution boards", "Cable containment routes", "Final circuits", "Accessories (sockets/switches)", "Lighting", "Earthing/bonding"],
+          "common_omissions": ["Submain cables from main switchboard to DBs", "Earthing (not always shown on lighting/power layouts)", "Fire-rated cables for fire alarm and emergency lighting"]
+        }
+      ]
+    },
+    "quantity_ratio_checks": {
+      "rule": "Certain quantities should maintain expected ratios. If ratios are wildly off, investigate.",
+      "ratios": [
+        {
+          "ratio": "Flow pipework ≈ Return pipework",
+          "tolerance": "Within 10%",
+          "if_fails": "Check if return is on a different drawing or measured from a different source."
+        },
+        {
+          "ratio": "Supply ductwork ≈ Return/Extract ductwork",
+          "tolerance": "Return is typically 70–100% of supply (some areas may be transfer air)",
+          "if_fails": "Check if extract system is on a separate drawing or different discipline."
+        },
+        {
+          "ratio": "Number of fire dampers ≈ Number of fire-rated wall/floor penetrations by duct",
+          "tolerance": "Should be 1:1",
+          "if_fails": "If fire dampers < penetrations, flag as [FIRE DAMPERS POTENTIALLY MISSING]."
+        },
+        {
+          "ratio": "FCU count (drawing) ≈ FCU count (schedule)",
+          "tolerance": "Should match exactly",
+          "if_fails": "Flag discrepancy with both counts."
+        }
+      ]
+    },
+    "qa_process": {
+      "rule": "Before releasing extraction output, perform these quality checks.",
+      "checklist": [
+        "Every item has a Source label (Schedule/Drawing/Scale/Estimated/Implicit)",
+        "Every item has a Confidence score (High/Medium/Low)",
+        "Low confidence items have a specific flag explaining why",
+        "Scale has been cross-validated against a known reference dimension",
+        "Drawing revision is the latest available",
+        "No linear quantities measured from schematics or riser diagrams",
+        "All systems have both source and return/extract measured",
+        "Equipment counts match schedule where schedule exists",
+        "Fire dampers counted at every fire-rated penetration",
+        "Quantities pass plausibility checks against building footprint",
+        "Assumptions are listed and tagged",
+        "Queries are listed with priority"
+      ]
+    }
+  }
+}

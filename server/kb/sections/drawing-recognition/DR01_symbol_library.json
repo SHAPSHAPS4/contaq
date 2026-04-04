@@ -1,0 +1,145 @@
+{
+  "section_id": "KB-DR01",
+  "title": "M&E Drawing Symbol Library & Identification",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "UK M&E drawings use symbols defined by BS 1192, BS EN ISO 7519, and CIBSE conventions. However, EVERY project may define its own symbols in the legend. The legend ALWAYS overrides standard symbols. If no legend exists, fall back to these standards but flag all identifications as [NO LEGEND — ASSUMED FROM STANDARD].",
+    "pipework_symbols": {
+      "line_types": {
+        "solid_line": "Pipework at the level shown (visible on this floor)",
+        "dashed_line": "Pipework above or below the level shown (typically in ceiling void or below floor)",
+        "chain_dot_line": "Pipework boundary or centre line",
+        "thick_solid": "Main header / primary pipework",
+        "thin_solid": "Branch / secondary pipework"
+      },
+      "flow_direction": {
+        "arrow_on_line": "Indicates flow direction — critical for distinguishing flow from return",
+        "f_label": "Flow pipe",
+        "r_label": "Return pipe",
+        "colours_if_used": "Red = LTHW flow, Blue = CHW or CWS, Green = LTHW return (varies by project)"
+      },
+      "valves": {
+        "gate_valve": "Two triangles meeting at points (bowtie shape)",
+        "ball_valve": "Circle on the pipe line with a line through it",
+        "butterfly_valve": "Triangle or diamond on the pipe line",
+        "check_valve": "Triangle pointing in flow direction with a bar",
+        "pressure_relief": "Triangle with arrow pointing away from pipe",
+        "control_valve": "Valve symbol with 'CV' or actuator symbol (M for motorised)",
+        "strainer": "Y-shape or diamond with mesh pattern",
+        "commissioning_set": "Often 'CS' or specific manufacturer symbol",
+        "picv": "Pressure-independent control valve — 'PICV' label or specific symbol",
+        "warning": "Valve symbols vary SIGNIFICANTLY between projects. Never assume — check legend."
+      },
+      "equipment": {
+        "pump": "Circle with arrow or impeller symbol. Label: 'P-01', 'CHP-01', etc.",
+        "expansion_vessel": "Circle or oval, often with 'EV' label",
+        "boiler": "Rectangle with flame symbol or 'B-01' label",
+        "heat_exchanger": "Rectangle with diagonal lines or 'PHE-01' label",
+        "calorifier": "Cylinder shape, 'CAL-01' label",
+        "pressurisation_unit": "Rectangle with 'PU' label"
+      },
+      "vertical_movement": {
+        "rise_symbol": "Circle with 'R' — pipe rises through floor above",
+        "drop_symbol": "Circle with 'D' — pipe drops through floor below",
+        "riser_reference": "Usually labelled with riser number: 'R1', 'R2', etc."
+      }
+    },
+    "ductwork_symbols": {
+      "line_types": {
+        "solid_outline": "Ductwork at the level shown — drawn as two parallel lines (rectangular) or single line (circular)",
+        "rectangular": "Two parallel lines with dimension annotation (e.g., 600×400)",
+        "circular": "Single line with diameter annotation (e.g., Ø315)",
+        "dashed_outline": "Ductwork on another level or hidden behind other services"
+      },
+      "system_labels": {
+        "SA": "Supply Air",
+        "RA": "Return Air",
+        "EA": "Extract Air",
+        "FA": "Fresh Air / Outside Air",
+        "KE": "Kitchen Extract",
+        "TE": "Toilet Extract",
+        "SE": "Smoke Extract",
+        "TA": "Transfer Air"
+      },
+      "dampers": {
+        "fire_damper": "Thick bar or 'FD' symbol at duct/wall intersection. ALWAYS count these — life safety item.",
+        "smoke_damper": "'SD' symbol, usually with actuator symbol (M)",
+        "combined_fsd": "'FSD' or 'FS' — combined fire/smoke damper",
+        "volume_control": "Butterfly symbol on duct line — 'VCD' label. Motorised has 'M' symbol.",
+        "non_return": "'NRD' or 'BD' — backdraught damper at fan discharge or external openings"
+      },
+      "terminals": {
+        "supply_diffuser_4way": "Square with 4 outward arrows",
+        "supply_diffuser_2way": "Square with 2 opposing arrows",
+        "linear_diffuser": "Long thin rectangle along ceiling edge",
+        "swirl_diffuser": "Circle with curved arrows",
+        "return_grille": "Square with X pattern (crossed diagonals) or parallel bars",
+        "extract_grille": "Similar to return — check label for system type",
+        "transfer_grille": "Grille symbol in a wall or door — NOT connected to ductwork"
+      }
+    },
+    "electrical_symbols": {
+      "distribution": {
+        "distribution_board": "Rectangle with circuit numbers — 'DB-01', 'DB-L01' (lighting), 'DB-P01' (power)",
+        "main_switchboard": "Larger rectangle — 'MSB', 'MSSB'",
+        "isolator": "Rectangle with 'ISO' or switch symbol",
+        "transformer": "Circle with coils — 'TX'"
+      },
+      "wiring_accessories": {
+        "single_socket": "Rectangle with one horizontal line",
+        "double_socket": "Rectangle with two horizontal lines",
+        "fused_spur": "Rectangle with 'FS' or fuse symbol",
+        "switch": "Circle with 'S' or switch number",
+        "dimmer": "Circle with 'D' or dimmer symbol",
+        "data_outlet": "Triangle or 'D' symbol (varies greatly by project)"
+      },
+      "lighting": {
+        "note": "Luminaire symbols vary WILDLY between projects. ALWAYS check legend.",
+        "recessed_downlight": "Circle (open or filled)",
+        "linear_fluorescent": "Rectangle or line",
+        "surface_mounted": "Square or circle with cross",
+        "emergency": "Usually has 'EM' suffix or different fill",
+        "external": "Circle or rectangle with different fill"
+      },
+      "fire_alarm": {
+        "smoke_detector": "Circle with 'SD' or 'OSD' (optical smoke detector)",
+        "heat_detector": "Circle with 'HD'",
+        "manual_call_point": "Square with 'MCP'",
+        "sounder": "Circle or triangle with 'S' or bell symbol",
+        "beacon": "Circle with 'B' or strobe symbol",
+        "fire_alarm_panel": "Rectangle with 'FAP'"
+      },
+      "containment": {
+        "cable_tray": "Dashed line with 'CT' label and width annotation",
+        "cable_basket": "Dashed line with 'CB' label",
+        "trunking": "Double line with 'TK' label",
+        "conduit": "Thin line with 'C' label or diameter notation",
+        "cable_ladder": "Dashed line with rungs, 'CL' label"
+      }
+    },
+    "fire_symbols": {
+      "fire_stopping": {
+        "fire_rated_wall": "Thick line or cross-hatched wall with fire rating annotation (e.g., '60/60')",
+        "fire_collar": "Ring symbol at pipe/duct penetration through rated element",
+        "fire_sleeve": "Rectangle at penetration point",
+        "cavity_barrier": "Line with 'CB' at compartment boundary"
+      },
+      "fire_damper_identification": {
+        "rule": "Fire dampers MUST be at every ductwork penetration through a fire-rated wall or floor. If not shown on drawings but fire compartmentation exists, flag as [FIRE DAMPERS POTENTIALLY MISSING].",
+        "drawing_clues": ["'FD' label at duct/wall intersection", "Thick bar across duct at wall line", "Red or orange highlighting at penetrations", "Reference to fire damper schedule"]
+      }
+    },
+    "legend_reading_process": {
+      "rule": "ALWAYS read and index the legend before measuring. The legend defines every symbol for THIS project.",
+      "process": [
+        "1. Locate the legend/key — usually on the first sheet, in the title block area, or on a separate legend sheet.",
+        "2. Index every symbol: note the symbol graphic, its description, and any size/specification information.",
+        "3. For each symbol, determine: is it an item to COUNT (nr) or a route to MEASURE (m)?",
+        "4. Where the legend is incomplete or missing, note which symbols are unidentified.",
+        "5. For unidentified symbols: describe the shape/appearance, note its location on the drawing, flag as [UNIDENTIFIED SYMBOL — LEGEND REQUIRED].",
+        "6. DO NOT guess what an unidentified symbol represents. A wrong identification is worse than flagging it as unknown."
+      ]
+    }
+  }
+}

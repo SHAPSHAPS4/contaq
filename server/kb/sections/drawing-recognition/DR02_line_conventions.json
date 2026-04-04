@@ -1,0 +1,124 @@
+{
+  "section_id": "KB-DR02",
+  "title": "Drawing Line Types, Scales & Visual Conventions",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "Understanding line types, weights, and conventions is essential for correctly identifying services on M&E drawings. A solid line means something different from a dashed line, and line weight indicates the importance/hierarchy of the element.",
+    "line_types": {
+      "continuous_solid_thin": {
+        "appearance": "Thin unbroken line",
+        "typical_meaning": ["Secondary services", "Branch pipework/ductwork", "Dimension lines", "Leader lines to annotations", "Grid lines"],
+        "measure": true
+      },
+      "continuous_solid_thick": {
+        "appearance": "Thick unbroken line",
+        "typical_meaning": ["Primary services (mains, headers)", "Building outline", "Main duct/pipe runs", "Fire-rated walls"],
+        "measure": true
+      },
+      "dashed": {
+        "appearance": "Short dashes with gaps (- - - -)",
+        "typical_meaning": ["Services above or below the plan cut level", "Pipework in ceiling void (shown on floor plan)", "Items hidden behind other elements", "Proposed routes (on some projects)"],
+        "measure": true,
+        "tag": "[INDICATED ON OTHER LEVEL] — verify which floor this service is actually on"
+      },
+      "chain_line": {
+        "appearance": "Long dash-short dash (—·—·—)",
+        "typical_meaning": ["Centre lines", "Boundary lines", "Match lines between drawing sheets", "Section cut lines"],
+        "measure": false,
+        "note": "Do not measure along chain lines — they are reference lines, not services."
+      },
+      "chain_double_dash": {
+        "appearance": "Long dash-two short dashes (—··—··—)",
+        "typical_meaning": ["Services to be removed/demolished", "Existing services (on new work drawings)", "Phantom lines showing adjacent elements"],
+        "measure": false,
+        "note": "If this represents existing services, do NOT include in new work take-off."
+      },
+      "dotted": {
+        "appearance": "Short dots (· · · · ·)",
+        "typical_meaning": ["Hidden detail", "Items below floor level", "Underground services"],
+        "measure": "Only if confirmed as new work within scope"
+      }
+    },
+    "scale_conventions": {
+      "standard_scales": {
+        "1_to_500": "Site plans, overall building layout",
+        "1_to_200": "Building plans (outline), drainage layouts",
+        "1_to_100": "Floor plans — MOST COMMON for M&E GAs. 1cm on drawing = 1m actual.",
+        "1_to_50": "Detailed floor plans, plant rooms. 2cm on drawing = 1m actual.",
+        "1_to_25": "Plant room details, risers, complex areas",
+        "1_to_20": "Equipment details, connection details",
+        "1_to_10": "Fabrication details, special items",
+        "1_to_5": "Component details"
+      },
+      "scale_bar_reading": {
+        "rule": "ALWAYS verify the scale bar before measuring. The scale bar is the ONLY reliable scale reference on a PDF.",
+        "process": [
+          "1. Find the scale bar (usually near title block or at drawing edge).",
+          "2. Measure the scale bar's physical length in the PDF viewer (many viewers have a measurement tool).",
+          "3. The bar should show divisions representing known distances (e.g., 0-1m-2m-5m-10m).",
+          "4. If the bar's divisions measure correctly against the stated scale, the drawing is at correct print scale.",
+          "5. If the bar's divisions DO NOT match the stated scale, the drawing has been printed/scaled. Use the BAR, not the stated scale."
+        ]
+      },
+      "scale_error_detection": {
+        "common_causes": [
+          "PDF printed at 'fit to page' instead of 100%",
+          "A3 drawing printed on A4 (everything halved)",
+          "Drawing scanned at non-standard DPI",
+          "PDF exported at different paper size than drawn"
+        ],
+        "detection_method": "Measure a known object: door (900mm leaf), structural grid (annotated spacing), corridor width (1200-1800mm typical), ceiling tile (600×600mm).",
+        "correction": "If measured object is exactly 2× or 0.5× expected, the entire drawing is at double or half scale. Apply correction factor to ALL measurements."
+      }
+    },
+    "colour_conventions": {
+      "note": "Colour use varies between projects. There is no universal UK standard for M&E service colours on drawings. ALWAYS check the legend.",
+      "common_conventions": {
+        "red": "LTHW flow, heating, hot services",
+        "blue": "CHW, cold water, chilled services",
+        "green": "Return pipework, drainage, sometimes ventilation",
+        "orange": "Fire alarm, fire services",
+        "yellow": "Gas pipework",
+        "purple_magenta": "Electrical services, sometimes comms",
+        "brown": "Drainage (above ground)",
+        "black": "General, uncoloured, or primary services"
+      },
+      "warning": "Do NOT rely on colour for identification if no legend confirms the convention. Many drawings are printed in greyscale."
+    },
+    "annotation_conventions": {
+      "size_annotations": {
+        "pipework": "Number near the line = nominal bore in mm (e.g., '54' means 54mm NB). Sometimes prefixed with 'DN' (e.g., 'DN50').",
+        "ductwork_rectangular": "Width × Height in mm (e.g., '600×400'). Width first, height second.",
+        "ductwork_circular": "Ø followed by diameter (e.g., 'Ø315' means 315mm diameter).",
+        "containment": "Width in mm (e.g., '300CT' = 300mm cable tray, '225CB' = 225mm cable basket)."
+      },
+      "level_annotations": {
+        "ffl": "Finished Floor Level (e.g., '+3.750' means 3.75m above datum)",
+        "soffit": "Underside of slab/beam (service clearance)",
+        "tob": "Top of beam",
+        "tos": "Top of slab/steel"
+      },
+      "reference_annotations": {
+        "equipment_tags": "Equipment reference numbers (e.g., 'FCU-GF-01', 'AHU-01', 'DB-L3-01')",
+        "system_labels": "System identification (e.g., 'LTHW-F' = LTHW Flow, 'SA-01' = Supply Air system 01)",
+        "revision_clouds": "Irregular cloud shape enclosing changed areas — triangle with revision letter nearby"
+      }
+    },
+    "drawing_reading_sequence": {
+      "rule": "When presented with an M&E drawing, read it in this order:",
+      "steps": [
+        "1. TITLE BLOCK — drawing number, title, revision, scale, status, discipline",
+        "2. LEGEND/KEY — index every symbol before measuring",
+        "3. NORTH POINT — orient yourself to the building",
+        "4. GRID LINES — note column grid references for location tracking",
+        "5. BUILDING OUTLINE — understand the floor plate, walls, openings",
+        "6. SERVICES OVERVIEW — scan for all service types present (what systems are on this drawing?)",
+        "7. SYSTEM-BY-SYSTEM TRACE — methodically trace each system from source to terminal",
+        "8. ANNOTATIONS — read all text annotations, dimension notes, flags",
+        "9. REVISION CLOUDS — identify what has changed if this is a revised drawing",
+        "10. NOTES — read general notes and specific notes panels (often contain critical scope information)"
+      ]
+    }
+  }
+}

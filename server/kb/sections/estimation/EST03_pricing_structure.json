@@ -1,0 +1,62 @@
+{
+  "section_id": "KB-EST03",
+  "title": "M&E Pricing Structure & Commercial Build-Up",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "How M&E subcontractors build up a tender price from extracted quantities. The AI extraction provides the quantities — this section explains what happens next so the AI can structure output to be immediately usable by the pricing team.",
+    "estimation_approaches": {
+      "first_principles": {
+        "description": "Every item measured and priced individually — material + labour + plant per unit",
+        "accuracy": "Highest — used for final tenders",
+        "when_used": "Final tender submissions, negotiated contracts, high-value projects"
+      },
+      "operational": {
+        "description": "Estimate by composite operations — e.g. 'install a radiator' includes brackets, connections, valves, BWIC as one rate",
+        "accuracy": "Good — faster than first principles",
+        "when_used": "Repeat work, framework contracts, negotiated tenders"
+      },
+      "approximate_quantities": {
+        "description": "M&E cost per m² GIFA benchmarks or cost per functional unit (£/kW, £/lighting point)",
+        "accuracy": "Budget level — ±15-25%",
+        "when_used": "Feasibility, early design stages, bid/no-bid decisions"
+      }
+    },
+    "price_build_up": {
+      "direct_costs": {
+        "materials": "Supplier quotations or database rates. Include delivery, offloading if not in prelims.",
+        "labour": "Hours × hourly rate. UK M&E rate (2024): £35–55/hour (employed), London +15–25%.",
+        "plant_and_tools": "Scaffolding, MEWP hire, specialist tools. Often in prelims."
+      },
+      "indirect_costs": {
+        "preliminaries": "Site-specific: supervision, welfare, temporary services, scaffolding, security. Typically 8–15% of direct cost.",
+        "head_office_overheads": "Company running costs allocated to projects. Typically 5–10%.",
+        "design_fees": "If design and build scope. Typically 3–6% of M&E value.",
+        "profit": "Typically 3–8%, market dependent."
+      },
+      "typical_markup_stack": {
+        "note": "Applied to net direct cost (material + labour + plant)",
+        "waste": "5–10% (on materials)",
+        "prelims": "8–15%",
+        "overheads": "5–10%",
+        "profit": "3–8%",
+        "total_markup_on_direct": "Typically 25–45% total"
+      }
+    },
+    "output_format_for_pricing": {
+      "rule": "The AI extraction should produce output structured so the pricing team can apply rates directly. Each line item needs:",
+      "required_fields": [
+        "System (e.g., LTHW, CHW, Supply Air)",
+        "Item description (e.g., '54mm copper pipe to BS EN 1057')",
+        "Unit (m, m², nr)",
+        "Quantity (net measured, no waste)",
+        "Size/specification",
+        "Location (floor/zone/gridline)",
+        "Source (measured/inferred/implicit)",
+        "Confidence (High/Medium/Low)"
+      ],
+      "grouping": "System → Sub-system → Item type → Individual line items",
+      "summary_needed": ["Total linear metres by pipe/duct size", "Total equipment count by type", "Total m² of ductwork by gauge", "Total containment metres by type/size"]
+    }
+  }
+}

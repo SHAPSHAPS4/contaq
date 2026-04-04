@@ -1,0 +1,94 @@
+{
+  "section_id": "KB-VAL01",
+  "title": "Cross-Referencing & Multi-Drawing Reconciliation",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "M&E projects typically involve 20–200+ drawings. Services appear across multiple sheets. Cross-referencing ensures nothing is double-counted and nothing is missed. This is where most estimation errors occur.",
+    "drawing_hierarchy": {
+      "rule": "When the same item appears on multiple drawing types, use this hierarchy to determine which source to measure from:",
+      "priority_order": [
+        {"priority": 1, "type": "Equipment/Valve/Cable Schedule", "use_for": "Definitive count, specification, and sizing. ALWAYS use schedule count over drawing count."},
+        {"priority": 2, "type": "GA (General Arrangement) Plan", "use_for": "Linear measurement (meterage), routing, spatial layout. PRIMARY source for quantities."},
+        {"priority": 3, "type": "Coordination Drawing", "use_for": "Clash-resolved routing. Use ONLY if more detailed than GA. Flag as preliminary if status is 'For Coordination'."},
+        {"priority": 4, "type": "Reflected Ceiling Plan (RCP)", "use_for": "Terminal device positions (diffusers, grilles, luminaires). NOT for duct/pipe routing above ceiling."},
+        {"priority": 5, "type": "Section/Elevation Drawing", "use_for": "Vertical measurements, riser heights, equipment clearances. Supplements plan measurements."},
+        {"priority": 6, "type": "Schematic/Flow Diagram", "use_for": "System connectivity, equipment list, valve locations. NEVER for linear measurements."},
+        {"priority": 7, "type": "Detail Drawing", "use_for": "Installation method, connection details. NOT for quantities unless explicitly stating a dimension."}
+      ]
+    },
+    "schedule_validation": {
+      "rule": "Cross-check every equipment schedule against the drawings. Discrepancies are common and must be flagged.",
+      "checks": [
+        {
+          "schedule_type": "Equipment Schedule",
+          "check_against": "GA plan — count equipment symbols",
+          "common_discrepancies": "Schedule lists 8 FCUs but only 7 shown on drawing (one may be on another floor's drawing, or schedule is wrong)",
+          "resolution": "Flag discrepancy. Use schedule count. Note which items cannot be located on drawings."
+        },
+        {
+          "schedule_type": "Valve Schedule",
+          "check_against": "GA plan and P&ID",
+          "common_discrepancies": "Valve schedule shows isolation valves not drawn on GA. P&ID shows valves schematically but not in correct physical location.",
+          "resolution": "Use valve schedule for count. Use GA for location. If valve appears on P&ID but not GA, flag as [SCHEDULE ITEM — NOT LOCATED ON GA]."
+        },
+        {
+          "schedule_type": "Luminaire Schedule",
+          "check_against": "Reflected ceiling plan",
+          "common_discrepancies": "Schedule room-by-room count differs from RCP symbol count",
+          "resolution": "Use schedule count (designer's intent). Verify RCP shows same distribution pattern."
+        },
+        {
+          "schedule_type": "Cable Schedule",
+          "check_against": "Single-line diagram and containment layout",
+          "common_discrepancies": "Cable schedule lists circuits not shown on containment drawings, or cable sizes differ from SLD",
+          "resolution": "Cable schedule is authoritative for cable type and size. Containment drawings for routing."
+        },
+        {
+          "schedule_type": "Air Terminal Schedule",
+          "check_against": "RCP and GA ductwork layout",
+          "common_discrepancies": "Schedule includes terminals in rooms not shown on ductwork GA (may be on another drawing)",
+          "resolution": "Use schedule for count and specification. Flag terminals that cannot be located on any drawing."
+        }
+      ]
+    },
+    "multi_sheet_reconciliation": {
+      "rule": "Services crossing between drawing sheets must be measured once only. Use match lines and drawing references to track continuity.",
+      "process": [
+        "1. BEFORE measuring, list all drawings in the set. Note which areas each covers (floor, zone, gridlines).",
+        "2. IDENTIFY match lines — dashed lines at drawing edges showing where the adjacent sheet picks up.",
+        "3. CHECK for overlap — some drawings overlap by one or two gridlines. Measure to the match line on one sheet only.",
+        "4. WHERE a service crosses from one sheet to another, measure to the drawing edge and note: 'Continues on Dwg M-202'.",
+        "5. WHEN measuring the adjacent sheet, start from its edge. Do NOT double-count the overlap zone.",
+        "6. RISER connections between floors: measure the riser once (typically from the lowest drawing that shows it). Note which floors the riser serves."
+      ],
+      "double_count_risks": [
+        "Same corridor shown on two adjacent floor plan sheets — measure from one sheet only",
+        "Plant room straddling two drawing sheets — measure equipment from the most detailed sheet",
+        "Riser shown on every floor plan — measure riser once from section drawing or lowest floor",
+        "Equipment on both GA and equipment layout drawing — count from schedule, verify on GA",
+        "Service in revision cloud on both old and new revision — use latest revision only"
+      ]
+    },
+    "floor_to_floor_reconciliation": {
+      "rule": "Track services that cross between floors to ensure complete measurement without duplication.",
+      "process": [
+        "Build a RISER REGISTER: for each riser, record service type, sizes, which floors it serves, and which drawing it's measured from.",
+        "HORIZONTAL distribution on each floor is measured from that floor's GA.",
+        "VERTICAL risers are measured separately: number of floors × floor-to-floor height.",
+        "At each floor landing, count: isolation valves, branch connections, fire stopping. These are per-floor items.",
+        "Where a service drops from ceiling to equipment (e.g., pipe from tray to FCU), add the vertical drop per unit."
+      ]
+    },
+    "revision_management": {
+      "rule": "Only measure from the LATEST revision of each drawing. Superseded revisions can cause significant errors.",
+      "process": [
+        "1. Check drawing revision letter/number in title block before measuring.",
+        "2. If drawing set contains multiple revisions of the same drawing, use the highest revision only.",
+        "3. Note revision clouds — these indicate what changed. Items inside clouds are new/modified scope.",
+        "4. Flag items in revision clouds: [REVISED AREA — verify quantities are current].",
+        "5. If a revision cloud removes items (deletion cloud), ensure those items are NOT in your take-off."
+      ]
+    }
+  }
+}

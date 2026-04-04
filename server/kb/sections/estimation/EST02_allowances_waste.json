@@ -1,0 +1,148 @@
+{
+  "section_id": "KB-EST02",
+  "title": "Estimation Allowances, Waste Factors & Rules of Thumb",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "When drawings do not show every fitting, support, or ancillary, experienced estimators apply standard allowances. These factors are NOT applied by the AI extraction — they are noted for the estimator to apply at pricing stage. The AI should flag where allowances would typically apply.",
+    "material_waste": {
+      "rule": "Added to net measured quantities at pricing stage to account for offcuts, damaged materials, and installation losses.",
+      "factors": {
+        "copper_pipe": "5–10%",
+        "steel_pipe": "5–8%",
+        "plastic_pipe": "5–10%",
+        "rectangular_ductwork": "5–10% (offcuts from sheet)",
+        "circular_spiral_duct": "2–5% (factory-made lengths)",
+        "cable_tray_basket": "5–10%",
+        "power_cables": "5–10%",
+        "data_comms_cables": "10–15% (more complex routing)",
+        "pipe_insulation": "5–10%",
+        "duct_insulation": "10–15%",
+        "conduit": "5–8%"
+      }
+    },
+    "fittings_allowance": {
+      "rule": "When fittings are NOT individually shown on drawings, allow a percentage of straight material cost. This is a LAST RESORT — always count from drawings first.",
+      "pipework": {
+        "long_straight_risers_mains": "15–25%",
+        "plant_room_high_density": "60–100%",
+        "floor_distribution_moderate": "30–50%",
+        "final_connections_to_equipment": "40–60%",
+        "average_typical_project": "30–45%"
+      },
+      "ductwork": {
+        "long_straight_runs": "20–30%",
+        "plant_room_connections": "50–80%",
+        "typical_distribution": "35–55%",
+        "average_typical_project": "35–50%"
+      }
+    },
+    "support_spacing": {
+      "rule": "Supports/brackets are measured separately or included as an allowance per metre of service run.",
+      "pipework_horizontal": {
+        "15mm_copper": {"max_spacing_m": 1.2, "per_metre": 0.83},
+        "22mm_copper": {"max_spacing_m": 1.5, "per_metre": 0.67},
+        "28mm_copper": {"max_spacing_m": 1.8, "per_metre": 0.56},
+        "35mm_copper": {"max_spacing_m": 2.0, "per_metre": 0.50},
+        "42mm_copper": {"max_spacing_m": 2.4, "per_metre": 0.42},
+        "54mm_copper": {"max_spacing_m": 2.7, "per_metre": 0.37},
+        "50mm_steel": {"max_spacing_m": 3.0, "per_metre": 0.33},
+        "80mm_steel": {"max_spacing_m": 3.6, "per_metre": 0.28},
+        "100mm_steel": {"max_spacing_m": 3.6, "per_metre": 0.28},
+        "150mm_steel": {"max_spacing_m": 4.5, "per_metre": 0.22}
+      },
+      "ductwork": {
+        "small_up_to_600mm": "every 2.5–3.0m",
+        "medium_600_1200mm": "every 2.0–2.5m",
+        "large_over_1200mm": "every 1.5–2.0m"
+      },
+      "containment": {
+        "cable_tray": "every 1.2–1.5m (per BS 7671)",
+        "cable_basket": "every 1.5–2.0m",
+        "conduit": "every 1.0–1.2m",
+        "cable_ladder": "every 1.5–2.0m"
+      }
+    },
+    "cable_route_factors": {
+      "rule": "Plan-measured cable length ≠ installed length. Apply route factor to account for vertical drops, bends, slack, and routing around obstructions.",
+      "factors": {
+        "simple_tray_runs_straight_drops": "× 1.05–1.10",
+        "moderate_complexity": "× 1.10–1.20",
+        "complex_multiple_penetrations": "× 1.20–1.35"
+      },
+      "termination_allowance": "Add 300–500mm per termination end for cable dressing"
+    },
+    "bwic_allowance": {
+      "rule": "Builders Work in Connection — holes, chases, sleeves, fire stopping. Either measured item-by-item or as a percentage of M&E value.",
+      "percentage_method": "2.5–5% of M&E installation value",
+      "typical_rates": {
+        "core_through_slab_up_to_100mm": "£15–35 each",
+        "core_through_wall_up_to_100mm": "£25–50 each",
+        "fire_stopping_per_penetration": "£15–40 each",
+        "chasing_masonry": "£5–10 per metre"
+      }
+    },
+    "testing_commissioning": {
+      "rule": "Typically priced as a percentage of installation cost or as specific items in the bill.",
+      "by_system": {
+        "heating_lthw": "2–4%",
+        "chilled_water": "2–4%",
+        "ventilation_ductwork": "3–5% (including air balancing)",
+        "electrical": "3–5% (including certification)",
+        "fire_alarm": "4–6% (including cause and effect testing)",
+        "bms_controls": "5–8%",
+        "overall_mne": "3–5%"
+      }
+    },
+    "benchmarks": {
+      "rule": "Use these to sense-check extraction totals and identify anomalies.",
+      "mne_cost_per_m2_gifa": {
+        "office_standard": "£400–700/m²",
+        "hospital": "£800–1500/m²",
+        "school": "£250–450/m²",
+        "retail": "£200–400/m²",
+        "data_centre": "£1500–4000/m²",
+        "residential": "£150–350/m²"
+      },
+      "mne_as_percentage_of_build": {
+        "office": "30–40%",
+        "hospital": "40–55%",
+        "school": "25–35%",
+        "retail": "20–30%",
+        "data_centre": "50–65%",
+        "residential": "20–30%"
+      },
+      "bsria_rules_of_thumb": {
+        "heating_pipework_per_radiator": "~1m of 15mm branch pipework per radiator connection",
+        "ventilation_per_person_office": "8–12 litres/second per person",
+        "cooling_load_office": "80–120 W/m²",
+        "electrical_small_power_office": "25 W/m²"
+      }
+    },
+    "labour_productivity": {
+      "note": "Hours per unit for installed work. Used at pricing stage, not extraction — but useful for validating whether extracted quantities produce reasonable labour totals.",
+      "pipework_hours_per_metre": {
+        "15mm_copper": "0.20–0.30",
+        "22mm_copper": "0.25–0.35",
+        "28mm_copper": "0.30–0.40",
+        "42mm_copper": "0.40–0.55",
+        "54mm_copper": "0.50–0.70",
+        "42mm_steel_welded": "0.60–0.80",
+        "76mm_steel_welded": "0.90–1.20",
+        "108mm_steel_welded": "1.20–1.60"
+      },
+      "ductwork_hours_per_m2": {
+        "class_a_low_pressure": "0.50–0.80",
+        "class_b_medium_pressure": "0.65–1.00",
+        "class_c_high_pressure": "0.80–1.20"
+      },
+      "containment_hours_per_metre": {
+        "20mm_conduit": "0.20–0.30",
+        "150mm_cable_tray": "0.15–0.25",
+        "300mm_cable_tray": "0.20–0.30",
+        "450mm_cable_tray": "0.25–0.35",
+        "600mm_cable_tray": "0.30–0.40"
+      }
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "section_id": "KB-DR03",
+  "title": "AI Drawing Analysis — Techniques & Limitations",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": "This section defines how the AI should approach drawing analysis, what techniques to apply, and critically what the AI CANNOT reliably do. Understanding limitations prevents overconfident extraction.",
+    "image_analysis_approach": {
+      "rule": "When presented with a construction drawing image, follow this systematic analysis approach:",
+      "phase_1_orientation": {
+        "title": "Orientation (before any measurement)",
+        "steps": [
+          "Identify the drawing type: GA plan, section, schematic, detail, RCP",
+          "Read the title block for metadata: number, revision, scale, status",
+          "Locate and read the legend — this is mandatory before symbol identification",
+          "Identify the scale bar or stated scale. If neither exists, flag immediately.",
+          "Note the drawing extents — what gridlines/areas does this sheet cover?",
+          "Identify the discipline: mechanical, electrical, public health, fire"
+        ]
+      },
+      "phase_2_recognition": {
+        "title": "Service Recognition",
+        "steps": [
+          "Identify all distinct line types/colours on the drawing — each typically represents a different service",
+          "Match line types to legend entries",
+          "Trace each service from source to termination to understand the system layout",
+          "Identify equipment symbols and match to legend or standard symbol library (KB-DR01)",
+          "Read all text annotations — sizes, labels, references, notes",
+          "Identify revision clouds if present"
+        ]
+      },
+      "phase_3_measurement": {
+        "title": "Quantity Extraction",
+        "steps": [
+          "Cross-validate scale against a reference dimension before measuring anything",
+          "Measure linear items (pipes, ducts, containment) along centrelines, segment by segment",
+          "Count enumerated items (equipment, valves, terminals, fittings) systematically across the drawing",
+          "Cross-reference counts against any schedules provided",
+          "Apply plausibility checks (KB-VAL02) before finalising"
+        ]
+      },
+      "phase_4_validation": {
+        "title": "Self-Validation",
+        "steps": [
+          "Run the self-audit checklist (KB-X01 completeness check)",
+          "Run hallucination prevention self-check (KB-X04)",
+          "Verify quantities against building footprint rules of thumb",
+          "Ensure every item has Source, Confidence, and any required flags",
+          "List all assumptions and queries"
+        ]
+      }
+    },
+    "ocr_annotation_reading": {
+      "rule": "The AI reads text annotations directly from the drawing image. This is inherently less reliable than reading typed text.",
+      "capabilities": [
+        "Reading clearly printed annotations in standard fonts",
+        "Identifying dimension annotations (numbers near lines)",
+        "Reading equipment tags and labels",
+        "Reading title block information",
+        "Identifying revision numbers and notes"
+      ],
+      "limitations": [
+        "Handwritten annotations may be misread — flag as [ANNOTATION UNCLEAR]",
+        "Very small text on high-density drawings may be illegible",
+        "Text obscured by overlapping services cannot be read",
+        "Degraded/scanned drawings lose text clarity — flag affected areas",
+        "Text at unusual angles or rotated may be misinterpreted"
+      ],
+      "confidence_rule": "If an annotation cannot be clearly read, do NOT guess the value. Flag it as [ILLEGIBLE ANNOTATION AT location] and set affected items to Low confidence."
+    },
+    "scale_measurement_technique": {
+      "rule": "The AI estimates linear measurements from the drawing image using the stated or derived scale.",
+      "method": [
+        "1. Establish the scale: read from title block or derive from scale bar",
+        "2. Identify the measurement reference: pixel distance between known points",
+        "3. Calculate the conversion factor: real-world distance / pixel distance",
+        "4. Apply this factor to measure service routes",
+        "5. Cross-validate by measuring a second known object"
+      ],
+      "accuracy_expectations": {
+        "with_scale_bar_verified": "±5–10% of actual measurement",
+        "with_stated_scale_only": "±10–20% (print scale uncertainty)",
+        "without_any_scale_reference": "DO NOT MEASURE — flag and count only"
+      },
+      "critical_limitation": "PDF drawings displayed on screen are NOT at their stated scale unless specifically printed at 100%. The AI is viewing a SCREEN REPRESENTATION, not a physical print. Scale bar is the only reliable reference."
+    },
+    "symbol_detection_approach": {
+      "rule": "The AI identifies symbols by pattern matching against known M&E symbol conventions and the drawing's legend.",
+      "strengths": [
+        "Identifying clearly drawn standard symbols (valves, equipment, terminals)",
+        "Counting repeated identical symbols across the drawing",
+        "Distinguishing between different symbol types when legend is clear",
+        "Reading labels adjacent to symbols"
+      ],
+      "weaknesses": [
+        "Novel or non-standard symbols not in the legend",
+        "Symbols obscured by overlapping services",
+        "Very small symbols on dense drawings",
+        "Distinguishing between similar symbols (e.g., gate valve vs ball valve without legend)",
+        "Symbols that are project-specific and not in any standard",
+        "Partially visible symbols at drawing edges"
+      ],
+      "mitigation": "When uncertain about a symbol, describe what you see (shape, size, location, nearby labels) and flag as [UNIDENTIFIED SYMBOL]. Never assign a specific identification to an uncertain symbol."
+    },
+    "multi_system_separation": {
+      "rule": "M&E drawings often show multiple overlapping systems. The AI must trace each system independently.",
+      "technique": [
+        "Use the legend to identify each system's line type/colour/label",
+        "Trace one system at a time from source to terminals before moving to the next",
+        "In complex areas (plant rooms), identify each connection point and trace outward",
+        "Where services overlap and cannot be distinguished, flag as [SYSTEMS OVERLAPPING — CANNOT DISTINGUISH] and provide best estimate",
+        "Cross-reference with system labels: check if 'SA' (supply air), 'RA' (return air), 'LTHW-F', 'LTHW-R' etc. are annotated along the routes"
+      ],
+      "common_confusion_points": [
+        "Flow and return pipes running parallel — track flow direction arrows",
+        "Supply and extract ducts in the same ceiling void — check labels/arrows",
+        "Multiple cable trays at different levels — check elevation annotations",
+        "Heating and chilled water pipes running together — check colour/line type and labels"
+      ]
+    },
+    "known_limitations": {
+      "rule": "The AI should transparently acknowledge these limitations rather than producing overconfident output.",
+      "limitations": [
+        {
+          "limitation": "Cannot read 3D from 2D plans",
+          "impact": "Vertical runs, drops, and heights must be estimated from section drawings or standard assumptions",
+          "mitigation": "Add vertical allowances per KB-X01 vertical estimation rules. Flag as [ESTIMATED VERTICAL]."
+        },
+        {
+          "limitation": "Cannot zoom into high-density areas",
+          "impact": "Plant rooms and riser connections may have illegible annotations",
+          "mitigation": "Flag plant room areas as [HIGH DENSITY — MAY REQUIRE DETAILED REVIEW]. Provide best estimate with Low confidence."
+        },
+        {
+          "limitation": "Cannot cross-reference multiple pages simultaneously",
+          "impact": "Multi-sheet reconciliation relies on processing one sheet at a time",
+          "mitigation": "Note match lines and continuation references. Flag potential overlaps for de-duplication."
+        },
+        {
+          "limitation": "Measurement accuracy is inherently approximate",
+          "impact": "AI-measured lengths are ±5–20% depending on scale quality",
+          "mitigation": "Always report measurements to 1 decimal place. Include confidence assessment. Flag where accuracy is lower than ±10%."
+        },
+        {
+          "limitation": "Cannot verify material specifications from visual appearance",
+          "impact": "A pipe on a drawing looks the same regardless of whether it's copper, steel, or plastic",
+          "mitigation": "Material identification comes from annotations, legend, and specification. If not annotated, flag as [MATERIAL NOT SPECIFIED]."
+        }
+      ]
+    },
+    "continuous_learning_integration": {
+      "rule": "The AI improves through the KB flywheel. After each extraction:",
+      "process": [
+        "1. Check KB-L01 (learned rules) for corrections from previous extractions of similar drawings",
+        "2. Check KB-L02 (pattern errors) for error types that have occurred before — apply heightened verification",
+        "3. Apply any project-specific or client-specific rules from the KB",
+        "4. After extraction, identify potential new rules: patterns, common errors, project conventions",
+        "5. Propose new KB rules via [KB PROPOSAL] tags in the output",
+        "6. When the estimator reviews and corrects the extraction, those corrections feed back into KB-L01"
+      ],
+      "flywheel_effect": "Each extraction makes the next one more accurate. The AI accumulates project-specific knowledge (this client always uses Geberit Mapress), trade-specific knowledge (insulation subs need to see pipe diameters for insulation sizing), and drawing-specific knowledge (this designer uses non-standard symbols for VCDs)."
+    }
+  }
+}

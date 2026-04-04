@@ -12,9 +12,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { scoreRules, getMaxRulesForEndpoint, tokenise } = require('./rule-scorer');
 
-const KB_VERSION = '8.0';
+const KB_VERSION = '9.0';
 const KB_VERSION_DATE = '2026-04-04';
-const KB_VERSION_SOURCES = 55;
+const KB_VERSION_SOURCES = 63;
 
 /* ══════════════════════════════════════════════════════════════════
    SECTION DEFINITIONS
@@ -66,6 +66,17 @@ const KB_SECTIONS = {
   'KB-CP03': { file: 'compliance/CP03_cdm_health_safety.json', priority: 'medium', always: false, trades: ['all'] },
   'KB-CP04': { file: 'compliance/CP04_building_regs.json', priority: 'high', always: false,
     trades: ['insulation', 'fire', 'mechanical', 'ductwork', 'hvac', 'ventilation', 'plumbing', 'electrical', 'multi'] },
+  // ESTIMATION — measurement rules, allowances, pricing structure
+  'KB-EST01': { file: 'estimation/EST01_measurement_rules.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-EST02': { file: 'estimation/EST02_allowances_waste.json', priority: 'high', always: false, trades: ['all'] },
+  'KB-EST03': { file: 'estimation/EST03_pricing_structure.json', priority: 'medium', always: false, trades: ['all'] },
+  // DRAWING RECOGNITION — symbols, line types, AI analysis techniques
+  'KB-DR01': { file: 'drawing-recognition/DR01_symbol_library.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-DR02': { file: 'drawing-recognition/DR02_line_conventions.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-DR03': { file: 'drawing-recognition/DR03_ai_analysis.json', priority: 'critical', always: false, trades: ['all'] },
+  // VALIDATION — cross-referencing, plausibility checks, QA
+  'KB-VAL01': { file: 'validation/VAL01_cross_referencing.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-VAL02': { file: 'validation/VAL02_plausibility_checks.json', priority: 'critical', always: false, trades: ['all'] },
   // ENDPOINT CONTEXT PROMPTS — loaded first, sets the AI's role and task for each endpoint
   'KB-P01': { file: 'prompts/P01_drawing_extraction.json', priority: 'critical', always: false, trades: ['all'] },
   'KB-P02': { file: 'prompts/P02_journal_analysis.json', priority: 'critical', always: false, trades: ['all'] },
@@ -86,6 +97,9 @@ const KB_SECTIONS = {
 const ENDPOINT_SECTIONS = {
   '/api/drawings/extract': [
     'KB-P01',
+    'KB-DR01','KB-DR02','KB-DR03',
+    'KB-EST01','KB-EST02',
+    'KB-VAL01','KB-VAL02',
     'KB-C01','KB-C02','KB-C03','KB-C04',
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
@@ -109,6 +123,7 @@ const ENDPOINT_SECTIONS = {
   ],
   '/api/quotes/extract': [
     'KB-P03',
+    'KB-EST01','KB-EST02','KB-EST03',
     'KB-C01','KB-C02','KB-C03','KB-C04',
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
