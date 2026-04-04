@@ -429,7 +429,7 @@ function bulkReviewAllCorrect() {
 
   /* Send bulk review to API */
   var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
-  if (token && CONTRAQ_API_BASE) {
+  if (token && CONTRAQ_API_BASE !== undefined) {
     fetch(CONTRAQ_API_BASE + '/api/admin/training/bulk-review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -534,7 +534,7 @@ function submitTrainingReview(extractionId) {
   var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
   var corrections = feedback.filter(function(f) { return f.tag !== 'correct'; });
 
-  if (token && CONTRAQ_API_BASE) {
+  if (token && CONTRAQ_API_BASE !== undefined) {
     console.log('[Training Hub] Sending review to API. Token present:', !!token, 'Corrections:', corrections.length, 'Feedback tags:', feedback.map(function(f){return f.tag;}).join(','));
     fetch(CONTRAQ_API_BASE + '/api/admin/training/review', {
       method: 'POST',
@@ -562,7 +562,7 @@ function submitTrainingReview(extractionId) {
       showToast('Failed to send review to server: ' + err.message, 'error');
     });
   } else {
-    console.warn('[Training Hub] No token or API base — review not sent to server. Token:', !!token, 'API:', CONTRAQ_API_BASE);
+    console.warn('[Training Hub] No token — review not sent to server. Token:', !!token);
     showToast('Review saved locally only — not connected to server.', 'error');
   }
 
@@ -668,7 +668,7 @@ function trainProcessUploads() {
         };
 
         /* Log to backend — use server-returned ID */
-        if (token && CONTRAQ_API_BASE) {
+        if (token && CONTRAQ_API_BASE !== undefined) {
           fetch(CONTRAQ_API_BASE + '/api/admin/training/queue', {
             method: 'POST',
             headers: headers,
@@ -719,7 +719,7 @@ function trainProcessUploads() {
 
 function exportTrainingData() {
   var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
-  if (token && CONTRAQ_API_BASE) {
+  if (token && CONTRAQ_API_BASE !== undefined) {
     fetch(CONTRAQ_API_BASE + '/api/admin/training/export', {
       headers: { 'Authorization': 'Bearer ' + token }
     }).then(function(r) { return r.json(); }).then(function(data) {
@@ -755,7 +755,7 @@ var _trainingGoldenRecords = [];
 
 function _loadTrainingData(callback) {
   var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
-  if (!token || !CONTRAQ_API_BASE) {
+  if (!token || CONTRAQ_API_BASE === undefined) {
     if (callback) callback();
     return;
   }
