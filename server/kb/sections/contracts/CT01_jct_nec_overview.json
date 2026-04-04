@@ -1,0 +1,100 @@
+{
+  "section_id": "KB-CT01",
+  "title": "JCT & NEC Contract Overview for M&E Subcontractors",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "purpose": "Reference guide for analysing JCT and NEC subcontract terms from the M&E subcontractor's perspective. Use this when reviewing contract clauses, identifying obligations, and advising on risk.",
+    "jct_design_and_build_2016": {
+      "overview": "The JCT Design and Build Contract 2016 (DB 2016) is widely used on UK commercial and residential projects where the contractor takes design responsibility. M&E subcontractors typically operate under JCT Design and Build Sub-Contract 2016 (DBSub 2016) or a bespoke domestic subcontract incorporating JCT terms back-to-back with the main contract.",
+      "key_clauses_for_me_subs": {
+        "variations_cl_2_26": {
+          "clause": "2.26",
+          "summary": "Defines Relevant Events entitling the subcontractor to an extension of time. Includes: variations instructed under cl 3.9, Employer's instructions, deferment of possession, force majeure, civil commotion, adverse weather, specified perils, statutory changes, and impediment by the Employer or main contractor.",
+          "me_impact": "M&E subcontractors must cross-reference the subcontract's pass-down of these Relevant Events. Not all main contract events may flow down. The subcontractor's entitlement depends on whether the domestic subcontract mirrors cl 2.26 or restricts it.",
+          "notification": "Written notice must be given to the Contractor as soon as the delay becomes apparent. Failure to notify within a reasonable time may prejudice entitlement, although under JCT the obligation is not an absolute time bar."
+        },
+        "payment_cl_4_7_to_4_13": {
+          "clauses": "4.7-4.13",
+          "interim_applications": "The subcontractor submits interim applications at intervals stated in the subcontract particulars (typically monthly). Cl 4.10 requires the Contractor to issue an Interim Payment Certificate within 5 days of the due date.",
+          "due_date": "The due date for each interim payment is defined in the subcontract particulars, commonly the date of application or a fixed date each month.",
+          "final_date_for_payment": "Payment must be made no later than the final date for payment, which is typically 21 days after the due date for subcontractors under DBSub 2016.",
+          "pay_less_notice": "Under cl 4.10, the Contractor may issue a pay less notice not later than 5 days before the final date for payment. The notice must specify the sum considered due and the basis of calculation. Absence of a valid pay less notice means the notified sum (or application sum) becomes payable in full.",
+          "withholding": "Any withholding without a valid pay less notice entitles the subcontractor to suspend performance under s.112 Housing Grants, Construction and Regeneration Act 1996 (HGCRA) after 7 days' notice."
+        },
+        "practical_completion_cl_2_29": {
+          "clause": "2.29",
+          "summary": "Practical completion of the subcontract works occurs when the subcontract works are complete in accordance with the subcontract, subject to de minimis snagging. The Contractor issues a written statement confirming practical completion.",
+          "me_impact": "M&E subs should note that practical completion of the subcontract works is distinct from practical completion of the main works. Half of retention is released upon practical completion of the subcontract works. Delays in the Contractor issuing the practical completion statement can delay retention release — the sub should proactively request confirmation in writing.",
+          "sectional_completion": "Where sectional completion applies (e.g., phased handover of floors), the subcontract must expressly define the sections. M&E installations often cross multiple sections, creating interface risk."
+        },
+        "termination_cl_8_4_to_8_12": {
+          "contractor_termination_cl_8_4": {
+            "clause": "8.4",
+            "grounds": "The Contractor may terminate the subcontractor's employment for: wholly or substantially suspending work without reasonable cause, failing to proceed regularly and diligently, refusing to comply with instructions to remove defective work, or assigning without consent.",
+            "process": "Requires a written warning notice specifying the default. If the default continues for 14 days after the warning, the Contractor may terminate by further notice. Termination takes effect on receipt of the second notice."
+          },
+          "subcontractor_termination_cl_8_7": {
+            "clause": "8.7",
+            "grounds": "The subcontractor may terminate its own employment if the Contractor: fails to pay by the final date for payment without a valid pay less notice, interferes with or obstructs the issue of certificates, suspends the carrying out of the whole or substantially the whole of the main works for a continuous period stated in the particulars, or fails to comply with CDM Regulations.",
+            "process": "Written notice specifying the default. If default continues for 14 days, further notice terminates the subcontractor's employment.",
+            "consequences_cl_8_9": "On termination by the subcontractor under cl 8.7, the subcontractor is entitled to payment for work properly executed, materials and goods, direct loss and/or expense, and reasonable cost of removal of equipment."
+          }
+        }
+      }
+    },
+    "nec4_engineering_and_construction_subcontract": {
+      "overview": "The NEC4 Engineering and Construction Subcontract (ECS) is the subcontract form used with NEC4 ECC main contracts. It is increasingly common on public sector, infrastructure, and framework projects. NEC4 operates on fundamentally different principles to JCT: proactive management, early warning, defined programmes, and compensation events rather than variations and claims.",
+      "core_mechanisms": {
+        "compensation_events_cl_60_to_65": {
+          "clauses": "60.1-65",
+          "definition": "Compensation events (CEs) are the NEC mechanism for adjusting time and money. Cl 60.1 lists the events, including: instructions changing the Subcontract Works Information, access not provided by the date shown on the Accepted Programme, physical conditions (cl 60.1(12)), weather (cl 60.1(13)), and Prevention events.",
+          "notification_cl_61": "The Subcontractor must notify the Contractor of a compensation event within 8 weeks of becoming aware of the event (cl 61.3). Failure to notify within 8 weeks is a time bar — the Subcontractor loses entitlement to additional time and money. This is a hard time bar and is strictly enforced.",
+          "quotation_cl_62": "After notification, the Contractor instructs the Subcontractor to submit a quotation. The Subcontractor must submit within 3 weeks (cl 62.3), comprising proposed changes to the Prices and any delay to the Completion Date.",
+          "assessment_cl_63": "CEs are assessed using the Defined Cost plus Fee basis (cl 63.1). The assessment is based on a forecast of the effect on Defined Cost, not actual cost. This is critical — NEC uses prospective assessment, not retrospective.",
+          "implementation_cl_65": "Once agreed or determined, the CE is implemented by changing the Prices, Completion Date, and/or Key Dates. This is final and not reopened except for correcting assumptions about future events."
+        },
+        "early_warning_cl_15": {
+          "clause": "15",
+          "summary": "Either party must give early warning of any matter that could increase the total of the Prices, delay Completion, delay meeting a Key Date, or impair the performance of the works in use. Early warning triggers a Risk Reduction Meeting.",
+          "me_impact": "M&E subcontractors must actively identify and raise early warnings. Failure to give early warning when an experienced subcontractor could have does not lose entitlement but allows the compensation event assessment to be reduced to what it would have been had early warning been given (cl 63.7). This is a cost sanction, not a time bar.",
+          "risk_register": "The Risk Register (cl 15.1) records all early warning matters. It is a live project management tool. M&E subs should ensure their risks are recorded."
+        },
+        "programme_cl_31_to_32": {
+          "clauses": "31-32",
+          "accepted_programme": "The Subcontractor must submit a programme for acceptance (cl 31.2). The Contractor accepts or rejects within 2 weeks. Reasons for non-acceptance are limited to cl 31.3: not practicable, missing information, not representing the Subcontractor's plans realistically, or not complying with the subcontract.",
+          "programme_content": "The programme must show: the starting date and Completion Date, planned completion (which may differ from the Completion Date — the difference is terminal float), order and timing of operations, float, time risk allowances, health and safety requirements, and dates by which the Subcontractor requires information or access.",
+          "updates": "The Subcontractor must submit a revised programme at intervals stated in the Subcontract Data or when the Contractor instructs. Failure to submit a revised programme when required allows the Contractor to withhold 25% of the Price for Work Done to Date (PWDD) until the programme is submitted (cl 50.5).",
+          "me_impact": "The programme is the central document for NEC claims. M&E subs must maintain an up-to-date, accepted programme. Without it, demonstrating delay entitlement is significantly harder."
+        }
+      },
+      "option_clauses": {
+        "main_options": "NEC4 ECS uses main Options A (priced contract with activity schedule), B (priced contract with bill of quantities), C (target contract with activity schedule), D (target contract with bill of quantities), and E (cost reimbursable). M&E subs most commonly work under Options A or C.",
+        "option_w": "W1 applies where the HGCRA does not apply (rare for UK construction). W2 applies where HGCRA does apply (virtually all UK M&E subcontracts). W2 provides for payment notices, pay less notices, and the right to adjudicate in compliance with HGCRA.",
+        "option_x7_delay_damages": "X7 provides for delay damages if the Subcontractor fails to complete by the Completion Date. These are typically stated as a daily or weekly rate in the Subcontract Data."
+      }
+    },
+    "domestic_subcontract_agreements": {
+      "what_me_subs_actually_sign": {
+        "common_forms": [
+          "JCT Design and Build Sub-Contract 2016 (DBSub 2016) — standard JCT sub-sub form",
+          "NEC4 Engineering and Construction Subcontract (ECS) — standard NEC subcontract",
+          "Bespoke domestic subcontracts — main contractor's own terms, often heavily amended standard forms",
+          "Framework subcontract agreements — call-off terms under a framework, frequently NEC-based"
+        ],
+        "bespoke_risks": "Many M&E subcontracts are bespoke documents drafted by the main contractor's commercial team. Common adverse amendments include: broadened time bars, restricted Relevant Events or compensation events, onerous design liability (fitness for purpose rather than reasonable skill and care), pay-when-paid/certified provisions (many unlawful under HGCRA), and unlimited liability.",
+        "back_to_back_terms": "Back-to-back clauses attempt to pass all main contract obligations down to the subcontractor. The phrase 'back-to-back' is not a legal term of art. The subcontractor should check: which obligations actually pass down, whether the sub has sight of the main contract, and whether the sub has equivalent rights (e.g., if the main contractor gets an EOT, does the sub automatically get one).",
+        "design_liability": "Under JCT, the standard design obligation is reasonable skill and care (cl 2.17.1). Some subcontracts impose fitness for purpose, which is a strict liability standard and is not covered by standard PI insurance. M&E subcontractors should resist fitness for purpose obligations."
+      }
+    },
+    "key_differences_jct_vs_nec": {
+      "philosophy": "JCT is retrospective and claims-based. The contract administrator values work and determines claims after the event. NEC is prospective and management-based. Compensation events are assessed as forecasts and implemented promptly.",
+      "time_bars": "JCT has notification obligations but they are generally not hard time bars (except under some amended forms). NEC cl 61.3 imposes a strict 8-week time bar on compensation event notifications — if missed, the entitlement is lost entirely.",
+      "programme": "JCT does not require a detailed programme as a contract document (though one is usually produced). NEC requires an Accepted Programme, and the programme is central to time and cost assessment. An M&E sub without an accepted NEC programme is at a serious commercial disadvantage.",
+      "variations_vs_compensation_events": "JCT uses architect/employer instructions and variations valued under cl 5.6-5.10. NEC uses compensation events under cl 60-65, assessed prospectively on a Defined Cost basis. Under NEC, there is no separate variation and claim mechanism — everything is a compensation event.",
+      "payment_mechanisms": "JCT uses interim certificates issued by the contract administrator. NEC uses the Contractor's assessment of the Price for Work Done to Date. Under both, HGCRA payment notice and pay less notice requirements apply.",
+      "dispute_resolution": "Both JCT and NEC provide for adjudication under HGCRA. JCT typically provides for arbitration or litigation as the final tribunal. NEC Option W2 provides for adjudication followed by the tribunal stated in the Subcontract Data (litigation or arbitration).",
+      "records_and_notices": "NEC demands contemporaneous notices and records. The early warning, notification, and quotation regime requires constant project management input. JCT is more tolerant of retrospective claims, but best practice under both forms is to maintain contemporaneous records."
+    }
+  }
+}

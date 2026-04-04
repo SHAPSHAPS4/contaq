@@ -1,0 +1,177 @@
+{
+  "section_id": "KB-CT04",
+  "title": "Disputes, Termination, Collateral Warranties & Bonds for M&E Subcontractors",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "purpose": "Reference guide for analysing dispute resolution mechanisms, termination provisions, collateral warranties, and bond/guarantee requirements from the M&E subcontractor's perspective. Use this when advising on adjudication, reviewing termination clauses, assessing warranty obligations, or evaluating bond requirements.",
+    "adjudication": {
+      "statutory_basis": {
+        "act": "Housing Grants, Construction and Regeneration Act 1996, s.108 (as amended by LDEDCA 2009)",
+        "right": "A party to a construction contract has the right to refer a dispute arising under the contract for adjudication at any time. This right cannot be excluded by contract.",
+        "scope": "Any dispute 'arising under the contract' may be referred. This includes payment disputes, valuation disputes, EOT disputes, defects disputes, and termination disputes. It does not extend to disputes arising outside the contract (e.g., tort claims), although the contract may confer wider jurisdiction."
+      },
+      "procedure": {
+        "notice_of_adjudication": "The referring party serves a Notice of Adjudication on the other party, briefly identifying the dispute, the nature and extent of the redress sought, and the names of the parties.",
+        "appointment_of_adjudicator": "The adjudicator must be appointed within 7 days of the Notice. If the contract names an adjudicator or a nominating body, that process is followed. Common Adjudicator Nominating Bodies (ANBs): RICS, RIBA, ICE, CIArb, TeCSA. If the contract does not specify, the Scheme applies (Scheme para 2-5).",
+        "referral_notice": "The referring party must serve the Referral Notice within 7 days of the Notice of Adjudication. The Referral sets out the claim in detail, with supporting documents.",
+        "response": "The responding party typically has 14 days to serve a Response. The adjudicator may set different timescales.",
+        "decision_timetable": "The adjudicator must reach a decision within 28 days of the Referral Notice. This may be extended by up to 14 days with the referring party's consent (total 42 days), or by any further period agreed by both parties.",
+        "decision": "The decision is binding on the parties until the dispute is finally determined by legal proceedings (litigation or arbitration), by agreement, or until the contract is completed. It must be complied with immediately. Failure to comply is enforceable by the TCC."
+      },
+      "enforcement": {
+        "tcc": "Adjudicator's decisions are enforced by summary judgment in the Technology and Construction Court (TCC), part of the High Court's Business and Property Courts. The court will generally enforce the decision and only refuse in narrow circumstances.",
+        "grounds_for_resistance": [
+          "Jurisdictional challenge — the adjudicator exceeded their jurisdiction or the dispute was not crystallised",
+          "Breach of natural justice — failure to act impartially, failure to consider a party's case, deciding on a basis not argued by either party",
+          "Non-compliance with the statutory requirements of s.108 HGCRA"
+        ],
+        "key_cases": [
+          "Macob Civil Engineering v Morrison Construction [1999] — established that adjudicator's decisions are enforced by summary judgment",
+          "Bouygues v Dahl-Jensen [2000] — a decision will be enforced even if arguably wrong on the merits",
+          "Carillion v Devonport Royal Dockyard [2005] — the court will not conduct a review of the merits; enforcement is the default",
+          "Bresco Electrical Services v Michael J Lonsdale [2020] (Supreme Court) — a company in liquidation has the right to adjudicate; however, the court retains discretion on enforcement"
+        ]
+      },
+      "slip_rule": {
+        "definition": "The adjudicator may correct a clerical or typographical error in the decision arising by accident or omission (Scheme para 22A, inserted by 2011 amendments). This is known as the slip rule.",
+        "scope": "The slip rule is limited to correcting accidental errors. It does not permit the adjudicator to revisit the merits or change the substantive decision. The correction must be made within 5 days of the decision.",
+        "me_impact": "If an adjudicator's decision contains an arithmetic error or transposes a figure, either party can request correction under the slip rule within 5 days. This avoids the need for a new adjudication on the same point."
+      },
+      "costs": {
+        "adjudicator_fees": "The adjudicator's fees and expenses are typically shared equally unless the contract provides otherwise. Under the Scheme, the adjudicator may direct which party pays (Scheme para 25).",
+        "party_costs": "Each party bears its own legal and expert costs of the adjudication. There is no jurisdiction to award party costs unless the contract expressly provides for it (Bridgeway Construction v Tolent Construction [2000]).",
+        "me_practical": "Adjudication costs for a typical M&E payment dispute range from £10,000 to £40,000 in legal and expert fees, plus the adjudicator's fees (typically £5,000-£20,000). Complex multi-issue adjudications can exceed £100,000. Smash and grab adjudications are usually at the lower end."
+      }
+    },
+    "termination": {
+      "jct_termination": {
+        "contractor_termination_of_sub_cl_8_4_to_8_6": {
+          "clauses": "8.4-8.6",
+          "grounds": [
+            "Wholly or substantially suspending the carrying out of the subcontract works without reasonable cause (cl 8.4.1.1)",
+            "Failing to proceed regularly and diligently with the subcontract works (cl 8.4.1.2)",
+            "Refusing or neglecting to comply with a written instruction to remove defective work, causing the main works to be materially affected (cl 8.4.1.3)",
+            "Failing to comply with CDM Regulations (cl 8.4.1.4)",
+            "Assigning or sub-subletting without consent (cl 8.4.1.5)"
+          ],
+          "process": "Warning notice specifying the default. If default continues for 14 days, termination notice. No termination if the default is remedied before the second notice. Termination takes effect on receipt of the second notice.",
+          "consequences_cl_8_6": "On termination under cl 8.4: the Contractor may employ others to complete the subcontract works, use the subcontractor's temporary buildings and plant, and purchase materials. The subcontractor is not entitled to further payment until after completion of the main works, and then only to the extent that the subcontract sum less the cost of completion and any additional expense exceeds what has already been paid. This commonly results in no further payment and a counterclaim."
+        },
+        "subcontractor_termination_cl_8_7_to_8_9": {
+          "clauses": "8.7-8.9",
+          "grounds": [
+            "The Contractor fails to pay the amount properly due by the final date for payment without a valid pay less notice (cl 8.7.1)",
+            "The Contractor interferes with or obstructs the issue of any certificate (cl 8.7.2)",
+            "The whole or substantially the whole of the main works is suspended for a continuous period exceeding the period stated in the subcontract particulars by reason of a specified event (cl 8.7.3)",
+            "The Contractor fails to comply with CDM Regulations (cl 8.7.4)"
+          ],
+          "process": "Written notice specifying the default. If default continues for 14 days, further notice terminates the subcontractor's employment.",
+          "consequences_cl_8_9": "On termination under cl 8.7, the subcontractor is entitled to: the total value of work properly executed at the date of termination, the value of materials and goods properly ordered (whether on or off site), the cost of removing temporary buildings, plant, and equipment, direct loss and/or expense caused by the termination, and the cost of materials or goods the subcontractor has paid for or is legally bound to pay for."
+        },
+        "insolvency_cl_8_1_to_8_3": {
+          "clauses": "8.1-8.3",
+          "effect": "Where either party becomes insolvent (as defined in cl 8.1), the other party may terminate by notice. Insolvency events include: administration, winding-up, appointment of a receiver, entering into a CVA, or becoming subject to an analogous event. On the subcontractor's insolvency, the Contractor's obligations to make further payment are suspended."
+        }
+      },
+      "nec_termination_cl_90_to_92": {
+        "clauses": "90-92",
+        "termination_table": "NEC4 ECS uses a termination table (cl 90.2) specifying termination events and the procedures and payment consequences by reference to Reasons (R1-R21). Each Reason has a corresponding procedure and payment clause.",
+        "key_reasons": {
+          "R1_to_R4_subcontractor_default": "Includes substantially failing to comply with obligations (R1), instructed to stop and not restarting within 13 weeks (R2), subcontractor's insolvency (R4).",
+          "R11_to_R15_contractor_or_employer_default": "Includes Contractor's failure to pay within prescribed timescale (R11), Contractor's insolvency (R13).",
+          "R16_to_R21_neither_party_default": "Includes prevention events continuing for more than 13 weeks (R16), war or radioactive contamination (R17-R18)."
+        },
+        "payment_on_termination": {
+          "subcontractor_default_procedure_P1_P4": "The Contractor assesses the amount due. For R1-R4, the assessment is under clause A1/A2/A4, which may result in the Contractor recovering additional costs of completion from the subcontractor.",
+          "contractor_default_procedure_P2": "For R11-R15, the subcontractor is entitled to payment assessed under A2, which includes Defined Cost, Fee, and amounts due under compensation events.",
+          "neither_party_P3": "For R16-R21, payment is assessed under A3, which provides for the value of work done plus costs."
+        }
+      },
+      "common_termination_issues_for_me_subs": {
+        "regularly_and_diligently": "The obligation to proceed 'regularly and diligently' is the most commonly cited ground for threatening termination of M&E subs. The test was considered in West Faulkner Associates v London Borough of Newham [1995]: it requires the contractor to proceed with appropriate physical presence on site, with due skill and care, at a reasonable rate of progress. A mere failure to meet a programme milestone is not necessarily a failure to proceed regularly and diligently.",
+        "wrongful_termination": "Terminating without following the contractual procedure, or on invalid grounds, constitutes a repudiatory breach of contract. The innocent party can accept the repudiation and claim damages, including loss of profit on the remaining works. M&E subs should never terminate without legal advice.",
+        "surviving_obligations": "Termination ends the obligation to perform future work but does not discharge accrued rights. Claims for work done, retention due, and damages survive termination. Confidentiality obligations, IP licences, and indemnities typically survive expressly."
+      }
+    },
+    "collateral_warranties": {
+      "what_subs_are_asked_to_sign": {
+        "definition": "A collateral warranty is a contract between the subcontractor and a third party (typically the Employer, a funder, or a tenant/purchaser) warranting that the subcontractor has complied with its obligations under the subcontract. It creates a direct contractual relationship where none would otherwise exist.",
+        "standard_forms": [
+          "JCT Contractor Collateral Warranty for a Funder (CWa/F) — adapted for subcontractors as SCWa/F",
+          "JCT Contractor Collateral Warranty for a Purchaser/Tenant (CWa/P&T) — adapted as SCWa/P&T",
+          "CIC (Construction Industry Council) Collateral Warranty — widely used for design consultants and sometimes M&E design subcontractors",
+          "Bespoke warranties drafted by the Employer's solicitors — frequently more onerous than standard forms"
+        ],
+        "typical_obligations_warranted": [
+          "The subcontractor has performed and will continue to perform its obligations under the subcontract",
+          "The subcontractor has exercised and will continue to exercise reasonable skill and care in design (where applicable)",
+          "The subcontractor has not used and will not specify deleterious materials (commonly referencing a defined list or the 'good building guide')",
+          "The subcontractor will maintain PI insurance for a specified period (typically 6 or 12 years)"
+        ]
+      },
+      "key_provisions": {
+        "step_in_rights": {
+          "definition": "Step-in rights allow the beneficiary (typically a funder) to step into the subcontract and require the subcontractor to continue performing if the main contractor defaults. The funder effectively takes over the main contractor's role.",
+          "process": "The funder serves a step-in notice. The subcontractor must accept the funder as its employer under the subcontract. The funder assumes the main contractor's liabilities accruing from the date of step-in.",
+          "me_impact": "Step-in rights are common in funder warranties. They protect the sub's position because they ensure continuity of the subcontract if the main contractor becomes insolvent. However, the sub should check whether the funder assumes all liabilities (including arrears of payment) or only future liabilities."
+        },
+        "net_contribution": {
+          "definition": "A net contribution clause limits the warrantor's liability to such proportion of the beneficiary's losses as is just and equitable, having regard to the extent of the warrantor's responsibility for the loss relative to all other parties who also contributed to the loss (whether or not they are parties to the proceedings and whether or not they are solvent).",
+          "importance": "Without a net contribution clause, the subcontractor could be held jointly and severally liable for the full loss, even if other parties (e.g., the architect or main contractor) also caused the loss. The sub would then have to pursue contribution from those parties separately.",
+          "me_impact": "M&E subcontractors should always insist on a net contribution clause in collateral warranties. PI insurers typically require it. A warranty without net contribution exposes the sub to liability for losses caused by others."
+        },
+        "limitation_periods": {
+          "deed_vs_simple_contract": "If the warranty is executed as a deed, the limitation period is 12 years from the date of the breach. If executed as a simple contract (under hand), the limitation period is 6 years. Most collateral warranties for significant projects are executed as deeds.",
+          "date_of_breach": "The limitation clock starts from the date of the breach (e.g., date of defective installation), not the date of discovery. This can mean the claim is time-barred before the defect manifests.",
+          "latent_damage_act_1986": "Provides a secondary limitation period for latent damage: 3 years from the date of knowledge (or constructive knowledge), subject to a longstop of 15 years from the date of the breach."
+        },
+        "deleterious_materials": {
+          "obligation": "The subcontractor warrants that it has not used or specified deleterious materials. The list of deleterious materials varies but commonly includes: high alumina cement in structural elements, woodwool slabs as permanent formwork, calcium chloride admixtures, asbestos, lead paint, and materials not conforming to British Standards or Agrément Certificates.",
+          "me_impact": "M&E subcontractors should review the deleterious materials list carefully. Some lists include overly broad language (e.g., 'any material not in accordance with good practice') that could create unintended liability. The list should be specific and defined."
+        }
+      },
+      "practical_advice": {
+        "number_of_warranties": "M&E subs are typically asked to provide 2-6 warranties per project (Employer, funder, purchaser, tenant). Each requires review and potentially separate legal advice.",
+        "timing": "Warranties should ideally be agreed at subcontract stage. In practice, they are often presented after works commence, when the sub has reduced negotiating leverage. Payment of the first application is sometimes withheld until warranties are signed — this is not usually contractually justified.",
+        "insurance_notification": "PI insurers must be notified of all collateral warranties executed. Some policies require pre-approval. Failing to notify may void cover for claims brought under the warranty."
+      }
+    },
+    "bonds_and_guarantees": {
+      "performance_bonds": {
+        "definition": "A performance bond is a guarantee issued by a bank or surety (insurance company) promising to pay the beneficiary (usually the main contractor) a sum of money if the subcontractor fails to perform its obligations under the subcontract.",
+        "typical_amount": "10% of the subcontract value is standard for M&E subcontracts. Some contracts require 15% or 20% for high-value or high-risk packages.",
+        "types": {
+          "on_demand_bond": "Payable on written demand without the need to prove breach or loss. Extremely onerous for the sub. The surety must pay first and litigate later. M&E subs should resist on-demand bonds where possible.",
+          "default_bond_conditional": "Payable only when the beneficiary establishes that the subcontractor has defaulted and the beneficiary has suffered loss. This is fairer and more common. The ABI Model Form of Guarantee Bond is a conditional bond.",
+          "abi_model_form": "The Association of British Insurers Model Form of Guarantee Bond is the industry-standard conditional bond. It requires proof of breach and loss before payment."
+        },
+        "cost": "Bond premiums are typically 1-2% of the bond value per annum, though this varies with the sub's credit rating, the bond type, and the surety's risk assessment. For a £2m subcontract with a 10% bond, annual premium would be approximately £2,000-£4,000.",
+        "expiry": "Performance bonds typically expire at practical completion or at the end of the defects liability period. The subcontract should state the expiry trigger clearly."
+      },
+      "parent_company_guarantees": {
+        "definition": "A parent company guarantee (PCG) is a guarantee from the subcontractor's parent company that the subcontractor will perform its obligations under the subcontract. If the subcontractor defaults, the parent company steps in or pays damages.",
+        "when_required": "Commonly required where the contracting entity is a subsidiary or SPV. The main contractor wants assurance that a financially stronger entity stands behind the sub's obligations.",
+        "scope": "The PCG should mirror the subcontractor's obligations but should not exceed them. The parent guarantees performance 'no more onerous than the subcontract.' Check for: caps on liability, duration (should match the subcontract limitation period), and whether the PCG survives the subcontractor's insolvency.",
+        "me_impact": "Many M&E companies operate through group structures with a trading subsidiary. The main contractor will typically require the holding company to provide a PCG. The holding company's directors should understand the exposure before signing."
+      },
+      "advance_payment_bonds": {
+        "definition": "An advance payment bond guarantees repayment of an advance payment made by the main contractor to the subcontractor. If the subcontractor fails to perform or becomes insolvent, the bond ensures the main contractor recovers the advance.",
+        "when_used": "Advance payments are common for M&E subcontracts where the sub must procure major equipment (chillers, generators, switchgear, AHUs) with long lead times. The main contractor may advance 10-20% of the subcontract sum to fund early procurement.",
+        "typical_terms": "The bond amount equals the advance payment and reduces (amortises) as the sub performs work and the advance is recouped through interim valuations. The bond expires when the advance is fully recouped.",
+        "me_impact": "Advance payment bonds benefit M&E subs by providing cash flow for equipment procurement. The bond cost (typically 1-2% of the advance) is modest compared to the cash flow benefit. Subs should ensure the bond amortisation schedule matches the interim valuation deduction schedule."
+      },
+      "retention_bonds": {
+        "definition": "A retention bond is provided in lieu of cash retention. Instead of the main contractor deducting retention from interim payments, the sub provides a bond for the retention amount. The main contractor holds the bond instead of cash.",
+        "benefit": "Significant cash flow advantage for M&E subs. On a £3m subcontract at 5% retention, the sub retains £150,000 in working capital that would otherwise be held by the main contractor.",
+        "typical_form": "On-demand or conditional bond for the retention percentage of the subcontract sum. Releases half at practical completion and the balance at end of the defects liability period, mirroring cash retention release.",
+        "availability": "Not all subcontracts permit retention bonds as an alternative. The subcontractor should negotiate this right at tender stage. JCT DBSub 2016 provides for a retention bond option in the subcontract particulars."
+      },
+      "practical_considerations": {
+        "bonding_capacity": "M&E subcontractors have a finite bonding capacity determined by their surety based on the company's financial strength, track record, and existing bond commitments. A sub with £5m turnover may have bonding capacity of £2-3m aggregate. Exceeding capacity requires additional security (e.g., director's guarantee) or is refused.",
+        "bond_wording": "Always review the exact bond wording before signing the subcontract. The subcontract may require a bond 'in the form attached' or 'in a form approved by the Contractor.' If the form is not yet agreed, the sub risks having to provide a bond on terms its surety will not accept.",
+        "timing_of_provision": "Bonds are typically required within 14-28 days of subcontract execution. Late provision may entitle the Contractor to withhold payment or, in extreme cases, terminate. The sub should instruct its surety at tender stage to avoid delays."
+      }
+    }
+  }
+}

@@ -12,9 +12,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { scoreRules, getMaxRulesForEndpoint, tokenise } = require('./rule-scorer');
 
-const KB_VERSION = '7.2';
-const KB_VERSION_DATE = '2026-03-19';
-const KB_VERSION_SOURCES = 47;
+const KB_VERSION = '8.0';
+const KB_VERSION_DATE = '2026-04-04';
+const KB_VERSION_SOURCES = 55;
 
 /* ══════════════════════════════════════════════════════════════════
    SECTION DEFINITIONS
@@ -55,6 +55,22 @@ const KB_SECTIONS = {
     trades: ['insulation', 'mechanical', 'multi'] },
   'KB-I04': { file: 'insulation/I04_fire_specialist.json', priority: 'medium', always: false,
     trades: ['insulation', 'fire', 'mechanical', 'multi'] },
+  // CONTRACTS — loaded for journal, EOT analysis, quote context
+  'KB-CT01': { file: 'contracts/CT01_jct_nec_overview.json', priority: 'high', always: false, trades: ['all'] },
+  'KB-CT02': { file: 'contracts/CT02_payment_retention.json', priority: 'high', always: false, trades: ['all'] },
+  'KB-CT03': { file: 'contracts/CT03_variations_eot.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-CT04': { file: 'contracts/CT04_disputes_termination.json', priority: 'medium', always: false, trades: ['all'] },
+  // COMPLIANCE — loaded for CIS, journal, document analysis
+  'KB-CP01': { file: 'compliance/CP01_cis_scheme.json', priority: 'high', always: false, trades: ['all'] },
+  'KB-CP02': { file: 'compliance/CP02_vat_reverse_charge.json', priority: 'medium', always: false, trades: ['all'] },
+  'KB-CP03': { file: 'compliance/CP03_cdm_health_safety.json', priority: 'medium', always: false, trades: ['all'] },
+  'KB-CP04': { file: 'compliance/CP04_building_regs.json', priority: 'high', always: false,
+    trades: ['insulation', 'fire', 'mechanical', 'ductwork', 'hvac', 'ventilation', 'plumbing', 'electrical', 'multi'] },
+  // ENDPOINT CONTEXT PROMPTS — loaded first, sets the AI's role and task for each endpoint
+  'KB-P01': { file: 'prompts/P01_drawing_extraction.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-P02': { file: 'prompts/P02_journal_analysis.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-P03': { file: 'prompts/P03_quote_analysis.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-P04': { file: 'prompts/P04_spec_analysis.json', priority: 'critical', always: false, trades: ['all'] },
   // EXTRACTION RULES — always loaded (all trades)
   'KB-X01': { file: 'rules/X01_extraction_logic.json', priority: 'critical', always: true, trades: ['all'] },
   'KB-X02': { file: 'rules/X02_confidence_scoring.json', priority: 'critical', always: true, trades: ['all'] },
@@ -69,6 +85,7 @@ const KB_SECTIONS = {
 
 const ENDPOINT_SECTIONS = {
   '/api/drawings/extract': [
+    'KB-P01',
     'KB-C01','KB-C02','KB-C03','KB-C04',
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
@@ -76,6 +93,7 @@ const ENDPOINT_SECTIONS = {
     'KB-X01','KB-X02','KB-X03','KB-X04','KB-X05',
   ],
   '/api/specs/analyse': [
+    'KB-P04',
     'KB-C01','KB-C02','KB-C03','KB-C04',
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
@@ -90,6 +108,7 @@ const ENDPOINT_SECTIONS = {
     'KB-X01','KB-X02','KB-X03','KB-X04',
   ],
   '/api/quotes/extract': [
+    'KB-P03',
     'KB-C01','KB-C02','KB-C03','KB-C04',
     'KB-M01','KB-M02','KB-M03','KB-M04',
     'KB-E01','KB-E02','KB-E03','KB-E04','KB-E05',
@@ -97,12 +116,18 @@ const ENDPOINT_SECTIONS = {
     'KB-X01','KB-X02','KB-X03','KB-X04','KB-X05',
   ],
   '/api/journal/analyse': [
+    'KB-P02',
     'KB-C01','KB-C04',
-    'KB-X02','KB-X03',
+    'KB-CT01','KB-CT02','KB-CT03','KB-CT04',
+    'KB-CP03',
+    'KB-X02','KB-X03','KB-X05',
   ],
   '/api/quote-files/analyse': [
-    'KB-C01','KB-C04',
-    'KB-X02','KB-X04',
+    'KB-P03',
+    'KB-C01','KB-C02','KB-C04',
+    'KB-CT01','KB-CT02',
+    'KB-CP01','KB-CP02',
+    'KB-X02','KB-X04','KB-X05',
   ],
 };
 

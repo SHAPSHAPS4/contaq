@@ -1,0 +1,131 @@
+{
+  "section_id": "KB-CP01",
+  "title": "Construction Industry Scheme (CIS)",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": {
+      "summary": "The Construction Industry Scheme (CIS) is a tax deduction scheme mandated by HMRC under the Finance Act 2004 (Sections 57-77) and the Income Tax (Construction Industry Scheme) Regulations 2005 (SI 2005/2045). It requires contractors in the construction industry to deduct tax at source from payments made to subcontractors for construction operations, and remit those deductions to HMRC.",
+      "who_it_applies_to": {
+        "contractors": "Any business paying subcontractors for construction operations spending more than £3 million on construction in a rolling 3-year period, or whose core business is construction. This includes mainstream contractors, property developers, local authorities, housing associations, and government departments. A business can be both a contractor and subcontractor simultaneously.",
+        "subcontractors": "Any individual, partnership, or company that carries out construction operations for a contractor. M&E subcontractors (mechanical and electrical) are fully within scope when performing installation, alteration, repair, or dismantling of heating, lighting, ventilation, power supply, drainage, sanitation, water supply, fire protection, and communications systems in buildings or structures.",
+        "deemed_contractors": "Businesses whose core activity is not construction but who spend an average of more than £3 million per year on construction over a 3-year period are 'deemed contractors' and must operate CIS on payments to their subcontractors."
+      },
+      "construction_operations_in_scope": [
+        "Installation of heating, lighting, air-conditioning, ventilation, power supply, drainage, sanitation, water supply, and fire protection systems",
+        "Installation of telecommunications, computer, and security systems",
+        "Alterations, repairs, extensions, decoration, and demolition",
+        "Site preparation, civil engineering, and building work",
+        "Pipework, ductwork, and associated insulation installation"
+      ],
+      "operations_outside_scope": [
+        "Manufacture or delivery of materials, plant, or machinery (delivery only, not installation)",
+        "Architecture, surveying, and professional consultancy",
+        "Carpet fitting",
+        "Scaffolding hire (without erection/dismantling labour)"
+      ]
+    },
+    "hmrc_verification": {
+      "process": "Before making any payment to a subcontractor, the contractor MUST verify the subcontractor with HMRC. Verification is done online via HMRC's CIS service, by phone (0300 200 3210), or through commercial software. The contractor provides the subcontractor's details and HMRC returns a verification reference number and the applicable deduction rate.",
+      "information_required": {
+        "sole_traders": "Unique Taxpayer Reference (UTR) and National Insurance Number (NINO). The subcontractor's name must match HMRC records exactly.",
+        "partnerships": "Partnership UTR plus the UTR of the nominated partner, or the partnership trading name.",
+        "companies": "Company UTR and company registration number (CRN) from Companies House, or the company name."
+      },
+      "verification_reference_number": "HMRC issues a verification reference number that must be recorded. This number is valid for the current tax year. Re-verification is required at the start of each new tax year (6 April) or if the subcontractor has not been included in a CIS return for the previous two consecutive tax months.",
+      "matched_vs_unmatched": "If HMRC can match the details provided, they confirm the deduction rate. If details cannot be matched, the contractor must deduct at 30%. The subcontractor should be informed and advised to contact HMRC to resolve the mismatch."
+    },
+    "deduction_rates": {
+      "verified_net_rate": {
+        "rate": "20%",
+        "applies_when": "The subcontractor is registered for CIS and HMRC verification confirms the 20% rate. This is the standard rate for most registered subcontractors.",
+        "calculation": "Deducted from labour element of payment only — materials costs supported by direct evidence are excluded from the deduction calculation."
+      },
+      "unverified_rate": {
+        "rate": "30%",
+        "applies_when": "The subcontractor is not registered for CIS, or HMRC cannot match the details during verification. Also applies if the contractor fails to verify before payment.",
+        "note": "Subcontractors subject to 30% deduction should register for CIS immediately to reduce to 20%. HMRC cannot backdate the registration to recover excess deductions — recovery is via the subcontractor's tax return."
+      },
+      "gross_payment_status": {
+        "rate": "0%",
+        "applies_when": "The subcontractor holds gross payment status (GPS) and HMRC verification confirms this.",
+        "qualifying_conditions": [
+          "The business must pass the business test — carrying on a construction business in the UK",
+          "The turnover test — minimum annual turnover of £30,000 (excluding materials and VAT) for sole traders, £30,000 per partner for partnerships, or £30,000 per relevant person/£100,000 total for companies",
+          "The compliance test — all tax returns filed on time, all tax paid on time, no penalties for fraud or negligence in the previous 12 months"
+        ],
+        "review": "HMRC reviews gross payment status annually. GPS can be revoked if the compliance or turnover tests are no longer met. The subcontractor must be notified and has a right of appeal within 30 days."
+      },
+      "materials_deduction": {
+        "rule": "CIS deductions are calculated on the labour content only. The cost of materials that the subcontractor has purchased and used in the construction operations can be excluded from the amount subject to deduction, provided the contractor is satisfied the materials cost is genuine.",
+        "evidence_required": "Invoices or receipts for materials purchased, delivery notes, supplier statements. The contractor must be 'reasonably satisfied' the materials costs are genuine. VAT on materials is not deducted — the full VAT-inclusive cost of materials is excluded.",
+        "mixed_payments": "Where a payment covers both labour and materials, the contractor must identify the materials element separately. If materials cannot be separately identified, the full payment is subject to CIS deduction.",
+        "important_note": "Only direct materials costs qualify. Plant hire, equipment hire, transport costs, consumables, and overheads do NOT qualify as materials for CIS purposes."
+      }
+    },
+    "cis300_monthly_returns": {
+      "overview": "Contractors must submit a monthly CIS return (CIS300) to HMRC for each tax month (6th of one month to 5th of the next). The return details all payments made to subcontractors and deductions taken during that period.",
+      "deadline": "The CIS300 must reach HMRC by the 19th of the month following the end of the tax month. For example, the return for the tax month 6 March to 5 April must be filed by 19 April.",
+      "filing_method": "CIS returns MUST be filed electronically — paper returns are no longer accepted except in very limited circumstances (e.g., practicing religious beliefs preventing use of electronic communications, or if HMRC has specifically granted an exemption). Commercial payroll/CIS software or HMRC's free online service can be used.",
+      "nil_returns": "If no payments were made to subcontractors during a tax month, a nil return MUST still be filed by the deadline. Failure to file a nil return incurs the same penalties as a late return. Contractors can contact HMRC to set an 'inactivity' period if they know no payments will be made for consecutive months.",
+      "information_on_return": [
+        "Contractor's name, UTR, and Accounts Office reference",
+        "Each subcontractor's name, UTR, and verification reference number",
+        "Total payment amount to each subcontractor",
+        "Materials cost deducted for each subcontractor",
+        "CIS deduction amount for each subcontractor",
+        "Deduction rate applied (0%, 20%, or 30%)",
+        "Employment status declaration — confirmation the contractor has considered whether the subcontractor is genuinely self-employed"
+      ],
+      "penalties_for_late_filing": {
+        "escalating_structure": [
+          {"period": "1 day late", "penalty": "£100 fixed penalty"},
+          {"period": "2 months late", "penalty": "Additional £200 fixed penalty (£300 total)"},
+          {"period": "6 months late", "penalty": "Additional £300 or 5% of deductions on the return, whichever is higher"},
+          {"period": "12 months late", "penalty": "Further £300 or 5% of deductions, whichever is higher (can rise to 100% in deliberate withholding cases)"}
+        ],
+        "multiple_subcontractors": "Penalties apply per return, not per subcontractor. A return covering 50 subcontractors incurs the same penalty as one covering a single subcontractor.",
+        "reasonable_excuse": "Penalties can be appealed within 30 days if the contractor has a reasonable excuse (e.g., serious illness, HMRC system failure, fire/flood). Ignorance of the deadline is NOT a reasonable excuse.",
+        "interest": "Interest accrues on unpaid CIS deductions from the due date (22nd of the month following the tax month for electronic payment, 19th for cheque payment)."
+      }
+    },
+    "payment_deduction_statements": {
+      "legal_requirement": "Under SI 2005/2045 Regulation 4, the contractor MUST provide a written payment and deduction statement (PDS) to the subcontractor within 14 days of the end of each tax month in which a deduction was made. In practice, most contractors issue a PDS with each payment.",
+      "required_content": [
+        "Contractor's name and employer's HMRC reference (Accounts Office reference)",
+        "Subcontractor's name and UTR",
+        "Tax month to which the statement relates",
+        "Gross amount of the payment (before deductions)",
+        "Cost of materials included in the payment",
+        "Amount of CIS deduction",
+        "Net payment to the subcontractor after deduction"
+      ],
+      "importance_for_subcontractors": "Subcontractors need PDS documents to reclaim CIS deductions against their tax liability. For limited company subcontractors, CIS deductions are offset against PAYE, NIC, and Corporation Tax liabilities. For sole traders and partnerships, deductions are offset against Income Tax and NIC liabilities via the annual Self Assessment return.",
+      "record_keeping": {
+        "contractor_obligation": "Retain copies of all PDS issued, CIS300 returns, verification records, and supporting documents for at least 3 years after the end of the tax year to which they relate.",
+        "subcontractor_obligation": "Retain all PDS received for at least 22 months after the end of the tax year in which the deduction was made. These are essential evidence for reclaiming deductions."
+      }
+    },
+    "labour_only_vs_supply_and_fix": {
+      "labour_only": {
+        "description": "The subcontractor provides labour only — no materials. The entire payment (minus any legitimate reimbursements for travel/subsistence if applicable) is subject to CIS deduction at the applicable rate.",
+        "cis_implication": "Full payment amount is subject to deduction. No materials offset available.",
+        "common_for": "Labour-only arrangements are common for M&E installation gangs, commissioning engineers, and testing/inspection operatives."
+      },
+      "supply_and_fix": {
+        "description": "The subcontractor supplies materials AND provides the labour to install them. The materials element can be excluded from the CIS deduction calculation.",
+        "cis_implication": "Only the labour element of the invoice is subject to CIS deduction. Materials must be clearly itemised and evidenced.",
+        "invoicing_requirement": "Invoices MUST separately itemise materials and labour. A single lump-sum invoice without separation means the entire amount is subject to CIS deduction.",
+        "common_for": "Most M&E subcontract packages are supply-and-fix: the sub procures pipework, ductwork, cables, accessories, and fittings, then installs them."
+      },
+      "practical_guidance_for_me_subs": "M&E subcontractors operating on supply-and-fix contracts should always ensure their applications for payment and invoices clearly separate labour charges from materials costs. Maintain purchase invoices and delivery records that can be traced to specific projects. This is the single most effective way to reduce the cash flow impact of CIS deductions."
+    },
+    "key_references": [
+      "Finance Act 2004, Sections 57-77",
+      "Income Tax (Construction Industry Scheme) Regulations 2005 (SI 2005/2045)",
+      "HMRC CIS Guide for Contractors (CIS340)",
+      "HMRC CIS Guide for Subcontractors (CIS340)",
+      "HMRC Employment Status Manual (ESM)"
+    ]
+  }
+}

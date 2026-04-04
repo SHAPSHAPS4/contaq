@@ -1,0 +1,200 @@
+{
+  "section_id": "KB-CP03",
+  "title": "CDM Regulations 2015 and Health & Safety for M&E Subcontractors",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "cdm_regulations_2015": {
+      "overview": "The Construction (Design and Management) Regulations 2015 (SI 2015/51) are the primary regulations governing health and safety management in construction projects in Great Britain. They replaced CDM 2007 and apply to ALL construction work regardless of size or duration. CDM 2015 places duties on clients, principal designers, principal contractors, designers, contractors (including subcontractors), and workers.",
+      "key_dutyholders": {
+        "client": "The person or organisation for whom the construction project is carried out. Has overarching duty to make suitable arrangements for managing the project (Regulation 4). Must appoint a principal designer and principal contractor in writing on projects involving more than one contractor (Regulation 5).",
+        "principal_designer": "A designer appointed by the client to plan, manage, monitor, and coordinate health and safety in the pre-construction phase (Regulation 11). Must ensure all designers comply with their duties under Regulation 9.",
+        "principal_contractor": "A contractor appointed by the client to plan, manage, monitor, and coordinate health and safety in the construction phase (Regulation 12-14). Must draw up and maintain the construction phase plan. Must ensure all contractors and workers are informed, instructed, and cooperating.",
+        "contractors_including_subcontractors": "Any person who carries out, manages, or controls construction work. M&E subcontractors are 'contractors' under CDM 2015. Duties are set out primarily in Regulation 15.",
+        "designers": "Any person who prepares or modifies a design for a building or structure, including M&E design consultants and subcontractors who carry out detailed design (e.g., ductwork layouts, electrical schematics). Must not commence work unless the client is aware of their duties (Regulation 9)."
+      },
+      "subcontractor_duties_regulation_15": {
+        "regulation_text_summary": "Regulation 15 of CDM 2015 imposes specific duties on all contractors, including subcontractors.",
+        "duties": [
+          "Plan, manage, and monitor construction work carried out by themselves or by workers under their control, to ensure it is carried out without risks to health and safety (Regulation 15(1))",
+          "Ensure any contractor they appoint or engage is provided with appropriate information and that the contractor has the skills, knowledge, training, experience, and organisational capability to carry out the work (Regulation 15(2))",
+          "Provide each worker under their control with appropriate supervision, instructions, and information so far as is reasonably practicable (Regulation 15(3))",
+          "Ensure no worker under their control carries out construction work unless they have been provided with appropriate health and safety induction (Regulation 15(4))",
+          "Comply with directions given by the principal contractor under Regulation 13(4) (Regulation 15(5))",
+          "Comply with the parts of the construction phase plan that are relevant to their work (Regulation 15(6))",
+          "Cooperate with the principal contractor, other contractors, and the principal designer (Regulation 15(7))",
+          "Report anything they are aware of that is likely to endanger their own health or safety or that of others (Regulation 15(8))",
+          "Not begin work on site until they have been provided with the relevant parts of the construction phase plan (Regulation 15(10))"
+        ]
+      },
+      "construction_phase_plan": "The principal contractor must prepare a construction phase plan before work begins (Regulation 12(1)). M&E subcontractors must be given the relevant sections of this plan and must comply with it. The plan must set out the health and safety arrangements and site rules for the construction phase, including how risks will be managed. M&E subs should request the plan BEFORE mobilising to site."
+    },
+    "rams_requirements": {
+      "overview": "Risk Assessments and Method Statements (RAMS) are not explicitly mandated as documents by CDM 2015, but they are the universally accepted mechanism for demonstrating compliance with the duty to plan, manage, and monitor work (Regulation 15(1)) and the general duty under the Management of Health and Safety at Work Regulations 1999 (Regulation 3 — suitable and sufficient risk assessment).",
+      "risk_assessment": {
+        "legal_basis": "Management of Health and Safety at Work Regulations 1999, Regulation 3. Employers with 5 or more employees must record the significant findings. For M&E subcontractors, this means documenting assessments for all significant hazards in their construction work.",
+        "required_content": [
+          "Identification of the hazards associated with the work activity",
+          "Who might be harmed and how (workers, other trades, public)",
+          "Evaluation of the risk level (likelihood x severity) — typically using a 5x5 matrix",
+          "Existing control measures already in place",
+          "Additional control measures required to reduce risk to as low as reasonably practicable (ALARP)",
+          "The hierarchy of control must be applied: eliminate, substitute, engineering controls, administrative controls, PPE (Regulation 4 of the Management Regulations, aligning with Schedule 1 general principles of prevention)",
+          "Name of the assessor, date of assessment, and review date"
+        ],
+        "common_me_hazards": [
+          "Working at height (ladder work, scaffold access, ceiling void work, riser shaft access)",
+          "Electrical hazards (live working, isolation, testing)",
+          "Manual handling (heavy plant, pipework, ductwork sections, cable drums)",
+          "Hot works (soldering, brazing, welding of pipework)",
+          "Confined spaces (risers, ceiling voids, underground chambers, tank internals)",
+          "Asbestos disturbance (especially in refurbishment/retrofit projects)",
+          "Noise and vibration (core drilling, power tools, pipe cutting)",
+          "Working with hazardous substances (flux, sealants, refrigerant gases, cutting oils) — COSHH Regulations 2002",
+          "Fire risk during construction phase"
+        ]
+      },
+      "method_statement": {
+        "purpose": "A method statement describes the safe system of work for carrying out a particular task. It translates the risk assessment controls into a step-by-step sequence of work.",
+        "required_content": [
+          "Description of the work activity and location",
+          "Sequence of work steps in chronological order",
+          "Hazards identified (cross-reference to risk assessment)",
+          "Control measures for each step (specific, not generic)",
+          "Plant, equipment, and materials to be used",
+          "PPE requirements for each stage",
+          "Competency and training requirements for personnel",
+          "Supervision arrangements",
+          "Emergency procedures specific to the task",
+          "Interface considerations with other trades",
+          "Permits to work required (if applicable)",
+          "Environmental controls (waste, dust, noise)",
+          "Name of author, approval signature, date, and review date"
+        ],
+        "review_process": "RAMS must be reviewed: (a) before work commences — briefed to all operatives carrying out the work, with signatures recorded; (b) when conditions change (e.g., unexpected asbestos, access restrictions, weather); (c) after any incident or near miss; (d) periodically — at minimum for long-duration tasks. Many principal contractors require RAMS to be submitted 2 weeks before work commences for review and approval."
+      }
+    },
+    "permits_to_work": {
+      "overview": "Permits to work (PTW) are formal documented procedures that authorise specific high-risk work to proceed only after defined precautions are in place. They are not directly mandated by CDM 2015 but are required by various regulations and are standard practice on construction sites.",
+      "types_relevant_to_me_subs": {
+        "hot_works_permit": {
+          "when_required": "Any work involving open flames, soldering, brazing, welding, grinding, or use of blowlamps. Standard for M&E pipework (copper brazing, steel welding) and associated insulation work near heat sources.",
+          "requirements": "Area inspected and combustibles removed/protected, fire extinguisher available, fire watch maintained during and for minimum 60 minutes after work, smoke/heat detectors isolated (with permit from fire alarm system controller), permit signed by site manager or PC representative."
+        },
+        "confined_space_permit": {
+          "legal_basis": "Confined Spaces Regulations 1997 (SI 1997/1713), Regulation 4.",
+          "when_required": "Entry into any substantially enclosed space where a foreseeable risk exists from: hazardous atmosphere, engulfment, entrapment, or any condition that could cause loss of consciousness or injury. For M&E subs: riser shafts, underground service ducts, large tanks, plant room sumps, ceiling voids with restricted access.",
+          "requirements": "Atmospheric monitoring (O2, LEL, CO, H2S as minimum), rescue plan and equipment in place, trained rescue team or external rescue arrangement, continuous communication, competent supervisor, emergency services informed if appropriate."
+        },
+        "electrical_isolation_permit": {
+          "legal_basis": "Electricity at Work Regulations 1989 (SI 1989/635), Regulations 12-14.",
+          "when_required": "Before work on or near electrical systems that could be energised. Applies to M&E electrical subcontractors working on distribution boards, switch panels, busbars, and any circuits.",
+          "requirements": "Isolation at source, lock-off/tag-out (LOTO), proving dead at point of work using approved voltage indicator (GS38 compliant), secure isolation maintained throughout, permit to confirm all steps completed."
+        },
+        "working_at_height_permit": {
+          "legal_basis": "Work at Height Regulations 2005 (SI 2005/735).",
+          "when_required": "Many sites require a permit for any work at height above 2 metres, or any work requiring scaffolding, MEWPs, or other access equipment. Some PCs require permits for all ladder use.",
+          "requirements": "Risk assessment completed, appropriate access equipment selected (hierarchy: avoid work at height > guardrails/platforms > personal fall protection), equipment inspected, operatives trained (IPAF for MEWPs, PASMA for mobile towers), exclusion zones below."
+        }
+      }
+    },
+    "cscs_cards": {
+      "overview": "The Construction Skills Certification Scheme (CSCS) card is the standard method for verifying competence and health and safety awareness on UK construction sites. While not a legal requirement per se, CDM 2015 Regulation 15(2) requires contractors to ensure workers have appropriate skills, knowledge, and training — and virtually all principal contractors require CSCS cards for site access as evidence of this.",
+      "card_types_for_me_subs": {
+        "blue_skilled_worker": {
+          "description": "For workers who have achieved an NVQ/SVQ Level 2 or equivalent in their trade discipline.",
+          "me_examples": "Electricians (NVQ Level 3 or AM2), plumbers (NVQ Level 2/3), pipefitters, ductwork installers, refrigeration engineers, fire alarm installers.",
+          "requirements": "Relevant NVQ/SVQ or equivalent qualification, valid CITB Health Safety and Environment (HS&E) test within the past 2 years."
+        },
+        "gold_supervisory": {
+          "description": "For supervisors and foremen who hold an NVQ/SVQ Level 3 or above in their discipline plus a supervisory qualification.",
+          "me_examples": "M&E site supervisors, foremen, chargehands with SSSTS (Site Supervisors' Safety Training Scheme) or equivalent.",
+          "requirements": "NVQ/SVQ Level 3 or above, supervisory qualification (SSSTS minimum), valid CITB HS&E test (Supervisors' level)."
+        },
+        "black_manager": {
+          "description": "For site managers, project managers, and construction managers holding NVQ/SVQ Level 6 or 7 plus management health and safety qualification.",
+          "me_examples": "M&E project managers, M&E contracts managers, M&E site managers.",
+          "requirements": "NVQ/SVQ Level 6 or 7 in construction management or equivalent, SMSTS (Site Management Safety Training Scheme) or equivalent, valid CITB HS&E test (Managers' level)."
+        },
+        "red_provisional": {
+          "description": "Temporary card (valid 6 months with one 6-month extension) for workers who have registered for an NVQ but not yet completed it.",
+          "note": "Many principal contractors do not accept provisional cards, especially on larger sites."
+        },
+        "white_professionally_qualified": {
+          "description": "For those with a built-environment degree or professional institution membership (CIBSE, IET, IMechE etc.) who do not hold a traditional NVQ.",
+          "note": "Requires professional qualification assessment and valid CITB HS&E test."
+        }
+      },
+      "hs_and_e_test": "The CITB Health, Safety and Environment test is a mandatory prerequisite for all CSCS card applications. It is a 50-question touch-screen test taken at Pearson VUE test centres. There are different test types for operatives, specialists, supervisors, and managers. The test is valid for 2 years and must be current at the time of card application and renewal."
+    },
+    "riddor_2013": {
+      "overview": "The Reporting of Injuries, Diseases and Dangerous Occurrences Regulations 2013 (SI 2013/1471) require employers and those in control of work premises to report certain workplace incidents to the HSE. For M&E subcontractors, the 'responsible person' is normally the employer of the injured person.",
+      "reportable_incidents": {
+        "deaths": "All work-related deaths must be reported immediately by the quickest practicable means (usually telephone to the HSE Incident Contact Centre on 0345 300 9923), followed by a written report within 10 days (Form F2508 or online via the HSE website).",
+        "specified_injuries_regulation_4": [
+          "Fractures (other than to fingers, thumbs, and toes)",
+          "Amputations",
+          "Permanent loss of sight or reduction in sight",
+          "Crush injuries to the head or torso causing organ damage",
+          "Serious burns (covering more than 10% of the body, or causing damage to eyes, respiratory system, or other vital organs)",
+          "Scalping requiring hospital treatment",
+          "Loss of consciousness caused by head injury or asphyxia",
+          "Any injury requiring resuscitation or admittance to hospital for more than 24 hours"
+        ],
+        "over_7_day_incapacitation": "Injuries that result in the worker being unable to carry out their normal work duties for more than 7 consecutive days (not counting the day of the accident). Must be reported within 15 days of the incident.",
+        "dangerous_occurrences_schedule_2": {
+          "relevant_to_me_subs": [
+            "Collapse, overturning, or failure of load-bearing parts of lifting equipment (e.g., crane lifting HVAC plant)",
+            "Electrical short circuit or overload causing fire or explosion",
+            "Accidental release of any substance that could cause personal injury (e.g., refrigerant gas release, chemical spill)",
+            "Collapse or partial collapse of any scaffold over 5 metres",
+            "Unintentional collapse or partial collapse of any structure, including any falsework (relevant when installing heavy M&E plant on temporary supports)",
+            "Any explosion or fire caused by the ignition of any material that results in the stoppage of normal work for more than 24 hours",
+            "Malfunction of breathing apparatus while in use in a confined space"
+          ]
+        },
+        "occupational_diseases_schedule_3": "Certain diseases must be reported when diagnosed by a doctor and linked to occupational exposure: occupational dermatitis (relevant for sealants, flux), hand-arm vibration syndrome (from power tools), occupational asthma (from welding fumes, insulation fibres), carpal tunnel syndrome."
+      },
+      "reporting_timescales": {
+        "deaths_and_specified_injuries": "Notify HSE immediately by phone (0345 300 9923). Follow up with Form F2508 online within 10 days.",
+        "over_7_day_injuries": "Report within 15 days of the incident via Form F2508 online.",
+        "dangerous_occurrences": "Notify HSE immediately by phone, follow up with F2508 within 10 days.",
+        "occupational_diseases": "Report as soon as a medical practitioner notifies the employer, using Form F2508A."
+      },
+      "record_keeping": "All RIDDOR reports must be retained for 3 years from the date of the incident. Records must include: date and method of reporting, date/time/place of event, personal details of affected persons, brief description of the nature of the event."
+    },
+    "hs_documentation_me_subs_must_maintain": {
+      "documents": [
+        "Health and safety policy statement (required for employers with 5+ employees — HSWA 1974 Section 2(3))",
+        "Risk assessments for all significant work activities (Management of Health and Safety at Work Regulations 1999, Regulation 3)",
+        "COSHH assessments for hazardous substances used (COSHH Regulations 2002, Regulation 6)",
+        "Manual handling assessments (Manual Handling Operations Regulations 1992, Regulation 4)",
+        "Noise assessments where applicable (Control of Noise at Work Regulations 2005)",
+        "Vibration assessments where applicable (Control of Vibration at Work Regulations 2005)",
+        "Method statements for all construction activities",
+        "Permits to work (copies of all permits issued and completed)",
+        "Training records and certificates for all operatives (CSCS, IPAF, PASMA, asbestos awareness, first aid, etc.)",
+        "Plant and equipment inspection records (LOLER 1998 for lifting equipment, PUWER 1998 for work equipment)",
+        "Electrical test certificates and inspection records",
+        "Accident and incident records, near-miss reports",
+        "RIDDOR reports (copies retained for 3 years)",
+        "Site induction records",
+        "Toolbox talk records",
+        "Asbestos awareness records and any refurbishment/demolition survey reports received",
+        "Employers' liability insurance certificate (Employers' Liability (Compulsory Insurance) Act 1969)"
+      ]
+    },
+    "key_references": [
+      "Construction (Design and Management) Regulations 2015 (SI 2015/51)",
+      "Management of Health and Safety at Work Regulations 1999 (SI 1999/3242)",
+      "Health and Safety at Work etc. Act 1974",
+      "Work at Height Regulations 2005 (SI 2005/735)",
+      "Confined Spaces Regulations 1997 (SI 1997/1713)",
+      "Electricity at Work Regulations 1989 (SI 1989/635)",
+      "Reporting of Injuries, Diseases and Dangerous Occurrences Regulations 2013 (SI 2013/1471)",
+      "Control of Substances Hazardous to Health Regulations 2002 (SI 2002/2677)",
+      "Lifting Operations and Lifting Equipment Regulations 1998 (SI 1998/2307)",
+      "Provision and Use of Work Equipment Regulations 1998 (SI 1998/2306)"
+    ]
+  }
+}

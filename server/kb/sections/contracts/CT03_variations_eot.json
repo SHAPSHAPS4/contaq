@@ -1,0 +1,138 @@
+{
+  "section_id": "KB-CT03",
+  "title": "Variations, Extensions of Time & Loss and Expense for M&E Subcontractors",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "purpose": "Reference guide for analysing variation orders, extension of time claims, loss and expense, and delay issues from the M&E subcontractor's perspective. Use this when reviewing VOs, assessing EOT entitlement, identifying time bars, or advising on claim substantiation.",
+    "variation_orders": {
+      "jct_variations": {
+        "instruction_requirements": {
+          "clause": "3.9 (DB 2016 main contract); subcontract equivalent",
+          "summary": "Variations must be instructed by the Contractor (or Employer under the main contract). Under JCT, a variation is any change to the design, quality, or quantity of the works, including additions, omissions, changes to the kind or standard of materials, and changes to the order or period of working.",
+          "written_instruction": "Instructions should be in writing. If given orally, the subcontractor should confirm in writing within 7 days. If the Contractor does not dissent within a further 7 days, the oral instruction is deemed a written instruction.",
+          "me_impact": "M&E subcontractors frequently receive informal instructions (emails, RFIs, site verbal directions) that constitute variations. Each must be captured and confirmed. Failure to confirm oral instructions in writing risks losing entitlement."
+        },
+        "valuation_rules_cl_5_6_to_5_10": {
+          "clauses": "5.6-5.10",
+          "hierarchy": {
+            "agreed_rate": "Where the subcontractor and Contractor agree a rate or price, that agreement applies.",
+            "subcontract_rates": "Where work is of similar character, executed under similar conditions, and does not significantly change the quantity, the rates and prices in the subcontract apply (cl 5.6.1.1).",
+            "fair_rates": "Where the work is not of similar character or not executed under similar conditions, the rates in the subcontract are used as a basis for a fair valuation (cl 5.6.1.2).",
+            "daywork": "Where the valuation cannot reasonably be based on rates, it may be valued on a daywork basis using the Definition of Prime Cost of Daywork issued by the RICS (cl 5.7).",
+            "omissions": "Omissions are valued at the rates and prices in the subcontract. The subcontractor is entitled to claim loss and expense caused by the omission if it affects remaining work."
+          },
+          "me_impact": "M&E work is often significantly different from original scope when varied (e.g., change from one system type to another). The 'similar character' test fails frequently, requiring fair valuation. Subs must keep detailed cost records to support fair rates."
+        }
+      },
+      "nec_compensation_events": {
+        "instruction_mechanism": "Under NEC4 ECS, there is no separate 'variation order.' All changes are compensation events under cl 60.1. The Contractor issues a Project Manager's instruction changing the Subcontract Works Information (cl 60.1(1)), which triggers the compensation event process.",
+        "notification_cl_61": {
+          "by_contractor": "The Contractor notifies a CE when they give an instruction, change a decision, or an event occurs that they are responsible for notifying (cl 61.1).",
+          "by_subcontractor": "If the Contractor does not notify, the Subcontractor must notify within 8 weeks of becoming aware of the event (cl 61.3). This is a hard time bar. After 8 weeks, the event is deemed not to have happened.",
+          "me_impact": "M&E subs must maintain a weekly review process to identify and notify CEs within the 8-week window. A register of all instructions, changes, and events should be maintained."
+        },
+        "quotation_and_assessment_cl_62_63": {
+          "quotation_submission": "The Subcontractor submits a quotation within 3 weeks of being instructed to do so (cl 62.3). The quotation includes changes to the Prices and delay to the Completion Date.",
+          "assessment_basis": "Assessment uses Defined Cost plus the subcontracted Fee percentage (cl 63.1). Defined Cost comprises people costs, equipment costs, plant and materials costs, charges, and manufacture and fabrication costs. It does not include head office overheads except through the Fee percentage.",
+          "prospective_assessment": "The assessment is based on the Contractor's and Subcontractor's forecast of the effect on Defined Cost at the dividing date (cl 63.1). Actual cost after the dividing date is not used. This means the quotation must be robust and well-evidenced at the time of submission.",
+          "contractor_assessment": "If the Subcontractor fails to submit a quotation in time, or the quotation is not accepted, the Contractor may make their own assessment (cl 64.1). This is often less favourable to the sub."
+        }
+      }
+    },
+    "extensions_of_time": {
+      "jct_relevant_events_cl_2_26": {
+        "clause": "2.26",
+        "events": [
+          "Variations (cl 2.26.1)",
+          "Architect/Contract Administrator instructions (cl 2.26.2)",
+          "Deferment of giving possession of the site or section (cl 2.26.3)",
+          "Execution of work by statutory undertakers (cl 2.26.4)",
+          "Exceptionally adverse weather conditions (cl 2.26.8)",
+          "Force majeure (cl 2.26.14)",
+          "Civil commotion, strikes, lockouts (cl 2.26.12-13)",
+          "Specified perils (fire, flood, etc.) (cl 2.26.9)",
+          "Exercise by government of statutory power affecting supply of labour, goods, or energy (cl 2.26.10)",
+          "Impediment, prevention, or default by the Employer, Employer's persons, or the Contractor (cl 2.26.6)",
+          "Failure of the Employer to give ingress/egress (cl 2.26.11)",
+          "Changes in statutory requirements after the Base Date (cl 2.26.7)"
+        ],
+        "subcontract_passdown": "The domestic subcontract should mirror or cross-reference these events. Check whether the subcontract restricts the grounds — some bespoke forms delete events or add qualifying language (e.g., 'to the extent the Contractor receives an EOT under the main contract').",
+        "notification": "The subcontractor must give written notice to the Contractor whenever it becomes reasonably apparent that the progress of the works is being or is likely to be delayed by a Relevant Event. The notice should identify the event, the expected effect on progress, and the expected delay to completion.",
+        "particularisation": "After the initial notice, the subcontractor must provide particulars of the expected effects, including an estimate of the expected delay. Further updates are required as information becomes available.",
+        "decision": "The Contractor (or contract administrator under the main contract) must give an extension of time that is fair and reasonable, having regard to the relevant events. Under JCT, the decision-maker must also review EOT at practical completion (cl 2.28)."
+      },
+      "nec_compensation_events_delay": {
+        "mechanism": "Under NEC, delay caused by a compensation event is assessed through the CE quotation process. The Subcontractor assesses the delay to the Completion Date by comparing the programme with and without the compensation event.",
+        "programme_based": "The assessment is programme-based. The Subcontractor must show the impact on the critical path of the Accepted Programme. Terminal float belongs to the Subcontractor — the Contractor cannot use the Subcontractor's terminal float to absorb CE delay (cl 63.5).",
+        "time_bar": "The 8-week notification time bar (cl 61.3) applies equally to delay claims. An unreported CE that caused delay cannot be claimed after 8 weeks."
+      }
+    },
+    "concurrent_delay": {
+      "definition": "Concurrent delay arises where two or more delay events operate simultaneously, and at least one is at the contractor/employer's risk and at least one is at the subcontractor's risk.",
+      "legal_principles": {
+        "malmaison_approach": "The dominant English law approach (from Henry Boot Construction v Malmaison Housing Association [1999]) holds that where there is true concurrency between an Employer risk event and a Contractor risk event, the Contractor is entitled to an extension of time for the full period of delay. This principle flows down to subcontractors.",
+        "apportionment": "English law does not generally apportion delay between concurrent causes. The SCL Delay and Disruption Protocol (2nd edition, 2017) recommends that the contractor should receive an extension of time for the concurrent period but should not recover prolongation costs for any period of concurrent delay that is the contractor's own risk.",
+        "burden_of_proof": "The party claiming the EOT must prove on the balance of probabilities that the Relevant Event (or CE) caused delay to the completion date. The responding party must prove concurrency if they wish to rely on it to limit the time or money entitlement."
+      },
+      "me_impact": "M&E subcontractors are frequently accused of concurrent delay (e.g., delayed procurement alongside late information). Maintaining detailed records — including a regularly updated programme showing actual progress against planned progress — is essential to rebut concurrency arguments."
+    },
+    "loss_and_expense": {
+      "jct_loss_and_expense_cl_4_19_to_4_20": {
+        "clauses": "4.19-4.20 (main contract); subcontract equivalent",
+        "requirement": "The subcontractor must demonstrate that it has incurred or is likely to incur direct loss and/or expense because regular progress has been or is likely to be materially affected by a Relevant Matter.",
+        "relevant_matters": "Similar to Relevant Events but focused on matters causing financial loss: variations, late information, employer-caused delays, opening up/testing where the work is found compliant.",
+        "application": "The subcontractor must make a written application as soon as it has become or should have become reasonably apparent that regular progress has been or is likely to be materially affected.",
+        "ascertainment": "The Contractor ascertains the loss and expense, or this may be delegated to the quantity surveyor."
+      },
+      "heads_of_claim": {
+        "prolongation": {
+          "definition": "Additional time-related costs incurred because the subcontract period is extended due to Employer or main contractor delay.",
+          "typical_costs": [
+            "Site management and supervision (project manager, foreman, site engineer)",
+            "Site accommodation and facilities (cabins, welfare, storage)",
+            "Plant and equipment standing time or extended hire",
+            "Scaffolding and temporary works extended hire",
+            "Insurance premiums for extended period",
+            "Small tools and consumables",
+            "Head office overheads (calculated using Hudson, Emden, or Eichleay formula — Hudson is the most commonly used in UK: contract sum x HO overhead % / contract period x delay period)"
+          ],
+          "records_required": "Contemporaneous allocation sheets, payroll records, plant hire invoices, insurance renewal notices, and audited accounts demonstrating overhead recovery rates."
+        },
+        "disruption": {
+          "definition": "Loss of productivity caused by interference with the planned method and sequence of working, without necessarily extending the completion date.",
+          "typical_causes": "Out-of-sequence working, stacking of trades, restricted access, stop-start working, design changes requiring rework of adjacent areas.",
+          "measurement": "Measured loss approach (comparing planned vs actual productivity), earned value analysis, or industry studies (e.g., Mechanical Contractors Association of America / MCAA studies, Leonard study). The SCL Protocol endorses the measured mile analysis where sufficient data exists.",
+          "me_specifics": "M&E installations are particularly susceptible to disruption because: (a) M&E runs through multiple building zones and is affected by other trades' progress; (b) commissioning requires all systems to be complete before testing; (c) coordination with other services (fire, controls, BMS) creates interface dependencies.",
+          "records_required": "Daily site diaries, allocation sheets showing labour deployed per area, progress photographs, planned vs actual programme comparisons, and productivity records (e.g., metres of ductwork installed per man-day)."
+        },
+        "acceleration": {
+          "definition": "Costs of measures taken to complete the works earlier than would otherwise be the case, either instructed or constructive.",
+          "instructed_acceleration": "Where the Contractor instructs the subcontractor to accelerate. Should be agreed as a variation with a confirmed budget. Under NEC, acceleration is dealt with under cl 36.",
+          "constructive_acceleration": "Where the subcontractor is denied a legitimate EOT and must accelerate to avoid liquidated damages. The sub should reserve its rights in writing, notify that it is accelerating under protest, and record all additional costs.",
+          "typical_costs": "Overtime premiums, additional labour, second shifts, weekend working, additional supervision, expedited material procurement, additional temporary works."
+        }
+      },
+      "global_claims": {
+        "definition": "A global claim (or total cost claim) is one where the claimant asserts that multiple events caused loss but does not or cannot allocate specific loss to specific events.",
+        "legal_position": "Global claims are permissible but disfavoured. The leading case is Walter Lilly v Mackay [2012], which held that a global claim can succeed where: (a) the claimant's inability to particularise is not its own fault; (b) there is no contributory cause for which the claimant is responsible (or if there is, the claimant makes a reasonable attempt to separate it out).",
+        "me_impact": "M&E subs should avoid global claims where possible. The best approach is to maintain records sufficient to link each cause to each effect. If a global approach is unavoidable, acknowledge it and explain why particularisation is not possible.",
+        "risk": "Courts and adjudicators may reject global claims entirely if any of the claimed events are found to be the claimant's own risk, unless the claimant has separated out the non-recoverable elements."
+      }
+    },
+    "time_bars_and_notification_deadlines": {
+      "jct_notifications": {
+        "eot_notice": "As soon as the delay becomes reasonably apparent — no fixed time bar, but unreasonable delay may prejudice entitlement. Best practice: within 7-14 days.",
+        "loss_and_expense_application": "As soon as it becomes reasonably apparent that regular progress has been or is likely to be materially affected. No fixed time bar, but prompt notification is essential for credibility and evidential purposes.",
+        "bespoke_time_bars": "Many amended JCT subcontracts insert express time bars (e.g., 'the subcontractor shall notify within 14 days, failing which entitlement is lost'). These are enforceable if clearly drafted. M&E subs must check for and comply with such clauses."
+      },
+      "nec_time_bars": {
+        "compensation_event_notification": "8 weeks from becoming aware (cl 61.3). Hard time bar — entitlement is lost. No exceptions.",
+        "quotation_submission": "3 weeks from instruction to quote (cl 62.3). If not submitted, the Contractor may make their own assessment.",
+        "programme_submission": "Within the period stated in the Subcontract Data, or when instructed. Failure triggers 25% PWDD withholding (cl 50.5).",
+        "early_warning": "No fixed time bar, but failure reduces the CE assessment to what it would have been had early warning been given (cl 63.7)."
+      },
+      "best_practice": "Maintain a notice tracker (spreadsheet or software) recording: event date, date sub became aware, notification deadline, date notice sent, reference number, and response received. For NEC contracts, the 8-week deadline is absolute — set a calendar alert for each event."
+    }
+  }
+}

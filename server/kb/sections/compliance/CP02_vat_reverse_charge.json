@@ -1,0 +1,124 @@
+{
+  "section_id": "KB-CP02",
+  "title": "VAT Domestic Reverse Charge for Construction Services",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "overview": {
+      "summary": "The VAT domestic reverse charge for building and construction services took effect on 1 March 2021 under the Value Added Tax (Section 55A) (Specified Services and Excepted Supplies) Order 2020 (SI 2020/735), amending the Value Added Tax Act 1994 Section 55A. Under the reverse charge, the recipient of construction services accounts for the output VAT on the supply rather than the supplier. The supplier issues an invoice without charging VAT and annotates it accordingly. This measure was introduced to combat 'missing trader' VAT fraud in the construction sector.",
+      "legislative_basis": [
+        "Value Added Tax Act 1994, Section 55A",
+        "SI 2020/735 — The Value Added Tax (Section 55A) (Specified Services and Excepted Supplies) Order 2020",
+        "HMRC Revenue and Customs Brief 7 (2020)",
+        "HMRC VAT Notice 735 — Domestic reverse charge for building and construction services"
+      ]
+    },
+    "when_reverse_charge_applies": {
+      "all_conditions_must_be_met": [
+        "The supply is of 'specified services' — services that are reportable under CIS (as defined in Finance Act 2004 Section 74)",
+        "The supply is made at the standard rate (20%) or reduced rate (5%) of VAT — zero-rated supplies are excluded",
+        "The supplier is registered or required to be registered for VAT in the UK",
+        "The recipient is registered for VAT in the UK AND is registered for CIS (either as a contractor or subcontractor)",
+        "The recipient is NOT an end user or intermediary supplier connected to the end user",
+        "Payment is reported under CIS"
+      ],
+      "specified_services_for_me_subs": [
+        "Installation, alteration, or repair of heating, lighting, air-conditioning, ventilation, and power supply systems",
+        "Installation, alteration, or repair of drainage, sanitation, and water supply systems",
+        "Installation of fire protection and alarm systems",
+        "Installation of telecommunications, security, and data cabling systems",
+        "Ductwork and pipework installation including associated insulation",
+        "Testing and commissioning of M&E systems where part of a wider construction supply"
+      ],
+      "services_excluded": [
+        "Professional services: architecture, surveying, engineering design consultancy (not physically constructing)",
+        "Manufacture or fabrication of components off-site for delivery without installation",
+        "Hire of plant or equipment without an operator",
+        "Zero-rated construction of new dwellings (Group 5 Schedule 8 VATA 1994)"
+      ]
+    },
+    "end_user_exemption": {
+      "definition": "An 'end user' is a recipient of construction services who does not make onward supplies of those same construction services. When the recipient is an end user, the reverse charge does NOT apply — normal VAT rules apply and the supplier charges VAT in the usual way.",
+      "examples_of_end_users": [
+        "A building owner commissioning M&E works for their own occupation — they consume the service and do not pass it on",
+        "A property developer who contracts directly with an M&E subcontractor and does not make onward construction supplies (they sell or let completed buildings)",
+        "A local authority or housing association procuring construction works for their own estate",
+        "A retailer fitting out their own premises"
+      ],
+      "notification_requirement": "The end user must notify their supplier in writing that they are an end user. Without this written confirmation, the supplier must apply the reverse charge. There is no prescribed format for the notification, but it should be in writing (email is sufficient), state that the recipient is an end user for the purposes of the domestic reverse charge, and be retained by both parties.",
+      "connected_intermediary_suppliers": "An 'intermediary supplier' is a VAT- and CIS-registered business that is connected (within the meaning of CIS) to an end user and supplies construction services to that end user. Where this relationship exists, the intermediary supplier is treated as an end user, and the reverse charge does not apply to supplies made to them. The intermediary must notify the supplier in writing."
+    },
+    "how_it_works_in_practice": {
+      "for_the_supplier_me_sub": {
+        "invoicing": "The M&E subcontractor issues an invoice showing all the normal details PLUS: the rate of VAT applicable (e.g., 20%), the amount of VAT that would have been charged, and a notation that the 'reverse charge applies — customer to account for VAT to HMRC'. The invoice total should be the NET amount only (excluding VAT). The VAT amount shown is for information only and must NOT be included in the amount payable.",
+        "vat_return": "The supplier does NOT include the output VAT in Box 1 of their VAT return. The net value of the supply is included in Box 6 (total value of sales). Input VAT on costs related to the supply can still be reclaimed in the normal way in Box 4.",
+        "cash_flow_impact": "The reverse charge reduces cash flow for M&E subcontractors because they no longer collect VAT from their customers to fund the gap between invoicing and paying their own suppliers. Subcontractors who are consistently in a VAT repayment position may benefit from moving to monthly VAT returns to accelerate repayments."
+      },
+      "for_the_recipient_main_contractor": {
+        "accounting": "The recipient accounts for the output VAT on the supply by including it in Box 1 of their VAT return (output tax). They simultaneously reclaim the same amount as input VAT in Box 4 (subject to normal input tax recovery rules). The net value is included in Boxes 6 and 7.",
+        "practical_effect": "For a fully taxable main contractor, the reverse charge is largely a paper exercise — the output and input VAT cancel out. However, if the contractor is partly exempt, they may not recover 100% of the input VAT."
+      }
+    },
+    "record_keeping_requirements": {
+      "supplier_records": [
+        "Copies of all invoices issued with reverse charge notation",
+        "Written end-user notifications received from customers (where normal VAT was charged instead)",
+        "Evidence of CIS registration status of customers (where checked)",
+        "VAT account entries showing reverse charge supplies separately from standard-rated supplies"
+      ],
+      "recipient_records": [
+        "All invoices received that are subject to the reverse charge",
+        "VAT account entries for reverse charge input and output tax",
+        "Written end-user declarations issued to suppliers",
+        "Evidence that CIS and VAT registration status was verified for suppliers"
+      ],
+      "retention_period": "VAT records must be retained for 6 years from the date of the transaction (VAT Regulations 1995, Regulation 31). CIS records must be retained for 3 years after the end of the tax year."
+    },
+    "common_errors_by_me_subs": {
+      "errors": [
+        {
+          "error": "Charging VAT when the reverse charge should apply",
+          "consequence": "The subcontractor has a VAT liability they must pay to HMRC, and the main contractor cannot reclaim the VAT as input tax because it was incorrectly charged. HMRC may assess the contractor for the output tax they should have self-accounted for, creating a double taxation scenario.",
+          "fix": "Issue a credit note for the original incorrect invoice and reissue with the correct reverse charge treatment."
+        },
+        {
+          "error": "Applying the reverse charge when the customer is an end user",
+          "consequence": "The end user may not account for the output VAT, resulting in a loss to the Exchequer. The supplier may face assessment for the VAT they should have charged.",
+          "fix": "Obtain written end-user confirmation before deciding whether to apply the reverse charge. If in doubt, treat as reverse charge — this is the safer default."
+        },
+        {
+          "error": "Including VAT in the invoice total on reverse charge invoices",
+          "consequence": "The main contractor may pay the gross amount including VAT. Recovering the overpayment creates administrative burden and cash flow damage.",
+          "fix": "Invoice total must be the NET amount. Show VAT as a memo figure only with clear annotation."
+        },
+        {
+          "error": "Failing to annotate invoices correctly",
+          "consequence": "HMRC may treat the supply as a normal supply and assess the supplier for output VAT. The recipient may also face penalties for not accounting for the reverse charge.",
+          "fix": "Every reverse charge invoice must state 'Reverse charge: customer to account to HMRC for VAT' or words to equivalent effect."
+        },
+        {
+          "error": "Not adjusting VAT return entries",
+          "consequence": "Incorrect Box 1 and Box 6 entries lead to errors on the VAT return, potentially triggering HMRC compliance checks.",
+          "fix": "Ensure accounting software is configured to handle reverse charge correctly. Many M&E subs use Sage, Xero, or QuickBooks — all have reverse charge features that must be enabled per transaction."
+        },
+        {
+          "error": "Treating all construction work as subject to reverse charge",
+          "consequence": "Some supplies by M&E subs are excluded — e.g., design-only consultancy, off-site fabrication without installation, equipment hire without operator.",
+          "fix": "Assess each supply individually. Mixed supplies (e.g., design and install) should be treated based on the principal supply."
+        }
+      ]
+    },
+    "interaction_with_cis_deductions": {
+      "key_principle": "CIS deductions and the VAT reverse charge are separate mechanisms but interact on M&E subcontractor invoices. CIS deductions are calculated on the gross payment excluding VAT. Under the reverse charge, no VAT is charged, so the CIS deduction base is the same as the invoice total (minus any materials). This simplifies the CIS calculation compared to the pre-reverse-charge regime where CIS was calculated on the VAT-exclusive amount.",
+      "example": "An M&E sub invoices £10,000 for labour, £5,000 for materials under reverse charge. CIS at 20% is deducted on the labour element: £10,000 x 20% = £2,000. The sub receives £13,000 (£15,000 minus £2,000 CIS). No VAT is collected or paid. The main contractor self-accounts for VAT on the £15,000 at 20% (£3,000) via their VAT return.",
+      "cash_flow_note": "The combined effect of CIS deductions AND the reverse charge significantly impacts M&E subcontractor cash flow. The sub neither collects VAT nor receives the full labour payment. Financial planning must account for this — the sub funds all input VAT from working capital while waiting for HMRC repayment via the VAT return."
+    },
+    "key_references": [
+      "Value Added Tax Act 1994, Section 55A",
+      "SI 2020/735 — VAT (Section 55A) (Specified Services and Excepted Supplies) Order 2020",
+      "HMRC VAT Notice 735 — Domestic reverse charge for building and construction services",
+      "Finance Act 2004, Section 74 (definition of construction operations for CIS)",
+      "HMRC Revenue and Customs Brief 7 (2020)"
+    ]
+  }
+}

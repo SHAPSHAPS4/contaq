@@ -1,0 +1,114 @@
+{
+  "section_id": "KB-CT02",
+  "title": "Payment & Retention for M&E Subcontractors",
+  "version": "1.0",
+  "last_updated": "2026-04-04",
+  "data": {
+    "purpose": "Reference guide for analysing payment terms, retention provisions, and statutory payment rights from the M&E subcontractor's perspective. Use this when reviewing payment applications, assessing late payment, advising on suspension rights, or checking retention release triggers.",
+    "statutory_framework": {
+      "housing_grants_construction_regeneration_act_1996": {
+        "short_title": "HGCRA 1996 (as amended by LDEDCA 2009)",
+        "overview": "The Housing Grants, Construction and Regeneration Act 1996, as amended by Part 8 of the Local Democracy, Economic Development and Construction Act 2009, provides mandatory payment protections for construction contracts. These provisions cannot be contracted out of. Any contract term that conflicts with the Act is replaced by the Scheme for Construction Contracts (England and Wales) Regulations 1998 (as amended 2011).",
+        "application": "Applies to all construction contracts (as defined in s.104-105 HGCRA) that are in writing. Since the 2009 amendments, oral contracts are also covered. Virtually all M&E subcontracts fall within scope.",
+        "key_payment_provisions": {
+          "adequate_payment_mechanism_s109": {
+            "section": "s.109",
+            "requirement": "Every construction contract must provide an adequate mechanism for determining what payments become due and when. If the contract fails to do so, the relevant provisions of the Scheme apply.",
+            "me_impact": "If the subcontract lacks clear payment dates, the Scheme imposes a default mechanism: the due date is 7 days after the end of the relevant period (or on completion), and the final date for payment is 17 days after the due date."
+          },
+          "payment_notices_s110A": {
+            "section": "s.110A (inserted by LDEDCA 2009)",
+            "requirement": "Not later than 5 days after the payment due date, the payer must issue a payment notice stating the sum considered due and the basis of calculation. If the payer fails to issue a payment notice, the payee's application (if it complies with the contract) becomes the default payment notice (often called a 'default payment notice' or 'smash and grab' mechanism).",
+            "me_impact": "This is a critical protection for M&E subcontractors. If the main contractor fails to issue a payment notice or a pay less notice, the subcontractor's application amount becomes due in full. The subcontractor can enforce this through adjudication (the 'smash and grab' adjudication)."
+          },
+          "pay_less_notices_s111": {
+            "section": "s.111",
+            "requirement": "If the payer intends to pay less than the notified sum, it must issue a pay less notice not later than the prescribed period before the final date for payment. The notice must specify the sum considered due and the basis of calculation.",
+            "strict_compliance": "Pay less notices must be served strictly in time and with adequate detail. A notice that is late, insufficiently detailed, or served by the wrong person is ineffective. Case law: ISG v Seevic College [2014] — failure to serve a valid pay less notice means the notified sum is due."
+          },
+          "right_to_suspend_s112": {
+            "section": "s.112",
+            "requirement": "Where a sum due under the contract is not paid in full by the final date for payment and no effective pay less notice has been given, the payee may give 7 days' written notice of intention to suspend performance. The right to suspend continues until payment is made in full.",
+            "extension_of_time": "Under s.112(3A) (inserted by LDEDCA 2009), a period of suspension is disregarded in computing any contractual time limit, effectively granting an automatic extension of time for the period of suspension plus a reasonable period for remobilisation.",
+            "me_impact": "Suspension is a powerful tool for M&E subs facing non-payment. However, it must be exercised correctly: the notice must state the ground for suspension (non-payment of the sum due without a valid pay less notice), give 7 days, and be in writing. Suspending without a valid ground risks repudiatory breach."
+          }
+        }
+      },
+      "late_payment_of_commercial_debts_act_1998": {
+        "overview": "Provides a statutory right to interest on late payment of commercial debts at 8% above the Bank of England base rate. Also entitles the creditor to compensation for debt recovery costs (fixed sum of £40-£100 depending on debt size).",
+        "me_impact": "Applicable to construction debts. The subcontractor can claim statutory interest in addition to any contractual interest provision. This right cannot be excluded unless the contract provides a substantial remedy for late payment."
+      }
+    },
+    "payment_application_process": {
+      "interim_applications": {
+        "jct_process": {
+          "submission": "The subcontractor submits interim applications at the intervals stated in the subcontract particulars (typically monthly, aligned with a specified date). The application should detail: measured work completed, materials on site, materials off site (if allowed), variations valued, dayworks, and any loss and expense claimed.",
+          "payment_notice": "The Contractor must issue an Interim Payment Certificate (acting as the s.110A payment notice) within 5 days of the due date, stating the sum due and the basis of calculation.",
+          "pay_less_notice": "If the Contractor intends to pay less than the certified sum, a pay less notice must be served not later than 5 days before the final date for payment.",
+          "final_date_for_payment": "Typically 21 days after the due date under DBSub 2016, but check the subcontract particulars.",
+          "final_account": "After practical completion, the subcontractor submits a final account. The final payment date and mechanism are set out in cl 4.12-4.13."
+        },
+        "nec_process": {
+          "assessment_dates": "Payment is assessed at each assessment date defined in the Subcontract Data (typically monthly). The Contractor assesses the Price for Work Done to Date (PWDD).",
+          "payment_certificate": "Under Option W2 (cl W2.1), the Contractor certifies payment within 1 week of each assessment date. This operates as the payment notice.",
+          "pay_less_notice_w2": "Under W2.3, a pay less notice must be served not later than the period stated in the Subcontract Data before the final date for payment.",
+          "final_date_for_payment": "Stated in the Subcontract Data, typically 3-4 weeks after the assessment date.",
+          "final_assessment": "The Contractor makes a final assessment after the Defects Certificate is issued (cl 53.1). Any amount due is paid within the final date for payment following the final assessment date."
+        }
+      },
+      "valuation_content": {
+        "what_to_include": [
+          "Measured work executed to date against the contract sum analysis or activity schedule",
+          "Variations instructed and valued (JCT cl 5.6-5.10) or implemented compensation events (NEC cl 65)",
+          "Materials on site (properly stored, insured, and allocated to the subcontract)",
+          "Materials off site (only if the subcontract expressly permits and conditions are met — vesting certificates, insurance, bonded storage)",
+          "Daywork sheets signed by the Contractor's representative",
+          "Loss and expense claims (JCT) or compensation event amounts (NEC)",
+          "Fluctuations (if applicable under the subcontract)"
+        ],
+        "common_disputes": "The most frequent payment disputes for M&E subs concern: under-valuation of measured work, rejection of variation claims, disputes over materials off-site, deductions for alleged defects without proper notice, and contra-charges applied without contractual basis."
+      }
+    },
+    "retention": {
+      "mechanics": {
+        "typical_percentages": "Standard retention is 3% under JCT (specified in the subcontract particulars) and 3% under NEC (stated in the Subcontract Data). However, many bespoke subcontracts impose 5%. Percentages above 5% are unusual and may be challenged as penal.",
+        "retention_limit": "Under JCT DBSub 2016, retention is deducted from interim payments up to a cap (typically 3% of the subcontract sum). Under NEC, the retention percentage and retention limit are stated in the Subcontract Data.",
+        "first_moiety_release": "Half of the total retention is released upon practical completion of the subcontract works (JCT) or upon Completion of the subcontract works (NEC). The subcontractor should ensure practical completion / Completion is certified promptly.",
+        "second_moiety_release": "The remaining half is released at the end of the rectification period (JCT — typically 12 months after practical completion) or upon issue of the Defects Certificate (NEC — after the defects date, typically 12-24 months after Completion).",
+        "retention_bond": "Some subcontracts allow the subcontractor to provide a retention bond in lieu of cash retention. This is advantageous for the sub as it avoids cash flow impact. The bond is typically an on-demand bond for the retention amount."
+      },
+      "trust_status": {
+        "jct_position": "Under JCT, the Employer holds retention as trustee (cl 4.13.1 of the main contract). However, at the subcontract level, the Contractor is not automatically a trustee of retention unless the subcontract expressly provides for this. Under DBSub 2016 cl 4.7, the Contractor's interest in retention is stated to be as fiduciary. However, enforcement of the trust is difficult in the Contractor's insolvency.",
+        "practical_risk": "In the Contractor's insolvency, retention held without trust protection is lost — it ranks as an unsecured debt. M&E subs should push for retention held in a separate designated trust account. Few main contractors agree to this.",
+        "retention_deposit_scheme": "The Build UK Retention Deposit Scheme (launched 2022) provides a third-party trust arrangement. Uptake remains limited."
+      },
+      "retention_reform": {
+        "retentions_in_the_construction_industry_bill": "The Retention Payments Bill (previously Aldous Bill) has been introduced in Parliament multiple times. It proposes mandatory retention deposit schemes (trust accounts held by a third party). As of 2026, the Bill has not been enacted, but industry pressure continues.",
+        "government_position": "The Government consulted on retention reform in 2018 (BEIS consultation) and acknowledged the problems. Pye Tait research (2017) found over £700m of retention was permanently lost each year due to upstream insolvency. The Government has not yet legislated."
+      }
+    },
+    "subcontractor_rights_when_payment_late_or_withheld": {
+      "step_1_check_notices": "Verify whether the Contractor issued a valid payment notice and/or pay less notice within the required timescales. If neither was issued, the subcontractor's application sum is due in full.",
+      "step_2_demand_payment": "Write to the Contractor demanding payment of the sum due, referencing the specific payment cycle, the amount claimed, and the absence of any valid pay less notice.",
+      "step_3_right_to_suspend": "If payment remains outstanding and no valid pay less notice was served, serve a 7-day notice of intention to suspend under s.112 HGCRA. The notice must be in writing and identify the ground for suspension.",
+      "step_4_adjudication": "Refer the dispute to adjudication under s.108 HGCRA. The referring party serves a Notice of Adjudication, the adjudicator is appointed (typically within 7 days), and the adjudicator must reach a decision within 28 days (extendable to 42 days with the referring party's consent). Adjudication is interim binding — the decision must be complied with immediately and can only be finally overturned by litigation or arbitration.",
+      "step_5_enforcement": "An adjudicator's decision can be enforced by summary judgment in the Technology and Construction Court (TCC). The court will enforce unless there is a jurisdictional challenge or a breach of natural justice. Case law: Macob Civil Engineering v Morrison Construction [1999] established the principle of enforcement.",
+      "smash_and_grab_adjudication": "Where the Contractor fails to issue any payment notice or pay less notice, the subcontractor can bring a 'smash and grab' adjudication seeking the full application amount. This is highly effective and well-established: ISG v Seevic College [2014], Galliford Try v Estura [2015], S&T (UK) Ltd v Grove Developments Ltd [2018] (Supreme Court confirmed the mechanism but held the true value can be determined in a subsequent adjudication).",
+      "interest": "The subcontractor is entitled to interest: contractual interest if the subcontract provides for it, and/or statutory interest under the Late Payment of Commercial Debts (Interest) Act 1998 at 8% over base rate."
+    },
+    "payment_timescales_summary": {
+      "jct_dbsub_2016": {
+        "due_date": "As stated in subcontract particulars (commonly on application date or a fixed monthly date)",
+        "payment_notice_deadline": "5 days after the due date",
+        "pay_less_notice_deadline": "Not later than 5 days before the final date for payment",
+        "final_date_for_payment": "21 days after the due date (check particulars)"
+      },
+      "nec4_ecs_option_w2": {
+        "assessment_date": "As stated in the Subcontract Data (commonly monthly)",
+        "payment_certificate": "Within 1 week of the assessment date",
+        "pay_less_notice_deadline": "As stated in the Subcontract Data before the final date for payment",
+        "final_date_for_payment": "As stated in the Subcontract Data (commonly 3-4 weeks after assessment date)"
+      }
+    }
+  }
+}
