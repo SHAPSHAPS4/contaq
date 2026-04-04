@@ -118,39 +118,58 @@ router.post('/login', validate(schemas.login), async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password', detail: error.message });
     }
 
-    // Get user profile with org (using admin client which bypasses RLS)
-    console.log('[Login] Auth success for', email, '— auth_id:', data.user.id, '— looking up profile...');
-    let user;
+    // Get user profile — use direct supabaseAdmin queries (most reliable)
+    console.log('[Login] Auth success for', email, '— auth_id:', data.user.id);
+    let user = null;
+    let org = null;
+
+    // Step 1: Find user by auth_id
     try {
-      user = await getUserByAuthId(data.user.id);
-      console.log('[Login] getUserByAuthId result:', user ? user.email : 'NULL');
-    } catch (profileErr) {
-      console.error('[Login] getUserByAuthId threw:', profileErr.message);
+      const { data: u, error: ue } = await supabaseAdmin.from('users').select('*').eq('auth_id', data.user.id).maybeSingle();
+      if (ue) console.error('[Login] User query error:', ue.message);
+      if (u) user = u;
+    } catch (e) {
+      console.error('[Login] User query threw:', e.message);
     }
+
+    // Step 2: If not found by auth_id, try by email (covers edge cases)
     if (!user) {
-      // Fallback: try direct query in case getUserByAuthId has an issue
       try {
-        const { data: fallbackUser } = await supabaseAdmin.from('users').select('*, organizations(*)').eq('auth_id', data.user.id).maybeSingle();
-        if (fallbackUser) {
-          console.log('[Login] Fallback query found user:', fallbackUser.email);
-          user = fallbackUser;
-          user.organizations = fallbackUser.organizations;
+        const { data: u2, error: ue2 } = await supabaseAdmin.from('users').select('*').eq('email', email).maybeSingle();
+        if (ue2) console.error('[Login] Email fallback error:', ue2.message);
+        if (u2) {
+          user = u2;
+          // Fix the auth_id linkage for next time
+          await supabaseAdmin.from('users').update({ auth_id: data.user.id }).eq('id', u2.id).catch(() => {});
+          console.log('[Login] Found user by email, updated auth_id');
         }
-      } catch (fbErr) {
-        console.error('[Login] Fallback query failed:', fbErr.message);
+      } catch (e) {
+        console.error('[Login] Email fallback threw:', e.message);
       }
     }
+
     if (!user) {
-      console.error('[Login] Profile NOT FOUND for auth_id:', data.user.id);
+      console.error('[Login] Profile NOT FOUND for auth_id:', data.user.id, 'email:', email);
       return res.status(403).json({ error: 'User profile not found. Please contact support.' });
     }
 
+    // Step 3: Get org
+    try {
+      const { data: o, error: oe } = await supabaseAdmin.from('organizations').select('*').eq('id', user.org_id).maybeSingle();
+      if (oe) console.error('[Login] Org query error:', oe.message);
+      org = o;
+    } catch (e) {
+      console.error('[Login] Org query threw:', e.message);
+    }
+    user.organizations = org || { id: user.org_id, name: 'Unknown', plan: 'beta', slug: 'org' };
+    console.log('[Login] Profile loaded:', user.email, '| org:', user.organizations.name);
+
     // Calculate trial status
-    const org = user.organizations;
+    const userOrg = user.organizations;
     let trialDaysLeft = null;
     let trialExpired = false;
-    if (org.trial_ends) {
-      const msLeft = new Date(org.trial_ends).getTime() - Date.now();
+    if (userOrg.trial_ends) {
+      const msLeft = new Date(userOrg.trial_ends).getTime() - Date.now();
       trialDaysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
       trialExpired = msLeft <= 0;
     }
@@ -163,8 +182,8 @@ router.post('/login', validate(schemas.login), async (req, res) => {
       },
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
       org: {
-        id: org.id, name: org.name, plan: org.plan, slug: org.slug,
-        trial_ends: org.trial_ends,
+        id: userOrg.id, name: userOrg.name, plan: userOrg.plan, slug: userOrg.slug,
+        trial_ends: userOrg.trial_ends,
         trial_days_left: trialDaysLeft,
         trial_expired: trialExpired
       }
