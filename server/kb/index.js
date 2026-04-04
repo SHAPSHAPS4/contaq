@@ -21,33 +21,46 @@ const KB_VERSION_SOURCES = 47;
    ══════════════════════════════════════════════════════════════════ */
 
 const KB_SECTIONS = {
-  // CORE — always loaded for every KB-enriched endpoint
-  'KB-C01': { file: 'core/C01_drawing_standards.json', priority: 'critical', always: true },
-  'KB-C02': { file: 'core/C02_estimating_principles.json', priority: 'critical', always: true },
-  'KB-C03': { file: 'core/C03_uk_standards.json', priority: 'high', always: true },
-  'KB-C04': { file: 'core/C04_document_hierarchy.json', priority: 'high', always: true },
-  // MECHANICAL
-  'KB-M01': { file: 'mechanical/M01_pipe_materials.json', priority: 'critical', always: false },
-  'KB-M02': { file: 'mechanical/M02_fittings_valves.json', priority: 'high', always: false },
-  'KB-M03': { file: 'mechanical/M03_hvac_ductwork.json', priority: 'critical', always: false },
-  'KB-M04': { file: 'mechanical/M04_plant_equipment.json', priority: 'medium', always: false },
-  // ELECTRICAL
-  'KB-E01': { file: 'electrical/E01_cable_types.json', priority: 'critical', always: false },
-  'KB-E02': { file: 'electrical/E02_cable_containment.json', priority: 'critical', always: false },
-  'KB-E03': { file: 'electrical/E03_distribution.json', priority: 'high', always: false },
-  'KB-E04': { file: 'electrical/E04_lighting_power.json', priority: 'high', always: false },
-  'KB-E05': { file: 'electrical/E05_specialist_systems.json', priority: 'medium', always: false },
-  // INSULATION
-  'KB-I01': { file: 'insulation/I01_pipe_insulation.json', priority: 'critical', always: false },
-  'KB-I02': { file: 'insulation/I02_duct_insulation.json', priority: 'high', always: false },
-  'KB-I03': { file: 'insulation/I03_equipment_insulation.json', priority: 'high', always: false },
-  'KB-I04': { file: 'insulation/I04_fire_specialist.json', priority: 'medium', always: false },
-  // EXTRACTION RULES — always loaded
-  'KB-X01': { file: 'rules/X01_extraction_logic.json', priority: 'critical', always: true },
-  'KB-X02': { file: 'rules/X02_confidence_scoring.json', priority: 'critical', always: true },
-  'KB-X03': { file: 'rules/X03_conflict_resolution.json', priority: 'critical', always: true },
-  'KB-X04': { file: 'rules/X04_hallucination_prevention.json', priority: 'critical', always: true },
-  'KB-X05': { file: 'rules/X05_estimator_guidelines.json', priority: 'critical', always: true },
+  // CORE — always loaded for every KB-enriched endpoint (all trades)
+  'KB-C01': { file: 'core/C01_drawing_standards.json', priority: 'critical', always: true, trades: ['all'] },
+  'KB-C02': { file: 'core/C02_estimating_principles.json', priority: 'critical', always: true, trades: ['all'] },
+  'KB-C03': { file: 'core/C03_uk_standards.json', priority: 'high', always: true, trades: ['all'] },
+  'KB-C04': { file: 'core/C04_document_hierarchy.json', priority: 'high', always: true, trades: ['all'] },
+  // MECHANICAL — pipework trades + ductwork + hvac + multi
+  'KB-M01': { file: 'mechanical/M01_pipe_materials.json', priority: 'critical', always: false,
+    trades: ['mechanical', 'pipework', 'plumbing', 'hvac', 'ductwork', 'insulation', 'multi'] },
+  'KB-M02': { file: 'mechanical/M02_fittings_valves.json', priority: 'high', always: false,
+    trades: ['mechanical', 'pipework', 'plumbing', 'hvac', 'insulation', 'multi'] },
+  'KB-M03': { file: 'mechanical/M03_hvac_ductwork.json', priority: 'critical', always: false,
+    trades: ['mechanical', 'ductwork', 'hvac', 'insulation', 'ventilation', 'multi'] },
+  'KB-M04': { file: 'mechanical/M04_plant_equipment.json', priority: 'medium', always: false,
+    trades: ['mechanical', 'pipework', 'plumbing', 'hvac', 'ductwork', 'ventilation', 'multi'] },
+  // ELECTRICAL — electrical trades only (+ multi)
+  'KB-E01': { file: 'electrical/E01_cable_types.json', priority: 'critical', always: false,
+    trades: ['electrical', 'multi'] },
+  'KB-E02': { file: 'electrical/E02_cable_containment.json', priority: 'critical', always: false,
+    trades: ['electrical', 'multi'] },
+  'KB-E03': { file: 'electrical/E03_distribution.json', priority: 'high', always: false,
+    trades: ['electrical', 'multi'] },
+  'KB-E04': { file: 'electrical/E04_lighting_power.json', priority: 'high', always: false,
+    trades: ['electrical', 'multi'] },
+  'KB-E05': { file: 'electrical/E05_specialist_systems.json', priority: 'medium', always: false,
+    trades: ['electrical', 'fire', 'multi'] },
+  // INSULATION — insulation + mechanical trades that need insulation context
+  'KB-I01': { file: 'insulation/I01_pipe_insulation.json', priority: 'critical', always: false,
+    trades: ['insulation', 'mechanical', 'pipework', 'plumbing', 'multi'] },
+  'KB-I02': { file: 'insulation/I02_duct_insulation.json', priority: 'high', always: false,
+    trades: ['insulation', 'ductwork', 'hvac', 'ventilation', 'multi'] },
+  'KB-I03': { file: 'insulation/I03_equipment_insulation.json', priority: 'high', always: false,
+    trades: ['insulation', 'mechanical', 'multi'] },
+  'KB-I04': { file: 'insulation/I04_fire_specialist.json', priority: 'medium', always: false,
+    trades: ['insulation', 'fire', 'mechanical', 'multi'] },
+  // EXTRACTION RULES — always loaded (all trades)
+  'KB-X01': { file: 'rules/X01_extraction_logic.json', priority: 'critical', always: true, trades: ['all'] },
+  'KB-X02': { file: 'rules/X02_confidence_scoring.json', priority: 'critical', always: true, trades: ['all'] },
+  'KB-X03': { file: 'rules/X03_conflict_resolution.json', priority: 'critical', always: true, trades: ['all'] },
+  'KB-X04': { file: 'rules/X04_hallucination_prevention.json', priority: 'critical', always: true, trades: ['all'] },
+  'KB-X05': { file: 'rules/X05_estimator_guidelines.json', priority: 'critical', always: true, trades: ['all'] },
 };
 
 /* ══════════════════════════════════════════════════════════════════
@@ -425,10 +438,19 @@ async function assembleKBPrompt(endpoint, options = {}) {
   const assembled = [];
 
   // Static sections (shared across all orgs — industry standards)
+  // Trade-aware filtering: only load sections relevant to the user's trade
+  let loadedCount = 0, skippedByTrade = 0;
   for (const sectionId of sectionIds) {
     const config = KB_SECTIONS[sectionId];
     if (!config) continue;
     if (priorityFilter && config.priority !== priorityFilter) continue;
+
+    // Trade filter: skip sections not relevant to this user's trade
+    // 'all' in trades means always load; sections with no trades field always load
+    if (trade && config.trades && !config.trades.includes('all') && !config.trades.includes(trade)) {
+      skippedByTrade++;
+      continue;
+    }
 
     const content = _kbCache[sectionId];
     if (!content) {
@@ -437,6 +459,10 @@ async function assembleKBPrompt(endpoint, options = {}) {
     }
 
     assembled.push(formatSection(sectionId, content));
+    loadedCount++;
+  }
+  if (skippedByTrade > 0) {
+    console.log(`[KB] Trade filter (${trade}): loaded ${loadedCount} sections, skipped ${skippedByTrade} irrelevant sections`);
   }
 
   // Dynamic: Org-Private Learned Rules (relevance-filtered)
