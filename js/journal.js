@@ -82,23 +82,24 @@ async function journalAIAnalyse() {
   var lbl         = document.getElementById('journal-ai-progress-label');
 
   btn.disabled       = true;
-  btn.innerHTML      = '<span id="journal-ai-spinner" style="display:inline-block;animation:spin .7s linear infinite;margin-right:.3rem;">⟳</span> Consulting contracts AI…';
+  btn.innerHTML      = '<span id="journal-ai-spinner" style="display:inline-block;animation:spin .7s linear infinite;margin-right:.3rem;">⟳</span> Deep analysis pipeline…';
   progressDiv.style.display = '';
   document.getElementById('journal-ai-banner').style.display = 'none';
   bar.style.width      = '8%';
   bar.style.background = 'linear-gradient(90deg,var(--lime),var(--orange))';
-  if (lbl) lbl.textContent = 'Sending to Claude…';
+  if (lbl) lbl.innerHTML = typeof renderPipelineProgress === 'function' ? renderPipelineProgress('reading', 8) : 'Reading documents…';
 
   /* ── Crawl progress while API is in flight ────────────────────── */
   var pct = 8;
+  var _pipelineStage = 'reading';
   var crawl = setInterval(function() {
     pct = Math.min(pct + (Math.random() * 6 + 2), 82);
     bar.style.width = pct + '%';
     if (lbl) {
-      if (pct < 30)  lbl.textContent = 'Sending to Claude…';
-      else if (pct < 55) lbl.textContent = 'Analysing contract obligations…';
-      else if (pct < 75) lbl.textContent = 'Checking EOT & cost recovery…';
-      else lbl.textContent = 'Drafting notification…';
+      if (pct < 30) { _pipelineStage = 'reading'; }
+      else if (pct < 65) { _pipelineStage = 'generating'; }
+      else { _pipelineStage = 'auditing'; }
+      lbl.innerHTML = typeof renderPipelineProgress === 'function' ? renderPipelineProgress(_pipelineStage, pct) : _pipelineStage;
     }
   }, 380);
 
@@ -153,45 +154,85 @@ async function journalAIAnalyse() {
   ].join('\n');
 
   try {
-    var resp = await fetch(CONTRAQ_API_BASE + '/api/journal/analyse', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: SYSTEM,
-        messages: [{ role: 'user', content: userContent }]
-      })
-    });
+    var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
+    var usePipeline = token && CONTRAQ_API_BASE !== undefined;
+    var apiData, d, _pipelineResult = null;
 
-    clearInterval(crawl);
-    bar.style.width = '92%';
-    if (lbl) lbl.textContent = 'Processing analysis…';
+    if (usePipeline) {
+      /* ── AlphaLab Pipeline: Analysis → Generation → Critic ──── */
+      var resp = await fetch(CONTRAQ_API_BASE + '/api/ai/full-pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          generation_type: 'eot',
+          journal_entries: [{ date: date, content: title + ' — ' + desc, type: type }],
+          user_request: userContent,
+          project_ref: projCode
+        })
+      });
 
-    if (!resp.ok) {
-      var eb = {}; try { eb = await resp.json(); } catch(e) {}
-      throw new Error((eb.error && eb.error.message) ? eb.error.message : 'HTTP ' + resp.status);
-    }
+      clearInterval(crawl);
+      bar.style.width = '92%';
+      if (lbl) lbl.innerHTML = typeof renderPipelineProgress === 'function' ? renderPipelineProgress('complete', 100) : 'Processing…';
 
-    var apiData = await resp.json();
-    var rawText = '';
-    if (apiData.content && Array.isArray(apiData.content)) {
-      apiData.content.forEach(function(b){ if (b.type === 'text') rawText += b.text; });
-    }
+      if (!resp.ok) {
+        var eb = {}; try { eb = await resp.json(); } catch(e) {}
+        throw new Error((eb.error) ? eb.error : 'HTTP ' + resp.status);
+      }
 
-    /* ── Parse JSON from response ─────────────────────────────── */
-    var d;
-    try {
-      var cleaned = rawText.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-      var jm = cleaned.match(/\{[\s\S]*\}/);
-      if (!jm) throw new Error('No JSON found');
-      d = JSON.parse(jm[0]);
-    } catch(pe) {
-      throw new Error('Could not parse AI response. ' + pe.message);
+      _pipelineResult = await resp.json();
+
+      /* Parse the generation output — may be JSON or prose */
+      var rawOutput = _pipelineResult.raw_output || '';
+      try {
+        var cleaned = rawOutput.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+        var jm = cleaned.match(/\{[\s\S]*\}/);
+        if (jm) d = JSON.parse(jm[0]);
+        else d = _pipelineResult.output;
+      } catch(pe) {
+        d = _pipelineResult.output || {};
+      }
+      /* Ensure d has the expected fields */
+      if (!d.riskLevel && typeof _pipelineResult.output === 'object') d = _pipelineResult.output;
+
+    } else {
+      /* ── Legacy: direct proxy call (demo mode) ──────────────── */
+      var resp = await fetch(CONTRAQ_API_BASE + '/api/journal/analyse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: SYSTEM,
+          messages: [{ role: 'user', content: userContent }]
+        })
+      });
+
+      clearInterval(crawl);
+      bar.style.width = '92%';
+
+      if (!resp.ok) {
+        var eb = {}; try { eb = await resp.json(); } catch(e) {}
+        throw new Error((eb.error && eb.error.message) ? eb.error.message : 'HTTP ' + resp.status);
+      }
+
+      apiData = await resp.json();
+      var rawText = '';
+      if (apiData.content && Array.isArray(apiData.content)) {
+        apiData.content.forEach(function(b){ if (b.type === 'text') rawText += b.text; });
+      }
+      try {
+        var cleaned = rawText.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+        var jm = cleaned.match(/\{[\s\S]*\}/);
+        if (!jm) throw new Error('No JSON found');
+        d = JSON.parse(jm[0]);
+      } catch(pe) {
+        throw new Error('Could not parse AI response. ' + pe.message);
+      }
     }
 
     bar.style.width = '100%';
-    if (lbl) lbl.textContent = 'Analysis complete ✔';
+    if (lbl) lbl.innerHTML = typeof renderPipelineProgress === 'function' ? renderPipelineProgress('complete', 100) : 'Analysis complete ✔';
 
     /* ── Auto-set entry type dropdown ─────────────────────────── */
     var VALID_TYPES = ['Missing Materials','Hold Up','Advisory','Programme Update','Safety Notice','Client Instruction','Other'];
@@ -203,8 +244,8 @@ async function journalAIAnalyse() {
     /* ── Store draft letter for copy button ───────────────────── */
     STATE._journalDraftLetter = d.draftLetter || null;
 
-    /* ── Render analysis banner ───────────────────────────────── */
-    journalRenderAnalysis(d, proj);
+    /* ── Render analysis banner (with pipeline extras) ────────── */
+    journalRenderAnalysis(d, proj, _pipelineResult);
 
     /* ── Save AI analysis for real users ── */
     if (ContraqAPI.isRealUser()) {
@@ -256,7 +297,7 @@ async function journalAIAnalyse() {
 }
 
 /* ── Render the full contracts analysis into the banner ─────────── */
-function journalRenderAnalysis(d, proj) {
+function journalRenderAnalysis(d, proj, pipelineResult) {
   /* Risk badge colours */
   var riskColour = d.riskLevel === 'High' ? '#f87171' : d.riskLevel === 'Medium' ? '#fbbf24' : '#a3e635';
   var riskBg     = d.riskLevel === 'High' ? 'rgba(248,113,113,.12)' : d.riskLevel === 'Medium' ? 'rgba(251,191,36,.1)' : 'rgba(163,230,53,.1)';
@@ -281,7 +322,26 @@ function journalRenderAnalysis(d, proj) {
   if (d.notificationRequired && d.notificationDeadline) {
     html += '<span style="font-size:.68rem;font-weight:600;padding:.2rem .55rem;border-radius:5px;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.3);">⏱ ' + d.notificationDeadline + '</span>';
   }
+
+  /* Pipeline badges: Grounded + Critic verdict */
+  if (pipelineResult) {
+    if (typeof renderGroundedBadge === 'function') html += renderGroundedBadge(pipelineResult.document_count);
+    if (pipelineResult.critic && typeof renderCriticBadge === 'function') {
+      html += renderCriticBadge(pipelineResult.critic);
+    }
+  }
+
   html += '</div>';
+
+  /* ── Pipeline: Collapsible analysis summary ────────────────────── */
+  if (pipelineResult && pipelineResult.analysis && typeof renderAnalysisSummary === 'function') {
+    html += renderAnalysisSummary(pipelineResult.analysis);
+  }
+
+  /* ── Critic issues (inline, below badges) ─────────────────────── */
+  if (pipelineResult && pipelineResult.critic && !pipelineResult.critic.passed && typeof renderCriticBadge === 'function') {
+    /* Issues already rendered inside renderCriticBadge above */
+  }
 
   /* ── Risk rationale ────────────────────────────────────────────── */
   if (d.riskRationale) {

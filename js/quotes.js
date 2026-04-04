@@ -2807,6 +2807,20 @@ function qbShowExtractionResults() {
 
   qbUpdateReviewProgress();
 
+  // Risk Review button (AlphaLab Phase 3 — dual-model divergence)
+  var riskBtn = document.getElementById('qb-risk-review-btn');
+  if (!riskBtn) {
+    riskBtn = document.createElement('button');
+    riskBtn.id = 'qb-risk-review-btn';
+    riskBtn.className = 'btn btn-sm';
+    riskBtn.style.cssText = 'background:rgba(249,115,22,.08);color:#f97316;border:1px solid rgba(249,115,22,.2);font-size:.7rem;margin-top:8px;margin-bottom:8px;';
+    riskBtn.innerHTML = '⚖ Run Risk Review (Conservative vs Aggressive)';
+    riskBtn.onclick = qbRunRiskReview;
+    var resultsEl2 = document.getElementById('qb-phase-results');
+    if (resultsEl2) resultsEl2.insertBefore(riskBtn, resultsEl2.firstChild);
+  }
+  riskBtn.style.display = '';
+
   // Feedback & corrections panel (shown after extraction)
   var feedbackPanel = document.getElementById('qb-feedback-panel');
   if (!feedbackPanel) {
@@ -3709,6 +3723,59 @@ function qbResetUploadModal() {
     var sEl = document.getElementById('qb-step-' + ri);
     if (sEl) { sEl.className = 'ai-step-item'; sEl.querySelector('.ai-step-icon').className = 'ai-step-icon pending'; sEl.querySelector('.ai-step-icon').innerHTML = ''; }
   }
+}
+
+/* ── Dual-Model Risk Review (AlphaLab Phase 3) ──────────────── */
+
+function qbRunRiskReview() {
+  var token = CONTRAQ_SESSION ? CONTRAQ_SESSION.token : null;
+  if (!token) { showToast('Log in to use Risk Review.', 'error'); return; }
+
+  /* Gather current scope from extracted items */
+  var resultsEl = document.getElementById('qb-phase-results');
+  if (!resultsEl) { showToast('Extract a quote first.', 'error'); return; }
+
+  var scopeParts = [];
+  var rows = resultsEl.querySelectorAll('tr[id^="qb-row-"]');
+  rows.forEach(function(row) {
+    var cells = row.querySelectorAll('td');
+    if (cells.length >= 5) {
+      scopeParts.push((cells[1] ? cells[1].textContent : '') + ' — ' + (cells[3] ? cells[3].textContent : '') + ' ' + (cells[4] ? cells[4].textContent : '') + ' ' + (cells[5] ? cells[5].textContent : ''));
+    }
+  });
+
+  if (scopeParts.length === 0) { showToast('No items to analyse.', 'error'); return; }
+
+  var scope = 'M&E scope for risk review:\n' + scopeParts.join('\n');
+
+  /* Show loading */
+  var panel = document.getElementById('qb-risk-review-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'qb-risk-review-panel';
+    var feedbackPanel = document.getElementById('qb-feedback-panel');
+    if (feedbackPanel) feedbackPanel.parentNode.insertBefore(panel, feedbackPanel);
+    else resultsEl.appendChild(panel);
+  }
+  panel.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--off4);font-size:.75rem;">'
+    + '<span style="display:inline-block;animation:spin .7s linear infinite;">⟳</span> Running dual-model analysis (conservative vs aggressive)...</div>';
+  panel.style.display = '';
+
+  fetch(CONTRAQ_API_BASE + '/api/ai/quote-dual', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ scope_description: scope })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.success && data.divergence_flags) {
+      panel.innerHTML = typeof renderRiskReviewPanel === 'function'
+        ? renderRiskReviewPanel(data.divergence_flags, data.conservative, data.aggressive)
+        : '<div style="color:var(--lime);padding:.5rem;">Risk review complete: ' + data.flag_count + ' items flagged.</div>';
+    } else {
+      panel.innerHTML = '<div style="color:#f87171;padding:.5rem;font-size:.72rem;">Risk review failed: ' + (data.error || 'Unknown error') + '</div>';
+    }
+  }).catch(function(err) {
+    panel.innerHTML = '<div style="color:#f87171;padding:.5rem;font-size:.72rem;">Risk review error: ' + err.message + '</div>';
+  });
 }
 
 /* ── Terms of Service — AI Liability Clauses ───────────────── */
