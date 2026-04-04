@@ -29,7 +29,7 @@ const KB_SECTIONS = {
   // MECHANICAL
   'KB-M01': { file: 'mechanical/M01_pipe_materials.json', priority: 'critical', always: false },
   'KB-M02': { file: 'mechanical/M02_fittings_valves.json', priority: 'high', always: false },
-  'KB-M03': { file: 'mechanical/M03_hvac_ductwork.json', priority: 'high', always: false },
+  'KB-M03': { file: 'mechanical/M03_hvac_ductwork.json', priority: 'critical', always: false },
   'KB-M04': { file: 'mechanical/M04_plant_equipment.json', priority: 'medium', always: false },
   // ELECTRICAL
   'KB-E01': { file: 'electrical/E01_cable_types.json', priority: 'critical', always: false },

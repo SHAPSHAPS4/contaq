@@ -11,8 +11,8 @@ const { getKBPromptWithBudget } = require('./index');
 const { extractContext } = require('./rule-scorer');
 
 const KB_TOKEN_BUDGETS = {
-  '/api/drawings/extract':    6000,
-  '/api/specs/analyse':       6000,
+  '/api/drawings/extract':    80000,
+  '/api/specs/analyse':       60000,
   '/api/takeoff/consolidate': 4000,
   '/api/feedback/process':    3000,
   '/api/quotes/extract':      8000,

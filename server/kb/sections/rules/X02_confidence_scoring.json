@@ -35,7 +35,7 @@
         "criteria": {
           "any_of_these_present": [
             "Item visible but specification partially incomplete (e.g. material stated but thickness not)",
-            "Quantity measured from stated scale but NO scale bar present (print scale may be distorted)",
+            "Quantity measured from stated scale, NO scale bar, BUT cross-validated against a known reference dimension (grid, door, annotated length) within ±10%",
             "Minor routing ambiguity that does not significantly affect total quantity (±10%)",
             "Drawing status is \"For Coordination\" (design may change but routing is indicative)",
             "Item identified by CIBSE standard symbols but no project-specific legend to confirm",
@@ -70,7 +70,9 @@
             "Item annotated \"TBC\", \"TBA\", or \"to be confirmed\"",
             "No legend and symbol meaning is guessed from CIBSE standards",
             "Estimated allowance used (fittings, supports) as quantities not individually shown",
-            "Drawing has no scale bar AND no stated scale — measurement is unreliable"
+            "Drawing has no scale bar AND no stated scale — measurement is unreliable",
+            "Scale stated in title block but NO scale bar AND NO reference dimension available for cross-validation — 2x scale errors are undetectable",
+            "Scale cross-validation failed — measured reference differs from expected by >10%"
           ]
         },
         "label": "AI estimate — verify before pricing",
@@ -124,6 +126,11 @@
             "condition": "No legend and symbol assumed",
             "result": "Cannot be High — symbol meaning is a guess.",
             "max_score": "Medium (if CIBSE standard symbol is unambiguous). Low (if symbol is ambiguous)."
+          },
+          {
+            "condition": "Scale not cross-validated",
+            "result": "Cannot be High — scale-derived measurements without cross-validation may contain systematic 2x errors.",
+            "max_score": "Medium (if scale bar present). Low (if no scale bar AND no reference dimension verified)."
           },
           {
             "condition": "Estimated allowance used",

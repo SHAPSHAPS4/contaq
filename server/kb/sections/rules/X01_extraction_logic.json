@@ -50,9 +50,37 @@
             "OR stated scale in title block with confirmed paper size",
             "OR known grid dimensions for calibration"
           ],
+          "scale_validation": {
+            "rule": "BEFORE measuring ANY quantity from scale, you MUST cross-validate the scale. PDF drawings viewed on screen or printed at non-100% are the #1 cause of systematic 2x errors.",
+            "method": [
+              "1. FIND a reference dimension: a door (typically 900mm leaf), a grid spacing (stated on drawing), an annotated dimension, or the scale bar itself.",
+              "2. MEASURE that reference using the stated drawing scale.",
+              "3. COMPARE your measured value to the expected value.",
+              "4. If difference is >10%, the scale is WRONG. Flag: 'SCALE ERROR DETECTED — measured [X], expected [Y]. All quantities from this sheet are UNRELIABLE.' Set ALL items from this sheet to Low confidence.",
+              "5. If no reference dimension exists anywhere on the drawing, set confidence to Low for ALL scale-derived measurements."
+            ],
+            "common_references": {
+              "standard_door_leaf": "900mm single, 1800mm double",
+              "ceiling_tile_grid": "600×600mm standard",
+              "structural_grid": "Usually annotated on drawing (e.g. 7.5m, 8.4m)",
+              "parking_bay": "2.4m × 4.8m standard UK",
+              "corridor_width": "Typically 1.2m-1.8m minimum"
+            },
+            "scale_ratio_errors": {
+              "description": "The most common scale misreads produce exactly 2x or 0.5x errors:",
+              "examples": [
+                "1:50 misread as 1:100 → all measurements HALVED",
+                "1:100 misread as 1:50 → all measurements DOUBLED",
+                "1:100 misread as 1:200 → all measurements HALVED",
+                "A4 print of A3 drawing → all measurements HALVED"
+              ],
+              "detection": "If your total ductwork/pipework length seems unusually high or low compared to the building footprint, suspect a scale error. A 50m×30m building cannot have 500m of main supply duct on one floor."
+            }
+          },
           "examples": [
-            "Pipe run measured at 1:100 = 23.5m",
-            "Cable tray route measured at 1:50 = 42.0m"
+            "Pipe run measured at 1:100, cross-validated against 7.5m grid = 23.5m → High confidence",
+            "Cable tray route measured at 1:50, scale bar verified = 42.0m → High confidence",
+            "Duct measured at 1:100 from title block, no scale bar, no reference dimension → Low confidence"
           ],
           "label_in_output": "Source: Scale measurement",
           "note": "If neither scale bar nor stated scale is available, DO NOT measure. Flag and extract counts only."

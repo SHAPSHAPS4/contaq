@@ -103,6 +103,30 @@
         }
       ]
     },
+    "enforcement": {
+      "title": "MANDATORY ENFORCEMENT RULES — these apply to ALL extractions",
+      "E-01": {
+        "rule": "Every item MUST have a Source label in the output",
+        "labels": ["Source: Schedule", "Source: Drawing annotation", "Source: Scale measurement", "Source: Estimated allowance", "Source: Implicit"],
+        "enforcement": "If an item does not have one of these labels, it is UNTRACED and must not appear in the extraction. Remove it or assign a source."
+      },
+      "E-02": {
+        "rule": "Implicit items MUST be visibly labelled 'Source: Implicit' in the extraction output",
+        "detail": "Items added because trade practice requires them (isolation valves, strainers, fire stopping) but NOT shown on drawings MUST carry the 'Source: Implicit' label. They must NEVER be presented as if they were drawn or scheduled. The estimator must be able to see at a glance which items are implicit assumptions vs confirmed extractions.",
+        "confidence": "Maximum Medium. If the item is standard trade practice, Medium. If uncertain whether it applies to this project, Low.",
+        "violation": "Presenting an implicit item with 'Source: Drawing' or 'Source: Schedule' is a HIGH severity hallucination — it disguises an assumption as a confirmed extraction."
+      },
+      "E-03": {
+        "rule": "Unidentified symbols MUST be flagged at Low confidence, NOT guessed",
+        "detail": "If a symbol on the drawing cannot be positively identified from the legend or unambiguous CIBSE standards, DO NOT guess what it is. Describe the symbol shape, note its location, set confidence to Low, and flag: 'Unidentified symbol — requires legend or designer clarification.'",
+        "violation": "Guessing that an unidentified symbol is a specific item and extracting it at Medium or High confidence."
+      },
+      "E-04": {
+        "rule": "Plausibility check REQUIRED before outputting quantities",
+        "detail": "Before finalising, check whether extracted quantities are physically plausible for the building/floor area shown. A 30m × 20m floor cannot have 500m of main supply duct. If quantities seem implausibly high or low, re-check the scale and measurement method before outputting.",
+        "cross_ref": "KB-M03 ductwork_route_extraction.plausibility_check for ductwork-specific checks."
+      }
+    },
     "rules": {
       "H-01": {
         "id": "H-01",

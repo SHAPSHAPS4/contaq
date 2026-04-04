@@ -243,6 +243,87 @@
         }
       }
     },
+    "ductwork_route_extraction": {
+      "title": "How to Extract Ductwork Linear Meterage",
+      "priority": "CRITICAL — this section defines how to measure ductwork quantities from drawings. Without following this method, ductwork extractions will be inaccurate.",
+      "method": [
+        "1. IDENTIFY the air handling plant: AHU, FCU, or extract fan. This is the START of the duct system.",
+        "2. IDENTIFY the terminal devices: diffusers, grilles, VAV boxes. These are the END points.",
+        "3. TRACE the main trunk duct from plant to the first branch. Measure this run along the centreline.",
+        "4. At each branch, FOLLOW both paths: the continuing main AND the branch. Measure each segment.",
+        "5. Continue tracing until every terminal device is reached. Every segment of duct must be measured.",
+        "6. SUM all segments by duct size. Group: main trunk (largest size), sub-mains (medium), branches (smallest).",
+        "7. For each size, report: size (W×H or Ø), total length (m), number of segments."
+      ],
+      "measurement_rules": [
+        "Measure along the CENTRELINE of the duct, not the outer edge.",
+        "Measure ONLY from GA (General Arrangement) drawings. NEVER from schematics or riser diagrams.",
+        "Include horizontal runs only unless vertical drops are clearly shown on section drawings.",
+        "Where duct exits the drawing boundary, measure to the edge only. Note: 'continues beyond drawing — additional drawings required'.",
+        "Where duct size changes (taper/reducer), start a new measurement segment at the new size.",
+        "Flexible duct connections to terminals: allow 0.5m–1.0m per connection (not measured from drawing)."
+      ],
+      "common_errors": [
+        {
+          "error": "Measuring total duct route as one number without breaking down by size",
+          "impact": "Cannot price — different sizes have very different costs per metre",
+          "correct": "Break down by each duct size. Report each size separately."
+        },
+        {
+          "error": "Doubling the meterage due to scale misread (1:50 vs 1:100)",
+          "impact": "2x overquote on all ductwork — potentially thousands of pounds",
+          "correct": "Cross-validate scale per KB-X01 scale_validation before measuring. Check total length is plausible for the building footprint."
+        },
+        {
+          "error": "Measuring from a schematic or flow diagram instead of GA",
+          "impact": "Lengths on schematics are diagrammatic — bear no relation to real distances",
+          "correct": "Only measure from GA drawings. From schematics, extract equipment list and connectivity only."
+        },
+        {
+          "error": "Including ductwork that is on a different floor's drawing (double counting)",
+          "impact": "Counting the same duct twice inflates quantities",
+          "correct": "Track which drawing each measurement comes from. Check for overlapping coverage between sheets."
+        },
+        {
+          "error": "Failing to identify ductwork altogether",
+          "impact": "Major cost items missing from takeoff",
+          "correct": "Systematically scan the drawing for ALL duct types: rectangular (parallel lines), circular (single line with Ø annotation), and flexible (wavy line). Check legend for duct line types."
+        }
+      ],
+      "plausibility_check": {
+        "rule": "After extracting ductwork quantities, perform a sanity check against the building footprint.",
+        "checks": [
+          "Main supply duct on one floor should typically be 1–3× the longest building dimension (it runs the length then has branches).",
+          "Total ductwork per floor is typically 3–8× the floor area in m² expressed as metres (e.g. 500m² floor ≈ 1500–4000m total duct across all sizes).",
+          "If your total seems >10× the floor longest dimension for main duct alone, suspect a scale error.",
+          "Circular duct branch runs to individual terminals are typically 2–8m each.",
+          "If any single duct run exceeds the building perimeter, it is almost certainly wrong."
+        ]
+      },
+      "drawing_identification": {
+        "rule": "Ductwork may appear differently on different drawing types. Only measure from the correct source.",
+        "ga_plan": {
+          "description": "General Arrangement floor plan — PRIMARY source for ductwork quantities",
+          "duct_appearance": "Parallel lines (rectangular) or single line with Ø (circular). Sized. Routed.",
+          "use_for": "Linear meterage, fittings count, terminal device count"
+        },
+        "rcp": {
+          "description": "Reflected Ceiling Plan — shows what is visible below ceiling",
+          "duct_appearance": "May show diffuser/grille positions but NOT duct routing above ceiling",
+          "use_for": "Terminal device count and positions. NOT for duct meterage."
+        },
+        "schematic": {
+          "description": "System schematic / flow diagram — shows system logic",
+          "duct_appearance": "Single lines connecting equipment. NOT to scale.",
+          "use_for": "Equipment list, system connectivity, damper locations. NEVER for duct meterage."
+        },
+        "section": {
+          "description": "Cross-section through building — shows vertical arrangement",
+          "duct_appearance": "Duct cross-sections visible at their true height and size",
+          "use_for": "Vertical duct rises, duct clearances, coordination. Measure vertical runs from sections."
+        }
+      }
+    },
     "ductwork_fittings": {
       "unit": "nr (ALWAYS count individually from GA drawings)",
       "rule": "Ductwork fittings should be counted individually wherever possible. If not individually shown, allow 25% of straight duct quantity as fittings cost (Wendes method). Flag as estimated.",
