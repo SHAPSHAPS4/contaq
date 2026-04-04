@@ -535,6 +535,7 @@ function submitTrainingReview(extractionId) {
   var corrections = feedback.filter(function(f) { return f.tag !== 'correct'; });
 
   if (token && CONTRAQ_API_BASE) {
+    console.log('[Training Hub] Sending review to API. Token present:', !!token, 'Corrections:', corrections.length, 'Feedback tags:', feedback.map(function(f){return f.tag;}).join(','));
     fetch(CONTRAQ_API_BASE + '/api/admin/training/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -546,11 +547,23 @@ function submitTrainingReview(extractionId) {
         document_name: ext.document_name,
         extraction_type: ext.extraction_type
       })
-    }).then(function(r) { return r.json(); }).then(function(resp) {
-      if (resp.kb_updated) {
+    }).then(function(r) {
+      console.log('[Training Hub] API response status:', r.status);
+      return r.json();
+    }).then(function(resp) {
+      console.log('[Training Hub] API response:', JSON.stringify(resp));
+      if (resp.success && resp.kb_updated) {
         showToast(resp.rules_created + ' KB rule(s) created from your corrections. AI will improve on next extraction.', 'success');
+      } else if (resp.error) {
+        showToast('Review API error: ' + resp.error, 'error');
       }
-    }).catch(function() {});
+    }).catch(function(err) {
+      console.error('[Training Hub] API call failed:', err);
+      showToast('Failed to send review to server: ' + err.message, 'error');
+    });
+  } else {
+    console.warn('[Training Hub] No token or API base — review not sent to server. Token:', !!token, 'API:', CONTRAQ_API_BASE);
+    showToast('Review saved locally only — not connected to server.', 'error');
   }
 
   /* Remove from queue */
