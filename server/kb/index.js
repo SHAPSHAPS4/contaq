@@ -330,6 +330,7 @@ async function persistLearnedRulesForOrg(orgId, newRules, userId, trade) {
       // Pricing rules are NEVER shared — commercial sensitivity
       if (trade && ruleType !== 'pricing') {
         try {
+          console.log(`[KB] Sharing to trade collective: trade=${trade}, ruleType=${ruleType}, orgId=${orgId}`);
           await db.autoShareToCollective(orgId, {
             rule_type: ruleType,
             trigger_text: rule.trigger,
@@ -341,10 +342,12 @@ async function persistLearnedRulesForOrg(orgId, newRules, userId, trade) {
             created_by: userId || null,
           }, trade);
           sharedToCollective++;
+          console.log(`[KB] Trade collective share succeeded for org ${orgId}`);
         } catch (shareErr) {
-          // Non-fatal — org rule was saved, collective share is best-effort
-          console.warn(`[KB] Auto-share to collective failed (non-fatal): ${shareErr.message}`);
+          console.error(`[KB] Auto-share to collective FAILED: ${shareErr.message}`, shareErr.stack);
         }
+      } else {
+        console.log(`[KB] Skipping collective share: trade=${trade}, ruleType=${ruleType}`);
       }
 
       console.log(`[KB] Persisted learned rule for org ${orgId}: ${rule.rule_id || rule.trigger} (${keywords.length} keywords)${sharedToCollective ? ' + collective' : ''}`);
