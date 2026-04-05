@@ -1,0 +1,77 @@
+{
+  "section_id": "KB-DR04",
+  "title": "Visual Measurement from PDF Drawings — How to Quantify",
+  "version": "1.0",
+  "last_updated": "2026-04-05",
+  "data": {
+    "overview": "This section explains HOW to extract quantities from a PDF drawing image. The AI can see the drawing — it must use the visual information to measure lengths, count items, and identify components. Recognising an item is not enough — you MUST quantify it.",
+    "critical_rule": "EVERY identified service must have a QUANTITY. If you can see ductwork on the drawing, you MUST provide a length in metres. If you can see grilles, you MUST provide a count. 'Identified but not quantified' is a FAILURE — the estimator cannot price items without quantities.",
+    "ductwork_measurement": {
+      "title": "How to Measure Ductwork Length from a Drawing Image",
+      "method": [
+        "1. FIND THE SCALE. Read the title block or scale bar. Typical scales: 1:50 (2cm = 1m) or 1:100 (1cm = 1m).",
+        "2. CALIBRATE. If a scale bar is visible, measure its pixel length and calculate your pixels-per-metre conversion. If grid lines are labelled (e.g., 7.5m between grids), use those as your reference.",
+        "3. TRACE EACH DUCT RUN. Starting from the AHU or main plant, follow each duct line to its end. Duct appears as two parallel lines (rectangular) or a single line with Ø annotation (circular).",
+        "4. MEASURE EACH SEGMENT. For each straight segment between fittings (bends, tees, reducers), estimate the length by comparing it to your scale reference. Measure along the centreline.",
+        "5. SUM BY SIZE. Group all segments of the same duct size together. Report: 'Ø250mm circular duct — 45m' not just 'ductwork present'.",
+        "6. COUNT FITTINGS. At every direction change, count a bend. At every branch, count a tee. At every size change, count a reducer."
+      ],
+      "common_failure": "The AI identifies '250mm circular supply ductwork' but reports 'quantity_estimated: 45' as a guess instead of measuring from the drawing. This is WRONG. You must trace each run and measure using the scale.",
+      "measurement_example": {
+        "drawing": "1:50 scale plan showing supply ductwork from AHU to 9 grilles",
+        "method": "AHU to first tee: ~6m. Tee to second tee: ~4m. Each branch to grille: ~2-3m average. 9 branches × 2.5m = 22.5m + 10m mains = ~32.5m total.",
+        "output": "250mmØ circular supply duct — 33m (measured from 1:50 plan, cross-validated against grid spacing)"
+      },
+      "if_scale_unknown": "If you cannot determine the scale, estimate using room dimensions (typical office room 4-6m wide), door widths (900mm), or grid spacing. State your assumption. A rough measurement is better than no measurement."
+    },
+    "counting_method": {
+      "title": "How to Count Items Systematically",
+      "method": [
+        "1. SCAN LEFT TO RIGHT, then TOP TO BOTTOM. Cover every part of the drawing systematically.",
+        "2. For each item type (grilles, VCDs, dampers), count ALL instances across the full drawing.",
+        "3. TRACE DUCTWORK LEGS. Each duct leg typically terminates at a grille/diffuser. The number of duct legs = number of terminal devices.",
+        "4. CHECK YOUR COUNT. If you counted 7 supply grilles but there are 9 duct branches, you missed 2. Recount.",
+        "5. DISTINGUISH SUPPLY FROM RETURN. Supply grilles have arrows pointing OUT of the grille (into the room). Return grilles have arrows pointing IN (back toward the duct).",
+        "6. VCDs: There is typically one VCD per duct branch (one per grille/terminal). Count VCDs by counting duct legs."
+      ],
+      "common_errors": [
+        "Counting supply and return grilles as the same type — they are separate items",
+        "Missing grilles in corners or behind equipment — scan the entire drawing",
+        "Confusing VCD symbols with other damper types — check the legend",
+        "Missing items where services overlap — trace each duct leg individually"
+      ]
+    },
+    "pipework_measurement": {
+      "title": "How to Measure Pipework Length from a Drawing Image",
+      "method": [
+        "1. Identify pipe runs by their line type (solid = this level, dashed = above/below).",
+        "2. Measure each segment against the scale. Pipes are single lines with diameter annotations.",
+        "3. For flow and return pipes running in parallel, measure ONE and double it (flow ≈ return).",
+        "4. Include vertical drops from tray to equipment (typically add 1-2m per drop if not dimensioned).",
+        "5. Report by size: '22mm copper — 15m, 15mm copper — 8m'."
+      ]
+    },
+    "output_requirements": {
+      "rule": "For every item in your extraction output, you MUST provide:",
+      "fields": [
+        "description — what the item is (e.g., '250mmØ circular supply ductwork')",
+        "quantity — a NUMBER with a UNIT (e.g., '33' with unit 'm', or '9' with unit 'nr')",
+        "unit — 'm' for linear items, 'nr' for counted items, 'm²' for area items",
+        "source — 'measured' if measured from drawing, 'counted' if counted from drawing, 'estimated' if derived",
+        "confidence — High/Medium/Low based on measurement certainty"
+      ],
+      "never_acceptable": [
+        "'quantity_estimated: 45' with no explanation of how 45 was derived",
+        "'Multiple runs visible' — this is NOT a quantity",
+        "'Ductwork present throughout ground floor' — WHERE is the length?",
+        "'Approximately 12 supply grilles' — count them exactly, don't approximate",
+        "Leaving quantity as 0 or null for an item you can clearly see on the drawing"
+      ]
+    },
+    "refrigerant_pipework": {
+      "rule": "Refrigerant pipe is shown as dashed lines on AC drawings per the legend. Measure from outdoor unit to each indoor unit. Count as TWO pipes (liquid + suction) — measure the route once, report as paired pipes.",
+      "measurement": "Trace the dashed pipe route from BC-01 (or condenser) to each AC unit. Sum all routes. If outdoor unit location is off-drawing, measure to the drawing edge and note 'continues beyond drawing extent'.",
+      "if_not_visible": "If refrigerant pipework is not visually distinguishable from other services, flag as [UNABLE TO TRACE — requires legend or colour differentiation]."
+    }
+  }
+}

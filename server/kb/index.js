@@ -74,6 +74,7 @@ const KB_SECTIONS = {
   'KB-DR01': { file: 'drawing-recognition/DR01_symbol_library.json', priority: 'critical', always: false, trades: ['all'] },
   'KB-DR02': { file: 'drawing-recognition/DR02_line_conventions.json', priority: 'critical', always: false, trades: ['all'] },
   'KB-DR03': { file: 'drawing-recognition/DR03_ai_analysis.json', priority: 'critical', always: false, trades: ['all'] },
+  'KB-DR04': { file: 'drawing-recognition/DR04_visual_measurement.json', priority: 'critical', always: false, trades: ['all'] },
   // VALIDATION — cross-referencing, plausibility checks, QA
   'KB-VAL01': { file: 'validation/VAL01_cross_referencing.json', priority: 'critical', always: false, trades: ['all'] },
   'KB-VAL02': { file: 'validation/VAL02_plausibility_checks.json', priority: 'critical', always: false, trades: ['all'] },
@@ -97,7 +98,7 @@ const KB_SECTIONS = {
 const ENDPOINT_SECTIONS = {
   '/api/drawings/extract': [
     'KB-P01',
-    'KB-DR01','KB-DR02','KB-DR03',
+    'KB-DR01','KB-DR02','KB-DR03','KB-DR04',
     'KB-EST01','KB-EST02',
     'KB-VAL01','KB-VAL02',
     'KB-C01','KB-C02','KB-C03','KB-C04',

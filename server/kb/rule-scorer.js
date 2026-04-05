@@ -325,9 +325,9 @@ function getMaxRulesForEndpoint(endpoint) {
   const heavy = ['/api/drawings/extract', '/api/quotes/extract', '/api/specs/analyse'];
   const medium = ['/api/takeoff/consolidate', '/api/feedback/process'];
 
-  if (heavy.includes(endpoint)) return 10;
-  if (medium.includes(endpoint)) return 6;
-  return 3; // lightweight endpoints (journal, quote-files)
+  if (heavy.includes(endpoint)) return 40;
+  if (medium.includes(endpoint)) return 20;
+  return 8; // lightweight endpoints (journal, quote-files)
 }
 
 module.exports = {
