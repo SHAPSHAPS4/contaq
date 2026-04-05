@@ -63,6 +63,7 @@ router.post('/extract', kbInjectionMiddleware, async (req, res) => {
     const result = await runHybridExtraction({
       base64,
       mimeType,
+      pdfBuffer: pdfBuffer || null,
       kbPrompt: req.kbPrompt || '',
       goldenExamples,
       preprocessedData: preprocessed,

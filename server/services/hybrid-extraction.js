@@ -10,6 +10,7 @@
 
 const { callAI } = require('./ai');
 const { preprocessPDF, buildPreprocessorContext } = require('./pdf-preprocessor');
+const cvClient = require('./cv-client');
 
 /* ══════════════════════════════════════════════════════════════════
    PASS 1 — RAW DETECTION
@@ -125,9 +126,26 @@ OUTPUT FORMAT — structured JSON:
 
 /**
  * Run the two-pass hybrid extraction.
+ * If CV service is available, uses CV detection as baseline for Pass 1.
  */
-async function runHybridExtraction({ base64, mimeType, kbPrompt, goldenExamples, preprocessedData, model }) {
+async function runHybridExtraction({ base64, mimeType, kbPrompt, goldenExamples, preprocessedData, pdfBuffer, model }) {
   const modelId = model || 'claude-sonnet-4-6';
+
+  // ═══ CV SERVICE (if available) ═══
+  let cvData = null;
+  if (pdfBuffer && cvClient.isAvailable()) {
+    try {
+      console.log('[Hybrid] Calling CV service for pre-processing + detection...');
+      cvData = await cvClient.callCVService(pdfBuffer);
+      if (cvData && cvData.preprocessed) {
+        // Use CV preprocessed data (has vector geometry — richer than Node pdf-parse)
+        preprocessedData = cvData.preprocessed;
+        console.log(`[Hybrid] CV pre-processing: ${cvData.preprocessed.page_count} pages, vectors: ${cvData.preprocessed.vector_summary?.total_lines || 0} lines`);
+      }
+    } catch (e) {
+      console.warn('[Hybrid] CV service call failed (non-fatal):', e.message);
+    }
+  }
 
   // Build preprocessor context
   const preprocessorContext = preprocessedData ? buildPreprocessorContext(preprocessedData) : '';
@@ -139,6 +157,15 @@ async function runHybridExtraction({ base64, mimeType, kbPrompt, goldenExamples,
   let detectionPrompt = 'Scan this M&E drawing and detect every service element. Count and measure everything visible.';
   if (preprocessorContext) {
     detectionPrompt += '\n\n' + preprocessorContext;
+  }
+
+  // If CV service provided symbol detection, include as baseline
+  if (cvData && cvData.cv_results && cvData.cv_results.cv_available) {
+    detectionPrompt += '\n\n## CV SYMBOL DETECTION RESULTS (automated pre-scan)\n';
+    detectionPrompt += 'A computer vision model detected the following symbols. Use these counts as your BASELINE — verify against the image, do not override unless clearly wrong:\n';
+    detectionPrompt += JSON.stringify(cvData.cv_results.grouped_counts, null, 2);
+    detectionPrompt += '\nTotal CV detections: ' + cvData.cv_results.total_items_detected;
+    detectionPrompt += '\nAverage CV confidence: ' + (cvData.cv_results.cv_confidence_avg * 100).toFixed(1) + '%';
   }
 
   const detection = await callAI({

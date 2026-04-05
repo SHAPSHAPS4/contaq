@@ -126,6 +126,17 @@ app.use('/api/admin/training', require('./routes/training-hub'));
 app.use('/api/ai', require('./routes/ai-pipeline'));
 app.use('/api/documents', require('./routes/documents-api'));
 
+// CV service health check
+app.get('/api/cv/health', async (_req, res) => {
+  try {
+    const cvClient = require('./services/cv-client');
+    const health = await cvClient.healthCheck();
+    res.json({ success: true, ...health });
+  } catch (e) {
+    res.json({ success: false, available: false, error: e.message });
+  }
+});
+
 /* ── Health check ─────────────────────────────────────────────────── */
 /* ── Quote Builder frontend ───────────────────────────────────────── */
 const serverPath = require('node:path');
