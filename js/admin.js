@@ -172,7 +172,15 @@ function renderAdminAITraining(container) {
 }
 
 function _buildTrainingHubHTML() {
-  var metrics = _trainingData || _emptyTrainingMetrics();
+  var raw = _trainingData || {};
+  var empty = _emptyTrainingMetrics();
+  var metrics = {
+    totals: raw.totals || empty.totals,
+    rates: raw.rates || empty.rates,
+    weekly: raw.weekly || empty.weekly,
+    pending_reviews: raw.pending_reviews || 0,
+    golden_records: raw.golden_records || 0
+  };
   var queue = _trainingQueue;
 
   var h = '';
