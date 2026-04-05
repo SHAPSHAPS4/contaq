@@ -108,60 +108,85 @@ router.post('/login', validate(schemas.login), async (req, res) => {
       return res.status(503).json({ error: 'Authentication service unavailable' });
     }
 
-    // Authenticate with a separate Supabase client (don't pollute admin client's auth state)
+    // Create fresh clients for this request — guarantees env vars are read at request time
     const { createClient } = require('@supabase/supabase-js');
-    const loginClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    const sbUrl = process.env.SUPABASE_URL;
+    const sbAnonKey = process.env.SUPABASE_ANON_KEY;
+    const sbServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!sbUrl || !sbAnonKey || !sbServiceKey) {
+      console.error('[Login] Missing env vars:', { url: !!sbUrl, anon: !!sbAnonKey, service: !!sbServiceKey });
+      return res.status(503).json({ error: 'Authentication service not configured' });
+    }
+
+    // Authenticate
+    const loginClient = createClient(sbUrl, sbAnonKey);
     const { data, error } = await loginClient.auth.signInWithPassword({ email, password });
 
     if (error) {
-      console.error('[Login] Supabase auth error:', error.message, 'status:', error.status);
+      console.error('[Login] Supabase auth error:', error.message);
       return res.status(401).json({ error: 'Invalid email or password', detail: error.message });
     }
 
-    // Get user profile — use direct supabaseAdmin queries (most reliable)
+    // Profile lookup — use fresh service role client (bypasses RLS)
+    const adminClient = createClient(sbUrl, sbServiceKey, { auth: { autoRefreshToken: false, persistSession: false } });
     console.log('[Login] Auth success for', email, '— auth_id:', data.user.id);
     let user = null;
     let org = null;
 
     // Step 1: Find user by auth_id
-    try {
-      const { data: u, error: ue } = await supabaseAdmin.from('users').select('*').eq('auth_id', data.user.id).maybeSingle();
-      if (ue) console.error('[Login] User query error:', ue.message);
-      if (u) user = u;
-    } catch (e) {
-      console.error('[Login] User query threw:', e.message);
-    }
+    const { data: u1, error: e1 } = await adminClient.from('users').select('*').eq('auth_id', data.user.id).maybeSingle();
+    if (e1) console.error('[Login] auth_id lookup error:', e1.message, e1.code, e1.details);
+    if (u1) user = u1;
 
-    // Step 2: If not found by auth_id, try by email (covers edge cases)
+    // Step 2: Fallback — find by email
     if (!user) {
-      try {
-        const { data: u2, error: ue2 } = await supabaseAdmin.from('users').select('*').eq('email', email).maybeSingle();
-        if (ue2) console.error('[Login] Email fallback error:', ue2.message);
-        if (u2) {
-          user = u2;
-          // Fix the auth_id linkage for next time
-          await supabaseAdmin.from('users').update({ auth_id: data.user.id }).eq('id', u2.id).catch(() => {});
-          console.log('[Login] Found user by email, updated auth_id');
-        }
-      } catch (e) {
-        console.error('[Login] Email fallback threw:', e.message);
+      console.log('[Login] auth_id lookup returned null, trying email fallback');
+      const { data: u2, error: e2 } = await adminClient.from('users').select('*').eq('email', email).maybeSingle();
+      if (e2) console.error('[Login] email lookup error:', e2.message, e2.code, e2.details);
+      if (u2) {
+        user = u2;
+        // Fix auth_id for next time
+        await adminClient.from('users').update({ auth_id: data.user.id }).eq('id', u2.id).catch(function(err) {
+          console.error('[Login] auth_id fix failed:', err.message);
+        });
+        console.log('[Login] Found by email, fixed auth_id linkage');
       }
     }
 
+    // Step 3: Last resort — create user record on the fly
     if (!user) {
-      console.error('[Login] Profile NOT FOUND for auth_id:', data.user.id, 'email:', email);
-      return res.status(403).json({ error: 'User profile not found. Please contact support.' });
+      console.log('[Login] No user record found — creating one');
+      // Find or create an org
+      const { data: existingOrgs } = await adminClient.from('organizations').select('id').limit(1);
+      const orgId = (existingOrgs && existingOrgs[0]) ? existingOrgs[0].id : null;
+
+      if (orgId) {
+        const { data: newUser, error: createErr } = await adminClient.from('users').insert({
+          org_id: orgId,
+          auth_id: data.user.id,
+          email: email,
+          name: email.split('@')[0],
+          role: 'admin',
+          is_active: true
+        }).select().single();
+
+        if (createErr) {
+          console.error('[Login] User creation failed:', createErr.message);
+          return res.status(403).json({ error: 'User profile could not be created. Contact support.', detail: createErr.message });
+        }
+        user = newUser;
+        console.log('[Login] Created new user record:', user.id);
+      } else {
+        return res.status(403).json({ error: 'No organization found. Contact support.' });
+      }
     }
 
-    // Step 3: Get org
-    try {
-      const { data: o, error: oe } = await supabaseAdmin.from('organizations').select('*').eq('id', user.org_id).maybeSingle();
-      if (oe) console.error('[Login] Org query error:', oe.message);
-      org = o;
-    } catch (e) {
-      console.error('[Login] Org query threw:', e.message);
-    }
-    user.organizations = org || { id: user.org_id, name: 'Unknown', plan: 'beta', slug: 'org' };
+    // Step 4: Get org
+    const { data: orgData, error: orgErr } = await adminClient.from('organizations').select('*').eq('id', user.org_id).maybeSingle();
+    if (orgErr) console.error('[Login] Org query error:', orgErr.message);
+    org = orgData;
+    user.organizations = org || { id: user.org_id, name: 'Contraq', plan: 'beta', slug: 'org', trial_ends: null };
     console.log('[Login] Profile loaded:', user.email, '| org:', user.organizations.name);
 
     // Calculate trial status
