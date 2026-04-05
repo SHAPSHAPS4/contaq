@@ -25,30 +25,31 @@ router.use(requireAuth);
 router.use(requireRole('admin'));
 
 // Dashboard metrics
-router.get('/metrics', (req, res) => {
+router.get('/metrics', async (req, res) => {
   try {
-    res.json({ success: true, ...hub.getMetrics() });
+    const metrics = await hub.getMetrics(req.orgId);
+    res.json({ success: true, ...(metrics || {}) });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Review queue
-router.get('/queue', (req, res) => {
+router.get('/queue', async (req, res) => {
   try {
     const status = req.query.status || 'pending';
     const type = req.query.type || null;
-    const extractions = hub.getExtractions({ status, type, org_id: req.query.all ? null : req.orgId });
-    res.json({ success: true, extractions, count: extractions.length });
+    const extractions = await hub.getExtractions({ status, type, org_id: req.query.all ? null : req.orgId });
+    res.json({ success: true, extractions: Array.isArray(extractions) ? extractions : [], count: Array.isArray(extractions) ? extractions.length : 0 });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Log extraction to queue (called after drawing upload + extraction)
-router.post('/queue', (req, res) => {
+router.post('/queue', async (req, res) => {
   try {
-    const entry = hub.logExtraction({
+    const entry = await hub.logExtraction({
       org_id: req.orgId,
       user_id: req.user.id,
       document_name: req.body.document_name,
@@ -69,9 +70,9 @@ router.post('/queue', (req, res) => {
 });
 
 // Single extraction detail
-router.get('/extraction/:id', (req, res) => {
+router.get('/extraction/:id', async (req, res) => {
   try {
-    const extraction = hub.getExtraction(req.params.id);
+    const extraction = await hub.getExtraction(req.params.id);
     if (!extraction) return res.status(404).json({ success: false, error: 'Extraction not found' });
     res.json({ success: true, extraction });
   } catch (err) {
@@ -273,11 +274,12 @@ router.post('/bulk-review', async (req, res) => {
 });
 
 // List golden records
-router.get('/golden-records', (req, res) => {
+router.get('/golden-records', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
-    const records = hub.getGoldenRecords(limit);
-    res.json({ success: true, records, count: records.length });
+    const records = await hub.getGoldenRecords(req.orgId, limit);
+    const arr = Array.isArray(records) ? records : [];
+    res.json({ success: true, records: arr, count: arr.length });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -327,19 +329,20 @@ router.post('/prompts/rollback', (req, res) => {
 });
 
 // Export training data
-router.get('/export', (req, res) => {
+router.get('/export', async (req, res) => {
   try {
-    const data = hub.exportTrainingData();
-    res.json({ success: true, ...data });
+    const data = await hub.exportTrainingData(req.orgId);
+    res.json({ success: true, ...(data || {}) });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Feedback stats
-router.get('/feedback-stats', (req, res) => {
+router.get('/feedback-stats', async (req, res) => {
   try {
-    res.json({ success: true, ...hub.getFeedbackStats() });
+    const stats = hub.getFeedbackStats ? await hub.getFeedbackStats() : { total: 0, by_tag: {} };
+    res.json({ success: true, ...(stats || {}) });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

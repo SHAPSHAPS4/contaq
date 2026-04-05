@@ -181,7 +181,7 @@ function _buildTrainingHubHTML() {
     pending_reviews: raw.pending_reviews || 0,
     golden_records: raw.golden_records || 0
   };
-  var queue = _trainingQueue;
+  var queue = Array.isArray(_trainingQueue) ? _trainingQueue : [];
 
   var h = '';
 
@@ -411,7 +411,7 @@ function tagAllTrainingItems(tag) {
 }
 
 function bulkReviewAllCorrect() {
-  var queue = _trainingQueue;
+  var queue = Array.isArray(_trainingQueue) ? _trainingQueue : [];
   if (queue.length === 0) { showToast('Queue is empty.', 'ok'); return; }
   if (!confirm('Mark all ' + queue.length + ' extractions as correct? This will create golden records and clear the queue.')) return;
 
