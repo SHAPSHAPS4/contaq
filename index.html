@@ -1142,25 +1142,14 @@
 
       <!-- PHASE 1: Multi-file upload -->
       <div id="qb-phase-upload">
-        <p style="font-size:.8rem;color:var(--c-gray-muted);margin:0 0 1rem;line-height:1.55">Upload your specification documents, PDF drawings, and BoQ schedules. The AI cross-references all files to extract a complete scope of work with quantities and NBS references.</p>
+        <div style="font-size:.8rem;color:var(--off3);margin:0 0 1rem;line-height:1.55">Upload PDF drawings and specification documents. The AI extracts a complete scope of work with quantities.</div>
 
-        <div id="qb-dropzone" class="qb-dropzone"
-          onclick="document.getElementById('qb-file-input').click()"
-          ondragover="event.preventDefault();this.classList.add('drag-active')"
-          ondragleave="this.classList.remove('drag-active')"
-          ondrop="qbHandleDrop(event)">
-          <div class="qb-dropzone-icon">&#128196;</div>
-          <div class="qb-dropzone-main">Drop specification files here</div>
-          <div class="qb-dropzone-sub">PDF specs, drawings, BoQs, and schedules · Multiple files supported</div>
-          <div class="qb-dropzone-formats">
-            <span class="qb-fmt-badge qb-fmt-pdf">.pdf</span>
-            <span class="qb-fmt-badge qb-fmt-xlsx">.xlsx</span>
-            <span class="qb-fmt-badge qb-fmt-xlsx">.xls</span>
-            <span class="qb-fmt-badge" style="background:rgba(96,165,250,.1);color:var(--blue);border-color:rgba(96,165,250,.3)">.dwg</span>
-          </div>
+        <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;margin-bottom:.75rem;" id="qb-upload-zone">
+          <div style="font-size:.82rem;color:var(--off3);margin-bottom:.5rem;">Select your project drawings and specs</div>
+          <input type="file" id="qb-file-input" accept=".xlsx,.xls,.pdf,.dwg" multiple style="display:none" onchange="qbFilesSelected(this)"/>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('qb-file-input').click()">Upload Drawings</button>
+          <div style="font-family:var(--mono);font-size:.58rem;color:var(--off4);margin-top:.5rem;">PDF, XLSX, XLS, DWG · Multiple files supported</div>
         </div>
-        <input type="file" id="qb-file-input" accept=".xlsx,.xls,.pdf,.dwg" multiple
-          style="display:none" onchange="qbFilesSelected(this)">
 
         <!-- Multi-file list -->
         <div class="ai-file-list" id="qb-file-list"></div>
