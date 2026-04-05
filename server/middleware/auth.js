@@ -33,13 +33,30 @@ async function requireAuth(req, res, next) {
       return res.status(503).json({ error: 'Authentication service unavailable' });
     }
 
-    const { data: { user: authUser }, error } = await supabaseAdmin.auth.getUser(token);
+    // Verify JWT — use fresh client to avoid stale state
+    const { createClient } = require('@supabase/supabase-js');
+    const sbAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+
+    const { data: { user: authUser }, error } = await sbAdmin.auth.getUser(token);
     if (error || !authUser) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
-    // Get full user profile with org
-    const user = await getUserByAuthId(authUser.id);
+    // Get full user profile — try auth_id first, then email
+    let user = null;
+    const { data: u1 } = await sbAdmin.from('users').select('*').eq('auth_id', authUser.id).maybeSingle();
+    if (u1) {
+      user = u1;
+    } else {
+      const { data: u2 } = await sbAdmin.from('users').select('*').eq('email', authUser.email).maybeSingle();
+      if (u2) {
+        user = u2;
+        await sbAdmin.from('users').update({ auth_id: authUser.id }).eq('id', u2.id).catch(() => {});
+      }
+    }
+
     if (!user) {
       return res.status(403).json({ error: 'User account not found. Please contact support.' });
     }
@@ -48,23 +65,27 @@ async function requireAuth(req, res, next) {
       return res.status(403).json({ error: 'Account deactivated. Please contact your administrator.' });
     }
 
+    // Get org
+    const { data: org } = await sbAdmin.from('organizations').select('*').eq('id', user.org_id).maybeSingle();
+    user.organizations = org || { id: user.org_id, name: 'Unknown', plan: 'beta', slug: 'org' };
+
     // Attach to request
     req.user = user;
     req.orgId = user.org_id;
     req.authUser = authUser;
 
     // Check trial expiry
-    const org = user.organizations;
+    const userOrg = user.organizations;
     const paidPlans = ['paid', 'beta', 'professional', 'business'];
-    if (org && org.trial_ends && !paidPlans.includes(org.plan)) {
-      const trialEnd = new Date(org.trial_ends);
+    if (userOrg && userOrg.trial_ends && !paidPlans.includes(userOrg.plan)) {
+      const trialEnd = new Date(userOrg.trial_ends);
       const now = new Date();
       if (now > trialEnd) {
         req.trialExpired = true;
-        req.trialEndsAt = org.trial_ends;
+        req.trialEndsAt = userOrg.trial_ends;
       } else {
         req.trialExpired = false;
-        req.trialEndsAt = org.trial_ends;
+        req.trialEndsAt = userOrg.trial_ends;
         req.trialDaysLeft = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
       }
     }
