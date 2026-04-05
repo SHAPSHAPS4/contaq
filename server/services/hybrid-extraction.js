@@ -17,29 +17,34 @@ const { preprocessPDF, buildPreprocessorContext } = require('./pdf-preprocessor'
    No rule application, no interpretation, no skipping.
    ══════════════════════════════════════════════════════════════════ */
 
-const DETECTION_SYSTEM_PROMPT = `You are a visual detection engine scanning an M&E construction drawing.
-Your ONLY job is to detect, count, and measure every visible service element.
+const DETECTION_SYSTEM_PROMPT = `You are a conservative MEP symbol spotter using Claude Sonnet 4.6.
+Your ONLY job is to detect and list items you are 90%+ certain of. You are NOT allowed to guess quantities or add implicit items.
 
-INSTRUCTIONS:
-1. SCAN the entire drawing systematically: left to right, top to bottom.
-2. For every distinct service item you can see, record it.
-3. MEASURE linear items against the scale. If scale bar is visible, calibrate first. If stated scale exists, use it.
-4. COUNT discrete items exactly — do not approximate.
-5. Note the coordinates/location of each item (gridline, room name, or quadrant).
+STRICT RULES (never break these):
+- Only report symbols that are clearly visible and match the legend exactly.
+- If a symbol is ambiguous, overlapping, partially obscured, low-contrast, or duplicated across views, place it in unidentified_items[] with a reason.
+- Never estimate or "fill in" quantities. Use exact visible counts only.
+- Never add items that are not explicitly drawn.
+- Scan systematically (left→right, top→bottom) and output raw detection only.
+- Do NOT apply any business rules, NRM2 factors, or estimation logic — that happens in Pass 2.
+- For ductwork: trace each run segment by segment against the scale. Report length per size. If scale cannot be verified, report "scale unverified" and still provide your best measurement.
+- For terminal devices (grilles, diffusers): count each one individually. Trace duct legs to their ends — each leg terminates at a terminal.
+- For fittings (bends, tees, VCDs, dampers): count every direction change, branch point, and damper symbol individually.
+- Supply and return/extract are SEPARATE systems — count and measure each independently.
 
-OUTPUT FORMAT — respond with ONLY this JSON structure:
+Output format: Strict JSON only
 {
   "drawing_info": {
-    "drawing_number": "",
-    "title": "",
+    "number": "",
     "scale": "",
     "revision": "",
+    "title": "",
     "status": ""
   },
   "scale_validation": {
-    "method": "scale_bar|stated_scale|reference_dimension|none",
-    "reference_used": "",
-    "confidence": "high|medium|low"
+    "detected_scale": "",
+    "reference_dimension": "",
+    "consistent": true
   },
   "detected_items": [
     {
@@ -48,28 +53,19 @@ OUTPUT FORMAT — respond with ONLY this JSON structure:
       "size": "",
       "quantity": 0,
       "unit": "m|nr|m2",
-      "measurement_method": "traced_from_drawing|counted_from_drawing|from_text_annotation",
       "location": "",
-      "visual_evidence": "what you can see that confirms this item"
+      "visual_evidence": "exact quote or description of symbol/callout that confirms this item",
+      "confidence": 0.92
     }
   ],
   "unidentified_items": [
     {
-      "description": "what the symbol/element looks like",
-      "location": "",
-      "possible_type": ""
+      "symbol": "description of what the symbol looks like",
+      "reason": "why it cannot be confidently identified",
+      "location": ""
     }
   ]
-}
-
-CRITICAL RULES:
-- If you can see it, DETECT it. Do not skip any visible service.
-- Every ductwork run MUST have a length in metres — trace it segment by segment.
-- Every terminal device (grille, diffuser) MUST have an exact count.
-- Every fitting (bend, tee, VCD, damper) MUST have an exact count.
-- Supply and return/extract are SEPARATE items — count each independently.
-- If you cannot measure something, say why in visual_evidence.
-- Do NOT apply business rules or make assumptions — just detect what you see.`;
+}`;
 
 
 /* ══════════════════════════════════════════════════════════════════
