@@ -88,7 +88,7 @@ router.post('/review', async (req, res) => {
       return res.status(400).json({ success: false, error: 'extraction_id and feedback required' });
     }
 
-    const goldenRecord = hub.createGoldenRecord({
+    const goldenRecord = await hub.createGoldenRecord({
       extraction_id,
       org_id: req.orgId,
       document_name: document_name || 'Unknown',
@@ -101,7 +101,7 @@ router.post('/review', async (req, res) => {
 
     // Save field-level feedback
     if (feedback.length > 0) {
-      hub.saveFeedback(goldenRecord.id, feedback);
+      await hub.saveFeedback(goldenRecord.id, req.orgId, feedback);
     }
 
     // ── FLYWHEEL: Convert corrections into KB learned rules ──
@@ -199,7 +199,7 @@ router.post('/bulk-review', async (req, res) => {
     let totalCorrections = 0;
 
     for (const review of reviews) {
-      const goldenRecord = hub.createGoldenRecord({
+      const goldenRecord = await hub.createGoldenRecord({
         extraction_id: review.extraction_id,
         org_id: req.orgId,
         document_name: review.document_name || 'Unknown',
@@ -211,7 +211,7 @@ router.post('/bulk-review', async (req, res) => {
       });
 
       if (review.feedback && review.feedback.length > 0) {
-        hub.saveFeedback(goldenRecord.id, review.feedback);
+        await hub.saveFeedback(goldenRecord.id, req.orgId, review.feedback);
       }
 
       // Feed corrections into KB
@@ -285,11 +285,12 @@ router.get('/golden-records', async (req, res) => {
   }
 });
 
-// Prompt versions
+// Prompt versions (file-based hub only)
 router.get('/prompts', (req, res) => {
   try {
     const type = req.query.type || null;
-    res.json({ success: true, versions: hub.getPromptVersions(type) });
+    const fn = hub.getPromptVersions || hubFile.getPromptVersions;
+    res.json({ success: true, versions: fn ? fn(type) : [] });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -353,8 +354,10 @@ router.get('/diagnostics', async (req, res) => {
   try {
     const { loadLearning } = require('../kb/index');
     const learning = await loadLearning(req.orgId);
-    const fileRules = hub.getExtractions({}).length;
-    const goldenRecords = hub.getGoldenRecords(1000).length;
+    const extractions = await hub.getExtractions({ org_id: req.orgId });
+    const goldenRecords = await hub.getGoldenRecords(req.orgId, 1000);
+    const fileRules = Array.isArray(extractions) ? extractions.length : 0;
+    const grCount = Array.isArray(goldenRecords) ? goldenRecords.length : 0;
 
     res.json({
       success: true,
@@ -362,8 +365,8 @@ router.get('/diagnostics', async (req, res) => {
       user_id: req.user?.id,
       db_learned_rules: learning.learnedRules.length,
       db_pattern_errors: learning.patternErrors.length,
-      file_extractions: fileRules,
-      file_golden_records: goldenRecords,
+      extractions: fileRules,
+      golden_records: grCount,
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message, stack: err.stack });
