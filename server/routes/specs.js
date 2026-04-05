@@ -4,6 +4,7 @@ const { kbInjectionMiddleware } = require('../kb/middleware');
 const { callAI } = require('../services/ai');
 const { loadUpload, bufferToBase64 } = require('../services/pdf-processor');
 const { logSession } = require('../services/session-logger');
+const { saveExtraction } = require('../services/file-storage');
 
 router.post('/analyse', kbInjectionMiddleware, async (req, res) => {
   const startTime = Date.now();
@@ -43,9 +44,19 @@ router.post('/analyse', kbInjectionMiddleware, async (req, res) => {
     const duration = Date.now() - startTime;
     logSession({ type: 'spec_analyse', project_ref, duration_ms: duration, tokens: result.usage, file_id });
 
+    // Auto-save extraction
+    if (req.orgId && req.orgId !== 'demo-org-id') {
+      saveExtraction({
+        orgId: req.orgId, userId: req.user?.id, stage: 'spec',
+        inputFiles: [{ name: project_ref || 'spec', type: 'pdf' }],
+        resultJson: result.data, tokensUsed: result.usage?.total_tokens || 0,
+        model: model || 'claude-sonnet-4-6', processingMs: duration,
+      }).catch(e => console.error('[Specs] Auto-save error:', e.message));
+    }
+
     res.json({
       success: true,
-      kb_version: 'v7.2',
+      kb_version: '9.0',
       duration_ms: duration,
       usage: result.usage,
       analysis: result.data,

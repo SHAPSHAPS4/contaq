@@ -4,6 +4,7 @@ const { kbInjectionMiddleware } = require('../kb/middleware');
 const { callAI } = require('../services/ai');
 const { loadUpload, bufferToBase64 } = require('../services/pdf-processor');
 const { logSession } = require('../services/session-logger');
+const { saveExtraction, uploadFile } = require('../services/file-storage');
 
 router.post('/extract', kbInjectionMiddleware, async (req, res) => {
   const startTime = Date.now();
@@ -44,9 +45,30 @@ router.post('/extract', kbInjectionMiddleware, async (req, res) => {
     const duration = Date.now() - startTime;
     logSession({ type: 'drawing_extract', project_ref, duration_ms: duration, tokens: result.usage, file_id });
 
+    // Auto-save extraction to Supabase (non-blocking — don't fail the response)
+    if (req.orgId && req.orgId !== 'demo-org-id') {
+      const extraction = result.data;
+      const items = extraction?.extraction || extraction?.items || [];
+      const flags = extraction?.flags || [];
+      saveExtraction({
+        orgId: req.orgId,
+        userId: req.user?.id,
+        stage: 'drawing',
+        inputFiles: [{ name: project_ref || 'drawing', type: 'pdf', size_kb: base64 ? Math.round(base64.length * 0.75 / 1024) : 0 }],
+        resultJson: extraction,
+        grade: extraction?.validation_grade || null,
+        score: extraction?.validation_score || null,
+        itemsCount: Array.isArray(items) ? items.length : 0,
+        flagsCount: Array.isArray(flags) ? flags.length : 0,
+        tokensUsed: result.usage?.total_tokens || 0,
+        model: model || 'claude-sonnet-4-6',
+        processingMs: duration,
+      }).catch(e => console.error('[Drawings] Auto-save extraction error:', e.message));
+    }
+
     res.json({
       success: true,
-      kb_version: 'v7.2',
+      kb_version: '9.0',
       kb_truncated: req.kbTruncated || false,
       duration_ms: duration,
       usage: result.usage,

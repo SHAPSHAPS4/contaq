@@ -14,7 +14,9 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth, requireRole } = require('../middleware/auth');
-const hub = require('../services/training-hub');
+const hubDb = require('../services/training-hub-db');
+const hubFile = require('../services/training-hub');
+const hub = hubDb.isAvailable() ? hubDb : hubFile;
 const { persistLearnedRules, persistPatternError } = require('../kb/index');
 const { logSession } = require('../services/session-logger');
 

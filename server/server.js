@@ -124,6 +124,7 @@ app.use('/api/versions', require('./routes/versioning'));
 app.use('/api/register', require('./routes/drawing-register'));
 app.use('/api/admin/training', require('./routes/training-hub'));
 app.use('/api/ai', require('./routes/ai-pipeline'));
+app.use('/api/documents', require('./routes/documents-api'));
 
 /* ── Health check ─────────────────────────────────────────────────── */
 /* ── Quote Builder frontend ───────────────────────────────────────── */
