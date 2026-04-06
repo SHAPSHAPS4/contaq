@@ -6,7 +6,10 @@
  * Set CV_SERVICE_URL env var to enable (e.g., http://cv-service.railway.internal:8000)
  */
 
-const CV_SERVICE_URL = process.env.CV_SERVICE_URL || null;
+let CV_SERVICE_URL = process.env.CV_SERVICE_URL || null;
+if (CV_SERVICE_URL && !CV_SERVICE_URL.startsWith('http')) {
+  CV_SERVICE_URL = 'https://' + CV_SERVICE_URL;
+}
 
 function isAvailable() {
   return !!CV_SERVICE_URL;
