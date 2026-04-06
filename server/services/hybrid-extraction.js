@@ -105,7 +105,7 @@ OUTPUT FORMAT — structured JSON:
       "quantity": 0,
       "unit": "m|nr|m2",
       "source": "detected|text_annotation|implicit|rule_derived",
-      "confidence": "High|Medium|Low",
+      "confidence": "EXTRACTED|INFERRED|AMBIGUOUS",
       "evidence": "what confirms this quantity",
       "notes": ""
     }

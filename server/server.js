@@ -125,6 +125,7 @@ app.use('/api/register', require('./routes/drawing-register'));
 app.use('/api/admin/training', require('./routes/training-hub'));
 app.use('/api/ai', require('./routes/ai-pipeline'));
 app.use('/api/documents', require('./routes/documents-api'));
+app.use('/api/quote-extract', require('./routes/quote-extract'));
 
 // CV service health check
 app.get('/api/cv/health', async (_req, res) => {
