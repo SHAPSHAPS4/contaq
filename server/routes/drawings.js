@@ -24,12 +24,27 @@ router.post('/extract', kbInjectionMiddleware, async (req, res) => {
       mimeType = drawing_mime_type || 'application/pdf';
       pdfBuffer = Buffer.from(base64, 'base64');
     } else if (messages) {
-      // Legacy compatibility — raw messages from existing frontend
-      req.body.system = `You are an expert M&E estimating assistant.\n${req.kbPrompt}`;
-      if (!req.body.max_tokens) req.body.max_tokens = 8000;
-      const proxyToAnthropic = req.app.get('proxyToAnthropic');
-      if (proxyToAnthropic) return proxyToAnthropic(req, res, '/api/drawings/extract');
-      return res.status(500).json({ error: 'Proxy not available' });
+      // Legacy frontend sends messages[] with content blocks — extract base64 from them
+      const userMsg = messages.find(m => m.role === 'user');
+      if (userMsg && userMsg.content) {
+        const blocks = Array.isArray(userMsg.content) ? userMsg.content : [userMsg.content];
+        for (const block of blocks) {
+          if (block.type === 'image' && block.source?.data) {
+            base64 = block.source.data;
+            mimeType = block.source.media_type || 'application/pdf';
+            break;
+          }
+          if (block.type === 'document' && block.source?.data) {
+            base64 = block.source.data;
+            mimeType = block.source.media_type || 'application/pdf';
+            break;
+          }
+        }
+      }
+      if (!base64) {
+        return res.status(400).json({ error: 'No drawing found in messages content' });
+      }
+      pdfBuffer = Buffer.from(base64, 'base64');
     } else {
       return res.status(400).json({ error: 'file_id, drawing_base64, or messages required' });
     }
