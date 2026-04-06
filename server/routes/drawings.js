@@ -11,6 +11,9 @@ const { getGoldenExamples } = require('../services/golden-examples');
 
 router.post('/extract', kbInjectionMiddleware, async (req, res) => {
   const startTime = Date.now();
+  // Prevent Cloudflare/Railway timeout — keep connection alive during long extraction
+  req.setTimeout(300000); // 5 minutes
+  res.setTimeout(300000);
   try {
     const { file_id, drawing_base64, drawing_mime_type, project_ref, messages, model, max_tokens, mode } = req.body;
 

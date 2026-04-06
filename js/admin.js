@@ -653,6 +653,7 @@ function trainProcessUploads() {
       var headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = 'Bearer ' + token;
 
+      console.log('[Training Upload] Sending drawing to extract API (' + (base64.length / 1024).toFixed(0) + 'KB base64)...');
       fetch(CONTRAQ_API_BASE + '/api/drawings/extract', {
         method: 'POST',
         headers: headers,
@@ -662,7 +663,11 @@ function trainProcessUploads() {
           project_ref: 'TRAINING-' + new Date().toISOString().split('T')[0],
           model: 'claude-sonnet-4-6'
         })
-      }).then(function(r) { return r.json(); }).then(function(result) {
+      }).then(function(r) {
+        console.log('[Training Upload] Response status:', r.status);
+        return r.json();
+      }).then(function(result) {
+        console.log('[Training Upload] Result:', result.success ? 'OK' : 'FAILED', result.error || '');
         /* Build extraction entry */
         var rawResult = result.extraction || result;
         var itemCount = rawResult.extraction ? rawResult.extraction.length : (rawResult.items ? rawResult.items.length : 0);
@@ -713,6 +718,7 @@ function trainProcessUploads() {
         }
       }).catch(function(err) {
         processed++;
+        console.error('[Training Upload] Extraction failed:', err);
         showToast('Failed to extract ' + file.name + ': ' + err.message, 'error');
         if (processed === _trainUploadFiles.length) {
           closeModal('modal-training-upload');
