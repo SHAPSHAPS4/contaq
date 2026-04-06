@@ -217,6 +217,10 @@ def render_page_to_image(pdf_bytes: bytes, page_num: int = 0, dpi: int = 300) ->
 # API ENDPOINTS
 # ═══════════════════════════════════════════════
 
+@app.get("/")
+async def root():
+    return {"status": "ok"}
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "contraq-cv", "version": "1.0.0", "cv_model_ready": False}
