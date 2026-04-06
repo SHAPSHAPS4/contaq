@@ -85,9 +85,10 @@ async function preprocessPDF(buffer) {
  * This gets injected into the Claude prompt alongside the image.
  */
 function buildPreprocessorContext(preprocessed) {
+  if (!preprocessed || typeof preprocessed !== 'object') return '';
   const parts = [];
 
-  if (preprocessed.has_text_layer) {
+  if (preprocessed.has_text_layer || preprocessed.text_layer_exists) {
     parts.push('## PDF TEXT LAYER DETECTED');
     parts.push('This PDF has embedded text. The following data was extracted from the text layer (more reliable than OCR from image).');
   } else {
@@ -95,34 +96,39 @@ function buildPreprocessorContext(preprocessed) {
     parts.push('This PDF has no embedded text. All annotations must be read visually from the image.');
   }
 
-  if (preprocessed.scale_hints.length > 0) {
-    parts.push('\n### Scale References Found: ' + preprocessed.scale_hints.join(', '));
+  const scaleHints = preprocessed.scale_hints || preprocessed.scale_references || [];
+  if (Array.isArray(scaleHints) && scaleHints.length > 0) {
+    parts.push('\n### Scale References Found: ' + scaleHints.join(', '));
   }
 
-  if (preprocessed.equipment_tags.length > 0) {
-    parts.push('\n### Equipment Tags Found: ' + preprocessed.equipment_tags.join(', '));
+  const tags = preprocessed.equipment_tags || [];
+  if (Array.isArray(tags) && tags.length > 0) {
+    parts.push('\n### Equipment Tags Found: ' + tags.join(', '));
     parts.push('These tags were extracted from the PDF text layer. Use them to identify and count equipment.');
   }
 
-  if (preprocessed.size_annotations.length > 0) {
-    const unique = [...new Set(preprocessed.size_annotations)];
-    parts.push('\n### Size Annotations Found: ' + unique.slice(0, 30).join(', '));
+  const sizes = preprocessed.size_annotations || [];
+  if (Array.isArray(sizes) && sizes.length > 0) {
+    parts.push('\n### Size Annotations Found: ' + sizes.slice(0, 30).join(', '));
   }
 
-  if (preprocessed.dimension_hints.length > 0) {
-    const unique = [...new Set(preprocessed.dimension_hints)];
-    parts.push('\n### Dimension References: ' + unique.slice(0, 20).join(', '));
+  const dims = preprocessed.dimension_hints || [];
+  if (Array.isArray(dims) && dims.length > 0) {
+    parts.push('\n### Dimension References: ' + dims.slice(0, 20).join(', '));
   }
 
-  if (preprocessed.metadata.drawing_numbers) {
-    parts.push('\n### Drawing Numbers: ' + preprocessed.metadata.drawing_numbers.join(', '));
+  const meta = preprocessed.metadata || {};
+  const dwgNums = meta.drawing_numbers || preprocessed.drawing_numbers || [];
+  if (Array.isArray(dwgNums) && dwgNums.length > 0) {
+    parts.push('\n### Drawing Numbers: ' + dwgNums.join(', '));
   }
 
-  if (preprocessed.metadata.revisions) {
-    parts.push('### Revisions: ' + preprocessed.metadata.revisions.join(', '));
+  const revs = meta.revisions || preprocessed.revisions || [];
+  if (Array.isArray(revs) && revs.length > 0) {
+    parts.push('### Revisions: ' + revs.join(', '));
   }
 
-  parts.push('\nPage count: ' + preprocessed.page_count);
+  parts.push('\nPage count: ' + (preprocessed.page_count || '?'));
 
   return parts.join('\n');
 }
