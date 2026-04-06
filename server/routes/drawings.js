@@ -68,12 +68,14 @@ router.post('/extract', kbInjectionMiddleware, async (req, res) => {
     let goldenExamples = [];
     if (req.orgId && req.orgId !== 'demo-org-id') {
       try {
-        goldenExamples = await getGoldenExamples(req.orgId, 8);
+        const ge = await getGoldenExamples(req.orgId, 8);
+        goldenExamples = Array.isArray(ge) ? ge : [];
         if (goldenExamples.length > 0) {
           console.log(`[Drawings] Injecting ${goldenExamples.length} golden examples`);
         }
       } catch (e) {
         console.warn('[Drawings] Golden examples fetch failed (non-fatal):', e.message);
+        goldenExamples = [];
       }
     }
 
@@ -93,10 +95,10 @@ router.post('/extract', kbInjectionMiddleware, async (req, res) => {
       type: 'drawing_extract_hybrid',
       project_ref,
       duration_ms: duration,
-      tokens: result.usage,
+      tokens: result.usage || {},
       file_id,
-      pass1_ms: result.timing.pass1_ms,
-      pass2_ms: result.timing.pass2_ms,
+      pass1_ms: result.timing?.pass1_ms || 0,
+      pass2_ms: result.timing?.pass2_ms || 0,
     });
 
     // Auto-save extraction to Supabase
@@ -126,7 +128,7 @@ router.post('/extract', kbInjectionMiddleware, async (req, res) => {
       kb_truncated: req.kbTruncated || false,
       pipeline: 'hybrid_two_pass',
       duration_ms: duration,
-      timing: result.timing,
+      timing: result.timing || {},
       usage: result.usage,
       detection: result.detection,
       extraction: result.extraction,
@@ -139,8 +141,8 @@ router.post('/extract', kbInjectionMiddleware, async (req, res) => {
       golden_examples_used: goldenExamples.length,
     });
   } catch (err) {
-    console.error('[drawings/extract]', err.message);
-    res.status(500).json({ success: false, error: err.message, duration_ms: Date.now() - startTime });
+    console.error('[drawings/extract]', err.message, err.stack);
+    res.status(500).json({ success: false, error: err.message, stack: err.stack?.split('\n').slice(0, 3).join(' | '), duration_ms: Date.now() - startTime });
   }
 });
 
