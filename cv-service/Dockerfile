@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
 
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD python -c "import os; port=os.environ.get('PORT','8000'); os.execvp('uvicorn',['uvicorn','main:app','--host','0.0.0.0','--port',port])"
