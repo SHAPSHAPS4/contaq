@@ -4,7 +4,13 @@
  * so Claude doesn't have to OCR everything from the visual.
  */
 
-const pdfParse = require('pdf-parse');
+let pdfParse;
+try {
+  pdfParse = require('pdf-parse');
+} catch (e) {
+  console.warn('[PDF Preprocessor] pdf-parse not available:', e.message);
+  pdfParse = null;
+}
 
 /**
  * Extract all available text and metadata from a PDF buffer.
@@ -22,6 +28,8 @@ async function preprocessPDF(buffer) {
     size_annotations: [],
     has_text_layer: false,
   };
+
+  if (!pdfParse) return result;
 
   try {
     const parsed = await pdfParse(buffer);
