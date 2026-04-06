@@ -213,6 +213,70 @@ def render_page_to_image(pdf_bytes: bytes, page_num: int = 0, dpi: int = 300) ->
     return image_bytes
 
 
+def render_page_crops(pdf_bytes: bytes, page_num: int = 0, dpi: int = 400, grid: int = 4, overlap_pct: float = 0.10) -> List[Dict[str, Any]]:
+    """
+    Render a PDF page as multiple overlapping crops for detailed analysis.
+
+    Splits the page into a grid (default 2x2 = 4 crops) with overlap so symbols
+    at crop boundaries aren't missed. Each crop is rendered at high DPI.
+
+    Returns list of: {quadrant, crop_b64, x, y, width, height, label}
+    """
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    if page_num >= len(doc):
+        raise ValueError(f"Page {page_num} does not exist")
+
+    page = doc[page_num]
+    page_rect = page.rect
+    pw = page_rect.width
+    ph = page_rect.height
+
+    # Calculate grid dimensions (2x2 for grid=4, 3x3 for grid=9, etc.)
+    import math
+    cols = int(math.ceil(math.sqrt(grid)))
+    rows = int(math.ceil(grid / cols))
+
+    crop_w = pw / cols
+    crop_h = ph / rows
+    overlap_x = crop_w * overlap_pct
+    overlap_y = crop_h * overlap_pct
+
+    labels = ["top-left", "top-right", "bottom-left", "bottom-right",
+              "top-centre", "centre-left", "centre", "centre-right", "bottom-centre"]
+
+    crops = []
+    idx = 0
+    for row in range(rows):
+        for col in range(cols):
+            if idx >= grid:
+                break
+            # Calculate crop rect with overlap
+            x0 = max(0, col * crop_w - overlap_x)
+            y0 = max(0, row * crop_h - overlap_y)
+            x1 = min(pw, (col + 1) * crop_w + overlap_x)
+            y1 = min(ph, (row + 1) * crop_h + overlap_y)
+
+            clip = fitz.Rect(x0, y0, x1, y1)
+            mat = fitz.Matrix(dpi / 72, dpi / 72)
+            pix = page.get_pixmap(matrix=mat, clip=clip, alpha=False)
+            img_bytes = pix.tobytes("png")
+
+            crops.append({
+                "quadrant": idx + 1,
+                "label": labels[idx] if idx < len(labels) else f"crop-{idx+1}",
+                "crop_b64": base64.b64encode(img_bytes).decode("utf-8"),
+                "x": round(x0, 1),
+                "y": round(y0, 1),
+                "width": round(x1 - x0, 1),
+                "height": round(y1 - y0, 1),
+                "image_size_kb": round(len(img_bytes) / 1024, 1),
+            })
+            idx += 1
+
+    doc.close()
+    return crops
+
+
 # ═══════════════════════════════════════════════
 # API ENDPOINTS
 # ═══════════════════════════════════════════════
@@ -263,17 +327,32 @@ async def detect_endpoint(file: UploadFile = File(...), confidence: float = 0.65
     })
 
 
+@app.post("/crops")
+async def crops_endpoint(file: UploadFile = File(...), dpi: int = 400, grid: int = 4):
+    """Render a PDF page as multiple overlapping crops for detailed analysis."""
+    pdf_bytes = await file.read()
+    crops = render_page_crops(pdf_bytes, page_num=0, dpi=dpi, grid=grid)
+    return JSONResponse(content={
+        "success": True,
+        "crop_count": len(crops),
+        "crops": crops,
+    })
+
+
 @app.post("/full")
-async def full_pipeline_endpoint(file: UploadFile = File(...), dpi: int = 300):
-    """Full pre-processing + detection in one call."""
+async def full_pipeline_endpoint(file: UploadFile = File(...), dpi: int = 400, grid: int = 4):
+    """Full pre-processing + detection + crops in one call."""
     pdf_bytes = await file.read()
 
     # Pre-process
     preprocessed = preprocess_pdf(pdf_bytes)
 
-    # Render to high-res image
+    # Render full page at high res
     image_bytes = render_page_to_image(pdf_bytes, page_num=0, dpi=dpi)
     image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+
+    # Render crops for detailed analysis
+    crops = render_page_crops(pdf_bytes, page_num=0, dpi=dpi, grid=grid)
 
     # CV detection (stub for now)
     cv_result = detect_symbols(image_bytes)
@@ -285,6 +364,8 @@ async def full_pipeline_endpoint(file: UploadFile = File(...), dpi: int = 300):
         "rendered_image_b64": image_b64,
         "rendered_dpi": dpi,
         "image_size_kb": round(len(image_bytes) / 1024, 1),
+        "crops": crops,
+        "crop_count": len(crops),
     })
 
 

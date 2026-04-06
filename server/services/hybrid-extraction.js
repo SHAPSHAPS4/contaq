@@ -150,8 +150,10 @@ async function runHybridExtraction({ base64, mimeType, kbPrompt, goldenExamples,
   // Build preprocessor context
   const preprocessorContext = preprocessedData ? buildPreprocessorContext(preprocessedData) : '';
 
-  // ═══ PASS 1: DETECTION ═══
-  console.log('[Hybrid] Starting Pass 1 — Detection...');
+  // ═══ PASS 1: MULTI-CROP DETECTION ═══
+  // Send the full drawing + each crop to Claude for detection.
+  // Crops let Claude focus on smaller areas at higher detail.
+  console.log('[Hybrid] Starting Pass 1 — Multi-crop detection...');
   const pass1Start = Date.now();
 
   let detectionPrompt = 'Scan this M&E drawing and detect every service element. Count and measure everything visible.';
@@ -164,20 +166,40 @@ async function runHybridExtraction({ base64, mimeType, kbPrompt, goldenExamples,
     detectionPrompt += '\n\n## CV SYMBOL DETECTION RESULTS (automated pre-scan)\n';
     detectionPrompt += 'A computer vision model detected the following symbols. Use these counts as your BASELINE — verify against the image, do not override unless clearly wrong:\n';
     detectionPrompt += JSON.stringify(cvData.cv_results.grouped_counts, null, 2);
-    detectionPrompt += '\nTotal CV detections: ' + cvData.cv_results.total_items_detected;
-    detectionPrompt += '\nAverage CV confidence: ' + (cvData.cv_results.cv_confidence_avg * 100).toFixed(1) + '%';
+  }
+
+  // Build document array: full drawing + crops (if available from CV service)
+  const documents = [];
+
+  // Use high-res render from CV service if available, otherwise raw PDF
+  if (cvData && cvData.rendered_image_b64) {
+    documents.push({ base64: cvData.rendered_image_b64, mimeType: 'image/png' });
+    console.log(`[Hybrid] Using CV-rendered image (${cvData.rendered_dpi} DPI, ${cvData.image_size_kb}KB)`);
+  } else {
+    documents.push({ base64, mimeType: mimeType || 'application/pdf' });
+  }
+
+  // Add crops as additional images for detailed inspection
+  const crops = (cvData && cvData.crops) || [];
+  if (crops.length > 0) {
+    detectionPrompt += '\n\nYou are given ' + (crops.length + 1) + ' images: the full drawing followed by ' + crops.length + ' zoomed crops (quadrants). ';
+    detectionPrompt += 'Scan EACH crop for items you may have missed in the full view. The crops overlap slightly so do not double-count items at crop boundaries.';
+    for (const crop of crops) {
+      documents.push({ base64: crop.crop_b64, mimeType: 'image/png' });
+    }
+    console.log(`[Hybrid] Sending ${crops.length} crops (${crops.map(c => c.label).join(', ')})`);
   }
 
   const detection = await callAI({
     systemPrompt: DETECTION_SYSTEM_PROMPT,
     userPrompt: detectionPrompt,
-    documents: [{ base64, mimeType: mimeType || 'application/pdf' }],
+    documents,
     maxTokens: 4000,
     model: modelId,
   });
 
   const pass1Duration = Date.now() - pass1Start;
-  console.log(`[Hybrid] Pass 1 complete: ${pass1Duration}ms, ${detection.usage?.total_tokens || 0} tokens`);
+  console.log(`[Hybrid] Pass 1 complete: ${pass1Duration}ms, ${detection.usage?.total_tokens || 0} tokens, ${documents.length} images sent`);
 
   // ═══ PASS 2: RECONCILIATION ═══
   console.log('[Hybrid] Starting Pass 2 — Reconciliation...');
